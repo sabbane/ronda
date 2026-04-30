@@ -1,0 +1,70 @@
+# Ronda Kartenspiel - Spezifikationsdokument
+
+Dieses Dokument beschreibt die technische Umsetzung des marokkanischen Kartenspiels **Ronda** in der **Antigravity** Umgebung.
+
+## 1. Projektbeschreibung
+Ronda ist ein klassisches marokkanisches Kartenspiel für 2 Spieler (oder Teams). Ziel ist es, durch das Stechen von Karten und Sondersituationen die meisten Punkte zu erzielen. Die App bietet ein flüssiges Gameplay mit React, boardgame.io und Animationen.
+
+## 2. Technologie-Stack
+*   **Frontend:** React.js (Vite)
+*   **State-Management:** [boardgame.io](https://boardgame.io/)
+*   **Styling:** Tailwind CSS (für Layout & Design)
+*   **Animationen:** Framer Motion (für Kartenbewegungen)
+*   **Icons:** Lucide React
+
+## 3. Spielregeln & Implementierung
+### 3.1 Karten & Deck
+*   **Deck:** 40 spanische Karten.
+*   **Werte:** 1 bis 10 (intern), wobei 8 als 10, 9 als 11 und 10 als 12 angezeigt werden.
+*   **Mapping:**
+    *   Karten 1-7: Anzeige 1-7
+    *   Karte 8: Anzeige 10 (Sota)
+    *   Karte 9: Anzeige 11 (Caballo)
+    *   Karte 10: Anzeige 12 (Rey)
+
+### 3.2 Gameplay-Loop
+1.  **Start:** 4 Karten offen auf den Tisch, 3 Karten auf die Hand jedes Spielers.
+2.  **Runden:** Wenn alle Handkarten gespielt sind, werden 3 neue Karten vom Deck ausgegeben, bis das Deck leer ist.
+3.  **Züge:** Ein Spieler spielt eine Karte aus:
+    *   **Stechen:** Gleicher Wert auf dem Tisch sticht die Karte.
+    *   **Sequenzen:** Nach einem Stich können folgende aufsteigende Karten ebenfalls aufgenommen werden (z.B. 4 sticht 4, dann 5, 6...).
+    *   **Ablegen:** Keine passende Karte auf dem Tisch -> Karte wird auf den Tisch gelegt.
+
+### 3.3 Scoring & Sondersituationen
+Die Punkte werden während des Spiels und am Ende berechnet:
+*   **Messa (Tisch):** Den Tisch komplett leer räumen (+1 Punkt/Karte).
+*   **Bounti (Zug):** Eine Karte stechen, die der Gegner gerade erst abgelegt hat (+1 Punkt/Karte).
+*   **Ronda & Tringa (Hand):**
+    *   **Ronda:** Zwei gleiche Karten auf der Hand.
+    *   **Tringa:** Drei gleiche Karten auf der Hand.
+    *   **Popup-Ankündigung:** Haben beide Spieler eine Ronda oder Tringa, erscheint zu Beginn der Runde ein Popup, das diese Situation (Clash) für beide ankündigt.
+    *   **Clash-Auflösung (am Ende der Runde):**
+        *   **Ronda vs. Ronda:** Der Spieler mit der höheren Ronda gewinnt 5 Karten (bzw. Punkte).
+        *   **Ronda vs. Tringa:** Der Spieler mit Tringa gewinnt 5 Karten.
+        *   **Tringa vs. Tringa:** Der Spieler mit der höheren Tringa gewinnt 5 Karten.
+*   **Endabrechnung:** Jeder Spieler zählt seine gewonnenen Karten. Punkte aus Sondersituationen (oder gewonnene Extrakarten) werden addiert.
+
+## 4. Bot-Architektur
+*   **Aktueller Status:** Ein `RandomBot` ist implementiert, der zufällige valide Züge macht.
+*   **Geplante Logik:** Ein Heuristik-Bot, der Stiche gegenüber einfachem Abwerfen priorisiert und versucht, Sequenzen zu maximieren.
+
+## 5. Projektstruktur
+```text
+/src
+  /game
+    game.js        # Kern-Spiellogik (RondaGame Objekt)
+    bot.js         # KI-Enumerate & Bot-Konfiguration
+  /components
+    Board.jsx      # Haupt-Spielfeld
+    Card.jsx       # Visuelle Darstellung einer Karte
+    PlayerHand.jsx # UI für Spieler-Karten
+  App.jsx          # Game-Client Integration
+```
+
+## 6. Aktueller Status
+*   [x] Core Game Logic (Stechen, Sequenzen, Messa, Bounti)
+*   [x] Hand-Ankündigungen (Ronda, Tringa)
+*   [x] Basis-UI mit Tailwind
+*   [x] Bot-Integration (Random)
+*   [ ] Erweiterte Animationen (Framer Motion)
+*   [ ] Verfeinerte KI-Logik
