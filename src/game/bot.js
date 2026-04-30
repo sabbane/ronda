@@ -1,4 +1,4 @@
-import { RandomBot } from 'boardgame.io/ai';
+import { MCTSBot } from 'boardgame.io/ai';
 
 const enumerateMoves = (G, ctx, playerID) => {
   let gameG = G;
@@ -15,6 +15,19 @@ const enumerateMoves = (G, ctx, playerID) => {
 
   if (!gameG || !gameCtx || !player) return [];
 
+  // Wait if there are announcements or animations to be shown by the UI
+  if ((gameG.announcements && gameG.announcements.length > 0) || gameG.isAnimating) {
+    return [];
+  }
+
+  if (gameG.pendingCapture) {
+    return [{ move: 'processCapture', args: [] }];
+  }
+
+  if (gameG.players['0'].hand.length === 0 && gameG.players['1'].hand.length === 0 && gameG.deck.length > 0) {
+    return [{ move: 'dealCards', args: [] }];
+  }
+
   const hand = gameG.players[player]?.hand || [];
   let moves = [];
   
@@ -24,8 +37,23 @@ const enumerateMoves = (G, ctx, playerID) => {
   return moves;
 };
 
-// Exporting the bot class or configured instance
-export const rondaBot = (opts) => new RandomBot({
-  enumerate: enumerateMoves,
-  ...opts
-});
+export function rondaBot(opts) {
+  return new MCTSBot({
+    enumerate: enumerateMoves,
+    iterations: 200,
+    playoutDepth: 5,
+    objectives: (G, ctx, playerID) => {
+      return {
+        captured: {
+          weight: 1,
+          checker: (G) => G.players[playerID].captured.length
+        },
+        score: {
+          weight: 1,
+          checker: (G) => G.players[playerID].score
+        }
+      };
+    },
+    ...opts
+  });
+}

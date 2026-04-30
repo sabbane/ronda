@@ -39,8 +39,8 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
           let customText = "";
           if (ann.type === 'Ronda') customText = `${name} ${isMe ? 'have' : 'has'} Ronda! (+1)`;
           if (ann.type === 'Tringa') customText = `${name} ${isMe ? 'have' : 'has'} Tringa! (+5)`;
-          if (ann.type === 'Messa') customText = `${name} cleared the table! (+1)`;
-          if (ann.type === 'Bounti') customText = `${name} scored a Bounti! (+1)`;
+          if (ann.type === 'Missa') customText = `${name} cleared the table! (+1)`;
+          if (ann.type === 'Bount') customText = `${name} scored a Bount! (+1)`;
 
           setEventQueue(prev => [...prev, { ...ann, displayText: customText, id: annId }]);
         }
@@ -65,6 +65,30 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
     }
   }, [activeEvent]);
 
+  // Tell the game state we are done displaying events so the bot can resume
+  React.useEffect(() => {
+    if (
+      eventQueue.length === 0 && 
+      !activeEvent && 
+      G.announcements && 
+      G.announcements.length > 0 &&
+      ctx.activePlayers && 
+      ctx.activePlayers[myID] === 'waitForUI'
+    ) {
+      moves.clearAnnouncements();
+    }
+  }, [eventQueue.length, activeEvent, G.announcements, ctx.activePlayers, myID, moves]);
+
+  // Handle animation wait (flying cards)
+  React.useEffect(() => {
+    if (G.isAnimating && ctx.activePlayers && ctx.activePlayers[myID] === 'waitForUI') {
+      const timer = setTimeout(() => {
+        moves.endAnimation();
+      }, 1800); // 1.8s wait to ensure all staggered and spring animations finish
+      return () => clearTimeout(timer);
+    }
+  }, [G.isAnimating, ctx.activePlayers, myID, moves]);
+
   // Deal cards automatically after a delay when hands are empty and queue is clear
   React.useEffect(() => {
     if (
@@ -75,23 +99,28 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
       !activeEvent &&
       !G.pendingCapture
     ) {
+      if (ctx.currentPlayer !== myID) return;
+
       // Add a slight delay before dealing to let the table state breathe
       const timer = setTimeout(() => {
         moves.dealCards();
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [G.players, G.deck.length, eventQueue.length, activeEvent, G.pendingCapture, moves]);
+  }, [G.players, G.deck.length, eventQueue.length, activeEvent, G.pendingCapture, moves, ctx.currentPlayer, myID]);
 
   // Handle pending captures to allow the played card to rest on the table
   React.useEffect(() => {
     if (G.pendingCapture) {
+      // Only the active player's client should dispatch the processCapture move
+      if (ctx.currentPlayer !== myID) return;
+
       const timer = setTimeout(() => {
         moves.processCapture();
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [G.pendingCapture, moves]);
+  }, [G.pendingCapture, moves, ctx.currentPlayer, myID]);
 
   let winner = null;
   if (ctx.gameover) {
@@ -209,6 +238,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                   <motion.div
                     key={`cap-${card.id}`}
                     layoutId={card.id}
+                    transition={{ type: "spring", stiffness: 40, damping: 12, mass: 1.2 }}
                     className="absolute inset-0 bg-purple-900/50 border border-purple-700/50 rounded-sm shadow-sm"
                   />
                 ))}
@@ -242,6 +272,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                   initial={{ opacity: 0, scale: 0.5, rotate: Math.random() * 20 - 10, y: -200 }}
                   animate={{ opacity: 1, scale: 1, rotate: Math.random() * 10 - 5, y: 0 }}
                   exit={{ opacity: 0, scale: 1.5, filter: 'blur(10px)' }}
+                  className={G.pendingCapture?.playedCardId === card.id ? "z-50" : ""}
                   transition={{ 
                     duration: 0.6, 
                     type: "spring", 
@@ -249,7 +280,19 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                     delay: idx * 0.15 
                   }}
                 >
-                  <Card card={card} className="shadow-2xl hover:scale-105 transition-transform" />
+                  <Card 
+                    card={card} 
+                    className={`shadow-2xl transition-transform ${G.pendingCapture?.playedCardId === card.id ? 'ring-4 ring-yellow-400 scale-110 -translate-y-4 shadow-[0_0_30px_rgba(250,204,21,0.6)]' : 'hover:scale-105'}`} 
+                  />
+                  {G.pendingCapture?.playedCardId === card.id && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="absolute -top-10 left-1/2 -translate-x-1/2 bg-yellow-400 text-yellow-900 font-black px-3 py-1 rounded-full text-xs whitespace-nowrap shadow-lg uppercase tracking-wider"
+                    >
+                      Played
+                    </motion.div>
+                  )}
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -282,6 +325,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                   <motion.div
                     key={`cap-${card.id}`}
                     layoutId={card.id}
+                    transition={{ type: "spring", stiffness: 40, damping: 12, mass: 1.2 }}
                     className="absolute inset-0 bg-indigo-900/50 border border-indigo-700/50 rounded-sm shadow-sm"
                   />
                 ))}

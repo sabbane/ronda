@@ -8,8 +8,8 @@ export const PlayerHand = ({ hand, isCurrentPlayer, onPlayCard, hidden = false, 
       <AnimatePresence>
         {hand.map((card, index) => (
           <motion.div
-            key={hidden ? `hidden-${index}` : card.id}
-            layoutId={hidden ? undefined : card.id}
+            key={card.id}
+            layoutId={card.id}
             initial={{ opacity: 0, y: -100, x: -100, rotate: -20 }}
             animate={{ opacity: 1, y: 0, x: 0, rotate: 0 }}
             exit={{ opacity: 0, scale: 0.5 }}

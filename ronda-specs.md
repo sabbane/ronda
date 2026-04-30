@@ -10,6 +10,7 @@ Ronda ist ein klassisches marokkanisches Kartenspiel für 2 Spieler (oder Teams)
 *   **State-Management:** [boardgame.io](https://boardgame.io/)
 *   **Styling:** Tailwind CSS (für Layout & Design)
 *   **Animationen:** Framer Motion (für Kartenbewegungen)
+*   **PWA:** vite-plugin-pwa (für Offline-Support und Installation)
 *   **Icons:** Lucide React
 
 ## 3. Spielregeln & Implementierung
@@ -61,10 +62,19 @@ Die Punkte werden während des Spiels und am Ende berechnet:
   App.jsx          # Game-Client Integration
 ```
 
-## 6. Aktueller Status
+## 6. PWA Anforderungen
+Um die App als Progressive Web App (PWA) nutzbar zu machen, werden folgende Features implementiert:
+*   **Manifest:** Eine `manifest.json` für App-Name, Icons und Branding-Farben.
+*   **Service Worker:** Automatisches Caching der Assets für Offline-Verfügbarkeit.
+*   **Installierbarkeit:** Unterstützung für die Installation auf dem Homescreen (Mobile & Desktop).
+*   **Branding:** Theme-Farben passend zum Slate/Indigo Design.
+
+## 7. Aktueller Status
 *   [x] Core Game Logic (Stechen, Sequenzen, Messa, Bounti)
 *   [x] Hand-Ankündigungen (Ronda, Tringa)
+*   [ ] Ronda/Tringa Clash-Logik (Vergleich & 5-Karten-Bonus)
 *   [x] Basis-UI mit Tailwind
 *   [x] Bot-Integration (Random)
+*   [ ] PWA-Integration (Manifest & Service Worker)
 *   [ ] Erweiterte Animationen (Framer Motion)
 *   [ ] Verfeinerte KI-Logik

@@ -29,29 +29,93 @@ const shuffle = (array) => {
   return newArray;
 };
 
-const addScore = (G, player, amount) => {
+export const addScore = (G, player, amount) => {
   const opponent = player === '0' ? '1' : '0';
   G.players[player].score += amount;
   G.players[opponent].score -= amount;
 };
 
-const checkAnnouncements = (G, player) => {
-  const hand = G.players[player].hand;
+export const getHandRank = (hand) => {
   const counts = {};
-  hand.forEach(c => {
-    counts[c.value] = (counts[c.value] || 0) + 1;
-  });
-  
-  for (const [val, count] of Object.entries(counts)) {
+  hand.forEach(c => counts[c.value] = (counts[c.value] || 0) + 1);
+  let type = null;
+  let value = 0;
+  for (const [valStr, count] of Object.entries(counts)) {
+    const val = parseInt(valStr);
     if (count === 3) {
-      addScore(G, player, 5);
-      G.announcements.push({ player, type: 'Tringa' });
-      return;
-    } else if (count === 2) {
-      addScore(G, player, 1);
-      G.announcements.push({ player, type: 'Ronda' });
+      type = 'Tringa';
+      value = val;
+    } else if (count === 2 && type !== 'Tringa') {
+      type = 'Ronda';
+      value = val;
     }
   }
+  return type ? { type, value } : null;
+};
+
+export const evaluateRondaTringa = (G) => {
+  const p0Rank = getHandRank(G.players['0'].hand);
+  const p1Rank = getHandRank(G.players['1'].hand);
+
+  if (p0Rank && p1Rank) {
+    G.activeClash = { p0: p0Rank, p1: p1Rank };
+    // Single announcement for both players
+    G.announcements.push({ player: 'none', type: 'Clash', text: 'Clash! Both players have Ronda/Tringa!' });
+  } else if (p0Rank) {
+    addScore(G, '0', p0Rank.type === 'Tringa' ? 5 : 1);
+    G.announcements.push({ player: '0', type: p0Rank.type });
+  } else if (p1Rank) {
+    addScore(G, '1', p1Rank.type === 'Tringa' ? 5 : 1);
+    G.announcements.push({ player: '1', type: p1Rank.type });
+  }
+};
+
+export const resolveClash = (G) => {
+  if (G.activeClash) {
+    const { p0, p1 } = G.activeClash;
+    let winner = null;
+    
+    if (p0.type === 'Tringa' && p1.type === 'Ronda') winner = '0';
+    else if (p1.type === 'Tringa' && p0.type === 'Ronda') winner = '1';
+    else {
+      if (p0.value > p1.value) winner = '0';
+      else if (p1.value > p0.value) winner = '1';
+      else winner = 'Draw'; 
+    }
+    
+    if (winner && winner !== 'Draw') {
+      addScore(G, winner, 5);
+      const winnerRank = G.activeClash['p' + winner];
+      G.announcements.push({ 
+        player: winner, 
+        type: 'Clash Won', 
+        text: `Won the Clash with ${winnerRank.type} of ${winnerRank.value}! (+5)` 
+      });
+    } else if (winner === 'Draw') {
+      G.announcements.push({ 
+        player: 'none', 
+        type: 'Clash Draw', 
+        text: `Clash Draw! Both had ${p0.type} of ${p0.value}.` 
+      });
+    }
+    
+    G.activeClash = null;
+  }
+};
+
+export const checkRoundEnd = (G) => {
+  if (G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0) {
+    resolveClash(G);
+  }
+};
+
+const checkWaitForUI = (G, events) => {
+  if (G.announcements.length > 0 || G.isAnimating) {
+    G.endTurnAfterUI = true;
+    events.setActivePlayers({ all: 'waitForUI' });
+    return true;
+  }
+  return false;
 };
 
 export const RondaGame = {
@@ -70,27 +134,34 @@ export const RondaGame = {
       players,
       lastCapture: null,
       lastPlayedCard: null,
-      announcements: []
+      announcements: [],
+      endTurnAfterUI: false,
+      isAnimating: false
     };
 
-    checkAnnouncements(G, '0');
-    checkAnnouncements(G, '1');
+    evaluateRondaTringa(G);
 
     return G;
   },
 
   moves: {
-    dealCards: ({ G, ctx }) => {
+    dealCards: ({ G, ctx, events }) => {
       if (G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0 && G.deck.length > 0) {
         G.announcements = [];
         G.players['0'].hand = G.deck.splice(0, 3);
         G.players['1'].hand = G.deck.splice(0, 3);
         
-        checkAnnouncements(G, '0');
-        checkAnnouncements(G, '1');
+        G.isAnimating = true;
+        evaluateRondaTringa(G);
+        if (G.announcements.length > 0 || G.isAnimating) {
+          G.endTurnAfterUI = false;
+          events.setActivePlayers({ all: 'waitForUI' });
+        }
       }
     },
     playCard: ({ G, ctx, events }, cardIndex) => {
+      if (G.pendingCapture) return INVALID_MOVE;
+
       const player = ctx.currentPlayer;
       const hand = G.players[player].hand;
       const playedCard = hand[cardIndex];
@@ -118,7 +189,11 @@ export const RondaGame = {
         };
       } else {
         G.lastPlayedCard = { value: currentVal, player: player };
-        events.endTurn();
+        G.isAnimating = true;
+        checkRoundEnd(G);
+        if (!checkWaitForUI(G, events)) {
+          events.endTurn();
+        }
       }
     },
 
@@ -138,7 +213,7 @@ export const RondaGame = {
       if (matchIndex !== -1) {
         if (G.lastPlayedCard && G.lastPlayedCard.value === currentVal && G.lastPlayedCard.player !== player) {
           addScore(G, player, 1);
-          G.announcements.push({ player, type: 'Bounti' });
+          G.announcements.push({ player, type: 'Bount' });
         }
 
         let matchedCard = G.table.splice(matchIndex, 1)[0];
@@ -158,19 +233,54 @@ export const RondaGame = {
         G.players[player].captured.push(...capturedCards);
         G.lastCapture = player;
         G.lastPlayedCard = null;
+        G.isAnimating = true;
 
         if (G.table.length === 0 && (G.deck.length > 0 || G.players['0'].hand.length > 0)) {
           addScore(G, player, 1);
-          G.announcements.push({ player, type: 'Messa' });
+          G.announcements.push({ player, type: 'Missa' });
         }
       }
       
-      events.endTurn();
+      checkRoundEnd(G);
+      if (!checkWaitForUI(G, events)) {
+        events.endTurn();
+      }
     }
   },
 
   turn: {
-    // dealing is now handled manually by dealCards move
+    onBegin: ({ G, events }) => {
+      if (G.announcements && G.announcements.length > 0) {
+        G.endTurnAfterUI = false;
+        events.setActivePlayers({ all: 'waitForUI' });
+      }
+    },
+    stages: {
+      waitForUI: {
+        moves: {
+          clearAnnouncements: ({ G, events }) => {
+            G.announcements = [];
+            if (!G.isAnimating) {
+              events.setActivePlayers({ all: null }); // Clear for everyone
+              if (G.endTurnAfterUI) {
+                G.endTurnAfterUI = false;
+                events.endTurn();
+              }
+            }
+          },
+          endAnimation: ({ G, events }) => {
+            G.isAnimating = false;
+            if (G.announcements.length === 0) {
+              events.setActivePlayers({ all: null }); // Clear for everyone
+              if (G.endTurnAfterUI) {
+                G.endTurnAfterUI = false;
+                events.endTurn();
+              }
+            }
+          }
+        }
+      }
+    }
   },
 
   endIf: ({ G, ctx }) => {
@@ -204,6 +314,15 @@ export const RondaGame = {
   ai: {
     enumerate: (G, ctx, playerID) => {
       let player = playerID || ctx.currentPlayer;
+
+      if (G.pendingCapture) {
+        return [{ move: 'processCapture', args: [] }];
+      }
+
+      if (G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0 && G.deck.length > 0) {
+        return [{ move: 'dealCards', args: [] }];
+      }
+
       const hand = G.players[player]?.hand || [];
       let moves = [];
       for (let i = 0; i < hand.length; i++) {
