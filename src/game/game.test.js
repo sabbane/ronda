@@ -27,8 +27,11 @@ describe('RondaGame - Extended Requirements', () => {
   };
 
   const advanceUI = (client) => {
-    client.moves.endAnimation();
-    client.moves.clearAnnouncements();
+    const state = client.getState();
+    if (state.G.isAnimating || (state.G.announcements && state.G.announcements.length > 0)) {
+      client.moves.endAnimation();
+      client.moves.clearAnnouncements();
+    }
   };
 
   test('Sequential Capture: Playing a 7 should capture 7, 8, 9 if present', () => {
@@ -152,12 +155,11 @@ describe('RondaGame - Extended Requirements', () => {
     client.moves.playCard(0); advanceUI(client);
     
     // Now both hands are empty, resolveClash should have been called.
-    // Since it was the last move of the round, checkRoundEnd -> resolveClash -> checkWaitForUI
-    // So we need to clear the final announcement.
+    // We need to advance UI one last time to process the Clash result announcement
     advanceUI(client);
-
+    
     state = client.getState();
-    // After round end, Player 0 (higher Ronda: 7 vs 5) should have won the clash
+    // After round end, Player 0 (higher Ronda: 7 vs 5) should have won the clash (+5)
     expect(state.G.players['0'].score).toBe(5);
     expect(state.G.announcements.length).toBe(0);
   });

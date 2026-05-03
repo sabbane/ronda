@@ -11,7 +11,7 @@ const RondaClient = Client({
   numPlayers: 2,
   multiplayer: Local({ 
     bots: { '1': rondaBot },
-    botDelay: 1500
+    botDelay: 800
   }),
 });
 

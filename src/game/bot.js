@@ -1,33 +1,37 @@
-import { MCTSBot } from 'boardgame.io/ai';
+import { RandomBot } from 'boardgame.io/ai';
 
 const enumerateMoves = (G, ctx, playerID) => {
   let gameG = G;
   let gameCtx = ctx;
   let player = playerID;
 
+  // Handle both standard boardgame.io and simulation formats
   if (G && G.G) {
     gameG = G.G;
     gameCtx = G.ctx;
-    player = G.playerID;
+    player = G.playerID || playerID;
   } else if (!player) {
     player = gameCtx?.currentPlayer;
   }
 
   if (!gameG || !gameCtx || !player) return [];
 
-  // Wait if there are announcements or animations to be shown by the UI
-  if ((gameG.announcements && gameG.announcements.length > 0) || gameG.isAnimating) {
+  // Normal move logic follows
+  // If a capture is pending, the only valid move is processCapture
+  if (gameG.pendingCapture) {
+    // Only the player who made the move can process it
+    if (gameG.pendingCapture.player === player) {
+      return [{ move: 'processCapture', args: [] }];
+    }
     return [];
   }
 
-  if (gameG.pendingCapture) {
-    return [{ move: 'processCapture', args: [] }];
-  }
-
+  // Auto-deal if hands are empty and deck is not
   if (gameG.players['0'].hand.length === 0 && gameG.players['1'].hand.length === 0 && gameG.deck.length > 0) {
     return [{ move: 'dealCards', args: [] }];
   }
 
+  // Normal turn: suggest playing any card in hand
   const hand = gameG.players[player]?.hand || [];
   let moves = [];
   
@@ -38,22 +42,8 @@ const enumerateMoves = (G, ctx, playerID) => {
 };
 
 export function rondaBot(opts) {
-  return new MCTSBot({
+  return new RandomBot({
     enumerate: enumerateMoves,
-    iterations: 200,
-    playoutDepth: 5,
-    objectives: (G, ctx, playerID) => {
-      return {
-        captured: {
-          weight: 1,
-          checker: (G) => G.players[playerID].captured.length
-        },
-        score: {
-          weight: 1,
-          checker: (G) => G.players[playerID].score
-        }
-      };
-    },
     ...opts
   });
 }

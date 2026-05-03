@@ -9,10 +9,15 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
   const [activeEvent, setActiveEvent] = React.useState(null);
   const [isProcessing, setIsProcessing] = React.useState(false);
 
-  const isCurrentPlayer = (id) => ctx.currentPlayer === id;
+  const isCurrentPlayer = (id) => {
+    const isTurn = ctx.currentPlayer === id;
+    const inStage = ctx.activePlayers && ctx.activePlayers[id];
+    return isTurn && !inStage && !G.isAnimating && !G.announcements?.length;
+  };
+
 
   const handlePlayCard = (cardIndex) => {
-    if (isProcessing) return;
+    if (isProcessing || G.isAnimating || (G.announcements && G.announcements.length > 0)) return;
     
     setIsProcessing(true);
     // Add a slight delay before playing to let the user see their selection
@@ -21,6 +26,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
       setIsProcessing(false);
     }, 400);
   };
+
 
   const [eventQueue, setEventQueue] = React.useState([]);
   const processedAnnouncements = React.useRef(new Set());
@@ -72,22 +78,26 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
       !activeEvent && 
       G.announcements && 
       G.announcements.length > 0 &&
-      ctx.activePlayers && 
-      ctx.activePlayers[myID] === 'waitForUI'
+      ctx.activePlayers // Any active player indicates a UI stage is active
     ) {
       moves.clearAnnouncements();
     }
-  }, [eventQueue.length, activeEvent, G.announcements, ctx.activePlayers, myID, moves]);
+  }, [eventQueue.length, activeEvent, G.announcements, ctx.activePlayers, moves]);
+
+
 
   // Handle animation wait (flying cards)
   React.useEffect(() => {
-    if (G.isAnimating && ctx.activePlayers && ctx.activePlayers[myID] === 'waitForUI') {
+    if (G.isAnimating && ctx.activePlayers) {
       const timer = setTimeout(() => {
         moves.endAnimation();
-      }, 1800); // 1.8s wait to ensure all staggered and spring animations finish
+      }, 1000); // Reduced to 1s for snappier feel and better bot sync
       return () => clearTimeout(timer);
     }
-  }, [G.isAnimating, ctx.activePlayers, myID, moves]);
+
+  }, [G.isAnimating, ctx.activePlayers, moves]);
+
+
 
   // Deal cards automatically after a delay when hands are empty and queue is clear
   React.useEffect(() => {
@@ -274,10 +284,10 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                   exit={{ opacity: 0, scale: 1.5, filter: 'blur(10px)' }}
                   className={G.pendingCapture?.playedCardId === card.id ? "z-50" : ""}
                   transition={{ 
-                    duration: 0.6, 
+                    duration: 0.3, 
                     type: "spring", 
                     stiffness: 100,
-                    delay: idx * 0.15 
+                    delay: idx * 0.05 
                   }}
                 >
                   <Card 
