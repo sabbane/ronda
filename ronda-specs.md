@@ -45,6 +45,20 @@ Die Punkte werden während des Spiels und am Ende berechnet:
         *   **Tringa vs. Tringa:** Der Spieler mit der höheren Tringa gewinnt 5 Karten.
 *   **Endabrechnung:** Jeder Spieler zählt seine gewonnenen Karten. Punkte aus Sondersituationen (oder gewonnene Extrakarten) werden addiert.
 
+### 3.4 Karten-Assets & Design
+Die App verwendet reale Bilddateien für die spanischen Spielkarten:
+*   **Speicherort:** `public/cards/`
+*   **Format:** PNG (transparent)
+*   **Dateinamen-Konvention:** `{Value}-{Suit}.png` (z.B. `01-oros.png`)
+*   **Suit-Mapping:**
+    *   `coins` -> `oros`
+    *   `cups` -> `copas`
+    *   `swords` -> `espadas`
+    *   `clubs` -> `bastos`
+*   **Besonderheiten:**
+    *   Die Karte **01-oros** (1 Lass Flouss) verwendet ein spezielles Design von `vector.ma`.
+    *   Die Kartenrückseite ist als `back.png` gespeichert.
+
 ## 4. Bot-Architektur
 *   **Aktueller Status:** Ein `RandomBot` ist implementiert, der zufällige valide Züge macht.
 *   **Geplante Logik:** Ein Heuristik-Bot, der Stiche gegenüber einfachem Abwerfen priorisiert und versucht, Sequenzen zu maximieren.
@@ -60,6 +74,8 @@ Die Punkte werden während des Spiels und am Ende berechnet:
     Card.jsx       # Visuelle Darstellung einer Karte
     PlayerHand.jsx # UI für Spieler-Karten
   App.jsx          # Game-Client Integration
+/public
+  /cards           # Bilddateien der Karten
 ```
 
 ## 6. PWA Anforderungen
@@ -72,7 +88,8 @@ Um die App als Progressive Web App (PWA) nutzbar zu machen, werden folgende Feat
 ## 7. Aktueller Status
 *   [x] Core Game Logic (Stechen, Sequenzen, Messa, Bounti)
 *   [x] Hand-Ankündigungen (Ronda, Tringa)
-*   [ ] Ronda/Tringa Clash-Logik (Vergleich & 5-Karten-Bonus)
+*   [x] Ronda/Tringa Clash-Logik (Vergleich & 5-Karten-Bonus)
+*   [x] Integration realer Karten-Assets (Baraja Española)
 *   [x] Basis-UI mit Tailwind
 *   [x] Bot-Integration (Random)
 *   [ ] PWA-Integration (Manifest & Service Worker)

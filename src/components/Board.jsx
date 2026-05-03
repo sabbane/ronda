@@ -107,9 +107,10 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
       !activeEvent &&
       !G.pendingCapture
     ) {
-      if (ctx.currentPlayer !== myID) return;
+      // ONLY the human player (ID '0') should trigger auto-deal in their own client
+      // The bot handles its own dealing in bot.js
+      if (myID !== '0' || ctx.currentPlayer !== '0') return;
 
-      // Add a slight delay before dealing to let the table state breathe
       const timer = setTimeout(() => {
         moves.dealCards();
       }, 1000);
@@ -120,8 +121,9 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
   // Handle pending captures to allow the played card to rest on the table
   React.useEffect(() => {
     if (G.pendingCapture) {
-      // Only the active player's client should dispatch the processCapture move
-      if (ctx.currentPlayer !== myID) return;
+      // IMPORTANT: In Local multiplayer, we MUST ensure the move is called by the correct player ID.
+      // The issue is who TRIGGERS it. We only want the human client to trigger it for the human.
+      if (G.pendingCapture.player !== myID) return;
 
       const timer = setTimeout(() => {
         moves.processCapture();
