@@ -78,24 +78,22 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
       !activeEvent && 
       G.announcements && 
       G.announcements.length > 0 &&
-      ctx.activePlayers // Any active player indicates a UI stage is active
+      ctx.activePlayers && 
+      ctx.activePlayers[myID] === 'waitForUI'
     ) {
       moves.clearAnnouncements();
     }
-  }, [eventQueue.length, activeEvent, G.announcements, ctx.activePlayers, moves]);
-
-
+  }, [eventQueue.length, activeEvent, G.announcements, ctx.activePlayers, myID, moves]);
 
   // Handle animation wait (flying cards)
   React.useEffect(() => {
-    if (G.isAnimating && ctx.activePlayers) {
+    if (G.isAnimating && ctx.activePlayers && ctx.activePlayers[myID] === 'waitForUI') {
       const timer = setTimeout(() => {
         moves.endAnimation();
-      }, 1000); // Reduced to 1s for snappier feel and better bot sync
+      }, 1500); // 1.5s wait for animations
       return () => clearTimeout(timer);
     }
-
-  }, [G.isAnimating, ctx.activePlayers, moves]);
+  }, [G.isAnimating, ctx.activePlayers, myID, moves]);
 
 
 

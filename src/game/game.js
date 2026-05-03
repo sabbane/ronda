@@ -249,26 +249,6 @@ export const RondaGame = {
         events.endTurn();
       }
     },
-    clearAnnouncements: ({ G, events }) => {
-      G.announcements = [];
-      if (!G.isAnimating) {
-        events.setActivePlayers({ all: null });
-        if (G.endTurnAfterUI) {
-          G.endTurnAfterUI = false;
-          events.endTurn();
-        }
-      }
-    },
-    endAnimation: ({ G, events }) => {
-      G.isAnimating = false;
-      if (G.announcements.length === 0) {
-        events.setActivePlayers({ all: null });
-        if (G.endTurnAfterUI) {
-          G.endTurnAfterUI = false;
-          events.endTurn();
-        }
-      }
-    }
   },
 
   turn: {
@@ -280,7 +260,28 @@ export const RondaGame = {
     },
     stages: {
       waitForUI: {
-        // Moves are now inherited from main moves list
+        moves: {
+          clearAnnouncements: ({ G, events }) => {
+            G.announcements = [];
+            if (!G.isAnimating) {
+              events.setActivePlayers({ all: null });
+              if (G.endTurnAfterUI) {
+                G.endTurnAfterUI = false;
+                events.endTurn();
+              }
+            }
+          },
+          endAnimation: ({ G, events }) => {
+            G.isAnimating = false;
+            if (G.announcements.length === 0) {
+              events.setActivePlayers({ all: null });
+              if (G.endTurnAfterUI) {
+                G.endTurnAfterUI = false;
+                events.endTurn();
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -313,6 +314,10 @@ export const RondaGame = {
 
   ai: {
     enumerate: (G, ctx, playerID) => {
+      if (G.isAnimating || (G.announcements && G.announcements.length > 0) || (ctx.activePlayers && ctx.activePlayers[playerID || ctx.currentPlayer] === 'waitForUI')) {
+        return [];
+      }
+
       const player = playerID || ctx.currentPlayer;
       const hand = G.players[player]?.hand || [];
       

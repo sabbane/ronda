@@ -16,6 +16,11 @@ const enumerateMoves = (G, ctx, playerID) => {
 
   if (!gameG || !gameCtx || !player) return [];
 
+  // Do not play if the UI is busy with animations or announcements
+  if (gameG.isAnimating || (gameG.announcements && gameG.announcements.length > 0) || (gameCtx.activePlayers && gameCtx.activePlayers[player] === 'waitForUI')) {
+    return [];
+  }
+
   // Normal move logic follows
   // If a capture is pending, the only valid move is processCapture
   if (gameG.pendingCapture) {

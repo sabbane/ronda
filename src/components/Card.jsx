@@ -20,14 +20,14 @@ export const Card = ({ card, hidden = false, onClick, className = '' }) => {
   }
 
   const suitMap = {
-    coins: 'oros',
+    coins: 'dheb-vector',
     cups: 'jben-vector',
     swords: 'espadas',
     clubs: 'zrawet-vector'
   };
 
   const suit = suitMap[card.suit] || card.suit;
-  const isVector = card.suit === 'clubs' || card.suit === 'cups';
+  const isVector = card.suit === 'clubs' || card.suit === 'cups' || card.suit === 'coins';
   const value = isVector 
     ? card.displayValue.toString() 
     : card.displayValue.toString().padStart(2, '0');
