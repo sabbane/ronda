@@ -24,7 +24,7 @@ const RondaClientBot = Client({
   }),
 });
 
-const serverUrl = import.meta.env.VITE_SERVER_URL || (typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.hostname}:8000` : 'http://localhost:8000');
+const serverUrl = import.meta.env.VITE_SERVER_URL || (typeof window !== 'undefined' ? `${window.location.protocol}//ronda-backend.up.railway.app` : 'http://localhost:8000');
 
 const RondaClientOnline = Client({
   game: RondaGame,

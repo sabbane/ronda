@@ -30,9 +30,7 @@ const shuffle = (array) => {
 };
 
 export const addScore = (G, player, amount) => {
-  const opponent = player === '0' ? '1' : '0';
   G.players[player].score += amount;
-  G.players[opponent].score -= amount;
 };
 
 export const getHandRank = (hand) => {

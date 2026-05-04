@@ -121,16 +121,21 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
   // Handle pending captures to allow the played card to rest on the table
   React.useEffect(() => {
     if (G.pendingCapture) {
-      // IMPORTANT: In Local multiplayer, we MUST ensure the move is called by the correct player ID.
-      // The issue is who TRIGGERS it. We only want the human client to trigger it for the human.
-      if (G.pendingCapture.player !== myID) return;
-
-      const timer = setTimeout(() => {
-        moves.processCapture();
-      }, 1500);
-      return () => clearTimeout(timer);
+      // In Local/Bot mode, the human client (ID '0') triggers it for both to ensure it happens.
+      // In Online mode, only the player who made the capture should trigger it.
+      const isOnline = !!ctx.multiplayer;
+      const isMyCapture = G.pendingCapture.player === myID;
+      
+      if (isMyCapture || (!isOnline && myID === '0')) {
+        const timer = setTimeout(() => {
+          if (G.pendingCapture) {
+            moves.processCapture();
+          }
+        }, 1500);
+        return () => clearTimeout(timer);
+      }
     }
-  }, [G.pendingCapture, moves, ctx.currentPlayer, myID]);
+  }, [G.pendingCapture, moves, myID, ctx.multiplayer]);
 
   let winner = null;
   if (ctx.gameover) {
