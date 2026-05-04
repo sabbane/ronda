@@ -3,8 +3,10 @@ import { PlayerHand } from './PlayerHand';
 import { Card } from './Card';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { AdSlot } from './AdSlot';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const RondaBoard = ({ G, ctx, moves, playerID }) => {
+  const { t } = useLanguage();
   const myID = playerID || '0';
   const opponentID = myID === '0' ? '1' : '0';
   const [activeEvent, setActiveEvent] = React.useState(null);
@@ -41,15 +43,22 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
           processedAnnouncements.current.add(annId);
           
           const isMe = ann.player === myID;
-          const name = isMe ? "You" : "Opponent";
+          const name = isMe ? t('you') : t('opponent');
           
           let customText = "";
-          if (ann.type === 'Ronda') customText = `${name} ${isMe ? 'have' : 'has'} Ronda! (+1)`;
-          if (ann.type === 'Tringa') customText = `${name} ${isMe ? 'have' : 'has'} Tringa! (+5)`;
-          if (ann.type === 'Missa') customText = `${name} cleared the table! (+1)`;
-          if (ann.type === 'Derba') customText = `${name} scored a Derba! (+1)`;
+          if (ann.type === 'Ronda') customText = t('announcements.ronda', { name });
+          if (ann.type === 'Tringa') customText = t('announcements.tringa', { name });
+          if (ann.type === 'Missa') customText = t('announcements.missa', { name });
+          if (ann.type === 'Derba') customText = t('announcements.derba', { name });
+          if (ann.type === 'Clash') customText = t('announcements.clash');
+          if (ann.type === 'Clash Won') {
+            const rankTypeMatch = ann.text && typeof ann.text === 'string' ? ann.text.match(/with (.*)!/) : null;
+            const type = rankTypeMatch ? rankTypeMatch[1] : '';
+            customText = t('announcements.clashWon', { name, type });
+          }
+          if (ann.type === 'Clash Draw') customText = t('announcements.clashDraw');
 
-          setEventQueue(prev => [...prev, { ...ann, displayText: customText, id: annId }]);
+          setEventQueue(prev => [...prev, { ...ann, displayText: customText || ann.text, id: annId }]);
         }
       });
     }
@@ -171,7 +180,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
         </AnimatePresence>
 
         {/* Side Announcements (Legacy) */}
-        <div className="absolute top-1/4 left-8 flex flex-col gap-4 pointer-events-none z-40 hidden md:flex">
+        <div className="absolute top-1/4 start-8 flex flex-col gap-4 pointer-events-none z-40 hidden md:flex">
           <AnimatePresence>
             {G.announcements?.map((ann, idx) => (
               <motion.div
@@ -202,28 +211,36 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                 className="bg-slate-800 p-12 rounded-3xl border border-slate-700 shadow-2xl text-center"
               >
                 <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-                  Game Over!
+                  {t('gameOver')}
                 </h2>
                 <div className="text-2xl mb-8 font-medium">
-                  {winner === 'Draw' ? "It's a draw!" : winner === myID ? "You won!" : "Opponent won!"}
+                  {winner === 'Draw' ? t('itsADraw') : winner === myID ? t('youWon') : t('opponentWon')}
                 </div>
                 <div className="flex gap-8 justify-center text-xl bg-slate-900/50 p-6 rounded-2xl border border-slate-700/50">
                   <div className="flex flex-col items-center">
-                    <span className="text-sm text-slate-400 mb-1">You</span>
+                    <span className="text-sm text-slate-400 mb-1">{t('you')}</span>
                     <span className="text-3xl font-bold text-indigo-400">{ctx.gameover.p0Score}</span>
                   </div>
                   <div className="w-px bg-slate-700"></div>
                   <div className="flex flex-col items-center">
-                    <span className="text-sm text-slate-400 mb-1">Opponent</span>
+                    <span className="text-sm text-slate-400 mb-1">{t('opponent')}</span>
                     <span className="text-3xl font-bold text-purple-400">{ctx.gameover.p1Score}</span>
                   </div>
                 </div>
-                <button 
-                  onClick={() => window.location.reload()}
-                  className="mt-8 px-8 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-full font-bold transition-colors shadow-lg"
-                >
-                  Play Again
-                </button>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+                  <button 
+                    onClick={() => window.dispatchEvent(new CustomEvent('ronda-reset'))}
+                    className="px-8 py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-full font-bold transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-amber-900/40 border border-amber-400/30"
+                  >
+                    {t('playAgain')}
+                  </button>
+                  <button 
+                    onClick={() => window.dispatchEvent(new CustomEvent('ronda-menu'))}
+                    className="px-8 py-3 bg-slate-700 hover:bg-slate-600 text-slate-100 rounded-full font-bold transition-all transform hover:scale-105 active:scale-95 shadow-lg border border-slate-600"
+                  >
+                    {t('mainMenu')}
+                  </button>
+                </div>
               </motion.div>
             </motion.div>
           )}
@@ -238,7 +255,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
         <div className="w-full max-w-4xl relative z-10">
           <div className="flex justify-between items-center px-4 sm:px-8 mb-2">
             <div className="text-lg font-medium text-slate-400 flex items-center gap-3">
-              Opponent
+              {t('opponent')}
               {isCurrentPlayer(opponentID) && (
                 <span className="flex h-3 w-3">
                   <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-purple-400 opacity-75"></span>
@@ -258,7 +275,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                 ))}
               </div>
               <div className="bg-slate-800 px-4 py-1 rounded-full text-sm border border-slate-700 shadow-inner flex items-center gap-2">
-                <span className="text-slate-400">Cards:</span> 
+                <span className="text-slate-400">{t('cards')}</span> 
                 <span className="font-bold text-lg text-purple-400">
                   {((G.players && G.players[opponentID]?.captured?.length) || 0) + ((G.players && G.players[opponentID]?.score) || 0)}
                 </span>
@@ -304,7 +321,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                       animate={{ opacity: 1, y: 0 }}
                       className="absolute -top-10 left-1/2 -translate-x-1/2 bg-yellow-400 text-yellow-900 font-black px-3 py-1 rounded-full text-xs whitespace-nowrap shadow-lg uppercase tracking-wider"
                     >
-                      Played
+                      {t('played')}
                     </motion.div>
                   )}
                 </motion.div>
@@ -313,7 +330,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
             
             {G.table.length === 0 && (
               <div className="text-emerald-700/50 text-3xl font-bold uppercase tracking-widest absolute">
-                Table is empty
+                {t('tableEmpty')}
               </div>
             )}
           </div>
@@ -324,7 +341,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
           <div className="flex justify-between items-center px-4 sm:px-8 mt-2">
             <div className="flex items-center gap-3">
               <div className={`text-lg font-medium ${isCurrentPlayer(myID) ? 'text-indigo-400' : 'text-slate-400'}`}>
-                You {isCurrentPlayer(myID) && "(Your Turn)"}
+                {t('you')} {isCurrentPlayer(myID) && t('yourTurn')}
               </div>
               {isCurrentPlayer(myID) && (
                 <span className="flex h-3 w-3">
@@ -345,7 +362,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                 ))}
               </div>
               <div className="bg-slate-800 px-4 py-1 rounded-full text-sm border border-slate-700 shadow-inner flex items-center gap-2">
-                <span className="text-slate-400">Cards:</span> 
+                <span className="text-slate-400">{t('cards')}</span> 
                 <span className="font-bold text-lg text-indigo-400">
                   {((G.players && G.players[myID]?.captured?.length) || 0) + ((G.players && G.players[myID]?.score) || 0)}
                 </span>
@@ -360,11 +377,11 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
         </div>
         
         {/* Deck Info */}
-        <div className="fixed bottom-4 left-4 flex items-center gap-2 bg-slate-800/80 backdrop-blur px-4 py-2 rounded-full border border-slate-700 shadow-lg">
+        <div className="fixed bottom-4 start-4 flex items-center gap-2 bg-slate-800/80 backdrop-blur px-4 py-2 rounded-full border border-slate-700 shadow-lg z-20">
           <div className="w-6 h-8 bg-indigo-600 rounded border border-indigo-400 shadow flex items-center justify-center">
             <span className="text-[10px]">✨</span>
           </div>
-          <span className="text-slate-300 font-medium">Cards remaining: {G.deck.length}</span>
+          <span className="text-slate-300 font-medium">{t('cardsRemaining')}: {G.deck.length}</span>
         </div>
       </div>
     </LayoutGroup>
