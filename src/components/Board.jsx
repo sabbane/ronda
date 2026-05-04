@@ -97,26 +97,8 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
 
 
 
-  // Deal cards automatically after a delay when hands are empty and queue is clear
-  React.useEffect(() => {
-    if (
-      G.players['0'].hand.length === 0 && 
-      G.players['1'].hand.length === 0 && 
-      G.deck.length > 0 &&
-      eventQueue.length === 0 &&
-      !activeEvent &&
-      !G.pendingCapture
-    ) {
-      // ONLY the human player (ID '0') should trigger auto-deal in their own client
-      // The bot handles its own dealing in bot.js
-      if (myID !== '0' || ctx.currentPlayer !== '0') return;
+  // Dealing cards is now handled automatically in the game logic (turn.onBegin)
 
-      const timer = setTimeout(() => {
-        moves.dealCards();
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [G.players, G.deck.length, eventQueue.length, activeEvent, G.pendingCapture, moves, ctx.currentPlayer, myID]);
 
   // Handle pending captures to allow the played card to rest on the table
   React.useEffect(() => {

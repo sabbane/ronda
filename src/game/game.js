@@ -146,20 +146,6 @@ export const RondaGame = {
   },
 
   moves: {
-    dealCards: ({ G, ctx, events }) => {
-      if (G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0 && G.deck.length > 0) {
-        G.announcements = [];
-        G.players['0'].hand = G.deck.splice(0, 3);
-        G.players['1'].hand = G.deck.splice(0, 3);
-        
-        G.isAnimating = true;
-        evaluateRondaTringa(G);
-        if (G.announcements.length > 0 || G.isAnimating) {
-          G.endTurnAfterUI = false;
-          events.setActivePlayers({ all: 'waitForUI' });
-        }
-      }
-    },
     playCard: ({ G, ctx, events, playerID }, cardIndex) => {
       if (G.pendingCapture) return INVALID_MOVE;
 
@@ -169,6 +155,7 @@ export const RondaGame = {
       if (player !== ctx.currentPlayer) return INVALID_MOVE;
 
       const hand = G.players[player].hand;
+      if (cardIndex < 0 || cardIndex >= hand.length) return INVALID_MOVE;
       const playedCard = hand[cardIndex];
 
       if (!playedCard) return INVALID_MOVE;
@@ -262,7 +249,16 @@ export const RondaGame = {
   },
 
   turn: {
-    onBegin: ({ G, events }) => {
+    onBegin: ({ G, ctx, events }) => {
+      // 1. Auto-deal if hands are empty and deck has cards
+      if (G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0 && G.deck.length > 0) {
+        G.players['0'].hand = G.deck.splice(0, 3);
+        G.players['1'].hand = G.deck.splice(0, 3);
+        G.isAnimating = true;
+        evaluateRondaTringa(G);
+      }
+
+      // 2. If there are announcements or animations, wait for UI
       if (G.announcements && G.announcements.length > 0) {
         G.endTurnAfterUI = false;
         events.setActivePlayers({ all: 'waitForUI' });
@@ -342,9 +338,7 @@ export const RondaGame = {
         return [];
       }
 
-      if (G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0 && G.deck.length > 0) {
-        return [{ move: 'dealCards' }];
-      }
+
 
       let moves = [];
       for (let i = 0; i < hand.length; i++) {
