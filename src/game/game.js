@@ -1,4 +1,4 @@
-import { INVALID_MOVE } from 'boardgame.io/dist/cjs/core.js';
+import { INVALID_MOVE } from 'boardgame.io/core';
 
 export const getNextValue = (val) => {
   if (val < 10) return val + 1;
@@ -150,9 +150,10 @@ export const RondaGame = {
       if (G.pendingCapture) return INVALID_MOVE;
 
       // Ensure the move is executed by the player whose turn it actually is.
-      // This prevents duplicated/delayed Bot instances from executing moves during the human's turn.
-      const player = playerID || ctx.currentPlayer;
+      // In tests where playerID might be undefined/null, we fall back to currentPlayer.
+      const player = (playerID !== undefined && playerID !== null) ? playerID : ctx.currentPlayer;
       if (player !== ctx.currentPlayer) return INVALID_MOVE;
+
 
       const hand = G.players[player].hand;
       if (cardIndex < 0 || cardIndex >= hand.length) return INVALID_MOVE;
