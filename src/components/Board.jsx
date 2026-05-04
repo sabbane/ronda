@@ -46,7 +46,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
           if (ann.type === 'Ronda') customText = `${name} ${isMe ? 'have' : 'has'} Ronda! (+1)`;
           if (ann.type === 'Tringa') customText = `${name} ${isMe ? 'have' : 'has'} Tringa! (+5)`;
           if (ann.type === 'Missa') customText = `${name} cleared the table! (+1)`;
-          if (ann.type === 'Bount') customText = `${name} scored a Bount! (+1)`;
+          if (ann.type === 'Derba') customText = `${name} scored a Derba! (+1)`;
 
           setEventQueue(prev => [...prev, { ...ann, displayText: customText, id: annId }]);
         }

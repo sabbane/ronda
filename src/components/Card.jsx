@@ -8,13 +8,19 @@ export const Card = ({ card, hidden = false, onClick, className = '' }) => {
     return (
       <motion.div
         whileHover={{ scale: 1.05 }}
-        className={`w-24 h-36 rounded-xl bg-slate-800 border-2 border-slate-700 shadow-xl overflow-hidden ${className}`}
+        className={`w-24 h-36 rounded-xl bg-white border-2 border-slate-200 shadow-xl overflow-hidden ${className}`}
       >
-        <img 
-          src="/cards/back.png" 
-          alt="Card Back" 
-          className="w-full h-full object-cover"
-        />
+        <div className="w-full h-full p-1 bg-slate-50 flex items-center justify-center">
+          <img 
+            src="/cards/back.png" 
+            alt="Card Back" 
+            className="w-full h-full object-contain"
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.parentElement.innerHTML = '<div class="text-xs font-bold text-slate-300 transform -rotate-45">RONDA</div>';
+            }}
+          />
+        </div>
       </motion.div>
     );
   }
@@ -22,18 +28,16 @@ export const Card = ({ card, hidden = false, onClick, className = '' }) => {
   const suitMap = {
     coins: 'dheb-vector',
     cups: 'jben-vector',
-    swords: 'espadas',
+    swords: 'syouf-vector',
     clubs: 'zrawet-vector'
   };
 
   const suit = suitMap[card.suit] || card.suit;
-  const isVector = card.suit === 'clubs' || card.suit === 'cups' || card.suit === 'coins';
-  const value = isVector 
-    ? card.displayValue.toString() 
-    : card.displayValue.toString().padStart(2, '0');
+  const isVector = true; // All suits are now using vector SVG cards
+  const value = card.displayValue.toString();
   
-  const extension = isVector ? 'svg' : 'png';
-  const separator = isVector ? ' ' : '-';
+  const extension = 'svg';
+  const separator = ' ';
   const imagePath = `/cards/${value}${separator}${suit}.${extension}`;
 
   return (

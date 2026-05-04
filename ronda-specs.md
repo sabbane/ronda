@@ -33,8 +33,8 @@ Ronda ist ein klassisches marokkanisches Kartenspiel für 2 Spieler (oder Teams)
 
 ### 3.3 Scoring & Sondersituationen
 Die Punkte werden während des Spiels und am Ende berechnet:
-*   **Messa (Tisch):** Den Tisch komplett leer räumen (+1 Punkt/Karte).
-*   **Bounti (Zug):** Eine Karte stechen, die der Gegner gerade erst abgelegt hat (+1 Punkt/Karte).
+*   **Missa (Tisch):** Den Tisch komplett leer räumen (+1 Punkt/Karte). (Früher: Messa)
+*   **Derba (Zug):** Eine Karte stechen, die der Gegner gerade erst abgelegt hat (+1 Punkt/Karte). (Früher: Bounti)
 *   **Ronda & Tringa (Hand):**
     *   **Ronda:** Zwei gleiche Karten auf der Hand.
     *   **Tringa:** Drei gleiche Karten auf der Hand.
@@ -60,17 +60,18 @@ Die App verwendet reale Bilddateien für die spanischen Spielkarten:
     *   Die Kartenrückseite ist als `back.png` gespeichert.
 
 ## 4. Bot-Architektur
-*   **Aktueller Status:** Ein `RandomBot` ist implementiert, der zufällige valide Züge macht.
+*   **Aktueller Status:** Ein `RandomBot` ist implementiert, der nur für Spieler 1 agiert.
+*   **Logik:** Der Bot wartet, bis Animationen und Ankündigungen abgeschlossen sind (`waitForUI` Stage). Er priorisiert das Abschließen von Captures (`processCapture`).
 *   **Geplante Logik:** Ein Heuristik-Bot, der Stiche gegenüber einfachem Abwerfen priorisiert und versucht, Sequenzen zu maximieren.
 
 ## 5. Projektstruktur
 ```text
 /src
   /game
-    game.js        # Kern-Spiellogik (RondaGame Objekt)
+    game.js        # Kern-Spiellogik (RondaGame Objekt) inkl. Stages & Animation-State
     bot.js         # KI-Enumerate & Bot-Konfiguration
   /components
-    Board.jsx      # Haupt-Spielfeld
+    Board.jsx      # Haupt-Spielfeld (Handling von Animationen & UI-Events)
     Card.jsx       # Visuelle Darstellung einer Karte
     PlayerHand.jsx # UI für Spieler-Karten
   App.jsx          # Game-Client Integration
@@ -86,12 +87,14 @@ Um die App als Progressive Web App (PWA) nutzbar zu machen, werden folgende Feat
 *   **Branding:** Theme-Farben passend zum Slate/Indigo Design.
 
 ## 7. Aktueller Status
-*   [x] Core Game Logic (Stechen, Sequenzen, Messa, Bounti)
+*   [x] Core Game Logic (Stechen, Sequenzen, Missa, Derba)
 *   [x] Hand-Ankündigungen (Ronda, Tringa)
 *   [x] Ronda/Tringa Clash-Logik (Vergleich & 5-Karten-Bonus)
+*   [x] Zweistufiger Capture-Prozess für flüssige Animationen
+*   [x] Synchronisations-Mechanismus (`waitForUI`) für Bot und UI
 *   [x] Integration realer Karten-Assets (Baraja Española)
 *   [x] Basis-UI mit Tailwind
-*   [x] Bot-Integration (Random)
+*   [x] Bot-Integration (Random, Animation-aware)
 *   [ ] PWA-Integration (Manifest & Service Worker)
 *   [ ] Erweiterte Animationen (Framer Motion)
 *   [ ] Verfeinerte KI-Logik

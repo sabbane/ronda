@@ -228,7 +228,7 @@ export const RondaGame = {
       if (matchIndex !== -1) {
         if (G.lastPlayedCard && G.lastPlayedCard.value === currentVal && G.lastPlayedCard.player !== player) {
           addScore(G, player, 1);
-          G.announcements.push({ player, type: 'Bount' });
+          G.announcements.push({ player, type: 'Derba' });
         }
 
         let matchedCard = G.table.splice(matchIndex, 1)[0];
