@@ -58,8 +58,10 @@ describe('Ronda Game Logic - Deep Testing', () => {
     };
 
     const client = Client({ game: customGame });
+    advanceUI(client);
     client.moves.playCard(0);
     client.moves.processCapture();
+    advanceUI(client);
 
     const state = client.getState();
     expect(state.G.players['0'].captured.length).toBe(5); // 1 played + 4 captured
@@ -109,4 +111,42 @@ describe('Ronda Game Logic - Deep Testing', () => {
     expect(state.G.table.length).toBe(2);
     expect(state.G.table.some(c => c.value === 5)).toBe(true);
   });
+  test('Bot (Player 1) strictly ignores Player 0s turn', () => {
+    const G = RondaGame.setup({ ctx: { numPlayers: 2 } });
+    G.announcements = []; // Clear any start-of-game announcements
+    G.isAnimating = false;
+    
+    const ctx = { currentPlayer: '0', turn: 1 };
+    
+    // Simulate Local multiplayer mistakenly asking the Bot for moves when it's Player 0's turn
+    const movesForP0 = RondaGame.ai.enumerate(G, ctx, '0');
+    expect(movesForP0.length).toBe(0); // Strict guard should prevent this
+
+    // Simulate normal bot turn
+    const ctxP1 = { currentPlayer: '1', turn: 2 };
+    const movesForP1 = RondaGame.ai.enumerate(G, ctxP1, '1');
+    expect(movesForP1.length).toBeGreaterThan(0); // Should return valid moves
+  });
+
+  test('Zombie Bot Guard: Out-of-turn moves are rejected by the game rules', () => {
+    // Create a client logged in as Player 1 (the Bot)
+    const clientP1 = Client({ game: RondaGame, playerID: '1' });
+    
+    // The game starts on Player 0's turn
+    const initialState = clientP1.getState();
+    expect(initialState.ctx.currentPlayer).toBe('0');
+    expect(initialState.G.players['0'].hand.length).toBe(3);
+    expect(initialState.G.players['1'].hand.length).toBe(3);
+
+    // Player 1 (Bot) maliciously tries to play a card during Player 0's turn
+    clientP1.moves.playCard(0);
+
+    // The state should NOT change because the strict guard returns INVALID_MOVE
+    const afterState = clientP1.getState();
+    expect(afterState.ctx.currentPlayer).toBe('0'); // Still Player 0's turn
+    expect(afterState.G.players['0'].hand.length).toBe(3); // Player 0's hand is untouched
+    expect(afterState.G.players['1'].hand.length).toBe(3); // Player 1's hand is untouched
+    expect(afterState.G.table.length).toBe(initialState.G.table.length); // Table is untouched
+  });
 });
+

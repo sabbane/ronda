@@ -16,6 +16,10 @@ const enumerateMoves = (G, ctx, playerID) => {
 
   if (!gameG || !gameCtx || !player) return [];
 
+  // STRICT GUARD: The bot must ONLY play for Player 1. 
+  // This prevents the bot from accidentally playing the human's first card.
+  if (player !== '1') return [];
+
   // Do not play if the UI is busy with animations or announcements
   if (gameG.isAnimating || (gameG.announcements && gameG.announcements.length > 0) || (gameCtx.activePlayers && gameCtx.activePlayers[player] === 'waitForUI')) {
     return [];

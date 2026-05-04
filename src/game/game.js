@@ -162,14 +162,19 @@ export const RondaGame = {
         }
       }
     },
-    playCard: ({ G, ctx, events }, cardIndex) => {
+    playCard: ({ G, ctx, events, playerID }, cardIndex) => {
       if (G.pendingCapture) return INVALID_MOVE;
 
-      const player = ctx.currentPlayer;
+      // Ensure the move is executed by the player whose turn it actually is.
+      // This prevents duplicated/delayed Bot instances from executing moves during the human's turn.
+      const player = playerID || ctx.currentPlayer;
+      if (player !== ctx.currentPlayer) return INVALID_MOVE;
+
       const hand = G.players[player].hand;
       const playedCard = hand[cardIndex];
 
       if (!playedCard) return INVALID_MOVE;
+
 
       // Clear announcements at the start of a move so they don't loop
       G.announcements = [];
@@ -200,16 +205,23 @@ export const RondaGame = {
       }
     },
 
-    processCapture: ({ G, ctx, events }) => {
-      if (!G.pendingCapture) return;
+    processCapture: ({ G, ctx, events, playerID }) => {
+      if (!G.pendingCapture) return INVALID_MOVE;
       
-      const { player, playedCardId, currentVal } = G.pendingCapture;
+      const player = playerID || ctx.currentPlayer;
+      if (player !== ctx.currentPlayer) return INVALID_MOVE;
+
+      const { playedCardId, currentVal } = G.pendingCapture;
+      // Also ensure the player processing the capture is the one who initiated it
+      if (G.pendingCapture.player !== player) return INVALID_MOVE;
+
       G.pendingCapture = null;
       
       const playedCardIndex = G.table.findIndex(c => c.id === playedCardId);
-      if (playedCardIndex === -1) return; // safety check
+      if (playedCardIndex === -1) return INVALID_MOVE; // safety check
       const playedCard = G.table.splice(playedCardIndex, 1)[0];
       const capturedCards = [playedCard];
+
       
       let matchIndex = G.table.findIndex(c => c.value === currentVal);
       
@@ -319,6 +331,10 @@ export const RondaGame = {
       }
 
       const player = playerID || ctx.currentPlayer;
+      
+      // STRICT GUARD: Only enumerate moves for the bot (Player 1)
+      if (player !== '1') return [];
+
       const hand = G.players[player]?.hand || [];
       
       if (G.pendingCapture) {
