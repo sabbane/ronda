@@ -1,4 +1,4 @@
-import { Server, Origins } from 'boardgame.io/server';
+import { Server, Origins } from 'boardgame.io/dist/cjs/server.js';
 import { RondaGame } from './src/game/game.js';
 
 const server = Server({
