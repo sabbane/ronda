@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-export const AdSlot = ({ className = '', slotId = 'REPLACE_WITH_YOUR_SLOT_ID' }) => {
+export const AdSlot = ({ className = '', slotId = '2388529228' }) => {
   useEffect(() => {
     try {
       if (typeof window !== 'undefined' && window.adsbygoogle) {
