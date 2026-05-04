@@ -25,19 +25,19 @@ Ronda ist ein klassisches marokkanisches Kartenspiel für 2 Spieler (oder Teams)
 
 ### 3.2 Gameplay-Loop
 1.  **Start:** 4 Karten offen auf den Tisch, 3 Karten auf die Hand jedes Spielers.
-2.  **Runden:** Wenn alle Handkarten gespielt sind, werden 3 neue Karten vom Deck ausgegeben, bis das Deck leer ist.
+2.  **Automatisches Geben:** Wenn beide Spieler keine Handkarten mehr haben und das Deck nicht leer ist, werden zu Beginn des neuen Zugs (`onBegin`) automatisch 3 neue Karten pro Spieler ausgegeben.
 3.  **Züge:** Ein Spieler spielt eine Karte aus:
-    *   **Stechen:** Gleicher Wert auf dem Tisch sticht die Karte.
+    *   **Stechen:** Gleicher Wert auf dem Tisch sticht die Karte. Der Prozess ist zweistufig (`playCard` -> Animation -> `processCapture`), um flüssige UI-Bewegungen zu ermöglichen.
     *   **Sequenzen:** Nach einem Stich können folgende aufsteigende Karten ebenfalls aufgenommen werden (z.B. 4 sticht 4, dann 5, 6...).
     *   **Ablegen:** Keine passende Karte auf dem Tisch -> Karte wird auf den Tisch gelegt.
 
 ### 3.3 Scoring & Sondersituationen
-Die Punkte werden während des Spiels und am Ende berechnet:
+Die Punkte werden während des Spiels und am Ende berechnet. Das Scoring ist additiv (Punkte werden dem Spieler gutgeschrieben):
 *   **Missa (Tisch):** Den Tisch komplett leer räumen (+1 Punkt/Karte). (Früher: Messa)
 *   **Derba (Zug):** Eine Karte stechen, die der Gegner gerade erst abgelegt hat (+1 Punkt/Karte). (Früher: Bounti)
 *   **Ronda & Tringa (Hand):**
-    *   **Ronda:** Zwei gleiche Karten auf der Hand.
-    *   **Tringa:** Drei gleiche Karten auf der Hand.
+    *   **Ronda:** Zwei gleiche Karten auf der Hand. (+1 Punkt bei Einzelansage)
+    *   **Tringa:** Drei gleiche Karten auf der Hand. (+5 Punkte bei Einzelansage)
     *   **Popup-Ankündigung:** Haben beide Spieler eine Ronda oder Tringa, erscheint zu Beginn der Runde ein Popup, das diese Situation (Clash) für beide ankündigt.
     *   **Clash-Auflösung (am Ende der Runde):**
         *   **Ronda vs. Ronda:** Der Spieler mit der höheren Ronda gewinnt 5 Karten (bzw. Punkte).
@@ -61,20 +61,20 @@ Die App verwendet reale Bilddateien für die spanischen Spielkarten:
 
 ## 4. Bot-Architektur
 *   **Aktueller Status:** Ein `RandomBot` ist implementiert, der nur für Spieler 1 agiert.
-*   **Logik:** Der Bot wartet, bis Animationen und Ankündigungen abgeschlossen sind (`waitForUI` Stage). Er priorisiert das Abschließen von Captures (`processCapture`).
+*   **Logik:** Der Bot prüft den Status von Animationen und Ankündigungen (`waitForUI` Stage). Er führt Züge nur aus, wenn er am Zug ist und keine UI-Blockaden vorliegen. Er priorisiert das Abschließen von Captures (`processCapture`).
 *   **Geplante Logik:** Ein Heuristik-Bot, der Stiche gegenüber einfachem Abwerfen priorisiert und versucht, Sequenzen zu maximieren.
 
 ## 5. Projektstruktur
 ```text
 /src
   /game
-    game.js        # Kern-Spiellogik (RondaGame Objekt) inkl. Stages & Animation-State
+    game.js        # Kern-Spiellogik (RondaGame Objekt) inkl. automatischer Deal-Logik
     bot.js         # KI-Enumerate & Bot-Konfiguration
   /components
     Board.jsx      # Haupt-Spielfeld (Handling von Animationen & UI-Events)
     Card.jsx       # Visuelle Darstellung einer Karte
     PlayerHand.jsx # UI für Spieler-Karten
-  App.jsx          # Game-Client Integration
+  App.jsx          # Game-Client Integration inkl. Board-Layout
 /public
   /cards           # Bilddateien der Karten
 ```
@@ -90,6 +90,7 @@ Um die App als Progressive Web App (PWA) nutzbar zu machen, werden folgende Feat
 *   [x] Core Game Logic (Stechen, Sequenzen, Missa, Derba)
 *   [x] Hand-Ankündigungen (Ronda, Tringa)
 *   [x] Ronda/Tringa Clash-Logik (Vergleich & 5-Karten-Bonus)
+*   [x] Automatisches Geben der Karten (`onBegin`)
 *   [x] Zweistufiger Capture-Prozess für flüssige Animationen
 *   [x] Synchronisations-Mechanismus (`waitForUI`) für Bot und UI
 *   [x] Integration realer Karten-Assets (Baraja Española)
@@ -97,4 +98,6 @@ Um die App als Progressive Web App (PWA) nutzbar zu machen, werden folgende Feat
 *   [x] Bot-Integration (Random, Animation-aware)
 *   [ ] PWA-Integration (Manifest & Service Worker)
 *   [ ] Erweiterte Animationen (Framer Motion)
+*   [ ] Verfeinerte KI-Logik
+otion)
 *   [ ] Verfeinerte KI-Logik

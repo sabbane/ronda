@@ -8,7 +8,7 @@ export const Card = ({ card, hidden = false, onClick, className = '' }) => {
     return (
       <motion.div
         whileHover={{ scale: 1.05 }}
-        className={`w-24 h-36 rounded-xl bg-white border-2 border-slate-200 shadow-xl overflow-hidden ${className}`}
+        className={`w-16 h-24 sm:w-20 sm:h-32 md:w-24 md:h-36 rounded-xl bg-white border-2 border-slate-200 shadow-xl overflow-hidden flex-shrink-0 ${className}`}
       >
         <div className="w-full h-full p-1 bg-slate-50 flex items-center justify-center">
           <img 
@@ -45,7 +45,7 @@ export const Card = ({ card, hidden = false, onClick, className = '' }) => {
       whileHover={onClick ? { scale: 1.05, y: -10 } : {}}
       whileTap={onClick ? { scale: 0.95 } : {}}
       onClick={onClick}
-      className={`w-24 h-36 rounded-xl bg-white border-2 border-slate-200 shadow-lg overflow-hidden cursor-pointer ${className}`}
+      className={`w-16 h-24 sm:w-20 sm:h-32 md:w-24 md:h-36 rounded-xl bg-white border-2 border-slate-200 shadow-lg overflow-hidden cursor-pointer flex-shrink-0 ${className}`}
     >
       <img 
         src={imagePath} 

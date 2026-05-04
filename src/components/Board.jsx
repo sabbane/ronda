@@ -126,7 +126,18 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
 
   return (
     <LayoutGroup>
-      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-between p-4 font-sans text-slate-100 relative overflow-hidden">
+      <div className="min-h-screen flex flex-col items-center justify-between p-4 font-sans text-slate-100 relative overflow-hidden">
+        {/* Subtle Game Background */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: "url('/assets/game_background.png')",
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            filter: 'brightness(0.7)',
+            zIndex: 0
+          }}
+        />
         
         {/* Central Event Notification */}
         <AnimatePresence>
@@ -218,7 +229,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
         </AnimatePresence>
 
         {/* Opponent Area */}
-        <div className="w-full max-w-4xl">
+        <div className="w-full max-w-4xl relative z-10">
           <div className="flex justify-between items-center px-4 sm:px-8 mb-2">
             <div className="text-lg font-medium text-slate-400 flex items-center gap-3">
               Opponent
@@ -257,7 +268,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
         </div>
 
         {/* Table Area */}
-        <div className="flex-1 w-full flex items-center justify-center my-4 relative">
+        <div className="flex-1 w-full flex items-center justify-center my-4 relative z-10">
           <div className="relative w-full max-w-4xl min-h-[16rem] md:min-h-[20rem] bg-emerald-900/40 rounded-3xl border-4 border-emerald-800/50 shadow-2xl shadow-emerald-900/20 backdrop-blur-sm flex flex-wrap gap-2 sm:gap-4 p-4 sm:p-8 items-center justify-center">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/felt.png')] opacity-10 rounded-3xl mix-blend-overlay pointer-events-none"></div>
             
@@ -303,7 +314,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
         </div>
 
         {/* Player Area */}
-        <div className="w-full max-w-4xl">
+        <div className="w-full max-w-4xl relative z-10">
           <div className="flex justify-between items-center px-4 sm:px-8 mt-2">
             <div className="flex items-center gap-3">
               <div className={`text-lg font-medium ${isCurrentPlayer(myID) ? 'text-indigo-400' : 'text-slate-400'}`}>
