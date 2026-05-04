@@ -250,8 +250,11 @@ export const RondaGame = {
 
   turn: {
     onBegin: ({ G, ctx, events }) => {
-      // 1. Auto-deal if hands are empty and deck has cards
-      if (G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0 && G.deck.length > 0) {
+      // 1. Auto-deal ONLY if both hands are completely empty and deck has cards
+      const p0HandEmpty = !G.players['0'].hand || G.players['0'].hand.length === 0;
+      const p1HandEmpty = !G.players['1'].hand || G.players['1'].hand.length === 0;
+      
+      if (p0HandEmpty && p1HandEmpty && G.deck.length > 0) {
         G.players['0'].hand = G.deck.splice(0, 3);
         G.players['1'].hand = G.deck.splice(0, 3);
         G.isAnimating = true;
@@ -259,7 +262,7 @@ export const RondaGame = {
       }
 
       // 2. If there are announcements or animations, wait for UI
-      if (G.announcements && G.announcements.length > 0) {
+      if ((G.announcements && G.announcements.length > 0) || G.isAnimating) {
         G.endTurnAfterUI = false;
         events.setActivePlayers({ all: 'waitForUI' });
       }
@@ -320,26 +323,25 @@ export const RondaGame = {
 
   ai: {
     enumerate: (G, ctx, playerID) => {
-      if (G.isAnimating || (G.announcements && G.announcements.length > 0) || (ctx.activePlayers && ctx.activePlayers[playerID || ctx.currentPlayer] === 'waitForUI')) {
-        return [];
-      }
-
       const player = playerID || ctx.currentPlayer;
       
-      // STRICT GUARD: Only enumerate moves for the bot (Player 1)
-      if (player !== '1') return [];
-
+      // 1. Check if we are in a wait state or it's not the bot's turn
+      const inWaitStage = ctx.activePlayers && ctx.activePlayers[player] === 'waitForUI';
+      if (G.isAnimating || (G.announcements && G.announcements.length > 0) || inWaitStage || player !== '1') {
+        return [];
+      }
+ 
       const hand = G.players[player]?.hand || [];
       
+      // 2. Handle pending capture first
       if (G.pendingCapture) {
         if (G.pendingCapture.player === player) {
           return [{ move: 'processCapture' }];
         }
         return [];
       }
-
-
-
+ 
+      // 3. Play a card
       let moves = [];
       for (let i = 0; i < hand.length; i++) {
         moves.push({ move: 'playCard', args: [i] });

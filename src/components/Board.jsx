@@ -243,13 +243,13 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
               <div className="bg-slate-800 px-4 py-1 rounded-full text-sm border border-slate-700 shadow-inner flex items-center gap-2">
                 <span className="text-slate-400">Cards:</span> 
                 <span className="font-bold text-lg text-purple-400">
-                  {(G.players[opponentID]?.captured.length || 0) + (G.players[opponentID]?.score || 0)}
+                  {((G.players && G.players[opponentID]?.captured?.length) || 0) + ((G.players && G.players[opponentID]?.score) || 0)}
                 </span>
               </div>
             </div>
           </div>
           <PlayerHand 
-            hand={G.players[opponentID]?.hand || []} 
+            hand={(G.players && G.players[opponentID]?.hand) || []} 
             isCurrentPlayer={false} 
             hidden={true}
             dealDelay={0.75}
@@ -330,13 +330,13 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
               <div className="bg-slate-800 px-4 py-1 rounded-full text-sm border border-slate-700 shadow-inner flex items-center gap-2">
                 <span className="text-slate-400">Cards:</span> 
                 <span className="font-bold text-lg text-indigo-400">
-                  {(G.players[myID]?.captured.length || 0) + (G.players[myID]?.score || 0)}
+                  {((G.players && G.players[myID]?.captured?.length) || 0) + ((G.players && G.players[myID]?.score) || 0)}
                 </span>
               </div>
             </div>
           </div>
           <PlayerHand 
-            hand={G.players[myID]?.hand || []} 
+            hand={(G.players && G.players[myID]?.hand) || []} 
             isCurrentPlayer={isCurrentPlayer(myID) && !isProcessing} 
             onPlayCard={handlePlayCard} 
           />
