@@ -4,6 +4,7 @@ import { Local, SocketIO } from 'boardgame.io/multiplayer';
 import { RondaGame } from './game/game';
 import { RandomBot } from 'boardgame.io/ai';
 import { RondaBoard } from './components/Board';
+import { AdSlot } from './components/AdSlot';
 
 const RondaClientBot = Client({
   game: RondaGame,
@@ -96,6 +97,11 @@ const App = () => {
               </div>
             </div>
           </div>
+        </div>
+        
+        {/* Ad Space at the bottom of the start screen */}
+        <div className="absolute bottom-4 left-0 right-0 z-20">
+          <AdSlot />
         </div>
       </div>
     );

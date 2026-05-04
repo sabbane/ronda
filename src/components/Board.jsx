@@ -2,6 +2,7 @@ import React from 'react';
 import { PlayerHand } from './PlayerHand';
 import { Card } from './Card';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { AdSlot } from './AdSlot';
 
 export const RondaBoard = ({ G, ctx, moves, playerID }) => {
   const myID = playerID || '0';
@@ -227,6 +228,11 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Top Ad Slot */}
+        <div className="w-full flex justify-center z-20">
+          <AdSlot className="mb-0 mt-2" />
+        </div>
 
         {/* Opponent Area */}
         <div className="w-full max-w-4xl relative z-10">
