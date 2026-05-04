@@ -1,24 +1,27 @@
 import React, { useEffect } from 'react';
 
-export const AdSlot = ({ className = '' }) => {
+export const AdSlot = ({ className = '', slotId = 'REPLACE_WITH_YOUR_SLOT_ID' }) => {
   useEffect(() => {
-    // In a real AdSense implementation, you would push to the adsbygoogle array here
-    // try {
-    //   (window.adsbygoogle = window.adsbygoogle || []).push({});
-    // } catch (err) {
-    //   console.error(err);
-    // }
+    try {
+      if (typeof window !== 'undefined' && window.adsbygoogle) {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      }
+    } catch (err) {
+      console.error('AdSense error:', err);
+    }
   }, []);
 
   return (
     <div className={`flex justify-center items-center my-2 ${className}`}>
-      {/* Mobile: 320x50, Desktop: 728x90 */}
-      <div 
-        className="bg-black/40 border border-white/10 rounded-lg flex items-center justify-center text-white/30 text-xs tracking-widest uppercase shadow-inner w-[320px] h-[50px] md:w-[728px] md:h-[90px] backdrop-blur-md"
-      >
-        <span className="md:hidden">Ad Space (320x50)</span>
-        <span className="hidden md:inline">Ad Space (728x90)</span>
-      </div>
+      {/* Google AdSense Ins Tag */}
+      <ins 
+        className="adsbygoogle"
+        style={{ display: 'block', minWidth: '320px', minHeight: '50px' }}
+        data-ad-client="ca-pub-8144886963015414"
+        data-ad-slot={slotId}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      ></ins>
     </div>
   );
 };
