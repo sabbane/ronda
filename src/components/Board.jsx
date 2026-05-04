@@ -219,7 +219,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
 
         {/* Opponent Area */}
         <div className="w-full max-w-4xl">
-          <div className="flex justify-between items-center px-8 mb-2">
+          <div className="flex justify-between items-center px-4 sm:px-8 mb-2">
             <div className="text-lg font-medium text-slate-400 flex items-center gap-3">
               Opponent
               {isCurrentPlayer(opponentID) && (
@@ -258,7 +258,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
 
         {/* Table Area */}
         <div className="flex-1 w-full flex items-center justify-center my-4 relative">
-          <div className="relative w-full max-w-4xl h-80 bg-emerald-900/40 rounded-3xl border-4 border-emerald-800/50 shadow-2xl shadow-emerald-900/20 backdrop-blur-sm flex flex-wrap gap-4 p-8 items-center justify-center">
+          <div className="relative w-full max-w-4xl min-h-[16rem] md:min-h-[20rem] bg-emerald-900/40 rounded-3xl border-4 border-emerald-800/50 shadow-2xl shadow-emerald-900/20 backdrop-blur-sm flex flex-wrap gap-2 sm:gap-4 p-4 sm:p-8 items-center justify-center">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/felt.png')] opacity-10 rounded-3xl mix-blend-overlay pointer-events-none"></div>
             
             <AnimatePresence>
@@ -304,7 +304,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
 
         {/* Player Area */}
         <div className="w-full max-w-4xl">
-          <div className="flex justify-between items-center px-8 mt-2">
+          <div className="flex justify-between items-center px-4 sm:px-8 mt-2">
             <div className="flex items-center gap-3">
               <div className={`text-lg font-medium ${isCurrentPlayer(myID) ? 'text-indigo-400' : 'text-slate-400'}`}>
                 You {isCurrentPlayer(myID) && "(Your Turn)"}
