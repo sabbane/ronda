@@ -206,9 +206,7 @@ const App = () => {
             </div>
           </div>
         </div>
-            </div>
-          </div>
-        </div>
+      </div>
 
         {/* Footer Area for Donate and Ad */}
         <div className="w-full flex flex-col items-center justify-end z-40 pb-4 gap-6 flex-shrink-0">
