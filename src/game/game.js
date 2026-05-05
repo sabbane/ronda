@@ -258,6 +258,7 @@ export const RondaGame = {
       if (p0HandEmpty && p1HandEmpty && G.deck.length > 0) {
         G.players['0'].hand = G.deck.splice(0, 3);
         G.players['1'].hand = G.deck.splice(0, 3);
+        G.lastPlayedCard = null; // Clear last played card so Derba doesn't carry over to a new round
         G.isAnimating = true;
         evaluateRondaTringa(G);
       }
