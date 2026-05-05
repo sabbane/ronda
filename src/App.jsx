@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Client } from 'boardgame.io/react';
 import { Local, SocketIO } from 'boardgame.io/multiplayer';
 import { RondaGame } from './game/game';
 import { RandomBot } from 'boardgame.io/ai';
 import { RondaBoard } from './components/Board';
 import { AdSlot } from './components/AdSlot';
+import { DonateButton } from './components/DonateButton';
 import { useLanguage } from './contexts/LanguageContext';
 
 const LoadingScreen = () => {
@@ -92,7 +94,7 @@ const App = () => {
 
   if (!mode) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-white p-4 relative overflow-hidden">
+      <div className="min-h-screen flex flex-col items-center text-white relative overflow-hidden overflow-y-auto">
         {/* Background Image with Moroccan Vibe */}
         <div 
           className="absolute inset-0 z-0 scale-105"
@@ -104,7 +106,8 @@ const App = () => {
           }}
         />
 
-        <div className="bg-slate-900/80 backdrop-blur-xl p-8 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 text-center max-w-md w-full relative z-30">
+        <div className="flex-1 flex w-full items-center justify-center p-4 z-30 pt-12 pb-8">
+          <div className="bg-slate-900/80 backdrop-blur-xl p-8 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 text-center max-w-md w-full relative">
 
           
           {/* Language Selector in Center */}
@@ -203,10 +206,16 @@ const App = () => {
             </div>
           </div>
         </div>
-        
-        {/* Ad Space at the bottom of the start screen */}
-        <div className="absolute bottom-4 left-0 right-0 z-20">
-          <AdSlot />
+            </div>
+          </div>
+        </div>
+
+        {/* Footer Area for Donate and Ad */}
+        <div className="w-full flex flex-col items-center justify-end z-40 pb-4 gap-6 flex-shrink-0">
+          <DonateButton />
+          <div className="w-full">
+            <AdSlot />
+          </div>
         </div>
       </div>
     );

@@ -3,6 +3,7 @@ import { PlayerHand } from './PlayerHand';
 import { Card } from './Card';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { AdSlot } from './AdSlot';
+import { DonateButton } from './DonateButton';
 import { useLanguage } from '../contexts/LanguageContext';
 
 export const RondaBoard = ({ G, ctx, moves, playerID }) => {
@@ -240,6 +241,10 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                   >
                     {t('mainMenu')}
                   </button>
+                </div>
+                
+                <div className="mt-8 pt-8 border-t border-slate-700/50">
+                  <DonateButton showMessage={true} />
                 </div>
               </motion.div>
             </motion.div>
