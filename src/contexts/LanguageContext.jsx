@@ -29,6 +29,8 @@ export const translations = {
     donateMsg: "Enjoying the game? Buy the dev team a cup of Mint Tea!",
     connecting: "Connecting...",
     connectingDetail: "Waiting for the game server to respond.",
+    roomOccupied: "Room is occupied, please choose another name.",
+    roomFull: "Room is full.",
     backToMenu: "Back to Menu",
     shareLink: "Copy Invitation Link",
     announcements: {
@@ -69,6 +71,8 @@ export const translations = {
     donateMsg: "Vous aimez le jeu ? Offrez un thé à l'équipe de développement !",
     connecting: "Connexion...",
     connectingDetail: "En attente d'une réponse du serveur de jeu.",
+    roomOccupied: "La salle ist occupée, veuillez choisir un autre nom.",
+    roomFull: "La salle est pleine.",
     backToMenu: "Retour au Menu",
     shareLink: "Copier le lien d'invitation",
     announcements: {
@@ -109,6 +113,8 @@ export const translations = {
     donateMsg: "عجباتك اللعبة؟ اهدي الفريق المطور كاس د أتاي!",
     connecting: "جاري الاتصال...",
     connectingDetail: "في انتظار استجابة خادم اللعبة.",
+    roomOccupied: "الغرفة محجوزة، يرجى اختيار اسم آخر.",
+    roomFull: "الغرفة ممتلئة.",
     backToMenu: "العودة للقائمة",
     shareLink: "نسخ رابط الدعوة",
     announcements: {

@@ -69,6 +69,19 @@ Integration von Werbeflächen über eine dedizierte `AdSlot`-Komponente zur Umsa
 *   **RandomBot:** Agiert nur für Spieler 1, wartet auf UI-Animationen und priorisiert Captures.
 *   **Stages:** Nutzung von `waitForUI` zur Synchronisation zwischen Game-Engine und Frontend-Animationen.
 
+### 4.4 Online-Multiplayer
+Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
+*   **Backend:** Node.js Server (`server.js`) basierend auf `boardgame.io/server`.
+*   **Lobby-Management:** Nutzung des `LobbyClient` zur Prüfung des Raum-Status (existiert der Raum? Ist ein Platz frei?) vor dem Beitritt.
+*   **Raum-System:** 
+    *   Spieler können über eine eindeutige **Match ID** Räume erstellen (Host) oder beitreten (Join).
+    *   **Thematische Raumnamen:** Automatische Generierung von marokkanischen Raumnamen (z.B. `Marrakech-42`).
+*   **URL-Synchronisation:** Die Match-ID wird mit der URL synchronisiert (`?room=...`), was den direkten Beitritt über einen Link ermöglicht.
+*   **Sharing:** Eine integrierte Teilen-Funktion (`navigator.share`) mit Clipboard-Fallback erlaubt das schnelle Versenden der Einladung.
+
+### 4.5 Community & Support
+*   **Donate Button:** Integration einer `DonateButton`-Komponente zur Unterstützung der Entwicklung.
+
 ## 5. Projektstruktur
 ```text
 /src
@@ -76,13 +89,15 @@ Integration von Werbeflächen über eine dedizierte `AdSlot`-Komponente zur Umsa
     Board.jsx       # Haupt-Spielfeld & Event-Handling
     Card.jsx        # Karten-Komponente
     AdSlot.jsx      # Werbe-Integration
+    DonateButton.jsx # Spenden-Funktion
   /contexts
     LanguageContext.jsx # i18n & Sprachsteuerung
   /game
     game.js         # Kern-Spiellogik
     bot.js          # KI-Verhalten
     game.test.js    # Unit-Tests für Spielregeln
-  App.jsx           # Einstiegspunkt & Layout
+  App.jsx           # Einstiegspunkt, Lobby-Logik, URL-Sync & Online-Client
+server.js           # Backend-Server für Online-Multiplayer
 /public
   /cards            # Bilddateien der Karten
   /assets           # UI-Assets (Hintergrund, etc.)
@@ -99,11 +114,14 @@ Um die App als Progressive Web App (PWA) nutzbar zu machen, werden folgende Feat
 *   [x] Ronda/Tringa Clash-Logik & Popup-Ankündigungen
 *   [x] Internationalisierung (EN, FR, AR) & RTL-Support
 *   [x] Integration realer Karten-Assets & Capture-Animationen
+*   [x] Online-Multiplayer (Host/Join System mit Lobby-Check)
+*   [x] URL-basierter Beitritt (`?room=...`)
+*   [x] Thematische marokkanische Raumnamen
+*   [x] Match-ID Sharing-Funktionalität (Navigator + Clipboard)
 *   [x] Visualisierung gewonnener Kartenstapel
 *   [x] Unit-Tests für die Spielregeln (`vitest`)
-*   [x] Werbe-Integration (`AdSlot`)
+*   [x] Werbe-Integration (`AdSlot`) & Donate-Button
 *   [x] Bot-Integration (Animation-aware)
 *   [ ] PWA-Integration (Manifest & Service Worker)
 *   [ ] Erweiterte KI-Heuristik
-otion)
 *   [ ] Verfeinerte KI-Logik
