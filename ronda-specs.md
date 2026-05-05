@@ -50,33 +50,42 @@ Die App verwendet reale Bilddateien für die spanischen Spielkarten:
 *   **Speicherort:** `public/cards/`
 *   **Format:** PNG (transparent)
 *   **Dateinamen-Konvention:** `{Value}-{Suit}.png` (z.B. `01-oros.png`)
-*   **Suit-Mapping:**
-    *   `coins` -> `oros`
-    *   `cups` -> `copas`
-    *   `swords` -> `espadas`
-    *   `clubs` -> `bastos`
-*   **Besonderheiten:**
-    *   Die Karte **01-oros** (1 Lass Flouss) verwendet ein spezielles Design von `vector.ma`.
-    *   Die Kartenrückseite ist als `back.png` gespeichert.
+*   **Suit-Mapping:** `coins` -> `oros`, `cups` -> `copas`, `swords` -> `espadas`, `clubs` -> `bastos`.
+*   **UI-Features:**
+    *   **Captured Stack:** Gewonnene Karten werden visuell als Stapel beim Spieler/Gegner angezeigt.
+    *   **Capture Highlight:** Die gespielte Karte wird während eines Captures hervorgehoben (`ring-4 ring-yellow-400`).
+    *   **Hintergrund:** Ein dezentes Spiel-Hintergrundbild (`game_background.png`).
 
-## 4. Bot-Architektur
-*   **Aktueller Status:** Ein `RandomBot` ist implementiert, der nur für Spieler 1 agiert.
-*   **Logik:** Der Bot prüft den Status von Animationen und Ankündigungen (`waitForUI` Stage). Er führt Züge nur aus, wenn er am Zug ist und keine UI-Blockaden vorliegen. Er priorisiert das Abschließen von Captures (`processCapture`).
-*   **Geplante Logik:** Ein Heuristik-Bot, der Stiche gegenüber einfachem Abwerfen priorisiert und versucht, Sequenzen zu maximieren.
+## 4. Architektur-Features
+### 4.1 Internationalisierung (i18n)
+Die App unterstützt mehrere Sprachen über einen `LanguageContext`:
+*   **Sprachen:** Englisch (EN), Französisch (FR), Arabisch (AR).
+*   **RTL-Support:** Automatische Anpassung der Textrichtung (`dir="rtl"`) für Arabisch.
+
+### 4.2 Monetarisierung
+Integration von Werbeflächen über eine dedizierte `AdSlot`-Komponente zur Umsatzgenerierung.
+
+### 4.3 Bot- & Spiel-Logik
+*   **RandomBot:** Agiert nur für Spieler 1, wartet auf UI-Animationen und priorisiert Captures.
+*   **Stages:** Nutzung von `waitForUI` zur Synchronisation zwischen Game-Engine und Frontend-Animationen.
 
 ## 5. Projektstruktur
 ```text
 /src
-  /game
-    game.js        # Kern-Spiellogik (RondaGame Objekt) inkl. automatischer Deal-Logik
-    bot.js         # KI-Enumerate & Bot-Konfiguration
   /components
-    Board.jsx      # Haupt-Spielfeld (Handling von Animationen & UI-Events)
-    Card.jsx       # Visuelle Darstellung einer Karte
-    PlayerHand.jsx # UI für Spieler-Karten
-  App.jsx          # Game-Client Integration inkl. Board-Layout
+    Board.jsx       # Haupt-Spielfeld & Event-Handling
+    Card.jsx        # Karten-Komponente
+    AdSlot.jsx      # Werbe-Integration
+  /contexts
+    LanguageContext.jsx # i18n & Sprachsteuerung
+  /game
+    game.js         # Kern-Spiellogik
+    bot.js          # KI-Verhalten
+    game.test.js    # Unit-Tests für Spielregeln
+  App.jsx           # Einstiegspunkt & Layout
 /public
-  /cards           # Bilddateien der Karten
+  /cards            # Bilddateien der Karten
+  /assets           # UI-Assets (Hintergrund, etc.)
 ```
 
 ## 6. PWA Anforderungen
@@ -84,20 +93,17 @@ Um die App als Progressive Web App (PWA) nutzbar zu machen, werden folgende Feat
 *   **Manifest:** Eine `manifest.json` für App-Name, Icons und Branding-Farben.
 *   **Service Worker:** Automatisches Caching der Assets für Offline-Verfügbarkeit.
 *   **Installierbarkeit:** Unterstützung für die Installation auf dem Homescreen (Mobile & Desktop).
-*   **Branding:** Theme-Farben passend zum Slate/Indigo Design.
 
 ## 7. Aktueller Status
 *   [x] Core Game Logic (Stechen, Sequenzen, Missa, Derba)
-*   [x] Hand-Ankündigungen (Ronda, Tringa)
-*   [x] Ronda/Tringa Clash-Logik (Vergleich & 5-Karten-Bonus)
-*   [x] Automatisches Geben der Karten (`onBegin`)
-*   [x] Zweistufiger Capture-Prozess für flüssige Animationen
-*   [x] Synchronisations-Mechanismus (`waitForUI`) für Bot und UI
-*   [x] Integration realer Karten-Assets (Baraja Española)
-*   [x] Basis-UI mit Tailwind
-*   [x] Bot-Integration (Random, Animation-aware)
+*   [x] Ronda/Tringa Clash-Logik & Popup-Ankündigungen
+*   [x] Internationalisierung (EN, FR, AR) & RTL-Support
+*   [x] Integration realer Karten-Assets & Capture-Animationen
+*   [x] Visualisierung gewonnener Kartenstapel
+*   [x] Unit-Tests für die Spielregeln (`vitest`)
+*   [x] Werbe-Integration (`AdSlot`)
+*   [x] Bot-Integration (Animation-aware)
 *   [ ] PWA-Integration (Manifest & Service Worker)
-*   [ ] Erweiterte Animationen (Framer Motion)
-*   [ ] Verfeinerte KI-Logik
+*   [ ] Erweiterte KI-Heuristik
 otion)
 *   [ ] Verfeinerte KI-Logik

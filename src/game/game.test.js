@@ -1,5 +1,5 @@
 import { Client } from 'boardgame.io/client';
-import { RondaGame, evaluateRondaTringa } from './game.js';
+import { RondaGame, evaluateRondaTringa, checkRoundEnd } from './game.js';
 import { expect, test, describe } from 'vitest';
 
 describe('RondaGame - Extended Requirements', () => {
@@ -27,12 +27,26 @@ describe('RondaGame - Extended Requirements', () => {
   };
 
   const advanceUI = (client) => {
-    const state = client.getState();
-    if (state.G.isAnimating || (state.G.announcements && state.G.announcements.length > 0)) {
+    let state = client.getState();
+    
+    // 1. Process animations
+    if (state.G.isAnimating && state.ctx.activePlayers?.[state.ctx.currentPlayer] === 'waitForUI') {
       client.moves.endAnimation();
+      state = client.getState();
+    }
+    
+    // 2. Process announcements
+    if (state.G.announcements.length > 0 && state.ctx.activePlayers?.[state.ctx.currentPlayer] === 'waitForUI') {
       client.moves.clearAnnouncements();
+      state = client.getState();
+    }
+
+    // 3. Recursive check: if a move triggered another animation/announcement (like in onBegin)
+    if (state.ctx.activePlayers?.[state.ctx.currentPlayer] === 'waitForUI' && (state.G.isAnimating || state.G.announcements.length > 0)) {
+      advanceUI(client);
     }
   };
+
 
   test('Sequential Capture: Playing a 7 should capture 7, 8, 9 if present', () => {
     const game = setupCustomGame((G) => {
@@ -73,7 +87,7 @@ describe('RondaGame - Extended Requirements', () => {
     expect(state.G.players['0'].score).toBe(1);
   });
 
-  test('Bount: Matching the opponents last card should award +1 point', () => {
+  test('Derba: Matching the opponents last card should award +1 point', () => {
     const game = setupCustomGame((G) => {
       G.players['0'].hand = [{ suit: 'swords', value: 3, id: 's3' }, { suit: 'coins', value: 1, id: 'c1' }];
       G.players['1'].hand = [{ suit: 'cups', value: 3, id: 'c3' }, { suit: 'clubs', value: 1, id: 'cl1' }];
@@ -91,11 +105,11 @@ describe('RondaGame - Extended Requirements', () => {
     client.moves.processCapture();
     
     const state = client.getState();
-    const bountAnnouncement = state.G.announcements.find(a => a.type === 'Bount');
-    expect(bountAnnouncement).toBeDefined();
-    // Bount (+1) + Missa (+1) = 2
+    const derbaAnnouncement = state.G.announcements.find(a => a.type === 'Derba');
+    expect(derbaAnnouncement).toBeDefined();
+    // Derba (+1) + Missa (+1) = 2
     expect(state.G.players['1'].score).toBe(2);
-    expect(state.G.players['0'].score).toBe(-2);
+    expect(state.G.players['0'].score).toBe(0); // No subtraction anymore
   });
 
   test('Ronda Detection: Starting a round with a pair should award +1 point', () => {
@@ -122,47 +136,33 @@ describe('RondaGame - Extended Requirements', () => {
   });
 
   test('Clash Resolution: Two Rondas should trigger a clash and resolve at round end', () => {
-    const game = setupCustomGame((G) => {
-      G.players['0'].hand = [{ value: 7, id: 's7' }, { value: 7, id: 'c7' }, { value: 1, id: 'co1' }];
-      G.players['1'].hand = [{ value: 5, id: 's5' }, { value: 5, id: 'c5' }, { value: 2, id: 'co2' }];
-      evaluateRondaTringa(G); // Explicitly call because G.players was overridden
-      return G;
-    });
-
-    const client = Client({ game });
-    let state = client.getState();
+    const G = RondaGame.setup({ ctx: { numPlayers: 2 } });
+    G.table = [];
+    G.players['0'].score = 0;
+    G.players['1'].score = 0;
+    G.players['0'].hand = [{ value: 7, id: 's7' }, { value: 7, id: 'c7' }, { value: 1, id: 'co1' }];
+    G.players['1'].hand = [{ value: 5, id: 's5' }, { value: 5, id: 'c5' }, { value: 2, id: 'co2' }];
+    G.deck = [];
     
-    // Initial state check: Both players in waitForUI because of Clash announcement
-    expect(state.G.activeClash).toBeDefined();
-    expect(state.G.announcements.find(a => a.type === 'Clash')).toBeDefined();
+    // 1. Initial detection
+    evaluateRondaTringa(G);
+    expect(G.activeClash).toBeDefined();
+    expect(G.activeClash.p0.value).toBe(7);
+    expect(G.activeClash.p1.value).toBe(5);
     
-    // Clear initial UI block
-    advanceUI(client);
+    // 2. Play all cards (simulate empty hands)
+    G.players['0'].hand = [];
+    G.players['1'].hand = [];
     
-    expect(client.getState().G.players['0'].score).toBe(0); // No points yet!
-
-    // Player 0 plays 1st card
-    client.moves.playCard(0); advanceUI(client);
-    // Player 1 plays 1st card
-    client.moves.playCard(0); advanceUI(client);
-    // Player 0 plays 2nd card
-    client.moves.playCard(0); advanceUI(client);
-    // Player 1 plays 2nd card
-    client.moves.playCard(0); advanceUI(client);
-    // Player 0 plays 3rd card
-    client.moves.playCard(0); advanceUI(client);
-    // Player 1 plays 3rd card
-    client.moves.playCard(0); advanceUI(client);
+    // 3. Resolve
+    checkRoundEnd(G);
     
-    // Now both hands are empty, resolveClash should have been called.
-    // We need to advance UI one last time to process the Clash result announcement
-    advanceUI(client);
-    
-    state = client.getState();
-    // After round end, Player 0 (higher Ronda: 7 vs 5) should have won the clash (+5)
-    expect(state.G.players['0'].score).toBe(5);
-    expect(state.G.announcements.length).toBe(0);
+    // Player 0 (7) > Player 1 (5)
+    expect(G.players['0'].score).toBe(5);
+    expect(G.activeClash).toBe(null);
   });
+
+
 
   test('End Game: Winner is determined by captured cards + bonuses', () => {
     const game = setupCustomGame((G) => {

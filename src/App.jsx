@@ -7,6 +7,23 @@ import { RondaBoard } from './components/Board';
 import { AdSlot } from './components/AdSlot';
 import { useLanguage } from './contexts/LanguageContext';
 
+const LoadingScreen = () => {
+  const { t } = useLanguage();
+  return (
+    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 text-center">
+      <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mb-6"></div>
+      <h2 className="text-2xl font-bold text-amber-200 mb-2">{t('connecting') || 'Connecting...'}</h2>
+      <p className="text-slate-400 mb-8 max-w-xs">{t('connectingDetail') || 'Waiting for the game server to respond.'}</p>
+      <button 
+        onClick={() => window.dispatchEvent(new CustomEvent('ronda-menu'))}
+        className="px-6 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-sm font-medium transition-colors border border-slate-700"
+      >
+        {t('backToMenu') || 'Back to Menu'}
+      </button>
+    </div>
+  );
+};
+
 const RondaClientBot = Client({
   game: RondaGame,
   board: RondaBoard,
@@ -35,23 +52,43 @@ const RondaClientOnline = Client({
   multiplayer: SocketIO({ server: serverUrl }),
 });
 
+
+
 const App = () => {
+  const getRoomFromUrl = () => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('room') || 'ronda-room-1';
+  };
+
   const [mode, setMode] = useState(null); // 'bot' or 'online'
   const [playerID, setPlayerID] = useState('0');
-  const [matchID, setMatchID] = useState('ronda-room-1');
+  const [matchID, setMatchID] = useState(getRoomFromUrl);
   const [gameKey, setGameKey] = useState(0);
   const { language, changeLanguage, t } = useLanguage();
+
+  const updateUrl = (id) => {
+    const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}?room=${id}`;
+    window.history.replaceState({ path: newUrl }, '', newUrl);
+  };
 
   React.useEffect(() => {
     const handleReset = () => setGameKey(prev => prev + 1);
     const handleMenu = () => setMode(null);
     window.addEventListener('ronda-reset', handleReset);
     window.addEventListener('ronda-menu', handleMenu);
+
+    // If URL has a room, set it
+    const room = getRoomFromUrl();
+    if (room !== 'ronda-room-1') {
+      setMatchID(room);
+    }
+
     return () => {
       window.removeEventListener('ronda-reset', handleReset);
       window.removeEventListener('ronda-menu', handleMenu);
     };
   }, []);
+
 
   if (!mode) {
     return (
@@ -67,7 +104,8 @@ const App = () => {
           }}
         />
 
-        <div className="bg-slate-900/80 backdrop-blur-xl p-8 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 text-center max-w-md w-full relative z-10">
+        <div className="bg-slate-900/80 backdrop-blur-xl p-8 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 text-center max-w-md w-full relative z-30">
+
           
           {/* Language Selector in Center */}
           <div className="flex justify-center gap-2 mb-8" dir="ltr">
@@ -109,15 +147,43 @@ const App = () => {
             <div className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
               <h2 className="text-xl font-bold mb-4 text-amber-200/80 uppercase tracking-widest text-sm">{t('onlineMultiplayer')}</h2>
               <div className="flex flex-col gap-4">
-                <div>
+                <div className="flex flex-col gap-2">
                   <label className="block text-xs text-slate-400 mb-1 text-left uppercase tracking-wider ml-1">{t('matchId')}</label>
-                  <input 
-                    type="text" 
-                    value={matchID}
-                    onChange={e => setMatchID(e.target.value)}
-                    className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 w-full text-white font-mono focus:outline-none focus:border-amber-500/50 transition-colors"
-                    placeholder={t('enterRoomId')}
-                  />
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      value={matchID}
+                      onChange={e => {
+                        setMatchID(e.target.value);
+                        updateUrl(e.target.value);
+                      }}
+                      className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-mono focus:outline-none focus:border-amber-500/50 transition-colors"
+                      placeholder={t('enterRoomId')}
+                    />
+                    <button 
+                      onClick={async () => {
+                        const link = `${window.location.protocol}//${window.location.host}${window.location.pathname}?room=${matchID}`;
+                        if (navigator.share) {
+                          try {
+                            await navigator.share({
+                              title: 'Ronda',
+                              text: t('shareText') || 'Join my Ronda game!',
+                              url: link
+                            });
+                          } catch (err) {
+                            console.error('Share failed:', err);
+                          }
+                        } else {
+                          navigator.clipboard.writeText(link);
+                          alert(t('linkCopied') || 'Link copied to clipboard!');
+                        }
+                      }}
+                      className="bg-slate-800 hover:bg-slate-700 p-3 rounded-xl border border-white/10 text-amber-400 transition-all active:scale-95"
+                      title={t('shareLink') || 'Share Invitation Link'}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    </button>
+                  </div>
                 </div>
                 <div className="flex gap-3">
                   <button 
