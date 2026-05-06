@@ -129,6 +129,14 @@ export const checkRoundEnd = (G) => {
 };
 
 const checkWaitForUI = (G, events) => {
+  // If the game just ended, skip animation wait and go directly to gameOver stage.
+  // This ensures the Play Again button works immediately when the overlay appears.
+  if (G.gameStatus) {
+    G.isAnimating = false;
+    events.setActivePlayers({ all: 'gameOver' });
+    return true;
+  }
+
   // If there are announcements OR an animation is running, we MUST go into waitForUI stage
   // to let the frontend finish its visual work before the next turn starts.
   if (G.announcements.length > 0 || G.isAnimating) {
@@ -331,18 +339,25 @@ export const RondaGame = {
             const matches1 = G.matchesWon ? G.matchesWon['1'] : 0;
 
             const fresh = RondaGame.setup({ ctx });
-            fresh.matchesWon = { '0': matches0, '1': matches1 };
+
+            // Wipe all existing keys from G, then copy fresh state in.
+            // This ensures no stale properties survive the reset.
+            for (const key of Object.keys(G)) {
+              delete G[key];
+            }
+            Object.assign(G, fresh);
+
+            // Restore overall match wins
+            G.matchesWon = { '0': matches0, '1': matches1 };
 
             // Clear any stages so players can play cards
             events.setActivePlayers({ all: null });
 
             // If the new round starts with announcements (Ronda/Tringa), 
             // we must enter waitForUI stage so players can clear them.
-            if (fresh.announcements.length > 0) {
+            if (G.announcements.length > 0 || G.isAnimating) {
               events.setActivePlayers({ all: 'waitForUI' });
             }
-
-            return fresh;
           }
         }
       }
