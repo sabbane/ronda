@@ -104,6 +104,11 @@ export const resolveClash = (G) => {
 export const checkRoundEnd = (G) => {
   if (G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0) {
     resolveClash(G);
+    
+    // If deck is also empty, the round is totally over
+    if (G.deck.length === 0 && !G.needsRestart) {
+       G.needsRestart = true;
+    }
   }
 };
 
@@ -321,13 +326,6 @@ export const RondaGame = {
       if (p0Total > p1Total) return { winner: '0' };
       if (p1Total > p0Total) return { winner: '1' };
       return { draw: true };
-    }
-
-    // If the round is over (no cards left), we set a flag instead of ending the match
-    if (G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0 && G.deck.length === 0 && !G.needsRestart) {
-       // Logic to finalize round scores could go here
-       // For now, we just trigger the restart UI
-       G.needsRestart = true;
     }
   },
 

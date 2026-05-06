@@ -25,5 +25,6 @@ test('Multiplayer: Two players can join and see the board', async ({ browser }) 
   await pageB.click('button:has-text("Join")');
 
   // Both should see the game container
-  await expect(pageB.locator('div.min-h-screen.bg-black')).toBeVisible({ timeout: 15000 });
+  await expect(pageA.locator('.min-h-screen')).toBeVisible({ timeout: 15000 });
+  await expect(pageB.locator('.min-h-screen')).toBeVisible({ timeout: 15000 });
 });

@@ -163,7 +163,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
               fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
               className="group-hover:-translate-x-1 transition-transform rtl:group-hover:translate-x-1"
             >
-              <path d="m15 18-6-6 6-6"/>
+            <path d="m15 18-6-6 6-6"/>
             </svg>
             <span className="text-sm font-bold uppercase tracking-wider">{t('backToMenu')}</span>
           </button>
@@ -234,17 +234,21 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                   {t('gameOver')}
                 </h2>
                 <div className="text-2xl mb-8 font-medium">
-                  {winner === 'Draw' ? t('itsADraw') : winner === myID ? t('youWon') : t('opponentWon')}
+                  {winner === 'Draw' ? t('itsADraw') : winner === myID ? t('youWon') : (winner === null ? t('roundOver') : t('opponentWon'))}
                 </div>
                 <div className="flex gap-8 justify-center text-xl bg-slate-900/50 p-6 rounded-2xl border border-slate-700/50">
                   <div className="flex flex-col items-center">
                     <span className="text-sm text-slate-400 mb-1">{t('you')}</span>
-                    <span className="text-3xl font-bold text-indigo-400">{ctx.gameover.p0Score}</span>
+                    <span className="text-3xl font-bold text-indigo-400">
+                      {ctx.gameover?.p0Score ?? G.players['0'].score}
+                    </span>
                   </div>
                   <div className="w-px bg-slate-700"></div>
                   <div className="flex flex-col items-center">
                     <span className="text-sm text-slate-400 mb-1">{t('opponent')}</span>
-                    <span className="text-3xl font-bold text-purple-400">{ctx.gameover.p1Score}</span>
+                    <span className="text-3xl font-bold text-purple-400">
+                      {ctx.gameover?.p1Score ?? G.players['1'].score}
+                    </span>
                   </div>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">

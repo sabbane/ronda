@@ -58,7 +58,11 @@ const RondaClientBot = ReactClient({
   }),
 });
 
-const serverUrl = import.meta.env.VITE_SERVER_URL || (typeof window !== 'undefined' ? `${window.location.protocol}//ronda-backend.up.railway.app` : 'http://localhost:8000');
+const serverUrl = import.meta.env.VITE_SERVER_URL || (
+  import.meta.env.DEV
+    ? 'http://localhost:8000'
+    : `${window.location.protocol}//ronda-backend.up.railway.app`
+);
 
 const lobbyClient = new LobbyClient({ server: serverUrl });
 
