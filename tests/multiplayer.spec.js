@@ -6,7 +6,7 @@ test('Multiplayer: Two players can join and see the board', async ({ browser }) 
   // Context A: Host
   const contextA = await browser.newContext();
   const pageA = await contextA.newPage();
-  await pageA.goto('http://localhost:5173');
+  await pageA.goto('/');
   
   await pageA.fill('input[type="text"]', roomID);
   await pageA.click('button:has-text("Host")');
@@ -19,7 +19,7 @@ test('Multiplayer: Two players can join and see the board', async ({ browser }) 
   // Context B: Joiner
   const contextB = await browser.newContext();
   const pageB = await contextB.newPage();
-  await pageB.goto('http://localhost:5173');
+  await pageB.goto('/');
 
   await pageB.fill('input[type="text"]', roomID);
   await pageB.click('button:has-text("Join")');

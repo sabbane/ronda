@@ -5,7 +5,8 @@ const server = Server({
   games: [RondaGame],
   origins: [
     Origins.LOCALHOST,
-    // Add your railway frontend URL here once deployed, e.g., 'https://ronda-frontend.up.railway.app'
+    'https://ronda-frontend-development.up.railway.app',
+    'https://ronda.up.railway.app',
     process.env.FRONTEND_URL || '*'
   ]
 });

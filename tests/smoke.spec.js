@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('Smoke Test: App loads correctly and is not a white page', async ({ page }) => {
   // Navigate to the local dev server
-  await page.goto('http://localhost:5173');
+  await page.goto('/');
 
   // 1. Check if the page title is correct
   await expect(page).toHaveTitle(/Ronda/);
