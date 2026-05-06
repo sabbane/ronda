@@ -171,28 +171,6 @@ export const RondaGame = {
   },
 
   moves: {
-    restartGame: ({ G, ctx, events }) => {
-      // Preserve overall match wins
-      const matches0 = G.matchesWon ? G.matchesWon['0'] : 0;
-      const matches1 = G.matchesWon ? G.matchesWon['1'] : 0;
-
-      const fresh = RondaGame.setup({ ctx });
-      Object.assign(G, fresh);
-      G.gameStatus = null;
-      
-      // Restore overall match wins
-      G.matchesWon = { '0': matches0, '1': matches1 };
-
-      // Ensure any leftover stages are cleared
-      events.setActivePlayers({ all: null });
-
-      // If the new round starts with announcements (Ronda/Tringa), 
-      // we must enter waitForUI stage so players can clear them.
-      if (G.announcements.length > 0 || G.isAnimating) {
-        events.setActivePlayers({ all: 'waitForUI' });
-      }
-    },
-
     playCard: ({ G, ctx, events, playerID }, cardIndex) => {
       if (G.pendingCapture) return INVALID_MOVE;
 
@@ -331,12 +309,41 @@ export const RondaGame = {
           },
           endAnimation: ({ G, events }) => {
             G.isAnimating = false;
-            if (G.announcements.length === 0) {
+            
+            // If the game ended, transition everyone to gameOver stage
+            if (G.gameStatus) {
+              events.setActivePlayers({ all: 'gameOver' });
+            } else if (G.announcements.length === 0) {
               events.setActivePlayers({ all: null });
               if (G.endTurnAfterUI) {
                 G.endTurnAfterUI = false;
                 events.endTurn();
               }
+            }
+          }
+        }
+      },
+      gameOver: {
+        moves: {
+          restartGame: ({ G, ctx, events }) => {
+            // Preserve overall match wins
+            const matches0 = G.matchesWon ? G.matchesWon['0'] : 0;
+            const matches1 = G.matchesWon ? G.matchesWon['1'] : 0;
+
+            const fresh = RondaGame.setup({ ctx });
+            Object.assign(G, fresh);
+            G.gameStatus = null;
+            
+            // Restore overall match wins
+            G.matchesWon = { '0': matches0, '1': matches1 };
+
+            // Clear any stages so players can play cards
+            events.setActivePlayers({ all: null });
+
+            // If the new round starts with announcements (Ronda/Tringa), 
+            // we must enter waitForUI stage so players can clear them.
+            if (G.announcements.length > 0 || G.isAnimating) {
+              events.setActivePlayers({ all: 'waitForUI' });
             }
           }
         }

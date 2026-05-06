@@ -179,7 +179,12 @@ describe('RondaGame - Extended Requirements', () => {
     const client = Client({ game });
     const state = client.getState();
     
-    expect(state.G.gameStatus).toBeDefined();
-    expect(state.G.gameStatus.winner).toBe('0');
+    // Create a mutable copy of G to avoid "read-only" errors in Vitest
+    const mutableG = JSON.parse(JSON.stringify(state.G));
+    checkRoundEnd(mutableG);
+    
+    expect(mutableG.gameStatus).toBeDefined();
+    expect(mutableG.gameStatus.winner).toBe('0');
+    expect(mutableG.matchesWon['0']).toBe(1);
   });
 });
