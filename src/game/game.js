@@ -105,22 +105,21 @@ export const checkRoundEnd = (G) => {
   if (G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0) {
     resolveClash(G);
     
-    // If deck is also empty, the round is totally over
-    if (G.deck.length === 0 && !G.needsRestart) {
-      const WINNING_SCORE = 41;
-      if (G.players['0'].score >= WINNING_SCORE || G.players['1'].score >= WINNING_SCORE) {
-        if (!G.gameStatus) {
-          const p0Total = G.players['0'].score;
-          const p1Total = G.players['1'].score;
-          let winner = 'Draw';
-          if (p0Total > p1Total) winner = '0';
-          else if (p1Total > p0Total) winner = '1';
-          
-          G.gameStatus = { winner, p0Score: p0Total, p1Score: p1Total };
-        }
-      } else {
-        G.needsRestart = true;
+    // If deck is also empty, the game (round) is totally over
+    if (G.deck.length === 0 && !G.gameStatus) {
+      const p0Total = G.players['0'].score;
+      const p1Total = G.players['1'].score;
+      let winner = 'Draw';
+      if (p0Total > p1Total) {
+        winner = '0';
+        G.matchesWon['0']++;
       }
+      else if (p1Total > p0Total) {
+        winner = '1';
+        G.matchesWon['1']++;
+      }
+      
+      G.gameStatus = { winner, p0Score: p0Total, p1Score: p1Total };
     }
   }
 };
@@ -157,9 +156,9 @@ export const RondaGame = {
       pendingCapture: null,
       isAnimating: false,
       gameStarted: true,
-      needsRestart: false, // Flag to show restart UI instead of framework gameover
       endTurnAfterUI: false,
       gameStatus: null, // Custom game over state
+      matchesWon: { '0': 0, '1': 0 }, // Track overall games won
     };
 
     evaluateRondaTringa(G);
@@ -169,19 +168,16 @@ export const RondaGame = {
 
   moves: {
     restartGame: ({ G, ctx, events }) => {
-      // Keep track of total score if we just ended a round, 
-      // but reset scores if the match was fully over (someone won the match).
-      const p0Score = G.gameStatus ? 0 : G.players['0'].score;
-      const p1Score = G.gameStatus ? 0 : G.players['1'].score;
+      // Preserve overall match wins
+      const matches0 = G.matchesWon ? G.matchesWon['0'] : 0;
+      const matches1 = G.matchesWon ? G.matchesWon['1'] : 0;
 
       const fresh = RondaGame.setup({ ctx });
       Object.assign(G, fresh);
-      G.needsRestart = false;
       G.gameStatus = null;
       
-      // Restore scores if we are just moving to the next round
-      G.players['0'].score = p0Score;
-      G.players['1'].score = p1Score;
+      // Restore overall match wins
+      G.matchesWon = { '0': matches0, '1': matches1 };
 
       // Ensure any leftover stages are cleared
       events.setActivePlayers({ all: null });

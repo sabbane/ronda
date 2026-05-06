@@ -219,7 +219,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
 
         {/* Game Over / Round Over Overlay */}
         <AnimatePresence>
-          {(G.gameStatus || G.needsRestart) && (
+          {G.gameStatus && (
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
@@ -233,8 +233,11 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                 <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
                   {t('gameOver')}
                 </h2>
-                <div className="text-2xl mb-8 font-medium">
+                <div className="text-2xl mb-2 font-medium">
                   {winner === 'Draw' ? t('itsADraw') : winner === myID ? t('youWon') : (winner === null ? t('roundOver') : t('opponentWon'))}
+                </div>
+                <div className="text-lg text-slate-400 mb-8 font-semibold uppercase tracking-widest">
+                  {t('totalGames') || 'Total Games'}: {G.matchesWon ? G.matchesWon[myID] : 0} - {G.matchesWon ? G.matchesWon[opponentID] : 0}
                 </div>
                 <div className="flex gap-8 justify-center text-xl bg-slate-900/50 p-6 rounded-2xl border border-slate-700/50">
                   <div className="flex flex-col items-center">
