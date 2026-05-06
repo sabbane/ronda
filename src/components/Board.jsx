@@ -257,11 +257,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
                   <button 
                     onClick={() => {
-                      if (G.needsRestart) {
-                        moves.restartGame();
-                      } else {
-                        window.dispatchEvent(new CustomEvent('ronda-reset'));
-                      }
+                      moves.restartGame();
                     }}
                     className="px-8 py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-full font-bold transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-amber-900/40 border border-amber-400/30"
                   >
