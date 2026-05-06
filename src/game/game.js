@@ -107,6 +107,10 @@ export const checkRoundEnd = (G) => {
     
     // If deck is also empty, the game (round) is totally over
     if (G.deck.length === 0 && !G.gameStatus) {
+      if (!G.matchesWon) {
+        G.matchesWon = { '0': 0, '1': 0 };
+      }
+
       const p0Total = G.players['0'].score;
       const p1Total = G.players['1'].score;
       let winner = 'Draw';
