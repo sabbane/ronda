@@ -179,7 +179,7 @@ describe('RondaGame - Extended Requirements', () => {
     const client = Client({ game });
     const state = client.getState();
     
-    expect(state.ctx.gameover).toBeDefined();
-    expect(state.ctx.gameover.winner).toBe('0');
+    expect(state.G.gameStatus).toBeDefined();
+    expect(state.G.gameStatus.winner).toBe('0');
   });
 });

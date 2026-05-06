@@ -131,8 +131,8 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
   }, [G.pendingCapture, moves, myID, ctx.multiplayer]);
 
   let winner = null;
-  if (ctx.gameover) {
-    winner = ctx.gameover.winner !== undefined ? ctx.gameover.winner : 'Draw';
+  if (G.gameStatus) {
+    winner = G.gameStatus.winner !== undefined ? G.gameStatus.winner : 'Draw';
   }
 
   return (
@@ -219,7 +219,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
 
         {/* Game Over / Round Over Overlay */}
         <AnimatePresence>
-          {(ctx.gameover || G.needsRestart) && (
+          {(G.gameStatus || G.needsRestart) && (
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
@@ -240,14 +240,14 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                   <div className="flex flex-col items-center">
                     <span className="text-sm text-slate-400 mb-1">{t('you')}</span>
                     <span className="text-3xl font-bold text-indigo-400">
-                      {ctx.gameover?.p0Score ?? G.players['0'].score}
+                      {G.gameStatus?.p0Score ?? G.players['0'].score}
                     </span>
                   </div>
                   <div className="w-px bg-slate-700"></div>
                   <div className="flex flex-col items-center">
                     <span className="text-sm text-slate-400 mb-1">{t('opponent')}</span>
                     <span className="text-3xl font-bold text-purple-400">
-                      {ctx.gameover?.p1Score ?? G.players['1'].score}
+                      {G.gameStatus?.p1Score ?? G.players['1'].score}
                     </span>
                   </div>
                 </div>
