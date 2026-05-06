@@ -51,11 +51,12 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
           if (ann.type === 'Tringa') customText = t('announcements.tringa', { name });
           if (ann.type === 'Missa') customText = t('announcements.missa', { name });
           if (ann.type === 'Derba') customText = t('announcements.derba', { name });
+          if (ann.type === 'Taawida') customText = t('announcements.taawida', { name });
           if (ann.type === 'Clash') customText = t('announcements.clash');
           if (ann.type === 'Clash Won') {
-            const rankTypeMatch = ann.text && typeof ann.text === 'string' ? ann.text.match(/with (.*)!/) : null;
-            const type = rankTypeMatch ? rankTypeMatch[1] : '';
-            customText = t('announcements.clashWon', { name, type });
+            const type = ann.rankType || (ann.text && typeof ann.text === 'string' ? (ann.text.match(/with (.*)!/) || [])[1] : '');
+            const pts = ann.pts || 5;
+            customText = t('announcements.clashWon', { name, type, pts });
           }
           if (ann.type === 'Clash Draw') customText = t('announcements.clashDraw');
 

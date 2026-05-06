@@ -73,22 +73,31 @@ export const resolveClash = (G) => {
   
   const { p0, p1 } = G.activeClash;
   let winner = null;
+  let pts = 2; // Default for Ronda vs Ronda
   
-  if (p0.type === 'Tringa' && p1.type === 'Ronda') winner = '0';
-  else if (p1.type === 'Tringa' && p0.type === 'Ronda') winner = '1';
-  else {
+  if (p0.type === 'Tringa' && p1.type === 'Ronda') {
+    winner = '0';
+    pts = 6;
+  } else if (p1.type === 'Tringa' && p0.type === 'Ronda') {
+    winner = '1';
+    pts = 6;
+  } else {
+    if (p0.type === 'Tringa' && p1.type === 'Tringa') pts = 10;
+    
     if (p0.value > p1.value) winner = '0';
     else if (p1.value > p0.value) winner = '1';
     else winner = 'Draw'; 
   }
   
   if (winner && winner !== 'Draw') {
-    addScore(G, winner, 5);
+    addScore(G, winner, pts);
     const winnerRank = G.activeClash['p' + winner];
     G.announcements.push({ 
       player: winner, 
       type: 'Clash Won', 
-      text: `Won Clash with ${winnerRank.type}! (+5)` 
+      text: `Won Clash with ${winnerRank.type}! (+${pts})`,
+      pts: pts,
+      rankType: winnerRank.type
     });
   } else {
     G.announcements.push({ 
@@ -221,7 +230,17 @@ export const RondaGame = {
           currentVal: currentVal
         };
       } else {
-        G.lastPlayedCard = { value: currentVal, player: player };
+        if (G.lastPlayedCard && G.lastPlayedCard.value === currentVal && G.lastPlayedCard.player !== player && G.lastPlayedCard.streak >= 2) {
+          // Taawida! (3rd counter)
+          const newStreak = G.lastPlayedCard.streak + 1;
+          const scoreToAdd = newStreak === 3 ? 5 : 10;
+          addScore(G, player, scoreToAdd);
+          G.announcements.push({ player, type: 'Taawida' });
+          G.lastPlayedCard = { value: currentVal, player: player, streak: newStreak };
+        } else {
+          // Normal drop, starts a new potential streak
+          G.lastPlayedCard = { value: currentVal, player: player, streak: 1 };
+        }
         G.isAnimating = true;
         checkRoundEnd(G);
         if (!checkWaitForUI(G, events)) {
@@ -252,8 +271,17 @@ export const RondaGame = {
       
       if (matchIndex !== -1) {
         if (G.lastPlayedCard && G.lastPlayedCard.value === currentVal && G.lastPlayedCard.player !== player) {
-          addScore(G, player, 1);
-          G.announcements.push({ player, type: 'Derba' });
+          const newStreak = (G.lastPlayedCard.streak || 1) + 1;
+          if (newStreak === 2) {
+            addScore(G, player, 1);
+            G.announcements.push({ player, type: 'Derba' });
+          } else if (newStreak === 4) {
+            addScore(G, player, 10);
+            G.announcements.push({ player, type: 'Taawida' });
+          }
+          G.lastPlayedCard = { value: currentVal, player: player, streak: newStreak };
+        } else {
+          G.lastPlayedCard = null; // Streak broken
         }
 
         let matchedCard = G.table.splice(matchIndex, 1)[0];
@@ -272,7 +300,7 @@ export const RondaGame = {
         
         G.players[player].captured.push(...capturedCards);
         G.lastCapture = player;
-        G.lastPlayedCard = null;
+        // G.lastPlayedCard is maintained if there's an active streak, otherwise it's null
         G.isAnimating = true;
 
         if (G.table.length === 0 && (G.deck.length > 0 || G.players['0'].hand.length > 0)) {

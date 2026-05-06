@@ -112,6 +112,46 @@ describe('RondaGame - Extended Requirements', () => {
     expect(state.G.players['0'].score).toBe(0); // No subtraction anymore
   });
 
+  test('Taawida: Continuous matching should award +5 and +10 points', () => {
+    const game = setupCustomGame((G) => {
+      G.players['0'].hand = [{ suit: 'swords', value: 3, id: 's3' }, { suit: 'coins', value: 3, id: 'co3' }];
+      G.players['1'].hand = [{ suit: 'cups', value: 3, id: 'c3' }, { suit: 'clubs', value: 3, id: 'cl3' }];
+      return G;
+    });
+
+    const client = Client({ game });
+    
+    // Player 0 plays 3
+    client.moves.playCard(0);
+    advanceUI(client);
+
+    // Player 1 matches 3 (Derba)
+    client.moves.playCard(0);
+    client.moves.processCapture();
+    
+    let state = client.getState();
+    expect(state.G.announcements.find(a => a.type === 'Derba')).toBeDefined();
+    expect(state.G.players['1'].score).toBe(2); // Derba (+1) + Missa (+1)
+    
+    advanceUI(client);
+    
+    // Player 0 plays 3 (Taawida +5)
+    client.moves.playCard(0);
+    
+    state = client.getState();
+    expect(state.G.announcements.find(a => a.type === 'Taawida')).toBeDefined();
+    expect(state.G.players['0'].score).toBe(5); // Taawida (+5)
+    
+    advanceUI(client);
+    
+    // Player 1 plays 3 (Taawida +10)
+    client.moves.playCard(0);
+    client.moves.processCapture();
+
+    state = client.getState();
+    expect(state.G.players['1'].score).toBe(13); // Previous 2 + Taawida (+10) + Missa (+1)
+  });
+
   test('Ronda Detection: Starting a round with a pair should award +1 point', () => {
     const game = setupCustomGame((G) => {
       G.players['0'].hand = [
@@ -158,7 +198,7 @@ describe('RondaGame - Extended Requirements', () => {
     checkRoundEnd(G);
     
     // Player 0 (7) > Player 1 (5)
-    expect(G.players['0'].score).toBe(5);
+    expect(G.players['0'].score).toBe(2);
     expect(G.activeClash).toBe(null);
   });
 

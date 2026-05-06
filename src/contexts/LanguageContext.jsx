@@ -40,8 +40,9 @@ export const translations = {
       tringa: "{name} has Tringa! (+5)",
       missa: "{name} cleared the table! (+1)",
       derba: "{name} scored a Derba! (+1)",
+      taawida: "{name} scored a Taawida!",
       clash: "Clash! Both have cards!",
-      clashWon: "{name} won Clash with {type}! (+5)",
+      clashWon: "{name} won Clash with {type}! (+{pts})",
       clashDraw: "Clash Draw!"
     }
   },
@@ -84,8 +85,9 @@ export const translations = {
       tringa: "{name} a Tringa ! (+5)",
       missa: "{name} a fait Missa ! (+1)",
       derba: "{name} a fait Derba ! (+1)",
+      taawida: "{name} a fait Taawida !",
       clash: "Clash ! Les deux ont des cartes !",
-      clashWon: "{name} a gagné le Clash avec {type} ! (+5)",
+      clashWon: "{name} a gagné le Clash avec {type} ! (+{pts})",
       clashDraw: "Clash : Égalité !"
     }
   },
@@ -124,13 +126,14 @@ export const translations = {
     backToMenu: "العودة للقائمة",
     shareLink: "نسخ رابط الدعوة",
     announcements: {
-      ronda: "عنده روندا! (+1) {name}",
-      tringa: "عنده ترينجا! (+5) {name}",
-      missa: "مسح الطاولة! (+1) {name}",
-      derba: "دار ضربة! (+1) {name}",
-      clash: "تصادم! كلاهما لديه بطاقات!",
-      clashWon: "فاز بالتصادم بـ {type}! (+5) {name}",
-      clashDraw: "تعادل في التصادم!"
+      ronda: " روندا (+1) ",
+      tringa: " ترينجا (+5) ",
+      missa: " ميسة (+1) ",
+      derba: " ضربة (+1) ",
+      taawida: " تعويدة ",
+      clash: "إصطدام الروندات",
+      clashWon: "فاز بالتصادم بـ {type}! (+{pts}) {name}",
+      clashDraw: "تعادل في التصادم"
     }
   }
 };
@@ -154,7 +157,7 @@ export const LanguageProvider = ({ children }) => {
       if (value[k] === undefined) return key;
       value = value[k];
     }
-    
+
     if (typeof value === 'string' && Object.keys(params).length > 0) {
       return Object.keys(params).reduce((str, paramKey) => {
         return str.replace(`{${paramKey}}`, params[paramKey]);

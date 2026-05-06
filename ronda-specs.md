@@ -36,14 +36,17 @@ Ronda ist ein klassisches marokkanisches Kartenspiel für 2 Spieler (oder Teams)
 Die Punkte werden während des Spiels und am Ende berechnet. Das Scoring ist additiv (Punkte werden dem Spieler gutgeschrieben):
 *   **Missa (Tisch):** Den Tisch komplett leer räumen (+1 Punkt/Karte). (Früher: Messa)
 *   **Derba (Zug):** Eine Karte stechen, die der Gegner gerade erst abgelegt hat (+1 Punkt/Karte). (Früher: Bounti)
+*   **Taawida:** Wird nach einer Derba angesagt, wenn der Schlagabtausch auf demselben Rang fortgesetzt wird:
+    *   Folgekarte nach Derba (2. Konter): +5 Punkte.
+    *   Nächste Folgekarte (3. Konter): +10 Punkte.
 *   **Ronda & Tringa (Hand):**
     *   **Ronda:** Zwei gleiche Karten auf der Hand. (+1 Punkt bei Einzelansage)
     *   **Tringa:** Drei gleiche Karten auf der Hand. (+5 Punkte bei Einzelansage)
     *   **Popup-Ankündigung:** Haben beide Spieler eine Ronda oder Tringa, erscheint zu Beginn der Runde ein Popup, das diese Situation (Clash) für beide ankündigt.
     *   **Clash-Auflösung (am Ende der Runde):**
-        *   **Ronda vs. Ronda:** Der Spieler mit der höheren Ronda gewinnt 5 Karten (bzw. Punkte).
-        *   **Ronda vs. Tringa:** Der Spieler mit Tringa gewinnt 5 Karten.
-        *   **Tringa vs. Tringa:** Der Spieler mit der höheren Tringa gewinnt 5 Karten.
+        *   **Ronda vs. Ronda:** Der Spieler mit der höheren Ronda gewinnt 2 Karten (bzw. Punkte).
+        *   **Ronda vs. Tringa:** Der Spieler mit Tringa gewinnt 6 Karten.
+        *   **Tringa vs. Tringa:** Der Spieler mit der höheren Tringa gewinnt 10 Karten.
 *   **Endabrechnung:** Jeder Spieler zählt seine gewonnenen Karten. Punkte aus Sondersituationen (oder gewonnene Extrakarten) werden addiert.
 
 ### 3.4 Karten-Assets & Design
