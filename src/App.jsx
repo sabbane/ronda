@@ -238,19 +238,22 @@ const App = () => {
                       <button
                         onClick={async () => {
                           const link = `${window.location.protocol}//${window.location.host}${window.location.pathname}?room=${matchID}`;
-                          if (navigator.share) {
-                            try {
-                              await navigator.share({
-                                title: 'Ronda',
-                                text: t('shareText') || 'Join my Ronda game!',
-                                url: link
-                              });
-                            } catch (err) {
-                              console.error('Share failed:', err);
+                          try {
+                            if (navigator.clipboard && window.isSecureContext) {
+                              await navigator.clipboard.writeText(link);
+                            } else {
+                              const textArea = document.createElement("textarea");
+                              textArea.value = link;
+                              document.body.appendChild(textArea);
+                              textArea.focus();
+                              textArea.select();
+                              document.execCommand('copy');
+                              document.body.removeChild(textArea);
                             }
-                          } else {
-                            navigator.clipboard.writeText(link);
                             alert(t('linkCopied') || 'Link copied to clipboard!');
+                          } catch (err) {
+                            console.error('Failed to copy:', err);
+                            prompt(t('shareText') || 'Copy this link:', link);
                           }
                         }}
                         className="bg-slate-800 hover:bg-slate-700 p-3 rounded-xl border border-white/10 text-amber-400 transition-all active:scale-95"

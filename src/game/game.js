@@ -111,8 +111,14 @@ export const checkRoundEnd = (G) => {
         G.matchesWon = { '0': 0, '1': 0 };
       }
 
-      const p0Total = G.players['0'].score;
-      const p1Total = G.players['1'].score;
+      // Give remaining table cards to the last player who captured
+      if (G.table.length > 0 && G.lastCapture !== null) {
+        G.players[G.lastCapture].captured.push(...G.table);
+        G.table = [];
+      }
+
+      const p0Total = G.players['0'].score + G.players['0'].captured.length;
+      const p1Total = G.players['1'].score + G.players['1'].captured.length;
       let winner = 'Draw';
       if (p0Total > p1Total) {
         winner = '0';
