@@ -94,14 +94,23 @@ const App = () => {
     setIsCheckingRoom(true);
     setError(null);
     try {
+      // Fetch current match state from server
       const match = await lobbyClient.getMatch(RondaGame.name, matchID);
-
+      
       if (match) {
         // Match exists, check if the slot we want is taken
-        const isSlotTaken = match.players[parseInt(targetPlayerID)].name || match.players[parseInt(targetPlayerID)].id;
-
+        const pID = parseInt(targetPlayerID);
+        const player = match.players[pID];
+        
+        // A slot is taken if it has a name or is explicitly marked as connected
+        const isSlotTaken = !!(player.name || player.isConnected);
+        
         if (isSlotTaken) {
-          setError(t('roomOccupied'));
+          if (targetPlayerID === '0') {
+            setError(t('roomOccupied')); // "Room is occupied (Host already exists)"
+          } else {
+            setError(t('roomFull')); // "Room is full (Both players already in)"
+          }
           setIsCheckingRoom(false);
           return;
         }
@@ -111,12 +120,12 @@ const App = () => {
         setIsCheckingRoom(false);
         return;
       }
-
+      
       setPlayerID(targetPlayerID);
       setMode('online');
     } catch (err) {
       console.error('Room check error:', err);
-      // If error is 404, it means room doesn't exist, which is fine if we are hosting
+      // If error is 404 (not found), that's fine for hosting
       if (targetPlayerID === '0') {
         setPlayerID('0');
         setMode('online');

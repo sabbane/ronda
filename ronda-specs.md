@@ -72,7 +72,9 @@ Integration von Werbeflächen über eine dedizierte `AdSlot`-Komponente zur Umsa
 ### 4.4 Online-Multiplayer
 Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 *   **Backend:** Node.js Server (`server.js`) basierend auf `boardgame.io/server`.
-*   **Lobby-Management:** Nutzung des `LobbyClient` zur Prüfung des Raum-Status (existiert der Raum? Ist ein Platz frei?) vor dem Beitritt.
+*   **Lobby-Management:** Nutzung des `LobbyClient` zur Prüfung des Raum-Status vor dem Beitritt.
+    *   **Slot-Validierung:** Das System prüft, ob ein Slot bereits durch einen aktiven oder verbundenen Spieler (`isConnected`) belegt ist.
+    *   **Fehlerbehandlung:** Spezifische Meldungen für "Raum belegt" (beim Hosten) oder "Raum voll" (beim Beitreten).
 *   **Raum-System:** 
     *   Spieler können über eine eindeutige **Match ID** Räume erstellen (Host) oder beitreten (Join).
     *   **Thematische Raumnamen:** Automatische Generierung von marokkanischen Raumnamen (z.B. `Marrakech-42`).
@@ -81,6 +83,10 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 
 ### 4.5 Community & Support
 *   **Donate Button:** Integration einer `DonateButton`-Komponente zur Unterstützung der Entwicklung.
+
+### 4.6 Testing & Qualitätssicherung
+*   **Unit-Tests:** Prüfung der Kern-Spiellogik (Sequenzen, Scoring, Clash) mit `vitest` in `game.test.js`.
+*   **E2E-Tests:** End-to-End-Tests des Multiplayers mit **Playwright**. Simulation von zwei Browser-Kontexten (Host & Joiner) zur Verifizierung des Spielablaufs.
 
 ## 5. Projektstruktur
 ```text
@@ -97,6 +103,8 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
     bot.js          # KI-Verhalten
     game.test.js    # Unit-Tests für Spielregeln
   App.jsx           # Einstiegspunkt, Lobby-Logik, URL-Sync & Online-Client
+/tests
+  multiplayer.spec.js # Playwright E2E-Tests
 server.js           # Backend-Server für Online-Multiplayer
 /public
   /cards            # Bilddateien der Karten
@@ -114,12 +122,12 @@ Um die App als Progressive Web App (PWA) nutzbar zu machen, werden folgende Feat
 *   [x] Ronda/Tringa Clash-Logik & Popup-Ankündigungen
 *   [x] Internationalisierung (EN, FR, AR) & RTL-Support
 *   [x] Integration realer Karten-Assets & Capture-Animationen
-*   [x] Online-Multiplayer (Host/Join System mit Lobby-Check)
+*   [x] Online-Multiplayer (Host/Join System mit Slot-Validierung)
 *   [x] URL-basierter Beitritt (`?room=...`)
 *   [x] Thematische marokkanische Raumnamen
 *   [x] Match-ID Sharing-Funktionalität (Navigator + Clipboard)
-*   [x] Visualisierung gewonnener Kartenstapel
 *   [x] Unit-Tests für die Spielregeln (`vitest`)
+*   [x] E2E-Multiplayer-Tests (`Playwright`)
 *   [x] Werbe-Integration (`AdSlot`) & Donate-Button
 *   [x] Bot-Integration (Animation-aware)
 *   [ ] PWA-Integration (Manifest & Service Worker)
