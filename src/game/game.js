@@ -154,13 +154,19 @@ export const RondaGame = {
   },
 
   moves: {
-    restartGame: ({ G, ctx }) => {
+    restartGame: ({ G, ctx, events }) => {
       const fresh = RondaGame.setup({ ctx });
       Object.assign(G, fresh);
-      // We keep the total match scores if we want to play to 41,
-      // but if the user wants a completely fresh start, we reset everything.
-      // For now, let's reset everything as requested for "New Game".
       G.needsRestart = false;
+
+      // Ensure any leftover stages are cleared
+      events.setActivePlayers({ all: null });
+
+      // If the new round starts with announcements (Ronda/Tringa), 
+      // we must enter waitForUI stage so players can clear them.
+      if (G.announcements.length > 0 || G.isAnimating) {
+        events.setActivePlayers({ all: 'waitForUI' });
+      }
     },
 
     playCard: ({ G, ctx, events, playerID }, cardIndex) => {
