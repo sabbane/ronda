@@ -169,7 +169,7 @@ const App = () => {
       <div className="min-h-screen flex flex-col items-center text-white relative overflow-hidden overflow-y-auto">
         {/* Background Image with Moroccan Vibe */}
         <div
-          className="absolute inset-0 z-0 scale-105"
+          className="fixed inset-0 z-0 scale-105"
           style={{
             backgroundImage: "url('/assets/moroccan_background.png')",
             backgroundSize: 'cover',

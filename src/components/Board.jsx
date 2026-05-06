@@ -140,7 +140,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
       <div className="min-h-screen flex flex-col items-center justify-between p-4 font-sans text-slate-100 relative overflow-hidden">
         {/* Subtle Game Background */}
         <div 
-          className="absolute inset-0 pointer-events-none"
+          className="fixed inset-0 pointer-events-none"
           style={{
             backgroundImage: "url('/assets/game_background.png')",
             backgroundSize: 'cover',
