@@ -217,9 +217,9 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
           </AnimatePresence>
         </div>
 
-        {/* Game Over Overlay */}
+        {/* Game Over / Round Over Overlay */}
         <AnimatePresence>
-          {ctx.gameover && (
+          {(ctx.gameover || G.needsRestart) && (
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
@@ -249,7 +249,13 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
                   <button 
-                    onClick={() => window.dispatchEvent(new CustomEvent('ronda-reset'))}
+                    onClick={() => {
+                      if (G.needsRestart) {
+                        moves.restartGame();
+                      } else {
+                        window.dispatchEvent(new CustomEvent('ronda-reset'));
+                      }
+                    }}
                     className="px-8 py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-full font-bold transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-amber-900/40 border border-amber-400/30"
                   >
                     {t('playAgain')}

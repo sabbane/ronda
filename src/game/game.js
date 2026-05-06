@@ -136,8 +136,11 @@ export const RondaGame = {
       lastCapture: null,
       lastPlayedCard: null,
       announcements: [],
-      endTurnAfterUI: false,
-      isAnimating: false
+      pendingCapture: null,
+      isAnimating: false,
+      gameStarted: true,
+      needsRestart: false, // Flag to show restart UI instead of framework gameover
+      endTurnAfterUI: false
     };
 
     evaluateRondaTringa(G);
@@ -146,6 +149,15 @@ export const RondaGame = {
   },
 
   moves: {
+    restartGame: ({ G, ctx }) => {
+      const fresh = RondaGame.setup({ ctx });
+      Object.assign(G, fresh);
+      // We keep the total match scores if we want to play to 41,
+      // but if the user wants a completely fresh start, we reset everything.
+      // For now, let's reset everything as requested for "New Game".
+      G.needsRestart = false;
+    },
+
     playCard: ({ G, ctx, events, playerID }, cardIndex) => {
       if (G.pendingCapture) return INVALID_MOVE;
 
@@ -300,26 +312,22 @@ export const RondaGame = {
   endIf: ({ G, ctx }) => {
     if (!G.players || !G.players['0'] || !G.players['1']) return;
 
-    if (G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0 && G.deck.length === 0) {
-      let p0Cards = G.players['0'].captured.length;
-      let p1Cards = G.players['1'].captured.length;
-      
-      if (G.lastCapture === '0') {
-        p0Cards += G.table.length;
-      } else if (G.lastCapture === '1') {
-        p1Cards += G.table.length;
-      }
-      
-      let p0Total = p0Cards + G.players['0'].score;
-      let p1Total = p1Cards + G.players['1'].score;
+    // We only end the framework match if someone reaches 41 points (standard Ronda limit)
+    // or if we want to keep it open forever for replaying, we can just use G.needsRestart
+    const WINNING_SCORE = 41;
+    if (G.players['0'].score >= WINNING_SCORE || G.players['1'].score >= WINNING_SCORE) {
+      const p0Total = G.players['0'].score;
+      const p1Total = G.players['1'].score;
+      if (p0Total > p1Total) return { winner: '0' };
+      if (p1Total > p0Total) return { winner: '1' };
+      return { draw: true };
+    }
 
-      if (p0Total > p1Total) {
-        return { winner: '0', score: p0Total, p0Score: p0Total, p1Score: p1Total };
-      } else if (p1Total > p0Total) {
-        return { winner: '1', score: p1Total, p0Score: p0Total, p1Score: p1Total };
-      } else {
-        return { draw: true, score: p0Total, p0Score: p0Total, p1Score: p1Total };
-      }
+    // If the round is over (no cards left), we set a flag instead of ending the match
+    if (G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0 && G.deck.length === 0 && !G.needsRestart) {
+       // Logic to finalize round scores could go here
+       // For now, we just trigger the restart UI
+       G.needsRestart = true;
     }
   },
 
