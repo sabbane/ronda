@@ -164,12 +164,18 @@ describe('RondaGame - Extended Requirements', () => {
 
 
 
-  test('End Game: Winner is determined by captured cards + bonuses', () => {
+  test('End Game: Score calculation correctly adds captured cards and awards remaining table cards to last capturer', () => {
     const game = setupCustomGame((G) => {
-      G.players['0'].captured = new Array(25).fill({}); 
-      G.players['1'].captured = new Array(15).fill({}); 
-      G.players['0'].score = 45; // Directly over 41
-      G.players['1'].score = 0;
+      // Setup players with exact numbers of captured cards and bonus scores
+      G.players['0'].captured = new Array(20).fill({ id: 'c0' }); 
+      G.players['1'].captured = new Array(10).fill({ id: 'c1' }); 
+      G.players['0'].score = 3; // Bonus points (e.g. from Missa/Derba)
+      G.players['1'].score = 5; // Bonus points
+      
+      // Simulate 4 cards remaining on the table
+      G.table = new Array(4).fill({ id: 't' });
+      G.lastCapture = '0'; // Player 0 made the last capture
+      
       G.deck = [];
       G.players['0'].hand = [];
       G.players['1'].hand = [];
@@ -184,7 +190,20 @@ describe('RondaGame - Extended Requirements', () => {
     checkRoundEnd(mutableG);
     
     expect(mutableG.gameStatus).toBeDefined();
+    
+    // Player 0 should have 20 (base) + 3 (bonus) + 4 (table cards) = 27
+    expect(mutableG.gameStatus.p0Score).toBe(27);
+    
+    // Player 1 should have 10 (base) + 5 (bonus) = 15
+    expect(mutableG.gameStatus.p1Score).toBe(15);
+    
+    // Winner should be player 0
     expect(mutableG.gameStatus.winner).toBe('0');
     expect(mutableG.matchesWon['0']).toBe(1);
+    
+    // Table should be empty now because they were given to player 0
+    expect(mutableG.table.length).toBe(0);
+    // Player 0's captured array should now be 24 (20 + 4 table cards)
+    expect(mutableG.players['0'].captured.length).toBe(24);
   });
 });
