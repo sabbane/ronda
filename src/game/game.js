@@ -331,20 +331,18 @@ export const RondaGame = {
             const matches1 = G.matchesWon ? G.matchesWon['1'] : 0;
 
             const fresh = RondaGame.setup({ ctx });
-            Object.assign(G, fresh);
-            G.gameStatus = null;
-            
-            // Restore overall match wins
-            G.matchesWon = { '0': matches0, '1': matches1 };
+            fresh.matchesWon = { '0': matches0, '1': matches1 };
 
             // Clear any stages so players can play cards
             events.setActivePlayers({ all: null });
 
             // If the new round starts with announcements (Ronda/Tringa), 
             // we must enter waitForUI stage so players can clear them.
-            if (G.announcements.length > 0 || G.isAnimating) {
+            if (fresh.announcements.length > 0) {
               events.setActivePlayers({ all: 'waitForUI' });
             }
+
+            return fresh;
           }
         }
       }
