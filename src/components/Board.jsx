@@ -325,7 +325,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
         </div>
 
         {/* Table Area */}
-        <div className="flex-1 w-full flex items-center justify-center my-4 relative z-10">
+        <div className="flex-1 w-full flex items-center justify-center my-4 relative z-10" dir="ltr">
           <div className="relative w-full max-w-4xl min-h-[16rem] md:min-h-[20rem] bg-emerald-900/40 rounded-3xl border-4 border-emerald-800/50 shadow-2xl shadow-emerald-900/20 backdrop-blur-sm flex flex-wrap gap-2 sm:gap-4 p-4 sm:p-8 items-center justify-center">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/felt.png')] opacity-10 rounded-3xl mix-blend-overlay pointer-events-none"></div>
             

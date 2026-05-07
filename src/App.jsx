@@ -146,6 +146,7 @@ const App = () => {
     const handleMenu = () => {
       setMode(null);
       setError(null);
+      setGameKey(prev => prev + 1);
     };
     window.addEventListener('ronda-reset', handleReset);
     window.addEventListener('ronda-menu', handleMenu);
