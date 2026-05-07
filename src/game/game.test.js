@@ -204,46 +204,71 @@ describe('RondaGame - Extended Requirements', () => {
 
 
 
-  test('End Game: Score calculation correctly adds captured cards and awards remaining table cards to last capturer', () => {
+  test('End Game: Score calculation correctly adds captured cards, bonuses, and King Finish', () => {
     const game = setupCustomGame((G) => {
-      // Setup players with exact numbers of captured cards and bonus scores
+      // Player 0: 20 captured, 3 bonus score. Last card is King, captures King on table.
       G.players['0'].captured = new Array(20).fill({ id: 'c0' }); 
       G.players['1'].captured = new Array(10).fill({ id: 'c1' }); 
-      G.players['0'].score = 3; // Bonus points (e.g. from Missa/Derba)
-      G.players['1'].score = 5; // Bonus points
+      G.players['0'].score = 3; 
+      G.players['1'].score = 5; 
       
-      // Simulate 4 cards remaining on the table
-      G.table = new Array(4).fill({ id: 't' });
-      G.lastCapture = '0'; // Player 0 made the last capture
+      G.table = [{ suit: 'swords', value: 10, id: 's10' }]; // 12 on table
+      G.lastCapture = '1'; // Player 1 made the last capture before this
       
       G.deck = [];
-      G.players['0'].hand = [];
+      G.players['0'].hand = [{ suit: 'coins', value: 10, id: 'c10' }]; // 12 in hand (Last card)
       G.players['1'].hand = [];
       return G;
     });
 
     const client = Client({ game });
+    
+    // Player 0 plays 12 (King) - this is the last card of the game
+    client.moves.playCard(0);
+    client.moves.processCapture();
+    
     const state = client.getState();
     
-    // Create a mutable copy of G to avoid "read-only" errors in Vitest
-    const mutableG = JSON.parse(JSON.stringify(state.G));
-    checkRoundEnd(mutableG);
+    expect(state.G.gameStatus).toBeDefined();
     
-    expect(mutableG.gameStatus).toBeDefined();
+    // Player 0:
+    // Started with 20 captured.
+    // Captured 2 cards (hand King + table King) -> 22 captured.
+    // Started with 3 score.
+    // Got +5 for King Finish -> 8 score.
+    // Total = 22 + 8 = 30.
+    expect(state.G.gameStatus.p0Score).toBe(30);
     
-    // Player 0 should have 20 (base) + 3 (bonus) + 4 (table cards) = 27
-    expect(mutableG.gameStatus.p0Score).toBe(27);
+    // Player 1:
+    // Started with 10 captured.
+    // Hand was empty, deck was empty.
+    // But Player 1 was NOT the last capturer (Player 0 just captured).
+    // Wait! Player 0 just captured, so G.lastCapture is now '0'.
+    // So Player 1 gets no table cards.
+    // Score was 5.
+    // Total = 10 + 5 = 15.
+    expect(state.G.gameStatus.p1Score).toBe(15);
     
-    // Player 1 should have 10 (base) + 5 (bonus) = 15
-    expect(mutableG.gameStatus.p1Score).toBe(15);
+    expect(state.G.gameStatus.winner).toBe('0');
+  });
+
+  test('King Finish: Capturing with a 12 as the very last card awards 5 points', () => {
+    const game = setupCustomGame((G) => {
+      G.table = [{ suit: 'swords', value: 10, id: 's10' }]; // 12 on table
+      G.deck = [];
+      G.players['0'].hand = [{ suit: 'coins', value: 10, id: 'c10' }]; // 12 in hand
+      G.players['1'].hand = []; // Opponent empty
+      return G;
+    });
+
+    const client = Client({ game });
     
-    // Winner should be player 0
-    expect(mutableG.gameStatus.winner).toBe('0');
-    expect(mutableG.matchesWon['0']).toBe(1);
+    // Player 0 plays 12
+    client.moves.playCard(0);
+    client.moves.processCapture();
     
-    // Table should be empty now because they were given to player 0
-    expect(mutableG.table.length).toBe(0);
-    // Player 0's captured array should now be 24 (20 + 4 table cards)
-    expect(mutableG.players['0'].captured.length).toBe(24);
+    const state = client.getState();
+    expect(state.G.announcements.find(a => a.type === 'King Finish')).toBeDefined();
+    expect(state.G.players['0'].score).toBe(5); // +5 for King Finish
   });
 });

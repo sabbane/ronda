@@ -245,14 +245,14 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                   <div className="flex flex-col items-center">
                     <span className="text-sm text-slate-400 mb-1">{t('you')}</span>
                     <span className="text-3xl font-bold text-indigo-400">
-                      {G.gameStatus ? G.gameStatus[`p${myID}Score`] : G.players[myID].score}
+                      {G.gameStatus[`p${myID}Score`]}
                     </span>
                   </div>
                   <div className="w-px bg-slate-700"></div>
                   <div className="flex flex-col items-center">
                     <span className="text-sm text-slate-400 mb-1">{t('opponent')}</span>
                     <span className="text-3xl font-bold text-purple-400">
-                      {G.gameStatus ? G.gameStatus[`p${opponentID}Score`] : G.players[opponentID].score}
+                      {G.gameStatus[`p${opponentID}Score`]}
                     </span>
                   </div>
                 </div>
