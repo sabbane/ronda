@@ -39,6 +39,7 @@ Die Punkte werden während des Spiels und am Ende berechnet. Das Scoring ist add
 *   **Taawida:** Wird nach einer Derba angesagt, wenn der Schlagabtausch auf demselben Rang fortgesetzt wird:
     *   Folgekarte nach Derba (2. Konter): +5 Punkte.
     *   Nächste Folgekarte (3. Konter): +10 Punkte.
+*   **King Finish:** Wenn der Spieler, der die letzte Karte im Spiel spielt, mit einer 12 (König) als allerletzte Karte sticht, erhält er +5 Punkte.
 *   **Ronda & Tringa (Hand):**
     *   **Ronda:** Zwei gleiche Karten auf der Hand. (+1 Punkt bei Einzelansage)
     *   **Tringa:** Drei gleiche Karten auf der Hand. (+5 Punkte bei Einzelansage)
