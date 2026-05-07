@@ -144,21 +144,21 @@ export const checkRoundEnd = (G) => {
 };
 
 const checkWaitForUI = (G, events) => {
-  // If the game just ended, skip animation wait and go directly to gameOver stage.
-  // This ensures the Play Again button works immediately when the overlay appears.
-  if (G.gameStatus) {
-    G.isAnimating = false;
-    events.setActivePlayers({ all: 'gameOver' });
-    return true;
-  }
-
   // If there are announcements OR an animation is running, we MUST go into waitForUI stage
-  // to let the frontend finish its visual work before the next turn starts.
+  // to let the frontend finish its visual work before the next turn starts or before the game ends.
   if (G.announcements.length > 0 || G.isAnimating) {
     G.endTurnAfterUI = true;
     events.setActivePlayers({ all: 'waitForUI' });
     return true;
   }
+
+  // If the game ended and there are no more animations/announcements, go directly to gameOver stage.
+  // This ensures the Play Again button works immediately when the overlay appears.
+  if (G.gameStatus) {
+    events.setActivePlayers({ all: 'gameOver' });
+    return true;
+  }
+
   return false;
 };
 
@@ -307,6 +307,12 @@ export const RondaGame = {
           addScore(G, player, 1);
           G.announcements.push({ player, type: 'Missa' });
         }
+
+        // King Finish Rule: if the last card of the game is a 12 (value 10) and captures
+        if (currentVal === 10 && G.deck.length === 0 && G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0) {
+          addScore(G, player, 5);
+          G.announcements.push({ player, type: 'King Finish' });
+        }
       }
       
       checkRoundEnd(G);
@@ -342,10 +348,14 @@ export const RondaGame = {
           clearAnnouncements: ({ G, events }) => {
             G.announcements = [];
             if (!G.isAnimating) {
-              events.setActivePlayers({ all: null });
-              if (G.endTurnAfterUI) {
-                G.endTurnAfterUI = false;
-                events.endTurn();
+              if (G.gameStatus) {
+                events.setActivePlayers({ all: 'gameOver' });
+              } else {
+                events.setActivePlayers({ all: null });
+                if (G.endTurnAfterUI) {
+                  G.endTurnAfterUI = false;
+                  events.endTurn();
+                }
               }
             }
           },

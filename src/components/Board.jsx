@@ -59,6 +59,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
             customText = t('announcements.clashWon', { name, type, pts });
           }
           if (ann.type === 'Clash Draw') customText = t('announcements.clashDraw');
+          if (ann.type === 'King Finish') customText = t('announcements.kingFinish', { name });
 
           setEventQueue(prev => [...prev, { ...ann, displayText: customText || ann.text, id: annId }]);
         }
@@ -220,7 +221,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
 
         {/* Game Over / Round Over Overlay */}
         <AnimatePresence>
-          {G.gameStatus && (
+          {(G.gameStatus && ctx.activePlayers?.[myID] === 'gameOver') && (
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
@@ -244,14 +245,14 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                   <div className="flex flex-col items-center">
                     <span className="text-sm text-slate-400 mb-1">{t('you')}</span>
                     <span className="text-3xl font-bold text-indigo-400">
-                      {G.gameStatus?.p0Score ?? G.players['0'].score}
+                      {G.gameStatus ? G.gameStatus[`p${myID}Score`] : G.players[myID].score}
                     </span>
                   </div>
                   <div className="w-px bg-slate-700"></div>
                   <div className="flex flex-col items-center">
                     <span className="text-sm text-slate-400 mb-1">{t('opponent')}</span>
                     <span className="text-3xl font-bold text-purple-400">
-                      {G.gameStatus?.p1Score ?? G.players['1'].score}
+                      {G.gameStatus ? G.gameStatus[`p${opponentID}Score`] : G.players[opponentID].score}
                     </span>
                   </div>
                 </div>
