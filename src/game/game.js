@@ -347,31 +347,36 @@ export const RondaGame = {
         moves: {
           clearAnnouncements: ({ G, events }) => {
             G.announcements = [];
-            if (!G.isAnimating) {
-              if (G.gameStatus) {
-                events.setActivePlayers({ all: 'gameOver' });
-              } else {
-                events.setActivePlayers({ all: null });
-                if (G.endTurnAfterUI) {
-                  G.endTurnAfterUI = false;
-                  events.endTurn();
-                }
-              }
-            }
-          },
-          endAnimation: ({ G, events }) => {
-            G.isAnimating = false;
-            
-            // If the game ended, transition everyone to gameOver stage
+            // Guard: do not trigger turn/stage transitions if still animating
+            if (G.isAnimating) return;
             if (G.gameStatus) {
               events.setActivePlayers({ all: 'gameOver' });
-            } else if (G.announcements.length === 0) {
+            } else {
               events.setActivePlayers({ all: null });
+              // Guard: only endTurn once (endTurnAfterUI is consumed here)
               if (G.endTurnAfterUI) {
                 G.endTurnAfterUI = false;
                 events.endTurn();
               }
             }
+          },
+          endAnimation: ({ G, events }) => {
+            // Guard: only process if still animating (idempotent in multiplayer)
+            if (!G.isAnimating) return;
+            G.isAnimating = false;
+            if (G.gameStatus) {
+              // Game is over - transition to gameOver stage for all players
+              events.setActivePlayers({ all: 'gameOver' });
+            } else if (G.announcements.length === 0) {
+              events.setActivePlayers({ all: null });
+              // Guard: only endTurn once
+              if (G.endTurnAfterUI) {
+                G.endTurnAfterUI = false;
+                events.endTurn();
+              }
+            }
+            // If there are still announcements, do nothing:
+            // clearAnnouncements will handle the transition when they are cleared.
           }
         }
       },
