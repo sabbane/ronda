@@ -25,16 +25,10 @@ export const Card = ({ card, hidden = false, onClick, className = '' }) => {
     );
   }
 
-  const suitMap = {
-    coins: 'dheb-vector',
-    cups: 'jben-vector',
-    swords: 'syouf-vector',
-    clubs: 'zrawet-vector'
-  };
-
-  const suit = suitMap[card.suit] || card.suit;
+  // card.suit is now one of: dheb, jben, syouf, zrawet
+  const suit = `${card.suit}-vector`;
   const isVector = true; // All suits are now using vector SVG cards
-  const value = card.displayValue.toString();
+  const value = (card.displayValue !== undefined ? card.displayValue : card.value).toString();
   
   const extension = 'svg';
   const separator = ' ';

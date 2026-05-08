@@ -51,11 +51,11 @@ describe('RondaGame - Extended Requirements', () => {
   test('Sequential Capture: Playing a 7 should capture 7, 8, 9 if present', () => {
     const game = setupCustomGame((G) => {
       G.table = [
-        { suit: 'swords', value: 7, id: 's7' },
-        { suit: 'swords', value: 8, id: 's8' },
-        { suit: 'swords', value: 9, id: 's9' },
+        { suit: 'syouf', value: 7, id: 's7' },
+        { suit: 'syouf', value: 8, id: 's8' },
+        { suit: 'syouf', value: 9, id: 's9' },
       ];
-      G.players['0'].hand = [{ suit: 'cups', value: 7, id: 'c7' }];
+      G.players['0'].hand = [{ suit: 'jben', value: 7, id: 'c7' }];
       return G;
     });
 
@@ -72,8 +72,8 @@ describe('RondaGame - Extended Requirements', () => {
 
   test('Missa: Clearing the table should award +1 point', () => {
     const game = setupCustomGame((G) => {
-      G.table = [{ suit: 'swords', value: 5, id: 's5' }];
-      G.players['0'].hand = [{ suit: 'cups', value: 5, id: 'c5' }];
+      G.table = [{ suit: 'syouf', value: 5, id: 's5' }];
+      G.players['0'].hand = [{ suit: 'jben', value: 5, id: 'c5' }];
       return G;
     });
 
@@ -89,8 +89,8 @@ describe('RondaGame - Extended Requirements', () => {
 
   test('Derba: Matching the opponents last card should award +1 point', () => {
     const game = setupCustomGame((G) => {
-      G.players['0'].hand = [{ suit: 'swords', value: 3, id: 's3' }, { suit: 'coins', value: 1, id: 'c1' }];
-      G.players['1'].hand = [{ suit: 'cups', value: 3, id: 'c3' }, { suit: 'clubs', value: 1, id: 'cl1' }];
+      G.players['0'].hand = [{ suit: 'syouf', value: 3, id: 's3' }, { suit: 'dheb', value: 1, id: 'c1' }];
+      G.players['1'].hand = [{ suit: 'jben', value: 3, id: 'c3' }, { suit: 'zrawet', value: 1, id: 'cl1' }];
       return G;
     });
 
@@ -114,8 +114,8 @@ describe('RondaGame - Extended Requirements', () => {
 
   test('Taawida: Continuous matching should award +5 and +10 points', () => {
     const game = setupCustomGame((G) => {
-      G.players['0'].hand = [{ suit: 'swords', value: 3, id: 's3' }, { suit: 'coins', value: 3, id: 'co3' }];
-      G.players['1'].hand = [{ suit: 'cups', value: 3, id: 'c3' }, { suit: 'clubs', value: 3, id: 'cl3' }];
+      G.players['0'].hand = [{ suit: 'syouf', value: 3, id: 's3' }, { suit: 'dheb', value: 3, id: 'co3' }];
+      G.players['1'].hand = [{ suit: 'jben', value: 3, id: 'c3' }, { suit: 'zrawet', value: 3, id: 'cl3' }];
       return G;
     });
 
@@ -155,14 +155,14 @@ describe('RondaGame - Extended Requirements', () => {
   test('Ronda Detection: Starting a round with a pair should award +1 point', () => {
     const game = setupCustomGame((G) => {
       G.players['0'].hand = [
-        { suit: 'swords', value: 7, id: 's7' },
-        { suit: 'cups', value: 7, id: 'c7' },
-        { suit: 'coins', value: 1, id: 'co1' }
+        { suit: 'syouf', value: 7, id: 's7' },
+        { suit: 'jben', value: 7, id: 'c7' },
+        { suit: 'dheb', value: 1, id: 'co1' }
       ];
       G.players['1'].hand = [
-        { suit: 'swords', value: 1, id: 's1' },
-        { suit: 'cups', value: 2, id: 'c2' },
-        { suit: 'coins', value: 3, id: 'co3' }
+        { suit: 'syouf', value: 1, id: 's1' },
+        { suit: 'jben', value: 2, id: 'c2' },
+        { suit: 'dheb', value: 3, id: 'co3' }
       ];
       evaluateRondaTringa(G); // Explicitly call because G.players was overridden
       return G;
@@ -212,11 +212,11 @@ describe('RondaGame - Extended Requirements', () => {
       G.players['0'].score = 3; 
       G.players['1'].score = 5; 
       
-      G.table = [{ suit: 'swords', value: 10, id: 's10' }]; // 12 on table
+      G.table = [{ suit: 'syouf', value: 10, id: 's10' }]; // 12 on table
       G.lastCapture = '1'; // Player 1 made the last capture before this
       
       G.deck = [];
-      G.players['0'].hand = [{ suit: 'coins', value: 10, id: 'c10' }]; // 12 in hand (Last card)
+      G.players['0'].hand = [{ suit: 'dheb', value: 10, id: 'c10' }]; // 12 in hand (Last card)
       G.players['1'].hand = [];
       return G;
     });
@@ -254,9 +254,9 @@ describe('RondaGame - Extended Requirements', () => {
 
   test('King Finish: Capturing with a 12 as the very last card awards 5 points', () => {
     const game = setupCustomGame((G) => {
-      G.table = [{ suit: 'swords', value: 10, id: 's10' }]; // 12 on table
+      G.table = [{ suit: 'syouf', value: 10, id: 's10' }]; // 12 on table
       G.deck = [];
-      G.players['0'].hand = [{ suit: 'coins', value: 10, id: 'c10' }]; // 12 in hand
+      G.players['0'].hand = [{ suit: 'dheb', value: 10, id: 'c10' }]; // 12 in hand
       G.players['1'].hand = []; // Opponent empty
       return G;
     });

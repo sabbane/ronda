@@ -158,6 +158,18 @@ const App = () => {
       setMatchID(room);
     }
 
+    // Auto-start for test routes
+    const path = window.location.pathname;
+    if (path === '/test/p1') {
+      setMatchID('test-scenario-room');
+      setPlayerID('0');
+      setMode('online');
+    } else if (path === '/test/p2') {
+      setMatchID('test-scenario-room');
+      setPlayerID('1');
+      setMode('online');
+    }
+
     return () => {
       window.removeEventListener('ronda-reset', handleReset);
       window.removeEventListener('ronda-menu', handleMenu);

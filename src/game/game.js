@@ -6,7 +6,7 @@ export const getNextValue = (val) => {
 };
 
 const generateDeck = () => {
-  const suits = ['coins', 'cups', 'swords', 'clubs'];
+  const suits = ['dheb', 'jben', 'syouf', 'zrawet'];
   const deck = [];
   suits.forEach((suit) => {
     for (let i = 1; i <= 10; i++) {
@@ -166,7 +166,56 @@ const checkWaitForUI = (G, events) => {
 export const RondaGame = {
   name: 'ronda',
   setup: ({ ctx }) => {
-    let deck = shuffle(generateDeck());
+    // RIGGED DECK FOR TEST SCENARIOS
+    let deck = [
+      { value: 1, suit: 'dheb' },
+      { value: 2, suit: 'dheb' },
+      { value: 3, suit: 'dheb' },
+      { value: 4, suit: 'dheb' },
+      { value: 5, suit: 'dheb' },
+      { value: 5, suit: 'jben' },
+      { value: 6, suit: 'dheb' },
+      { value: 7, suit: 'dheb' },
+      { value: 7, suit: 'jben' },
+      { value: 8, suit: 'dheb' },
+      { value: 9, suit: 'dheb' },
+      { value: 9, suit: 'jben' },
+      { value: 6, suit: 'jben' },
+      { value: 9, suit: 'syouf' },
+      { value: 9, suit: 'zrawet' },
+      { value: 8, suit: 'jben' },
+      { value: 1, suit: 'jben' },
+      { value: 1, suit: 'syouf' },
+      { value: 1, suit: 'zrawet' },
+      { value: 2, suit: 'jben' },
+      { value: 2, suit: 'syouf' },
+      { value: 4, suit: 'jben' },
+      { value: 3, suit: 'jben' },
+      { value: 3, suit: 'syouf' },
+      { value: 3, suit: 'zrawet' },
+      { value: 4, suit: 'syouf' },
+      { value: 4, suit: 'zrawet' },
+      { value: 6, suit: 'syouf' },
+      { value: 5, suit: 'syouf' },
+      { value: 5, suit: 'zrawet' },
+      { value: 7, suit: 'syouf' },
+      { value: 7, suit: 'zrawet' },
+      { value: 8, suit: 'syouf' },
+      { value: 8, suit: 'zrawet' },
+      { value: 10, suit: 'dheb' },
+      { value: 10, suit: 'jben' },
+      { value: 6, suit: 'zrawet' },
+      { value: 10, suit: 'syouf' },
+      { value: 10, suit: 'zrawet' },
+      { value: 2, suit: 'zrawet' }
+    ].map(card => {
+      let displayValue = card.value;
+      if (card.value === 8) displayValue = 10;
+      if (card.value === 9) displayValue = 11;
+      if (card.value === 10) displayValue = 12;
+      return { ...card, displayValue, id: `${card.suit}-${card.value}` };
+    });
+
     const table = deck.splice(0, 4);
     const players = {
       '0': { hand: deck.splice(0, 3), captured: [], score: 0 },

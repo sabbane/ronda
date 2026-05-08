@@ -29,7 +29,7 @@ describe('Ronda Game Logic - Deep Testing', () => {
     expect(totalCards).toBe(40);
 
     const allCards = [...G.deck, ...G.table, ...G.players['0'].hand, ...G.players['1'].hand];
-    const suits = ['coins', 'cups', 'swords', 'clubs'];
+    const suits = ['dheb', 'jben', 'syouf', 'zrawet'];
     suits.forEach(suit => {
       const suitCards = allCards.filter(c => c.suit === suit);
       expect(suitCards.length).toBe(10);
@@ -45,13 +45,13 @@ describe('Ronda Game Logic - Deep Testing', () => {
       setup: () => ({
         ...RondaGame.setup({ ctx: { numPlayers: 2 } }),
         table: [
-          { suit: 'swords', value: 7, id: 's7' },
-          { suit: 'swords', value: 8, id: 's8' }, // 10
-          { suit: 'swords', value: 9, id: 's9' }, // 11
-          { suit: 'swords', value: 10, id: 's10' }, // 12
+          { suit: 'syouf', value: 7, id: 's7' },
+          { suit: 'syouf', value: 8, id: 's8' }, // 10
+          { suit: 'syouf', value: 9, id: 's9' }, // 11
+          { suit: 'syouf', value: 10, id: 's10' }, // 12
         ],
         players: {
-          '0': { hand: [{ suit: 'coins', value: 7, id: 'c7' }], captured: [], score: 0 },
+          '0': { hand: [{ suit: 'dheb', value: 7, id: 'c7' }], captured: [], score: 0 },
           '1': { hand: [], captured: [], score: 0 }
         }
       })
@@ -87,13 +87,13 @@ describe('Ronda Game Logic - Deep Testing', () => {
       setup: () => ({
         ...RondaGame.setup({ ctx: { numPlayers: 2 } }),
         table: [
-          { suit: 'swords', value: 2, id: 's2' },
-          { suit: 'swords', value: 3, id: 's3' },
-          { suit: 'clubs', value: 5, id: 'cl5' },
-          { suit: 'clubs', value: 6, id: 'cl6' },
+          { suit: 'syouf', value: 2, id: 's2' },
+          { suit: 'syouf', value: 3, id: 's3' },
+          { suit: 'zrawet', value: 5, id: 'cl5' },
+          { suit: 'zrawet', value: 6, id: 'cl6' },
         ],
         players: {
-          '0': { hand: [{ suit: 'coins', value: 2, id: 'c2' }], captured: [], score: 0 },
+          '0': { hand: [{ suit: 'dheb', value: 2, id: 'c2' }], captured: [], score: 0 },
           '1': { hand: [], captured: [], score: 0 }
         }
       })
