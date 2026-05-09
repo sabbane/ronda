@@ -343,7 +343,7 @@ export const RondaGame = {
           capturedCards.push(...cardsToTransfer);
           
           addScore(G, player, scoreToAdd);
-          G.announcements.push({ player, type: 'Taawida' });
+          G.announcements.push({ player, type: 'Taawida', streak: newStreak });
           
           G.lastPlayedCard = {
             value: currentVal,
@@ -378,7 +378,7 @@ export const RondaGame = {
               streakCards = [...cardsToTransfer, matchedCard, playedCard];
               
               addScore(G, player, awardedPoints);
-              G.announcements.push({ player, type: 'Taawida' });
+              G.announcements.push({ player, type: 'Taawida', streak: newStreak });
             }
             G.lastPlayedCard = { value: currentVal, player: player, streak: newStreak, awardedPoints, streakCards };
           } else {
