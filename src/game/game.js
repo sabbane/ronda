@@ -398,6 +398,13 @@ export const RondaGame = {
           addScore(G, player, 5);
           G.announcements.push({ player, type: 'King Finish' });
         }
+
+        // As Finish Rule: if the last card of the game is an Ace (value 1) and captures
+        if (currentVal === 1 && G.deck.length === 0 && G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0) {
+          const opponent = player === '0' ? '1' : '0';
+          addScore(G, opponent, 5);
+          G.announcements.push({ player: opponent, type: 'As Finish' });
+        }
       }
       
       checkRoundEnd(G);

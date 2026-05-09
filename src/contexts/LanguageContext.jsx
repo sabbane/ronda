@@ -51,7 +51,9 @@ export const translations = {
       kingFinish: "👑 King Finish! (+5)",
       tringaWins: "{name}'s Tringa beats Ronda! (+6)",
       finalFailTitle: "Final Fail",
-      finalFailDesc: "Missed the last card! (+5 for opponent)"
+      finalFailDesc: "Missed the last card! (+5 for opponent)",
+      asFinishTitle: "As Finish",
+      asFinishDesc: "Captured with Ace! (+5 for opponent)"
     }
   },
   fr: {
@@ -104,7 +106,9 @@ export const translations = {
       kingFinish: "👑 King Finish ! (+5)",
       tringaWins: "La Tringa de {name} bat la Ronda ! (+6)",
       finalFailTitle: "Échec Final",
-      finalFailDesc: "Dernière carte manquée ! (+5 pour l'adversaire)"
+      finalFailDesc: "Dernière carte manquée ! (+5 pour l'adversaire)",
+      asFinishTitle: "As Finish",
+      asFinishDesc: "A gagné avec l'As ! (+5 pour l'adversaire)"
     }
   },
   ar: {
@@ -157,7 +161,9 @@ export const translations = {
       kingFinish: "👑 نهاية الملك! (+5)",
       tringaWins: "ترينجا {name} تغلب روندا! (+6)",
       finalFailTitle: "خيبة الختام",
-      finalFailDesc: "فشل في الورقة الأخيرة! (+5 للخصم)"
+      finalFailDesc: "فشل في الورقة الأخيرة! (+5 للخصم)",
+      asFinishTitle: "نهاية بالآص",
+      asFinishDesc: "ربح بالآص في الأخير! (+5 للخصم)"
     }
   }
 };

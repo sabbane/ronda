@@ -364,4 +364,25 @@ describe('RondaGame - Extended Requirements', () => {
     expect(state.G.players['1'].score).toBe(5);
     expect(state.G.announcements.find(a => a.type === 'Final Fail')).toBeDefined();
   });
+
+  test('As Finish: Capturing with Ace as the last card awards 5 points to the opponent', () => {
+    const game = setupCustomGame((G) => {
+      G.deck = [];
+      G.players['0'].hand = [{ suit: 'dheb', value: 1, id: 'd1' }];
+      G.players['1'].hand = [];
+      G.table = [{ suit: 'jben', value: 1, id: 'j1' }]; // Match for d1
+      return G;
+    });
+
+    const client = Client({ game });
+    
+    // P0 plays 1, captures j1 (Final card of game)
+    client.moves.playCard(0);
+    client.moves.processCapture();
+    
+    const state = client.getState();
+    // P1 (opponent) should get 5 points
+    expect(state.G.players['1'].score).toBe(5);
+    expect(state.G.announcements.find(a => a.type === 'As Finish')).toBeDefined();
+  });
 });
