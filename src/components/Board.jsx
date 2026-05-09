@@ -60,7 +60,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
           }
           if (ann.type === 'Clash Draw') customText = t('announcements.clashDraw');
           if (ann.type === 'King Finish') customText = t('announcements.kingFinish', { name });
-          if (ann.type === 'TringaBeatsRonda') customText = t('announcements.tringaBeatsRonda', { name });
+          if (ann.type === 'TringaWins') customText = t('announcements.tringaWins', { name });
 
           setEventQueue(prev => [...prev, { ...ann, displayText: customText || ann.text, id: annId }]);
         }
@@ -192,7 +192,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                   {activeEvent.type === 'Messa' ? '🧹' : activeEvent.type === 'Bounti' ? '🎯' : '✨'}
                 </motion.div>
                 <h3 className="text-4xl font-black italic tracking-tighter uppercase mb-1">
-                  {activeEvent.type}!
+                  {activeEvent.type === 'TringaWins' ? 'Tringa Wins' : activeEvent.type}!
                 </h3>
                 <p className="text-xl font-medium text-indigo-100 opacity-90">
                   {activeEvent.displayText || activeEvent.text}

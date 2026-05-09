@@ -341,7 +341,7 @@ describe('RondaGame - Extended Requirements', () => {
 
     // Check if Tringa player (P1) got 6 points immediately
     expect(state.G.players['1'].score).toBe(6);
-    expect(state.G.announcements.find(a => a.type === 'TringaBeatsRonda')).toBeDefined();
+    expect(state.G.announcements.find(a => a.type === 'TringaWins')).toBeDefined();
     expect(state.G.activeClash).toBeNull();
   });
 });

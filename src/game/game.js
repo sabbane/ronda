@@ -64,7 +64,7 @@ export const evaluateRondaTringa = (G) => {
       addScore(G, winner, pts);
       G.announcements.push({ 
         player: winner, 
-        type: 'TringaBeatsRonda', 
+        type: 'TringaWins', 
         pts: pts 
       });
       G.activeClash = null;
