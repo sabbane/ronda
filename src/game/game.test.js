@@ -344,4 +344,24 @@ describe('RondaGame - Extended Requirements', () => {
     expect(state.G.announcements.find(a => a.type === 'TringaWins')).toBeDefined();
     expect(state.G.activeClash).toBeNull();
   });
+
+  test('Final Fail: Missing the last capture awards 5 points to the opponent', () => {
+    const game = setupCustomGame((G) => {
+      G.deck = [];
+      G.players['0'].hand = [{ suit: 'dheb', value: 1, id: 'd1' }];
+      G.players['1'].hand = [];
+      G.table = [{ suit: 'jben', value: 5, id: 'j5' }]; // No match for d1
+      return G;
+    });
+
+    const client = Client({ game });
+    
+    // P0 plays 1, misses capture (Final card of game)
+    client.moves.playCard(0);
+    
+    const state = client.getState();
+    // P1 (opponent) should get 5 points
+    expect(state.G.players['1'].score).toBe(5);
+    expect(state.G.announcements.find(a => a.type === 'Final Fail')).toBeDefined();
+  });
 });

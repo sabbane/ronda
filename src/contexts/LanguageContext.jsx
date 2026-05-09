@@ -49,7 +49,9 @@ export const translations = {
       clashWon: "{name} won Clash with {type}! (+{pts})",
       clashDraw: "Clash Draw!",
       kingFinish: "👑 King Finish! (+5)",
-      tringaWins: "{name}'s Tringa beats Ronda! (+6)"
+      tringaWins: "{name}'s Tringa beats Ronda! (+6)",
+      finalFailTitle: "Final Fail",
+      finalFailDesc: "Missed the last card! (+5 for opponent)"
     }
   },
   fr: {
@@ -100,7 +102,9 @@ export const translations = {
       clashWon: "{name} a gagné le Clash avec {type} ! (+{pts})",
       clashDraw: "Clash : Égalité !",
       kingFinish: "👑 King Finish ! (+5)",
-      tringaWins: "La Tringa de {name} bat la Ronda ! (+6)"
+      tringaWins: "La Tringa de {name} bat la Ronda ! (+6)",
+      finalFailTitle: "Échec Final",
+      finalFailDesc: "Dernière carte manquée ! (+5 pour l'adversaire)"
     }
   },
   ar: {
@@ -151,7 +155,9 @@ export const translations = {
       clashWon: "فاز بالتصادم بـ {type}! (+{pts}) {name}",
       clashDraw: "تعادل في التصادم",
       kingFinish: "👑 نهاية الملك! (+5)",
-      tringaWins: "ترينجا {name} تغلب روندا! (+6)"
+      tringaWins: "ترينجا {name} تغلب روندا! (+6)",
+      finalFailTitle: "خيبة الختام",
+      finalFailDesc: "فشل في الورقة الأخيرة! (+5 للخصم)"
     }
   }
 };

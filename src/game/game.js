@@ -181,46 +181,23 @@ export const RondaGame = {
   setup: ({ ctx }) => {
     // RIGGED DECK FOR TEST SCENARIOS
     let deck = [
-      { value: 1, suit: 'dheb' },
-      { value: 2, suit: 'dheb' },
-      { value: 3, suit: 'dheb' },
-      { value: 4, suit: 'dheb' },
-      { value: 5, suit: 'dheb' },
-      { value: 5, suit: 'jben' },
-      { value: 6, suit: 'dheb' },
-      { value: 7, suit: 'dheb' },
-      { value: 7, suit: 'jben' },
-      { value: 8, suit: 'dheb' },
-      { value: 9, suit: 'dheb' },
-      { value: 9, suit: 'jben' },
-      { value: 6, suit: 'jben' },
-      { value: 9, suit: 'syouf' },
-      { value: 9, suit: 'zrawet' },
-      { value: 8, suit: 'jben' },
-      { value: 1, suit: 'jben' },
-      { value: 1, suit: 'syouf' },
-      { value: 1, suit: 'zrawet' },
-      { value: 2, suit: 'jben' },
-      { value: 2, suit: 'syouf' },
-      { value: 4, suit: 'jben' },
-      { value: 3, suit: 'jben' },
-      { value: 3, suit: 'syouf' },
-      { value: 3, suit: 'zrawet' },
-      { value: 4, suit: 'syouf' },
-      { value: 4, suit: 'zrawet' },
-      { value: 6, suit: 'syouf' },
-      { value: 5, suit: 'syouf' },
-      { value: 5, suit: 'zrawet' },
-      { value: 7, suit: 'syouf' },
-      { value: 7, suit: 'zrawet' },
-      { value: 8, suit: 'syouf' },
-      { value: 8, suit: 'zrawet' },
-      { value: 10, suit: 'dheb' },
-      { value: 10, suit: 'jben' },
-      { value: 6, suit: 'zrawet' },
-      { value: 10, suit: 'syouf' },
-      { value: 10, suit: 'zrawet' },
-      { value: 2, suit: 'zrawet' }
+      { value: 1, suit: 'dheb' }, { value: 2, suit: 'dheb' }, { value: 3, suit: 'dheb' }, { value: 4, suit: 'dheb' }, // Table
+      { value: 5, suit: 'dheb' }, { value: 5, suit: 'jben' }, { value: 6, suit: 'dheb' }, // P0 R1
+      { value: 7, suit: 'dheb' }, { value: 7, suit: 'jben' }, { value: 8, suit: 'dheb' }, // P1 R1
+      { value: 9, suit: 'dheb' }, { value: 9, suit: 'jben' }, { value: 5, suit: 'zrawet' }, // P0 R2 (Swapped 6-jben for 5-zrawet)
+      { value: 9, suit: 'syouf' }, { value: 9, suit: 'zrawet' }, { value: 8, suit: 'jben' }, // P1 R2
+      { value: 1, suit: 'jben' }, { value: 6, suit: 'zrawet' }, { value: 10, suit: 'syouf' }, // P0 R3 (Swapped 1s/1z for end-cards)
+      { value: 2, suit: 'jben' }, { value: 2, suit: 'syouf' }, { value: 10, suit: 'zrawet' }, // P1 R3 (Swapped 4-jben for 10-zrawet)
+      { value: 3, suit: 'jben' }, { value: 3, suit: 'syouf' }, { value: 3, suit: 'zrawet' }, // P0 R4
+      { value: 4, suit: 'syouf' }, { value: 4, suit: 'zrawet' }, { value: 6, suit: 'syouf' }, // P1 R4
+      { value: 4, suit: 'jben' }, { value: 6, suit: 'jben' }, { value: 7, suit: 'syouf' }, // P0 R5 (Received 4-jben and 6-jben)
+      { value: 7, suit: 'zrawet' }, { value: 2, suit: 'zrawet' }, { value: 8, suit: 'zrawet' }, // P1 R5 (Swapped 8s for end-card)
+      
+      // LAST ROUND (Indices 34-39)
+      // P0: 12 (10d), 1 (1z), 10 (8s)
+      { value: 10, suit: 'dheb' }, { value: 1, suit: 'zrawet' }, { value: 8, suit: 'syouf' },
+      // P1: 12 (10j), 1 (1s), 5 (5s)
+      { value: 10, suit: 'jben' }, { value: 1, suit: 'syouf' }, { value: 5, suit: 'syouf' }
     ].map(card => {
       let displayValue = card.value;
       if (card.value === 8) displayValue = 10;
@@ -228,6 +205,7 @@ export const RondaGame = {
       if (card.value === 10) displayValue = 12;
       return { ...card, displayValue, id: `${card.suit}-${card.value}` };
     });
+
 
     const table = deck.splice(0, 4);
     const players = {
@@ -302,6 +280,14 @@ export const RondaGame = {
           streakCards: [playedCard] 
         };
         G.isAnimating = true;
+        
+        // Final Fail Rule: if the last card of the game is played and does not capture
+        if (G.deck.length === 0 && G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0) {
+          const opponent = player === '0' ? '1' : '0';
+          addScore(G, opponent, 5);
+          G.announcements.push({ player: opponent, type: 'Final Fail' });
+        }
+
         checkRoundEnd(G);
         if (!checkWaitForUI(G, events)) {
           events.endTurn();

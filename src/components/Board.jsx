@@ -96,6 +96,11 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
             customTitle = "Tringa Wins";
             customIcon = "🏆";
           }
+          if (ann.type === 'Final Fail') {
+            customTitle = t('announcements.finalFailTitle');
+            customText = t('announcements.finalFailDesc');
+            customIcon = "📉";
+          }
 
           setEventQueue(prev => [...prev, { 
             ...ann, 
@@ -216,7 +221,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
         {/* Central Event Notification Overlay */}
         <AnimatePresence>
           {activeEvent && (() => {
-            const isBigEvent = activeEvent.streak >= 3 || activeEvent.type === 'King Finish';
+            const isBigEvent = activeEvent.streak >= 3 || activeEvent.type === 'King Finish' || activeEvent.type === 'Final Fail';
             return (
               <motion.div 
                 key={activeEvent.id}
