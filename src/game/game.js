@@ -57,8 +57,21 @@ export const evaluateRondaTringa = (G) => {
   const p1Rank = getHandRank(G.players['1'].hand);
 
   if (p0Rank && p1Rank) {
-    G.activeClash = { p0: p0Rank, p1: p1Rank };
-    G.announcements.push({ player: 'none', type: 'Clash', text: 'Clash! Both have cards!' });
+    if (p0Rank.type !== p1Rank.type) {
+      // Tringa vs Ronda: Resolve immediately
+      const winner = p0Rank.type === 'Tringa' ? '0' : '1';
+      const pts = 6;
+      addScore(G, winner, pts);
+      G.announcements.push({ 
+        player: winner, 
+        type: 'TringaBeatsRonda', 
+        pts: pts 
+      });
+      G.activeClash = null;
+    } else {
+      G.activeClash = { p0: p0Rank, p1: p1Rank };
+      G.announcements.push({ player: 'none', type: 'Clash', text: 'Clash! Both have cards!' });
+    }
   } else if (p0Rank) {
     addScore(G, '0', p0Rank.type === 'Tringa' ? 5 : 1);
     G.announcements.push({ player: '0', type: p0Rank.type });
@@ -271,25 +284,23 @@ export const RondaGame = {
       
       let matchIndex = G.table.findIndex(c => c.value === currentVal && c.id !== playedCard.id);
       
-      if (matchIndex !== -1) {
-        // Mark for capture, but don't do it yet so UI has time to show it
+      if (matchIndex !== -1 || (G.lastPlayedCard && G.lastPlayedCard.value === currentVal && G.lastPlayedCard.player !== player && G.lastPlayedCard.streak >= 2)) {
+        // Mark for capture or Taawida transfer
         G.pendingCapture = {
           player: player,
           playedCardId: playedCard.id,
-          currentVal: currentVal
+          currentVal: currentVal,
+          isTaawidaTransfer: matchIndex === -1
         };
       } else {
-        if (G.lastPlayedCard && G.lastPlayedCard.value === currentVal && G.lastPlayedCard.player !== player && G.lastPlayedCard.streak >= 2) {
-          // Taawida! (3rd counter)
-          const newStreak = G.lastPlayedCard.streak + 1;
-          const scoreToAdd = newStreak === 3 ? 5 : 10;
-          addScore(G, player, scoreToAdd);
-          G.announcements.push({ player, type: 'Taawida' });
-          G.lastPlayedCard = { value: currentVal, player: player, streak: newStreak };
-        } else {
-          // Normal drop, starts a new potential streak
-          G.lastPlayedCard = { value: currentVal, player: player, streak: 1 };
-        }
+        // Normal drop, starts a new potential streak
+        G.lastPlayedCard = { 
+          value: currentVal, 
+          player: player, 
+          streak: 1, 
+          awardedPoints: 0, 
+          streakCards: [playedCard] 
+        };
         G.isAnimating = true;
         checkRoundEnd(G);
         if (!checkWaitForUI(G, events)) {
@@ -304,7 +315,7 @@ export const RondaGame = {
       const player = playerID || ctx.currentPlayer;
       if (player !== ctx.currentPlayer) return INVALID_MOVE;
 
-      const { playedCardId, currentVal } = G.pendingCapture;
+      const { playedCardId, currentVal, isTaawidaTransfer } = G.pendingCapture;
       // Also ensure the player processing the capture is the one who initiated it
       if (G.pendingCapture.player !== player) return INVALID_MOVE;
 
@@ -318,32 +329,71 @@ export const RondaGame = {
       
       let matchIndex = G.table.findIndex(c => c.value === currentVal);
       
-      if (matchIndex !== -1) {
-        if (G.lastPlayedCard && G.lastPlayedCard.value === currentVal && G.lastPlayedCard.player !== player) {
-          const newStreak = (G.lastPlayedCard.streak || 1) + 1;
-          if (newStreak === 2) {
-            addScore(G, player, 1);
-            G.announcements.push({ player, type: 'Derba' });
-          } else if (newStreak === 4) {
-            addScore(G, player, 10);
-            G.announcements.push({ player, type: 'Taawida' });
-          }
-          G.lastPlayedCard = { value: currentVal, player: player, streak: newStreak };
+      if (matchIndex !== -1 || isTaawidaTransfer) {
+        if (isTaawidaTransfer) {
+          const newStreak = G.lastPlayedCard.streak + 1;
+          const scoreToAdd = newStreak === 3 ? 5 : 10;
+          
+          const opponent = G.lastPlayedCard.player;
+          G.players[opponent].score -= G.lastPlayedCard.awardedPoints || 0;
+          
+          const cardsToTransfer = G.lastPlayedCard.streakCards || [];
+          G.players[opponent].captured = G.players[opponent].captured.filter(c => !cardsToTransfer.some(tc => tc.id === c.id));
+          
+          capturedCards.push(...cardsToTransfer);
+          
+          addScore(G, player, scoreToAdd);
+          G.announcements.push({ player, type: 'Taawida' });
+          
+          G.lastPlayedCard = {
+            value: currentVal,
+            player: player,
+            streak: newStreak,
+            awardedPoints: scoreToAdd,
+            streakCards: [...cardsToTransfer, playedCard]
+          };
         } else {
-          G.lastPlayedCard = null; // Streak broken
-        }
+          let matchedCard = G.table.splice(matchIndex, 1)[0];
+          capturedCards.push(matchedCard);
 
-        let matchedCard = G.table.splice(matchIndex, 1)[0];
-        capturedCards.push(matchedCard);
-        
-        let nextVal = getNextValue(currentVal);
-        while (nextVal !== null) {
-          let nextMatchIndex = G.table.findIndex(c => c.value === nextVal);
-          if (nextMatchIndex !== -1) {
-            capturedCards.push(G.table.splice(nextMatchIndex, 1)[0]);
-            nextVal = getNextValue(nextVal);
+          if (G.lastPlayedCard && G.lastPlayedCard.value === currentVal && G.lastPlayedCard.player !== player) {
+            const newStreak = (G.lastPlayedCard.streak || 1) + 1;
+            let awardedPoints = 0;
+            let streakCards = [];
+
+            if (newStreak === 2) {
+              awardedPoints = 1;
+              addScore(G, player, awardedPoints);
+              G.announcements.push({ player, type: 'Derba' });
+              streakCards = [matchedCard, playedCard];
+            } else if (newStreak === 4) {
+              awardedPoints = 10;
+              const opponent = G.lastPlayedCard.player;
+              G.players[opponent].score -= G.lastPlayedCard.awardedPoints || 0;
+              
+              const cardsToTransfer = G.lastPlayedCard.streakCards || [];
+              G.players[opponent].captured = G.players[opponent].captured.filter(c => !cardsToTransfer.some(tc => tc.id === c.id));
+              
+              capturedCards.push(...cardsToTransfer);
+              streakCards = [...cardsToTransfer, matchedCard, playedCard];
+              
+              addScore(G, player, awardedPoints);
+              G.announcements.push({ player, type: 'Taawida' });
+            }
+            G.lastPlayedCard = { value: currentVal, player: player, streak: newStreak, awardedPoints, streakCards };
           } else {
-            break;
+            G.lastPlayedCard = null; // Streak broken
+          }
+          
+          let nextVal = getNextValue(currentVal);
+          while (nextVal !== null) {
+            let nextMatchIndex = G.table.findIndex(c => c.value === nextVal);
+            if (nextMatchIndex !== -1) {
+              capturedCards.push(G.table.splice(nextMatchIndex, 1)[0]);
+              nextVal = getNextValue(nextVal);
+            } else {
+              break;
+            }
           }
         }
         
@@ -352,7 +402,7 @@ export const RondaGame = {
         // G.lastPlayedCard is maintained if there's an active streak, otherwise it's null
         G.isAnimating = true;
 
-        if (G.table.length === 0 && (G.deck.length > 0 || G.players['0'].hand.length > 0)) {
+        if (!isTaawidaTransfer && G.table.length === 0 && (G.deck.length > 0 || G.players['0'].hand.length > 0)) {
           addScore(G, player, 1);
           G.announcements.push({ player, type: 'Missa' });
         }

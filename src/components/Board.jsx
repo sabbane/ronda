@@ -60,6 +60,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
           }
           if (ann.type === 'Clash Draw') customText = t('announcements.clashDraw');
           if (ann.type === 'King Finish') customText = t('announcements.kingFinish', { name });
+          if (ann.type === 'TringaBeatsRonda') customText = t('announcements.tringaBeatsRonda', { name });
 
           setEventQueue(prev => [...prev, { ...ann, displayText: customText || ann.text, id: annId }]);
         }

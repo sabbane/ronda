@@ -137,10 +137,12 @@ describe('RondaGame - Extended Requirements', () => {
     
     // Player 0 plays 3 (Taawida +5)
     client.moves.playCard(0);
+    client.moves.processCapture();
     
     state = client.getState();
     expect(state.G.announcements.find(a => a.type === 'Taawida')).toBeDefined();
-    expect(state.G.players['0'].score).toBe(5); // Taawida (+5)
+    // P0 gets 5 pts for Taawida, no Missa (was already empty table)
+    expect(state.G.players['0'].score).toBe(5);
     
     advanceUI(client);
     
@@ -149,7 +151,61 @@ describe('RondaGame - Extended Requirements', () => {
     client.moves.processCapture();
 
     state = client.getState();
-    expect(state.G.players['1'].score).toBe(13); // Previous 2 + Taawida (+10) + Missa (+1)
+    // P1 had 2 points. Lost 1 point during P0's Taawida (Derba deduction). 
+    // Now P1 gets +10 points for Taawida. Score = 2 - 1 + 10 = 11.
+    expect(state.G.players['1'].score).toBe(11); 
+    // P0 loses the 5 points from their Taawida. Score = 0.
+    expect(state.G.players['0'].score).toBe(0);
+    // P1 captured array should contain all 4 cards
+    expect(state.G.players['1'].captured.length).toBe(4);
+    expect(state.G.players['0'].captured.length).toBe(0);
+  });
+
+  test('Taawida: Score transfer 1 to 4 -> 9 to 1 scenario', () => {
+    const game = setupCustomGame((G) => {
+      // Start with 1 point each
+      G.players['0'].score = 1;
+      G.players['1'].score = 1;
+      G.players['0'].hand = [{ suit: 'dheb', value: 5, id: 'd5-1' }, { suit: 'dheb', value: 5, id: 'd5-2' }];
+      G.players['1'].hand = [{ suit: 'jben', value: 5, id: 'j5-1' }];
+      G.table = [{ suit: 'syouf', value: 2, id: 's2' }]; // Distraction card on table
+      return G;
+    });
+
+    const client = Client({ game });
+
+    // 1. P0 plays 5
+    client.moves.playCard(0);
+    advanceUI(client);
+    
+    // 2. P1 plays 5 (Derba +1)
+    client.moves.playCard(0);
+    client.moves.processCapture();
+    
+    let state = client.getState();
+    // P1 score: 1 (init) + 1 (Derba) = 2. 
+    // Card count: P1 captured 2 cards (5 from P0, 5 from P1).
+    // User calculates "Total" (score + cards) = 2 + 2 = 4.
+    expect(state.G.players['1'].score).toBe(2);
+    expect(state.G.players['1'].captured.length).toBe(2);
+    
+    advanceUI(client);
+
+    // 3. P0 plays 5 (Taawida +5)
+    client.moves.playCard(0);
+    client.moves.processCapture();
+    
+    state = client.getState();
+    // P1 loses Derba point: 2 - 1 = 1.
+    // P1 loses 2 captured cards.
+    expect(state.G.players['1'].score).toBe(1);
+    expect(state.G.players['1'].captured.length).toBe(0);
+    
+    // P0 score: 1 (init) + 5 (Taawida) = 6.
+    // P0 captured cards: 2 (from P1) + 1 (just played) = 3.
+    // User calculation: 6 + 3 = 9.
+    expect(state.G.players['0'].score).toBe(6);
+    expect(state.G.players['0'].captured.length).toBe(3);
   });
 
   test('Ronda Detection: Starting a round with a pair should award +1 point', () => {
@@ -270,5 +326,22 @@ describe('RondaGame - Extended Requirements', () => {
     const state = client.getState();
     expect(state.G.announcements.find(a => a.type === 'King Finish')).toBeDefined();
     expect(state.G.players['0'].score).toBe(5); // +5 for King Finish
+  });
+
+  test('Clash: Ronda vs Tringa should resolve immediately', () => {
+    const game = setupCustomGame((G) => {
+      G.players['0'].hand = [{ suit: 'dheb', value: 5, id: 'd5-1' }, { suit: 'jben', value: 5, id: 'j5-1' }]; // Ronda
+      G.players['1'].hand = [{ suit: 'syouf', value: 1, id: 's1' }, { suit: 'zrawet', value: 1, id: 'z1' }, { suit: 'dheb', value: 1, id: 'd1' }]; // Tringa
+      evaluateRondaTringa(G); // Re-evaluate with new hands
+      return G;
+    });
+
+    const client = Client({ game });
+    const state = client.getState();
+
+    // Check if Tringa player (P1) got 6 points immediately
+    expect(state.G.players['1'].score).toBe(6);
+    expect(state.G.announcements.find(a => a.type === 'TringaBeatsRonda')).toBeDefined();
+    expect(state.G.activeClash).toBeNull();
   });
 });

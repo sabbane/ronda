@@ -44,7 +44,8 @@ export const translations = {
       clash: "Clash! Both have cards!",
       clashWon: "{name} won Clash with {type}! (+{pts})",
       clashDraw: "Clash Draw!",
-      kingFinish: "👑 King Finish! (+5)"
+      kingFinish: "👑 King Finish! (+5)",
+      tringaBeatsRonda: "{name}'s Tringa beats Ronda! (+6)"
     }
   },
   fr: {
@@ -90,7 +91,8 @@ export const translations = {
       clash: "Clash ! Les deux ont des cartes !",
       clashWon: "{name} a gagné le Clash avec {type} ! (+{pts})",
       clashDraw: "Clash : Égalité !",
-      kingFinish: "👑 King Finish ! (+5)"
+      kingFinish: "👑 King Finish ! (+5)",
+      tringaBeatsRonda: "La Tringa de {name} bat la Ronda ! (+6)"
     }
   },
   ar: {
@@ -136,7 +138,8 @@ export const translations = {
       clash: "إصطدام الروندات",
       clashWon: "فاز بالتصادم بـ {type}! (+{pts}) {name}",
       clashDraw: "تعادل في التصادم",
-      kingFinish: "👑 نهاية الملك! (+5)"
+      kingFinish: "👑 نهاية الملك! (+5)",
+      tringaBeatsRonda: "ترينجا {name} تغلب روندا! (+6)"
     }
   }
 };
