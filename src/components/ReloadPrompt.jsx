@@ -46,7 +46,13 @@ function ReloadPrompt() {
         <div className="flex gap-2">
           {needRefresh && (
             <button
-              onClick={() => updateServiceWorker(true)}
+              onClick={() => {
+                updateServiceWorker(true);
+                // Fallback: Falls der SW nicht sofort neu lädt
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1500);
+              }}
               className="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold py-2.5 rounded-xl transition-all active:scale-95 shadow-lg shadow-amber-500/20"
             >
               Jetzt aktualisieren
