@@ -36,6 +36,7 @@ export const Card = ({ card, hidden = false, onClick, className = '' }) => {
 
   return (
     <motion.div
+      data-testid={`card-${card.suit}-${card.value}`}
       whileHover={onClick ? { scale: 1.05, y: -10 } : {}}
       whileTap={onClick ? { scale: 0.95 } : {}}
       onClick={onClick}

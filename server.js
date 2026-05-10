@@ -11,5 +11,69 @@ const server = Server({
   ]
 });
 
+// ─── Custom REST endpoint: reset the test scenario match ─────────────────────
+// POST /test/reset  →  deletes any existing test match and creates a fresh one
+//                      with matchID "test-scenario-room", which makes the
+//                      rigged deck active (matchID contains "test").
+// Both /test/p1 and /test/p2 then join this exact, known match ID.
+const TEST_MATCH_ID = 'test-scenario-room';
+
+server.router.post('/test/reset', async (ctx) => {
+  try {
+    const PORT = process.env.PORT || 8000;
+    const base = `http://localhost:${PORT}`;
+
+    // 1) Try to create the match with the known ID.
+    //    boardgame.io ignores the 'matchID' field in the body —
+    //    so we fall back to deleting + re-creating via the lobby HTTP API.
+    //    First, list all matches and delete any named "test-scenario-room".
+    const listResp = await fetch(`${base}/games/ronda`);
+    if (listResp.ok) {
+      const { matches } = await listResp.json();
+      // We can't delete by ID via the standard lobby API, but we can track
+      // the last test matchID in memory and return it to the clients.
+    }
+
+    // 2) Create a fresh match (server assigns a random ID, but our matchID
+    //    contains 'test' if the env var is set – see game.js rigged deck logic).
+    const createResp = await fetch(`${base}/games/ronda/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        numPlayers: 2,
+        setupData: { testMode: true },
+      }),
+    });
+
+    if (!createResp.ok) {
+      const errText = await createResp.text();
+      ctx.status = 500;
+      ctx.body = { ok: false, error: errText };
+      return;
+    }
+
+    const data = await createResp.json();
+    const matchID = data.matchID;
+
+    // Store for subsequent /test/match-id requests
+    server._testMatchID = matchID;
+
+    ctx.body = { ok: true, matchID };
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { ok: false, error: String(err) };
+  }
+});
+
+// GET /test/match-id  →  returns the current test matchID
+server.router.get('/test/match-id', async (ctx) => {
+  if (server._testMatchID) {
+    ctx.body = { ok: true, matchID: server._testMatchID };
+  } else {
+    ctx.status = 404;
+    ctx.body = { ok: false, error: 'No test match exists yet. POST /test/reset first.' };
+  }
+});
+
 const PORT = process.env.PORT || 8000;
 server.run(PORT, () => console.log(`Backend server running on port ${PORT}...`));

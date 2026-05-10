@@ -82,6 +82,7 @@ const App = () => {
   };
 
   const [mode, setMode] = useState(null); // 'bot' or 'online'
+  const [testMode, setTestMode] = useState(false);
   const [playerID, setPlayerID] = useState('0');
   const [matchID, setMatchID] = useState(getRoomFromUrl);
   const [gameKey, setGameKey] = useState(0);
@@ -111,18 +112,30 @@ const App = () => {
         
         if (isSlotTaken) {
           if (targetPlayerID === '0') {
-            setError(t('roomOccupied')); // "Room is occupied (Host already exists)"
+            setError(t('roomOccupied'));
           } else {
-            setError(t('roomFull')); // "Room is full (Both players already in)"
+            setError(t('roomFull'));
           }
           setIsCheckingRoom(false);
           return;
         }
-      } else if (targetPlayerID === '1') {
-        // Trying to join a non-existent room
-        setError("Room not found. Host a game first!");
-        setIsCheckingRoom(false);
-        return;
+      }
+      
+      if (!match) {
+        if (targetPlayerID === '0') {
+          // Create match if hosting and doesn't exist
+          await lobbyClient.createMatch(RondaGame.name, {
+            numPlayers: 2,
+            unlisted: false,
+            setupData: { testMode },
+            matchID: matchID
+          });
+        } else {
+          // Trying to join a non-existent room
+          setError("Room not found. Host a game first!");
+          setIsCheckingRoom(false);
+          return;
+        }
       }
       
       setPlayerID(targetPlayerID);
@@ -131,8 +144,19 @@ const App = () => {
       console.error('Room check error:', err);
       // If error is 404 (not found), that's fine for hosting
       if (targetPlayerID === '0') {
-        setPlayerID('0');
-        setMode('online');
+        try {
+          await lobbyClient.createMatch(RondaGame.name, {
+            numPlayers: 2,
+            unlisted: false,
+            setupData: { testMode },
+            matchID: matchID
+          });
+          setPlayerID('0');
+          setMode('online');
+        } catch (createErr) {
+          console.error('Create match error:', createErr);
+          setError("Failed to create room. Is the server running?");
+        }
       } else {
         setError("Room not found. Host a game first!");
       }
@@ -146,28 +170,70 @@ const App = () => {
     const handleMenu = () => {
       setMode(null);
       setError(null);
+      setTestMode(false);
       setGameKey(prev => prev + 1);
     };
     window.addEventListener('ronda-reset', handleReset);
     window.addEventListener('ronda-menu', handleMenu);
 
-    // If URL has a room, set it
+    const isAppInTestMode = import.meta.env.VITE_TEST_MODE === 'true';
     const params = new URLSearchParams(window.location.search);
+    const path = window.location.pathname;
+
+    const BACKEND = 'http://localhost:8000';
+
+    const setupTestMatch = async (pID) => {
+      try {
+        let matchID;
+
+        if (pID === '0') {
+          // P1 (host): create a fresh test match via our custom endpoint.
+          // This guarantees the rigged deck is applied (setupData.testMode=true).
+          const resp = await fetch(`${BACKEND}/test/reset`, { method: 'POST' });
+          const data = await resp.json();
+          if (!data.ok || !data.matchID) throw new Error('Server could not create test match');
+          matchID = data.matchID;
+          console.log('[TestMode] P1: fresh test match created:', matchID);
+        } else {
+          // P2 (guest): poll the server for the match ID that P1 already created.
+          let attempts = 0;
+          while (attempts < 20) {
+            try {
+              const resp = await fetch(`${BACKEND}/test/match-id`);
+              if (resp.ok) {
+                const data = await resp.json();
+                if (data.ok && data.matchID) { matchID = data.matchID; break; }
+              }
+            } catch (_) {}
+            await new Promise(r => setTimeout(r, 500));
+            attempts++;
+          }
+          if (!matchID) throw new Error('P2 could not find a test match. Open /test/p1 first.');
+          console.log('[TestMode] P2: joining existing match:', matchID);
+        }
+
+        setMatchID(matchID);
+        setPlayerID(pID);
+        setMode('online');
+        setTestMode(true);
+      } catch (err) {
+        console.error('[TestMode] Setup error:', err);
+      }
+    };
+
+    // Test routes are only active when the app is explicitly started in test mode
+    if (isAppInTestMode) {
+      if (path === '/test/p1') {
+        setupTestMatch('0');
+      } else if (path === '/test/p2') {
+        setupTestMatch('1');
+      }
+    }
+
+    // If URL has a room, set it
     const room = params.get('room');
     if (room) {
       setMatchID(room);
-    }
-
-    // Auto-start for test routes
-    const path = window.location.pathname;
-    if (path === '/test/p1') {
-      setMatchID('test-scenario-room');
-      setPlayerID('0');
-      setMode('online');
-    } else if (path === '/test/p2') {
-      setMatchID('test-scenario-room');
-      setPlayerID('1');
-      setMode('online');
     }
 
     return () => {
@@ -319,6 +385,7 @@ const App = () => {
           key={`bot-${gameKey}`}
           matchID={`bot-room-${gameKey}`}
           playerID="0"
+          setupData={{ testMode }}
         />
       )}
       {mode === 'online' && (
@@ -326,6 +393,7 @@ const App = () => {
           key={`online-${gameKey}`}
           matchID={matchID}
           playerID={playerID}
+          setupData={{ testMode }}
         />
       )}
     </div>
