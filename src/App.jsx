@@ -9,7 +9,6 @@ import { RondaBoard } from './components/Board';
 import { AdSlot } from './components/AdSlot';
 import { DonateButton } from './components/DonateButton';
 import { useLanguage } from './contexts/LanguageContext';
-import ReloadPrompt from './components/ReloadPrompt';
 
 const LoadingScreen = () => {
   const { t } = useLanguage();
@@ -247,7 +246,6 @@ const App = () => {
   if (!mode) {
     return (
       <div className="min-h-screen flex flex-col items-center text-white relative overflow-hidden overflow-y-auto">
-        <ReloadPrompt />
         {/* Background Image with Moroccan Vibe */}
         <div
           className="fixed inset-0 z-0 scale-105"
