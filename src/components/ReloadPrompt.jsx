@@ -13,6 +13,15 @@ function ReloadPrompt() {
     onRegisterError(error) {
       console.log('SW registration error', error);
     },
+    onRegistered(r) {
+      // Aktiv nach Updates suchen, sobald der SW registriert ist
+      if (r) {
+        setInterval(() => {
+          r.update();
+        }, 60 * 60 * 1000); // Alle Stunde im Hintergrund prüfen
+        r.update(); // Und einmal sofort beim Start
+      }
+    }
   });
 
   const close = () => {
