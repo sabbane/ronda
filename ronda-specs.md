@@ -39,6 +39,7 @@ Die Punkte werden während des Spiels und am Ende berechnet. Das Scoring ist add
 *   **Taawida:** Wird nach einer Derba angesagt, wenn der Schlagabtausch auf demselben Rang fortgesetzt wird:
     *   Folgekarte nach Derba (2. Konter): +5 Punkte.
     *   Nächste Folgekarte (3. Konter): +10 Punkte.
+*   **As Finish:** Wenn ein Spieler mit einer Karte sticht, die den gleichen Wert wie die Karte hat, die der Gegner gerade abgelegt hat (Derba), und dies die letzte Karte des Spielers ist, erhält er zusätzliche Punkte (+5).
 *   **King Finish:** Wenn der Spieler, der die letzte Karte im Spiel spielt, mit einer 12 (König) als allerletzte Karte sticht, erhält er +5 Punkte.
 *   **Ronda & Tringa (Hand):**
     *   **Ronda:** Zwei gleiche Karten auf der Hand. (+1 Punkt bei Einzelansage)
@@ -84,13 +85,16 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 *   **Match-Tracking:** Die Gesamtzahl der gewonnenen Spiele pro Session wird in `G.matchesWon` getrackt und im Game-Over-Overlay angezeigt.
 *   **Thematische Raumnamen:** Automatische Generierung von marokkanischen Raumnamen (z.B. `Marrakech-42`).
 *   **URL-Synchronisation:** Die Match-ID wird mit der URL synchronisiert (`?room=...`), was den direkten Beitritt über einen Link ermöglicht.
+*   **Test-Infrastruktur:** Dedizierte Server-Endpoints (`/test/reset`, `/test/match-id`) ermöglichen eine präzise Koordination von Test-Szenarien über verschiedene Browser-Kontexte hinweg.
 
 ### 4.5 Community & Support
 *   **Donate Button:** Integration einer `DonateButton`-Komponente zur Unterstützung der Entwicklung.
 
 ### 4.6 Testing & Qualitätssicherung
 *   **Unit-Tests:** Prüfung der Kern-Spiellogik (Sequenzen, Scoring, Clash) in `game.test.js`.
-*   **E2E-Tests:** End-to-End-Tests des Multiplayers mit **Playwright**. Simulation von zwei Browser-Kontexten (Host & Joiner) zur Verifizierung des Spielablaufs.
+*   **E2E-Tests:** End-to-End-Tests des Multiplayers mit **Playwright**. 
+    *   Simulation von zwei Browser-Kontexten (Host & Joiner).
+    *   Spezifische Tests für Verbindungstabilität und Test-Modus-Koordination.
 
 ## 5. Projektstruktur
 ```text
@@ -132,12 +136,12 @@ Um die App als Progressive Web App (PWA) nutzbar zu machen, werden folgende Feat
 *   [x] Online-Multiplayer (Host/Join System mit Slot-Validierung)
 *   [x] URL-basierter Beitritt (`?room=...`)
 *   [x] Match-ID Sharing-Funktionalität (Navigator + Clipboard)
+*   [x] Test-Infrastruktur (Server-Endpoints für koordinierte Tests)
 *   [x] Unit-Tests für die Spielregeln
 *   [x] E2E-Multiplayer-Tests (`Playwright`)
 *   [x] Werbe-Integration (`AdSlot`) & Donate-Button
 *   [x] Bot-Integration (Animation-aware)
+*   [x] "As Finish" & "Final Fail" Regeln implementiert
 *   [ ] PWA-Integration (Manifest & Service Worker)
 *   [ ] Erweiterte KI-Heuristik
-*   [ ] Verfeinerte KI-Logik
-Erweiterte KI-Heuristik
 *   [ ] Verfeinerte KI-Logik
