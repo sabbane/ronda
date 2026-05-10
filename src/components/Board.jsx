@@ -407,10 +407,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
           )}
         </AnimatePresence>
 
-        {/* Top Ad Slot - Capped height on mobile to prevent layout shift */}
-        <div className="w-full flex justify-center z-20 shrink-0 max-h-[60px] sm:max-h-none overflow-hidden">
-          <AdSlot className="m-0 sm:mt-2 scale-90 sm:scale-100" />
-        </div>
+
 
         {/* Opponent Area */}
         <div className="w-full max-w-4xl relative z-10 shrink-0">
@@ -535,6 +532,11 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
             isCurrentPlayer={isCurrentPlayer(myID) && !isProcessing} 
             onPlayCard={handlePlayCard} 
           />
+        </div>
+        
+        {/* Bottom Ad Slot */}
+        <div className="w-full flex justify-center z-20 shrink-0 max-h-[60px] sm:max-h-none overflow-hidden mt-auto">
+          <AdSlot className="m-0 sm:mb-2 scale-90 sm:scale-100" />
         </div>
         
         {/* Deck Info */}
