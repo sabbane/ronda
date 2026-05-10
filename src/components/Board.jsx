@@ -107,11 +107,24 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
             customIcon = "🂱";
           }
 
+          // Determine color variant based on who gets points
+          let variant = "info";
+          const pointEvents = ['Ronda', 'Tringa', 'Missa', 'Derba', 'Taawida', 'Clash Won', 'King Finish', 'TringaWins'];
+          const failEvents = ['Final Fail', 'As Finish'];
+
+          if (pointEvents.includes(ann.type)) {
+            variant = isMe ? "success" : "danger";
+          } else if (failEvents.includes(ann.type)) {
+            // If I fail, it's danger (red). If opponent fails, it's success (green).
+            variant = isMe ? "danger" : "success";
+          }
+
           setEventQueue(prev => [...prev, { 
             ...ann, 
             displayText: customText || ann.text, 
             displayTitle: customTitle,
             displayIcon: customIcon,
+            displayVariant: variant,
             id: annId 
           }]);
         }
@@ -269,10 +282,14 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                       : { type: "spring", stiffness: 400, damping: 12 }
                   }
                   className={`
-                    flex flex-col items-center text-center backdrop-blur-2xl border-indigo-400
+                    flex flex-col items-center text-center backdrop-blur-2xl
                     ${isBigEvent ? 'p-10 md:p-16 rounded-[4rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] border-8' : 'p-6 md:p-10 rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.3)] border-4'}
-                    ${activeEvent.streak === 4 ? 'bg-orange-600/95 border-yellow-400' : 'bg-indigo-600/90'}
-                    ${(activeEvent.type === 'Clash' || activeEvent.type === 'Clash Won') ? 'bg-red-700/90 border-orange-500' : ''}
+                    ${
+                      activeEvent.streak === 4 ? 'bg-orange-600/95 border-yellow-400' : 
+                      activeEvent.displayVariant === 'success' ? 'bg-emerald-600/95 border-emerald-400 shadow-emerald-500/40' :
+                      activeEvent.displayVariant === 'danger' ? 'bg-rose-600/95 border-rose-400 shadow-rose-500/40' :
+                      'bg-indigo-600/90 border-indigo-400'
+                    }
                   `}
                 >
                   <motion.div
