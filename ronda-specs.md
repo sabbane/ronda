@@ -124,6 +124,7 @@ Um die App als Progressive Web App (PWA) nutzbar zu machen, werden folgende Feat
 *   **Manifest:** Eine `manifest.json` für App-Name, Icons und Branding-Farben.
 *   **Service Worker:** Automatisches Caching der Assets für Offline-Verfügbarkeit.
 *   **Installierbarkeit:** Unterstützung für die Installation auf dem Homescreen (Mobile & Desktop).
+*   **Update Management:** Aktive Benachrichtigung des Benutzers über neue Versionen via `ReloadPrompt`-Komponente (Strategie: "Prompt for update").
 
 ## 7. Aktueller Status
 *   [x] Core Game Logic (Stechen, Sequenzen, Missa, Derba)

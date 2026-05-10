@@ -9,6 +9,7 @@ import { RondaBoard } from './components/Board';
 import { AdSlot } from './components/AdSlot';
 import { DonateButton } from './components/DonateButton';
 import { useLanguage } from './contexts/LanguageContext';
+import ReloadPrompt from './components/ReloadPrompt';
 
 const LoadingScreen = () => {
   const { t } = useLanguage();
@@ -246,6 +247,7 @@ const App = () => {
   if (!mode) {
     return (
       <div className="min-h-screen flex flex-col items-center text-white relative overflow-hidden overflow-y-auto">
+        <ReloadPrompt />
         {/* Background Image with Moroccan Vibe */}
         <div
           className="fixed inset-0 z-0 scale-105"
@@ -368,8 +370,13 @@ const App = () => {
         </div>
 
         {/* Footer Area for Donate and Ad */}
-        <div className="w-full flex flex-col items-center justify-end z-40 pb-4 gap-6 flex-shrink-0">
-          <DonateButton />
+        <div className="w-full flex flex-col items-center justify-end z-40 pb-4 gap-4 flex-shrink-0">
+          <div className="flex flex-col items-center gap-2">
+            <DonateButton />
+            <span className="text-[10px] text-slate-500 font-medium tracking-widest uppercase opacity-50">
+              v{import.meta.env.VITE_APP_VERSION}
+            </span>
+          </div>
           <div className="w-full">
             <AdSlot />
           </div>
