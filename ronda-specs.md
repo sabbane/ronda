@@ -67,7 +67,7 @@ Die App verwendet reale Bilddateien für die spanischen Spielkarten:
 ## 4. Architektur-Features
 ### 4.1 Internationalisierung (i18n)
 Die App unterstützt mehrere Sprachen über einen `LanguageContext`:
-*   **Sprachen:** Englisch (EN), Französisch (FR), Arabisch (AR).
+*   **Sprachen:** Englisch (EN), Französisch (FR), Deutsch (DE), Arabisch (AR).
 *   **RTL-Support:** Automatische Anpassung der Textrichtung (`dir="rtl"`) für Arabisch.
 
 ### 4.2 Monetarisierung
@@ -91,11 +91,11 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 
 ### 4.5 Community & Support
 *   **Donate Button:** Integration einer `DonateButton`-Komponente ("Buy us a Mint Tea").
+*   **Social Media:** Direkter Link zur Facebook-Community für Support und Feedback.
 
 ### 4.6 Testing & Qualitätssicherung
 *   **Unit-Tests:** Prüfung der Kern-Spiellogik (Sequenzen, Scoring, Clash) in `game.test.js`.
 *   **E2E-Tests:** End-to-End-Tests des Multiplayers mit **Playwright**. 
-    *   Simulation von zwei Browser-Kontexten (Host & Joiner).
 
 ## 5. Projektstruktur
 ```text
@@ -105,6 +105,7 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
     Card.jsx        # Karten-Komponente
     AdSlot.jsx      # Werbe-Integration
     DonateButton.jsx # Spenden-Funktion
+    Rules.jsx       # Spielanleitung (Modal)
   /contexts
     LanguageContext.jsx # i18n & Sprachsteuerung
   /game
@@ -126,8 +127,8 @@ Dockerfile.backend  # Docker-Konfiguration für das Backend
 Die App ist als Progressive Web App (PWA) optimiert:
 *   **Manifest:** Vollständige `manifest.json` für App-Branding und Startbildschirme.
 *   **Service Worker:** Nutzung von `vite-plugin-pwa` mit der Strategie `autoUpdate` für nahtlose Hintergrund-Aktualisierungen und Offline-Support.
-*   **Standalone-Modus:** Optimiertes UI-Layout und spezielles Handling für externe Links im `DonateButton`.
-*   **Versionsmanagement:** Automatisierte Versions-Injektion (aktuell `0.5.0`).
+*   **Standalone-Modus:** Optimiertes UI-Layout für den "App-Modus" auf mobilen Geräten.
+*   **Versionsmanagement:** Die App-Version wird automatisch aus der `package.json` in den Build-Prozess injiziert.
 
 ## 7. Aktueller Status
 *   [x] Core Game Logic (Stechen, Sequenzen, Missa, Derba)
@@ -137,7 +138,7 @@ Die App ist als Progressive Web App (PWA) optimiert:
 *   [x] Rematch-System (beliebig viele Spiele in einem Raum)
 *   [x] Match-Wins Tracking (Gesamtscore der Session)
 *   [x] Tisch leeren am Spielende (Karten an letzten Stecher)
-*   [x] Internationalisierung (EN, FR, AR) & RTL-Support
+*   [x] Internationalisierung (EN, FR, DE, AR) & RTL-Support
 *   [x] Integration realer Karten-Assets (Marokkanische Suits)
 *   [x] Online-Multiplayer (Host/Join System mit Slot-Validierung)
 *   [x] URL-basierter Beitritt (`?room=...`)
@@ -148,6 +149,9 @@ Die App ist als Progressive Web App (PWA) optimiert:
 *   [x] Werbe-Integration (`AdSlot`) & Donate-Button
 *   [x] Bot-Integration (Animation-aware)
 *   [x] Rules-Dialog ("How to Play") integriert
-*   [x] PWA-Integration (Manifest, Service Worker & Standalone Handling)
+*   [x] Facebook-Community Link integriert
+*   [x] PWA-Integration (Manifest & Service Worker)
 *   [ ] Erweiterte KI-Heuristik
+*   [ ] Verfeinerte KI-Logik
+   [ ] Erweiterte KI-Heuristik
 *   [ ] Verfeinerte KI-Logik

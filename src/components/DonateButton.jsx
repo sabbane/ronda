@@ -18,27 +18,6 @@ export const DonateButton = ({ className = '', showMessage = false }) => {
         href={donationLink} 
         target="_blank" 
         rel="noopener noreferrer"
-        onClick={(e) => {
-          const isStandalone =
-            window.matchMedia('(display-mode: standalone)').matches ||
-            window.navigator.standalone === true;
-
-          if (isStandalone) {
-            e.preventDefault();
-            const isAndroid = /android/i.test(navigator.userAgent);
-
-            if (isAndroid) {
-              // On Android PWAs, links open in Chrome Custom Tab which blocks some payment methods.
-              // The Intent URL scheme forces the full Chrome browser to open instead.
-              const urlPath = donationLink.replace(/^https?:\/\//, '');
-              const intentUrl = `intent://${urlPath}#Intent;scheme=https;package=com.android.chrome;end`;
-              window.location.href = intentUrl;
-            } else {
-              // On iOS, location.href is the most reliable way to trigger Safari
-              window.location.href = donationLink;
-            }
-          }
-        }}
         className="group relative inline-flex items-center justify-center gap-3 px-6 py-2.5 font-bold text-white transition-all duration-300 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-full hover:from-emerald-500 hover:to-teal-500 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] transform hover:-translate-y-1 active:translate-y-0 border border-emerald-400/30"
       >
         <svg 
