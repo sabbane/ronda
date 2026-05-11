@@ -278,6 +278,12 @@ const App = () => {
                 <img src="https://flagcdn.com/w40/gb.png" alt="EN" className="w-4 h-3 object-cover rounded-sm" /> EN
               </button>
               <button
+                onClick={() => changeLanguage('de')}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'de' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10`}
+              >
+                <img src="https://flagcdn.com/w40/de.png" alt="DE" className="w-4 h-3 object-cover rounded-sm" /> DE
+              </button>
+              <button
                 onClick={() => changeLanguage('fr')}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'fr' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10`}
               >
@@ -288,12 +294,6 @@ const App = () => {
                 className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'ar' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10`}
               >
                 <img src="https://flagcdn.com/w40/ma.png" alt="AR" className="w-4 h-3 object-cover rounded-sm" /> AR
-              </button>
-              <button
-                onClick={() => changeLanguage('de')}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'de' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10`}
-              >
-                <img src="https://flagcdn.com/w40/de.png" alt="DE" className="w-4 h-3 object-cover rounded-sm" /> DE
               </button>
             </div>
 
