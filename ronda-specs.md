@@ -122,12 +122,12 @@ Dockerfile.backend  # Docker-Konfiguration für das Backend
   /assets           # UI-Assets (Hintergrund, etc.)
 ```
 
-## 6. PWA Anforderungen
-Um die App als Progressive Web App (PWA) nutzbar zu machen, werden folgende Features implementiert:
-*   **Manifest:** Eine `manifest.json` für App-Name, Icons und Branding-Farben.
-*   **Service Worker:** Automatisches Caching der Assets für Offline-Verfügbarkeit.
-*   **Installierbarkeit:** Unterstützung für die Installation auf dem Homescreen (Mobile & Desktop).
-*   **Update Management:** Automatisches Hintergrund-Update (Strategie: "autoUpdate").
+## 6. PWA & Plattform-Integration
+Die App ist als Progressive Web App (PWA) optimiert:
+*   **Manifest:** Vollständige `manifest.json` für App-Branding und Startbildschirme.
+*   **Service Worker:** Nutzung von `vite-plugin-pwa` mit der Strategie `autoUpdate` für nahtlose Hintergrund-Aktualisierungen und Offline-Support.
+*   **Standalone-Modus:** Optimiertes UI-Layout und spezielles Handling für externe Links im `DonateButton`.
+*   **Versionsmanagement:** Automatisierte Versions-Injektion (aktuell `0.5.0`).
 
 ## 7. Aktueller Status
 *   [x] Core Game Logic (Stechen, Sequenzen, Missa, Derba)
@@ -148,9 +148,6 @@ Um die App als Progressive Web App (PWA) nutzbar zu machen, werden folgende Feat
 *   [x] Werbe-Integration (`AdSlot`) & Donate-Button
 *   [x] Bot-Integration (Animation-aware)
 *   [x] Rules-Dialog ("How to Play") integriert
-*   [ ] PWA-Integration (Manifest & Service Worker)
-*   [ ] Erweiterte KI-Heuristik
-*   [ ] Verfeinerte KI-Logik
-er)
+*   [x] PWA-Integration (Manifest, Service Worker & Standalone Handling)
 *   [ ] Erweiterte KI-Heuristik
 *   [ ] Verfeinerte KI-Logik
