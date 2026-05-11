@@ -4,8 +4,8 @@ import { useLanguage } from '../contexts/LanguageContext';
 export const DonateButton = ({ className = '', showMessage = false }) => {
   const { t } = useLanguage();
   
-  // The user should replace this with their actual Ko-fi or BuyMeACoffee link
-  const donationLink = "https://ko-fi.com/teamronda"; 
+  // Stripe checkout link for donations
+  const donationLink = "https://buy.stripe.com/aFaeVcaaC9KM9CU4NQ73G00"; 
 
   return (
     <div className={`flex flex-col items-center gap-2 ${className}`}>
