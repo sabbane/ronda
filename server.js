@@ -7,6 +7,8 @@ const server = Server({
     Origins.LOCALHOST,
     'https://ronda-frontend-development.up.railway.app',
     'https://ronda.up.railway.app',
+    'https://playronda.ma',
+    'https://www.playronda.ma',
     process.env.FRONTEND_URL || '*'
   ]
 });

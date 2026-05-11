@@ -4,6 +4,7 @@ Dieses Dokument beschreibt die technische Umsetzung des marokkanischen Kartenspi
 
 ## 1. Projektbeschreibung
 Ronda ist ein klassisches marokkanisches Kartenspiel für 2 Spieler (oder Teams). Ziel ist es, durch das Stechen von Karten und Sondersituationen die meisten Punkte zu erzielen. Die App bietet ein flüssiges Gameplay mit React, boardgame.io und Animationen.
+Offizielle Website: [https://playronda.ma](https://playronda.ma)
 
 ## 2. Technologie-Stack
 *   **Frontend:** React.js (Vite)
