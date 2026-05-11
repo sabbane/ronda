@@ -7,6 +7,25 @@ export const DonateButton = ({ className = '', showMessage = false }) => {
   // Stripe checkout link for donations
   const donationLink = "https://buy.stripe.com/aFaeVcaaC9KM9CU4NQ73G00"; 
 
+  const handleClick = async () => {
+    if (navigator.share) {
+      // Mobile: open native OS share sheet — user can choose "Open in Chrome/Safari"
+      // This fully escapes the PWA's in-app browser
+      try {
+        await navigator.share({
+          title: 'Support Team Ronda ♠️',
+          text: t('donateMsg'),
+          url: donationLink,
+        });
+      } catch (err) {
+        // User dismissed the share sheet — ignore
+      }
+    } else {
+      // Desktop fallback
+      window.open(donationLink, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
     <div className={`flex flex-col items-center gap-2 ${className}`}>
       {showMessage && (
@@ -14,10 +33,8 @@ export const DonateButton = ({ className = '', showMessage = false }) => {
           {t('donateMsg')}
         </p>
       )}
-      <a 
-        href={donationLink} 
-        target="_blank" 
-        rel="noopener noreferrer"
+      <button
+        onClick={handleClick}
         className="group relative inline-flex items-center justify-center gap-3 px-6 py-2.5 font-bold text-white transition-all duration-300 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-full hover:from-emerald-500 hover:to-teal-500 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)] transform hover:-translate-y-1 active:translate-y-0 border border-emerald-400/30"
       >
         <svg 
@@ -40,7 +57,8 @@ export const DonateButton = ({ className = '', showMessage = false }) => {
         <div className="absolute inset-0 overflow-hidden rounded-full pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full transition-transform duration-1000 group-hover:translate-x-full"></div>
         </div>
-      </a>
+      </button>
     </div>
   );
 };
+
