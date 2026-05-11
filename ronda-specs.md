@@ -36,18 +36,19 @@ Ronda ist ein klassisches marokkanisches Kartenspiel für 2 Spieler (oder Teams)
 Die Punkte werden während des Spiels und am Ende berechnet. Das Scoring ist additiv (Punkte werden dem Spieler gutgeschrieben):
 *   **Missa (Tisch):** Den Tisch komplett leer räumen (+1 Punkt/Karte). (Früher: Messa)
 *   **Derba (Zug):** Eine Karte stechen, die der Gegner gerade erst abgelegt hat (+1 Punkt/Karte). (Früher: Bounti)
-*   **Taawida:** Wird nach einer Derba angesagt, wenn der Schlagabtausch auf demselben Rang fortgesetzt wird:
-    *   Folgekarte nach Derba (2. Konter): +5 Punkte.
-    *   Nächste Folgekarte (3. Konter): +10 Punkte.
-*   **As Finish:** Wenn ein Spieler mit einer Karte sticht, die den gleichen Wert wie die Karte hat, die der Gegner gerade abgelegt hat (Derba), und dies die letzte Karte des Spielers ist, erhält er zusätzliche Punkte (+5).
-*   **King Finish:** Wenn der Spieler, der die letzte Karte im Spiel spielt, mit einer 12 (König) als allerletzte Karte sticht, erhält er +5 Punkte.
+*   **Taawida (Counter-Attack):** Wird nach einer Derba angesagt, wenn der Schlagabtausch auf demselben Rang fortgesetzt wird:
+    *   **Konter (Taawida):** 3. Karte des gleichen Ranges (+5 Punkte & Transfer der vorherigen Karten).
+    *   **Ultimativer Konter:** 4. Karte des gleichen Ranges (+10 Punkte & Transfer der vorherigen Karten).
+*   **Final Fail:** Wenn die allerletzte Karte des Spiels ausgespielt wird, ohne einen Stich zu machen, erhält der Gegner +5 Punkte.
+*   **As Finish:** Wenn die allerletzte Karte des Spiels ein Ass (Wert 1) ist und einen Stich macht, erhält der Gegner +5 Punkte.
+*   **King Finish:** Wenn die allerletzte Karte des Spiels ein König (Wert 12) ist und einen Stich macht, erhält der Spieler +5 Punkte.
 *   **Ronda & Tringa (Hand):**
     *   **Ronda:** Zwei gleiche Karten auf der Hand. (+1 Punkt bei Einzelansage)
     *   **Tringa:** Drei gleiche Karten auf der Hand. (+5 Punkte bei Einzelansage)
     *   **Popup-Ankündigung:** Haben beide Spieler eine Ronda oder Tringa, erscheint zu Beginn der Runde ein Popup, das diese Situation (Clash) für beide ankündigt.
-    *   **Clash-Auflösung (am Ende der Runde):**
+    *   **Clash-Auflösung:**
         *   **Ronda vs. Ronda:** Der Spieler mit der höheren Ronda gewinnt 2 Karten (bzw. Punkte).
-        *   **Ronda vs. Tringa:** Der Spieler mit Tringa gewinnt 6 Karten.
+        *   **Ronda vs. Tringa:** Der Spieler mit Tringa gewinnt sofort 6 Karten.
         *   **Tringa vs. Tringa:** Der Spieler mit der höheren Tringa gewinnt 10 Karten.
 *   **Endabrechnung:** Jeder Spieler zählt seine gewonnenen Karten. Punkte aus Sondersituationen (oder gewonnene Extrakarten) werden addiert.
 
@@ -55,11 +56,11 @@ Die Punkte werden während des Spiels und am Ende berechnet. Das Scoring ist add
 Die App verwendet reale Bilddateien für die spanischen Spielkarten:
 *   **Speicherort:** `public/cards/`
 *   **Format:** PNG (transparent)
-*   **Dateinamen-Konvention:** `{Value}-{Suit}.png` (z.B. `01-oros.png`)
-*   **Suit-Mapping:** `coins` -> `oros`, `cups` -> `copas`, `swords` -> `espadas`, `clubs` -> `bastos`.
+*   **Dateinamen-Konvention:** `{Value}-{Suit}.png` (z.B. `01-dheb.png`)
+*   **Suit-Mapping (Marokkanisch):** `coins` -> `dheb`, `cups` -> `jben`, `swords` -> `syouf`, `clubs` -> `zrawet`.
 *   **UI-Features:**
     *   **Captured Stack:** Gewonnene Karten werden visuell als Stapel beim Spieler/Gegner angezeigt.
-    *   **Capture Highlight:** Die gespielte Karte wird während eines Captures hervorgehoben (`ring-4 ring-yellow-400`).
+    *   **Rules Dialog:** Eine integrierte "How to Play" Anleitung erklärt die Regeln und Sondersituationen.
     *   **Hintergrund:** Ein dezentes Spiel-Hintergrundbild (`game_background.png`).
     *   **Navigation:** Ein "Back to Menu" Button ermöglicht die Rückkehr zum Hauptmenü während des Spiels.
 
@@ -76,25 +77,25 @@ Integration von Werbeflächen über eine dedizierte `AdSlot`-Komponente zur Umsa
 *   **RandomBot:** Agiert nur für Spieler 1, wartet auf UI-Animationen und priorisiert Captures.
 *   **Stages:** Nutzung von `waitForUI` zur Synchronisation zwischen Game-Engine und Frontend-Animationen.
 
-### 4.4 Online-Multiplayer & Rematches
+### 4.4 Online-Multiplayer & Infrastruktur
 Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 *   **Backend:** Node.js Server (`server.js`) basierend auf `boardgame.io/server`.
+*   **Containerisierung:** 
+    *   `Dockerfile.frontend`: Multi-Stage Build für das React Frontend.
+    *   `Dockerfile.backend`: Node.js Umgebung für den Spielserver.
 *   **Lobby-Management:** Nutzung des `LobbyClient` zur Prüfung des Raum-Status vor dem Beitritt.
-    *   **Slot-Validierung:** Das System prüft, ob ein Slot bereits durch einen aktiven oder verbundenen Spieler (`isConnected`) belegt ist.
 *   **Rematches:** Das Spiel nutzt einen manuellen `G.gameStatus` anstatt `endIf`. Dies ermöglicht es Spielern, in derselben Match-ID beliebig viele Runden hintereinander zu spielen ("Play Again").
-*   **Match-Tracking:** Die Gesamtzahl der gewonnenen Spiele pro Session wird in `G.matchesWon` getrackt und im Game-Over-Overlay angezeigt.
-*   **Thematische Raumnamen:** Automatische Generierung von marokkanischen Raumnamen (z.B. `Marrakech-42`).
-*   **URL-Synchronisation:** Die Match-ID wird mit der URL synchronisiert (`?room=...`), was den direkten Beitritt über einen Link ermöglicht.
-*   **Test-Infrastruktur:** Dedizierte Server-Endpoints (`/test/reset`, `/test/match-id`) ermöglichen eine präzise Koordination von Test-Szenarien über verschiedene Browser-Kontexte hinweg.
+*   **Match-Tracking:** Die Gesamtzahl der gewonnenen Spiele pro Session wird in `G.matchesWon` getrackt.
+*   **URL-Synchronisation:** Die Match-ID wird mit der URL synchronisiert (`?room=...`).
+*   **Test-Infrastruktur:** Dedizierte Server-Endpoints (`/test/reset`, `/test/match-id`) ermöglichen eine präzise Koordination von Test-Szenarien.
 
 ### 4.5 Community & Support
-*   **Donate Button:** Integration einer `DonateButton`-Komponente zur Unterstützung der Entwicklung.
+*   **Donate Button:** Integration einer `DonateButton`-Komponente ("Buy us a Mint Tea").
 
 ### 4.6 Testing & Qualitätssicherung
 *   **Unit-Tests:** Prüfung der Kern-Spiellogik (Sequenzen, Scoring, Clash) in `game.test.js`.
 *   **E2E-Tests:** End-to-End-Tests des Multiplayers mit **Playwright**. 
     *   Simulation von zwei Browser-Kontexten (Host & Joiner).
-    *   Spezifische Tests für Verbindungstabilität und Test-Modus-Koordination.
 
 ## 5. Projektstruktur
 ```text
@@ -114,6 +115,8 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 /tests
   multiplayer.spec.js # Playwright E2E-Tests
 server.js           # Backend-Server für Online-Multiplayer
+Dockerfile.frontend # Docker-Konfiguration für das Frontend
+Dockerfile.backend  # Docker-Konfiguration für das Backend
 /public
   /cards            # Bilddateien der Karten
   /assets           # UI-Assets (Hintergrund, etc.)
@@ -128,12 +131,14 @@ Um die App als Progressive Web App (PWA) nutzbar zu machen, werden folgende Feat
 
 ## 7. Aktueller Status
 *   [x] Core Game Logic (Stechen, Sequenzen, Missa, Derba)
-*   [x] Ronda/Tringa Clash-Logik & Popup-Ankündigungen
+*   [x] Taawida-System (Konter & Ultimativer Konter mit Karten-Transfer)
+*   [x] Ronda/Tringa Clash-Logik & Tringa vs. Ronda Sofort-Auflösung
+*   [x] "As Finish", "King Finish" & "Final Fail" Regeln implementiert
 *   [x] Rematch-System (beliebig viele Spiele in einem Raum)
 *   [x] Match-Wins Tracking (Gesamtscore der Session)
 *   [x] Tisch leeren am Spielende (Karten an letzten Stecher)
 *   [x] Internationalisierung (EN, FR, AR) & RTL-Support
-*   [x] Integration realer Karten-Assets & Capture-Animationen
+*   [x] Integration realer Karten-Assets (Marokkanische Suits)
 *   [x] Online-Multiplayer (Host/Join System mit Slot-Validierung)
 *   [x] URL-basierter Beitritt (`?room=...`)
 *   [x] Match-ID Sharing-Funktionalität (Navigator + Clipboard)
@@ -142,7 +147,10 @@ Um die App als Progressive Web App (PWA) nutzbar zu machen, werden folgende Feat
 *   [x] E2E-Multiplayer-Tests (`Playwright`)
 *   [x] Werbe-Integration (`AdSlot`) & Donate-Button
 *   [x] Bot-Integration (Animation-aware)
-*   [x] "As Finish" & "Final Fail" Regeln implementiert
+*   [x] Rules-Dialog ("How to Play") integriert
 *   [ ] PWA-Integration (Manifest & Service Worker)
+*   [ ] Erweiterte KI-Heuristik
+*   [ ] Verfeinerte KI-Logik
+er)
 *   [ ] Erweiterte KI-Heuristik
 *   [ ] Verfeinerte KI-Logik
