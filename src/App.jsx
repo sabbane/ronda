@@ -9,6 +9,7 @@ import { RondaBoard } from './components/Board';
 import { AdSlot } from './components/AdSlot';
 import { DonateButton } from './components/DonateButton';
 import { useLanguage } from './contexts/LanguageContext';
+import { Rules } from './components/Rules';
 
 const LoadingScreen = () => {
   const { t } = useLanguage();
@@ -243,6 +244,13 @@ const App = () => {
   }, []);
 
 
+  if (mode === 'rules') {
+    return <Rules onBack={() => {
+      setMode(null);
+      setError(null);
+    }} />;
+  }
+
   if (!mode) {
     return (
       <div className="min-h-screen flex flex-col items-center text-white relative overflow-hidden overflow-y-auto">
@@ -368,6 +376,28 @@ const App = () => {
                     </button>
                   </div>
                 </div>
+              </div>
+
+              {/* Rules and Contact Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={() => setMode('rules')}
+                  className="flex-1 bg-white/5 hover:bg-white/10 p-4 rounded-2xl font-bold transition-all border border-white/10 backdrop-blur-sm flex items-center justify-center gap-2 text-amber-200"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                  {t('rulesBtn')}
+                </button>
+                
+                <a
+                  href="https://www.facebook.com/profile.php?id=61589185596057"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={t('contactUs')}
+                  className="flex-1 bg-[#1877F2]/10 hover:bg-[#1877F2]/20 p-4 rounded-2xl font-bold transition-all border border-[#1877F2]/30 backdrop-blur-sm flex items-center justify-center gap-2 text-[#1877F2] hover:text-white"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                  {t('contactUs')}
+                </a>
               </div>
             </div>
           </div>
