@@ -4,7 +4,7 @@ Dieses Dokument beschreibt die technische Umsetzung des marokkanischen Kartenspi
 
 ## 1. Projektbeschreibung
 Ronda ist ein klassisches marokkanisches Kartenspiel für 2 Spieler (oder Teams). Ziel ist es, durch das Stechen von Karten und Sondersituationen die meisten Punkte zu erzielen. Die App bietet ein flüssiges Gameplay mit React, boardgame.io und Animationen.
-Offizielle Website: [https://playronda.ma](https://playronda.ma)
+Offizielle Website: [https://www.playronda.ma](https://www.playronda.ma)
 
 ## 2. Technologie-Stack
 *   **Frontend:** React.js (Vite)
@@ -59,10 +59,10 @@ Die App verwendet reale Bilddateien für die spanischen Spielkarten:
 *   **Format:** PNG (transparent)
 *   **Dateinamen-Konvention:** `{Value}-{Suit}.png` (z.B. `01-dheb.png`)
 *   **Suit-Mapping (Marokkanisch):** `coins` -> `dheb`, `cups` -> `jben`, `swords` -> `syouf`, `clubs` -> `zrawet`.
-*   **UI-Features:**
-    *   **Captured Stack:** Gewonnene Karten werden visuell als Stapel beim Spieler/Gegner angezeigt.
+*   **UI-Features & Optimierungen:**
+    *   **Mobile-First Layout:** Nutzung von `100dvh` und dynamischen Paddings für optimale Darstellung auf mobilen Browsern.
+    *   **Visuelles Feedback:** Ankündigungen nutzen farbcodierte Varianten (Success/Danger) für bessere UX.
     *   **Rules Dialog:** Eine integrierte "How to Play" Anleitung erklärt die Regeln und Sondersituationen.
-    *   **Hintergrund:** Ein dezentes Spiel-Hintergrundbild (`game_background.png`).
     *   **Navigation:** Ein "Back to Menu" Button ermöglicht die Rückkehr zum Hauptmenü während des Spiels.
 
 ## 4. Architektur-Features
@@ -81,13 +81,13 @@ Integration von Werbeflächen über eine dedizierte `AdSlot`-Komponente zur Umsa
 ### 4.4 Online-Multiplayer & Infrastruktur
 Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 *   **Backend:** Node.js Server (`server.js`) basierend auf `boardgame.io/server`.
+*   **URL-Mapping:** Dynamische Auflösung der Backend-URL für lokale und produktive Umgebungen.
 *   **Containerisierung:** 
     *   `Dockerfile.frontend`: Multi-Stage Build für das React Frontend.
     *   `Dockerfile.backend`: Node.js Umgebung für den Spielserver.
 *   **Lobby-Management:** Nutzung des `LobbyClient` zur Prüfung des Raum-Status vor dem Beitritt.
 *   **Rematches:** Das Spiel nutzt einen manuellen `G.gameStatus` anstatt `endIf`. Dies ermöglicht es Spielern, in derselben Match-ID beliebig viele Runden hintereinander zu spielen ("Play Again").
 *   **Match-Tracking:** Die Gesamtzahl der gewonnenen Spiele pro Session wird in `G.matchesWon` getrackt.
-*   **URL-Synchronisation:** Die Match-ID wird mit der URL synchronisiert (`?room=...`).
 *   **Test-Infrastruktur:** Dedizierte Server-Endpoints (`/test/reset`, `/test/match-id`) ermöglichen eine präzise Koordination von Test-Szenarien.
 
 ### 4.5 Community & Support
@@ -97,6 +97,7 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 ### 4.6 Testing & Qualitätssicherung
 *   **Unit-Tests:** Prüfung der Kern-Spiellogik (Sequenzen, Scoring, Clash) in `game.test.js`.
 *   **E2E-Tests:** End-to-End-Tests des Multiplayers mit **Playwright**. 
+*   **Performance-Benchmarks:** Das Tool `latency_benchmark.spec.js` misst die Antwortzeiten des Live-Servers zur Überwachung der Performance.
 
 ## 5. Projektstruktur
 ```text
@@ -116,6 +117,7 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
   App.jsx           # Einstiegspunkt, Lobby-Logik, URL-Sync & Online-Client
 /tests
   multiplayer.spec.js # Playwright E2E-Tests
+  latency_benchmark.spec.js # Performance Benchmarks
 server.js           # Backend-Server für Online-Multiplayer
 Dockerfile.frontend # Docker-Konfiguration für das Frontend
 Dockerfile.backend  # Docker-Konfiguration für das Backend
@@ -140,19 +142,18 @@ Die App ist als Progressive Web App (PWA) optimiert:
 *   [x] Match-Wins Tracking (Gesamtscore der Session)
 *   [x] Tisch leeren am Spielende (Karten an letzten Stecher)
 *   [x] Internationalisierung (EN, FR, DE, AR) & RTL-Support
+*   [x] Mobile-First Optimierung (100dvh, Layout-Shrinking)
 *   [x] Integration realer Karten-Assets (Marokkanische Suits)
 *   [x] Online-Multiplayer (Host/Join System mit Slot-Validierung)
 *   [x] URL-basierter Beitritt (`?room=...`)
 *   [x] Match-ID Sharing-Funktionalität (Navigator + Clipboard)
 *   [x] Test-Infrastruktur (Server-Endpoints für koordinierte Tests)
 *   [x] Unit-Tests für die Spielregeln
-*   [x] E2E-Multiplayer-Tests (`Playwright`)
+*   [x] E2E-Multiplayer-Tests & Latency-Benchmarks
 *   [x] Werbe-Integration (`AdSlot`) & Donate-Button
 *   [x] Bot-Integration (Animation-aware)
 *   [x] Rules-Dialog ("How to Play") integriert
 *   [x] Facebook-Community Link integriert
 *   [x] PWA-Integration (Manifest & Service Worker)
 *   [ ] Erweiterte KI-Heuristik
-*   [ ] Verfeinerte KI-Logik
-   [ ] Erweiterte KI-Heuristik
 *   [ ] Verfeinerte KI-Logik

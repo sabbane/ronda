@@ -181,7 +181,7 @@ const App = () => {
     const params = new URLSearchParams(window.location.search);
     const path = window.location.pathname;
 
-    const BACKEND = 'http://localhost:8000';
+    const BACKEND = serverUrl;
 
     const setupTestMatch = async (pID) => {
       try {

@@ -7,6 +7,7 @@ import { DonateButton } from './DonateButton';
 import { useLanguage } from '../contexts/LanguageContext';
 
 export const RondaBoard = ({ G, ctx, moves, playerID }) => {
+
   const { t } = useLanguage();
   const myID = playerID || '0';
   const opponentID = myID === '0' ? '1' : '0';
