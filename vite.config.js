@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { VitePWA } from 'vite-plugin-pwa'
 import pkg from './package.json'
 
 // https://vite.dev/config/
@@ -11,7 +12,27 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     react(),
-    // PWA disabled to ensure users use full browsers for payment compatibility
+    VitePWA({
+      registerType: 'autoUpdate',
+      devOptions: {
+        enabled: false
+      },
+      workbox: {
+        // Forces the new Service Worker to activate immediately,
+        // without waiting for all tabs to be closed first.
+        skipWaiting: true,
+        clientsClaim: true,
+      },
+      manifest: {
+        name: 'Ronda Card Game',
+        short_name: 'Ronda',
+        description: 'Authentic Moroccan Ronda Card Game',
+        theme_color: '#0f172a',
+        background_color: '#0f172a',
+        display: 'browser', // Prevents install prompt
+        icons: []
+      }
+    })
   ],
   test: {
     exclude: ['**/tests/**', '**/node_modules/**'],

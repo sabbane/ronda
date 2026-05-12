@@ -1,7 +1,7 @@
 import React from 'react';
 import { PlayerHand } from './PlayerHand';
 import { Card } from './Card';
-import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { AdSlot } from './AdSlot';
 import { DonateButton } from './DonateButton';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -204,8 +204,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
   }
 
   return (
-    <LayoutGroup>
-      <div className="h-screen h-[100dvh] flex flex-col items-center p-2 sm:p-4 font-sans text-slate-100 relative overflow-hidden">
+    <div className="h-screen h-[100dvh] flex flex-col items-center p-2 sm:p-4 font-sans text-slate-100 relative overflow-hidden">
         {/* Subtle Game Background */}
         <div 
           className="fixed inset-0 pointer-events-none"
@@ -426,8 +425,8 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
               <div className="relative w-8 h-12">
                 {G.players[opponentID]?.captured.map((card) => (
                   <motion.div
-                    key={`cap-${card.id}`}
-                    layoutId={card.id}
+                    key={`cap-opp-${card.id}`}
+                    layoutId={`cap-opp-${card.id}`}
                     transition={{ type: "spring", stiffness: 40, damping: 12, mass: 1.2 }}
                     className="absolute inset-0 bg-purple-900/50 border border-purple-700/50 rounded-sm shadow-sm"
                   />
@@ -457,10 +456,9 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
             <AnimatePresence>
               {G.table.map((card, idx) => (
                 <motion.div
-                  key={card.id}
-                  layoutId={card.id}
-                  initial={{ opacity: 0, scale: 0.5, rotate: Math.random() * 20 - 10, y: -200 }}
-                  animate={{ opacity: 1, scale: 1, rotate: Math.random() * 10 - 5, y: 0 }}
+                  key={`table-${card.id}`}
+                  initial={{ opacity: 0, scale: 0.5, y: -200 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 1.5, filter: 'blur(10px)' }}
                   className={G.pendingCapture?.playedCardId === card.id ? "z-50" : ""}
                   transition={{ 
@@ -513,8 +511,8 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
               <div className="relative w-8 h-12">
                 {G.players[myID]?.captured.map((card) => (
                   <motion.div
-                    key={`cap-${card.id}`}
-                    layoutId={card.id}
+                    key={`cap-me-${card.id}`}
+                    layoutId={`cap-me-${card.id}`}
                     transition={{ type: "spring", stiffness: 40, damping: 12, mass: 1.2 }}
                     className="absolute inset-0 bg-indigo-900/50 border border-indigo-700/50 rounded-sm shadow-sm"
                   />
@@ -547,7 +545,6 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
           </div>
           <span className="text-slate-300 font-medium">{t('cardsRemaining')}: {G.deck.length}</span>
         </div>
-      </div>
-    </LayoutGroup>
+    </div>
   );
 };
