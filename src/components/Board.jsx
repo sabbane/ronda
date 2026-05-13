@@ -2,7 +2,7 @@ import React from 'react';
 import { PlayerHand } from './PlayerHand';
 import { Card } from './Card';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AdSlot } from './AdSlot';
+
 import { DonateButton } from './DonateButton';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -533,10 +533,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
           />
         </div>
         
-        {/* Bottom Ad Slot */}
-        <div className="w-full flex justify-center z-20 shrink-0 max-h-[60px] sm:max-h-none overflow-hidden mt-auto">
-          <AdSlot className="m-0 sm:mb-2 scale-90 sm:scale-100" />
-        </div>
+
         
         {/* Deck Info */}
         <div className="fixed bottom-4 start-4 flex items-center gap-2 bg-slate-800/80 backdrop-blur px-4 py-2 rounded-full border border-slate-700 shadow-lg z-20">

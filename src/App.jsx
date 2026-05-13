@@ -6,7 +6,7 @@ import { Local, SocketIO } from 'boardgame.io/multiplayer';
 import { RondaGame } from './game/game';
 import { RandomBot } from 'boardgame.io/ai';
 import { RondaBoard } from './components/Board';
-import { AdSlot } from './components/AdSlot';
+
 import { DonateButton } from './components/DonateButton';
 import { useLanguage } from './contexts/LanguageContext';
 import { Rules } from './components/Rules';
@@ -411,9 +411,7 @@ const App = () => {
               v{import.meta.env.VITE_APP_VERSION}
             </span>
           </div>
-          <div className="w-full">
-            <AdSlot />
-          </div>
+
         </div>
       </div>
     );

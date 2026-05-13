@@ -58,7 +58,7 @@ Die App verwendet reale Bilddateien für die spanischen Spielkarten:
 *   **Speicherort:** `public/cards/`
 *   **Format:** PNG (transparent)
 *   **Dateinamen-Konvention:** `{Value}-{Suit}.png` (z.B. `01-dheb.png`)
-*   **Suit-Mapping (Marokkanisch):** `coins` -> `dheb`, `cups` -> `jben`, `swords` -> `syouf`, `clubs` -> `zrawet`.
+*   **Suits:** Die Suits sind sowohl intern im Code als auch in den Dateinamen marokkanisch benannt: `dheb` (Gold), `jben` (Becher), `syouf` (Schwerter), `zrawet` (Keulen).
 *   **UI-Features & Optimierungen:**
     *   **Mobile-First Layout:** Nutzung von `100dvh` und dynamischen Paddings für optimale Darstellung auf mobilen Browsern.
     *   **Visuelles Feedback:** Ankündigungen nutzen farbcodierte Varianten (Success/Danger) für bessere UX.
