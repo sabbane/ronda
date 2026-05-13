@@ -265,7 +265,7 @@ const App = () => {
           }}
         />
 
-        <div className="flex-1 flex w-full items-center justify-center p-4 z-30 pt-12 pb-8">
+        <div className="flex-1 flex flex-col w-full items-center justify-center p-4 z-30 pt-12 pb-8">
           <div className="bg-slate-900/80 backdrop-blur-xl p-8 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 text-center max-w-md w-full relative">
 
 
@@ -401,18 +401,17 @@ const App = () => {
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Footer Area for Donate and Ad */}
-        <div className="w-full flex flex-col items-center justify-end z-40 pb-4 gap-4 flex-shrink-0">
-          <div className="flex flex-col items-center gap-2">
+          {/* Support Team and Version - TRULY OUTSIDE the box */}
+          <div className="flex flex-col items-center gap-4 mt-6 z-30">
             <DonateButton />
             <span className="text-[10px] text-slate-500 font-medium tracking-widest uppercase opacity-50">
               v{import.meta.env.VITE_APP_VERSION}
             </span>
           </div>
-
         </div>
+
+
       </div>
     );
   }
