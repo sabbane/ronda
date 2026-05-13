@@ -204,7 +204,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
   }
 
   return (
-    <div className="h-screen h-[100dvh] flex flex-col items-center p-2 sm:p-4 font-sans text-slate-100 relative overflow-hidden">
+    <div className="h-screen h-[100dvh] flex flex-col items-center justify-center p-2 sm:p-4 font-sans text-slate-100 relative overflow-hidden">
         {/* Subtle Game Background */}
         <div 
           className="fixed inset-0 pointer-events-none"
@@ -449,7 +449,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
         </div>
 
         {/* Table Area */}
-        <div className="flex-1 w-full flex items-center justify-center my-1 sm:my-4 relative z-10 overflow-hidden" dir="ltr">
+        <div className="w-full flex items-center justify-center my-1 sm:my-4 relative z-10 overflow-hidden shrink-0" dir="ltr">
           <div className="relative w-full max-w-4xl min-h-[10rem] sm:min-h-[16rem] md:min-h-[20rem] bg-emerald-900/40 rounded-3xl border-4 border-emerald-800/50 shadow-2xl shadow-emerald-900/20 backdrop-blur-sm flex flex-wrap gap-1 sm:gap-4 p-2 sm:p-8 items-center justify-center">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/felt.png')] opacity-10 rounded-3xl mix-blend-overlay pointer-events-none"></div>
             
@@ -531,16 +531,16 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
             isCurrentPlayer={isCurrentPlayer(myID) && !isProcessing} 
             onPlayCard={handlePlayCard} 
           />
-        </div>
-        
 
-        
-        {/* Deck Info */}
-        <div className="fixed bottom-4 start-4 flex items-center gap-2 bg-slate-800/80 backdrop-blur px-4 py-2 rounded-full border border-slate-700 shadow-lg z-20">
-          <div className="w-6 h-8 bg-indigo-600 rounded border border-indigo-400 shadow flex items-center justify-center">
-            <span className="text-[10px]">✨</span>
+          {/* Deck Info - Moved below player hand to prevent overlap on mobile */}
+          <div className="flex justify-start px-2 sm:px-8 mt-1 pb-2">
+            <div className="flex items-center gap-2 bg-slate-800/80 backdrop-blur px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-slate-700 shadow-lg z-20">
+              <div className="w-5 h-7 sm:w-6 sm:h-8 bg-indigo-600 rounded border border-indigo-400 shadow flex items-center justify-center">
+                <span className="text-[10px]">✨</span>
+              </div>
+              <span className="text-slate-300 font-medium text-xs sm:text-sm">{t('cardsRemaining')}: {G.deck.length}</span>
+            </div>
           </div>
-          <span className="text-slate-300 font-medium">{t('cardsRemaining')}: {G.deck.length}</span>
         </div>
     </div>
   );
