@@ -1,0 +1,42 @@
+{
+  "timestamp": "2026-05-13T20:12:38.588Z",
+  "version": "0.5.7",
+  "target": "https://www.playronda.ma",
+  "backend": "https://ronda-backend.up.railway.app",
+  "samples": 10,
+  "backendApiAvgMs": 31,
+  "backendApiMinMs": 28,
+  "backendApiP95Ms": 35,
+  "backendApi": {
+    "gamesEndpoint": {
+      "label": "GET /games/ronda (match list)",
+      "url": "https://ronda-backend.up.railway.app/games/ronda",
+      "samples": 10,
+      "errors": 0,
+      "avg": 48,
+      "min": 27,
+      "max": 167,
+      "p95": 167,
+      "rawMs": [
+        167,
+        32,
+        47,
+        27,
+        45,
+        32,
+        41,
+        27,
+        30,
+        29
+      ]
+    }
+  },
+  "pageLoad": {
+    "dnsMs": 110,
+    "tcpMs": 120,
+    "tlsMs": 73,
+    "ttfbMs": 142,
+    "domContentLoadedMs": 942,
+    "fullyLoadedMs": 948
+  }
+}
