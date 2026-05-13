@@ -204,7 +204,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
   }
 
   return (
-    <div className="h-screen h-[100dvh] flex flex-col items-center justify-center p-2 sm:p-4 font-sans text-slate-100 relative overflow-hidden">
+    <div className="min-h-[100dvh] flex flex-col items-center justify-center p-2 sm:p-4 font-sans text-slate-100 relative overflow-y-auto overflow-x-hidden">
         {/* Subtle Game Background */}
         <div 
           className="fixed inset-0 pointer-events-none"
@@ -448,9 +448,9 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
           />
         </div>
 
-        {/* Table Area */}
-        <div className="w-full flex items-center justify-center my-1 sm:my-4 relative z-10 overflow-hidden shrink-0" dir="ltr">
-          <div className="relative w-full max-w-4xl min-h-[10rem] sm:min-h-[16rem] md:min-h-[20rem] bg-emerald-900/40 rounded-3xl border-4 border-emerald-800/50 shadow-2xl shadow-emerald-900/20 backdrop-blur-sm flex flex-wrap gap-1 sm:gap-4 p-2 sm:p-8 items-center justify-center">
+        {/* Table Area - Min height for exactly 2 rows, grows on 3rd row */}
+        <div className="w-full flex items-center justify-center my-1 sm:my-2 relative z-10 shrink-0" dir="ltr">
+          <div className="relative w-full max-w-4xl min-h-[13.5rem] sm:min-h-[20rem] md:min-h-[22rem] bg-emerald-900/40 rounded-3xl border-4 border-emerald-800/50 shadow-2xl shadow-emerald-900/20 backdrop-blur-sm flex flex-wrap gap-1 sm:gap-3 p-2 sm:p-6 items-center justify-center">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/felt.png')] opacity-10 rounded-3xl mix-blend-overlay pointer-events-none"></div>
             
             <AnimatePresence>
