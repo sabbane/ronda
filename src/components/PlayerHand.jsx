@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export const PlayerHand = ({ hand, isCurrentPlayer, onPlayCard, hidden = false, dealDelay = 0 }) => {
   return (
-    <div className="flex justify-center gap-2 sm:gap-4 py-2 sm:py-8" dir="ltr">
+    <div className="flex justify-center gap-2 sm:gap-4 py-2 sm:py-8 min-h-[7.5rem] sm:min-h-[12.5rem] md:min-h-[13.5rem]" dir="ltr">
       <AnimatePresence>
         {hand.map((card, index) => (
           <motion.div

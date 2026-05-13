@@ -533,7 +533,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
           />
 
           {/* Deck Info - Moved below player hand to prevent overlap on mobile */}
-          <div className="flex justify-start px-2 sm:px-8 mt-1 pb-2">
+          <div className="flex justify-start px-2 sm:px-8 mt-4 sm:mt-6 pb-4 sm:pb-6">
             <div className="flex items-center gap-2 bg-slate-800/80 backdrop-blur px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-slate-700 shadow-lg z-20">
               <div className="w-5 h-7 sm:w-6 sm:h-8 bg-indigo-600 rounded border border-indigo-400 shadow flex items-center justify-center">
                 <span className="text-[10px]">✨</span>
