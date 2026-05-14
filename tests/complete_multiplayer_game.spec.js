@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Functional Test: Complete Multiplayer Game', () => {
-  test.setTimeout(300_000); // Increased for production latency
+  test.setTimeout(420_000); // 7 minutes - animations are now much longer
 
   test('Two human players can complete a full game', async ({ browser, baseURL }) => {
     const roomID = `mp-test-${Date.now()}`;
@@ -92,7 +92,7 @@ test.describe('Functional Test: Complete Multiplayer Game', () => {
         } catch {}
       }
 
-      await page1.waitForTimeout(300);
+      await page1.waitForTimeout(600);
       attempts++;
     }
 

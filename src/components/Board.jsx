@@ -234,8 +234,8 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
         }
       }
     } else {
-      setCaptureStep(0);
-      setCaptureRects({});
+      if (captureStep !== 0) setCaptureStep(0);
+      if (Object.keys(captureRects).length !== 0) setCaptureRects({});
     }
     return () => {
       if (timerId) clearTimeout(timerId);

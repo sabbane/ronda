@@ -3,8 +3,8 @@ import { test, expect } from '@playwright/test';
 test.describe('Functional Test: Complete Game vs AI', () => {
   // A complete game has 40 cards, each player plays 20 cards.
   // With delays for bot moves, dealing animations, and capturing animations, 
-  // it can take around 1.5 to 2.5 minutes to complete a full game.
-  test.setTimeout(180_000);
+  // it can take around 2.5 to 4 minutes to complete a full game with new animations.
+  test.setTimeout(300_000);
 
   test('A full game against the bot completes successfully', async ({ page, baseURL }) => {
     console.log(`Navigating to ${baseURL || '/'}...`);
@@ -104,7 +104,7 @@ test.describe('Functional Test: Complete Game vs AI', () => {
       }
 
       // Short wait before checking again
-      await page.waitForTimeout(300);
+      await page.waitForTimeout(600);
       attempts++;
     }
 

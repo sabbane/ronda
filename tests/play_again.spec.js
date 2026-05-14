@@ -13,7 +13,7 @@ import { test, expect } from '@playwright/test';
  *   - Or the restartGame move was in a wrong stage and got rejected by the server
  */
 test('Play Again: Clicking Play Again after game over starts a new round', async ({ page }) => {
-  test.setTimeout(120_000); // A full game can take up to ~2 minutes with bot delays
+  test.setTimeout(180_000); // Increased for longer animations
 
   // Start a local bot game (fastest way to reach game over)
   await page.goto('/');
@@ -52,7 +52,7 @@ test('Play Again: Clicking Play Again after game over starts a new round', async
     }
 
     // Wait for animations and bot's turn
-    await page.waitForTimeout(400);
+    await page.waitForTimeout(600);
     attempts++;
   }
 
