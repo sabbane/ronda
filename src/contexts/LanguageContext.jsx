@@ -3,7 +3,7 @@ import React, { createContext, useState, useContext } from 'react';
 export const translations = {
   en: {
     singleplayer: "Singleplayer",
-    playVsBot: "Play vs AI Bot",
+    playVsBot: "Start Game",
     onlineMultiplayer: "Online Multiplayer",
     matchId: "Match ID",
     enterRoomId: "Enter Room ID",
@@ -77,7 +77,7 @@ export const translations = {
   },
   fr: {
     singleplayer: "Un Joueur",
-    playVsBot: "Jouer contre l'IA",
+    playVsBot: "Commencer le jeu",
     onlineMultiplayer: "Multijoueur en Ligne",
     matchId: "ID du Match",
     enterRoomId: "Entrer l'ID",
@@ -151,7 +151,7 @@ export const translations = {
   },
   de: {
     singleplayer: "Einzelspieler",
-    playVsBot: "Gegen KI spielen",
+    playVsBot: "Spiel starten",
     onlineMultiplayer: "Online-Mehrspieler",
     matchId: "Match-ID",
     enterRoomId: "Raum-ID eingeben",
@@ -225,7 +225,7 @@ export const translations = {
   },
   ar: {
     singleplayer: "لاعب واحد",
-    playVsBot: "اللعب ضد الذكاء الاصطناعي",
+    playVsBot: "ابدأ اللعبة",
     onlineMultiplayer: "اللعب عبر الإنترنت",
     matchId: "رقم الغرفة",
     enterRoomId: "أدخل رقم الغرفة",
