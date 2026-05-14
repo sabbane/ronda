@@ -599,13 +599,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                             card={card} 
                             className={`shadow-2xl ${isPlayedBadge ? 'ring-4 ring-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.6)]' : 'transition-transform hover:scale-105'}`} 
                           />
-                          <motion.div 
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: isPlayedBadge ? 1 : 0, y: isPlayedBadge ? 0 : 10 }}
-                            className="absolute -top-10 left-1/2 -translate-x-1/2 bg-yellow-400 text-yellow-900 font-black px-3 py-1 rounded-full text-xs whitespace-nowrap shadow-lg uppercase tracking-wider pointer-events-none"
-                          >
-                            {t('played')}
-                          </motion.div>
+
                         </motion.div>
                       );
                     })}

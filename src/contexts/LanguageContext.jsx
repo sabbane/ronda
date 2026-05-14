@@ -22,7 +22,7 @@ export const translations = {
     playAgain: "Play Again",
     mainMenu: "Main Menu",
     cardsRemaining: "Cards remaining",
-    played: "Played",
+
     roundOver: "Round Over!",
     totalGames: "Total Wins",
     shareText: "Join my Ronda game!",
@@ -96,7 +96,7 @@ export const translations = {
     playAgain: "Rejouer",
     mainMenu: "Menu Principal",
     cardsRemaining: "Cartes restantes",
-    played: "Jouée",
+
     roundOver: "Manche Terminée !",
     totalGames: "Victoires Totales",
     shareText: "Rejoins ma partie de Ronda !",
@@ -170,7 +170,7 @@ export const translations = {
     playAgain: "Nochmal spielen",
     mainMenu: "Hauptmenü",
     cardsRemaining: "Verbleibende Karten",
-    played: "Gespielt",
+
     roundOver: "Runde vorbei!",
     totalGames: "Gesamtsiege",
     shareText: "Tritt meinem Ronda-Spiel bei!",
@@ -244,7 +244,7 @@ export const translations = {
     playAgain: "العب مرة أخرى",
     mainMenu: "القائمة الرئيسية",
     cardsRemaining: "البطاقات المتبقية",
-    played: "لعبت",
+
     roundOver: "انتهت الجولة!",
     totalGames: "إجمالي الانتصارات",
     shareText: "انضم إلى لعبة روندا الخاصة بي!",
