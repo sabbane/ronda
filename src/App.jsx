@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { LobbyClient } from 'boardgame.io/client';
-import { Client as ReactClient } from 'boardgame.io/react';
-import { Local, SocketIO } from 'boardgame.io/multiplayer';
+import { LobbyClient } from 'boardgame.io/dist/esm/client.js';
+import { Client as ReactClient } from 'boardgame.io/dist/esm/react.js';
+import { Local, SocketIO } from 'boardgame.io/dist/esm/multiplayer.js';
 import { RondaGame } from './game/game';
-import { RandomBot } from 'boardgame.io/ai';
+import { RandomBot } from 'boardgame.io/dist/esm/ai.js';
 import { RondaBoard } from './components/Board';
 
 import { DonateButton } from './components/DonateButton';

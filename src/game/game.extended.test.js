@@ -1,5 +1,5 @@
 import { RondaGame, getNextValue, evaluateRondaTringa } from './game.js';
-import { Client } from 'boardgame.io/client';
+import { Client } from 'boardgame.io/dist/esm/client.js';
 import { expect, test, describe } from 'vitest';
 
 describe('Ronda Game Logic - Deep Testing', () => {

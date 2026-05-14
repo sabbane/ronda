@@ -1,4 +1,4 @@
-import { RandomBot } from 'boardgame.io/ai';
+import { RandomBot } from 'boardgame.io/dist/esm/ai.js';
 
 const enumerateMoves = (G, ctx, playerID) => {
   let gameG = G;

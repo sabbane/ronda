@@ -1,4 +1,4 @@
-import { Client } from 'boardgame.io/client';
+import { Client } from 'boardgame.io/dist/esm/client.js';
 import { RondaGame, evaluateRondaTringa, checkRoundEnd } from './game.js';
 import { expect, test, describe } from 'vitest';
 
