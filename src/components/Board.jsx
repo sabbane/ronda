@@ -13,6 +13,8 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
   const opponentID = myID === '0' ? '1' : '0';
   const [activeEvent, setActiveEvent] = React.useState(null);
   const [isProcessing, setIsProcessing] = React.useState(false);
+  const cardRefs = React.useRef(new Map());
+  const [captureAnim, setCaptureAnim] = React.useState(null);
 
   const isCurrentPlayer = (id) => {
     const isTurn = ctx.currentPlayer === id;
@@ -166,37 +168,99 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
 
   // Handle animation wait (flying cards)
   React.useEffect(() => {
-    if (G.isAnimating && ctx.activePlayers && ctx.activePlayers[myID] === 'waitForUI') {
+    if (G.isAnimating && !G.pendingCapture && !captureAnim && ctx.activePlayers && ctx.activePlayers[myID] === 'waitForUI') {
       const timer = setTimeout(() => {
         moves.endAnimation();
       }, 1500); // 1.5s wait for animations
       return () => clearTimeout(timer);
     }
-  }, [G.isAnimating, ctx.activePlayers, myID, moves]);
+  }, [G.isAnimating, G.pendingCapture, captureAnim, ctx.activePlayers, myID, moves]);
 
 
 
   // Dealing cards is now handled automatically in the game logic (turn.onBegin)
 
 
-  // Handle pending captures to allow the played card to rest on the table
+  // Setup animation sequence for pending captures
+  const getWrapperForCard = (cardId) => {
+    if (!captureAnim) return cardId;
+    const { sequence, playedCardId } = captureAnim;
+    if (!sequence || sequence.length === 0) return cardId;
+    
+    // playedCard is ALWAYS rendered in sequence[0]'s wrapper to fly there directly
+    if (cardId === playedCardId) return sequence[0];
+    
+    // ALL OTHER CARDS stay in their OWN wrappers!
+    return cardId;
+  };
+
   React.useEffect(() => {
-    if (G.pendingCapture) {
-      // In Local/Bot mode, the human client (ID '0') triggers it for both to ensure it happens.
-      // In Online mode, only the player who made the capture should trigger it.
-      const isOnline = !!ctx.multiplayer;
-      const isMyCapture = G.pendingCapture.player === myID;
+    let timerId;
+    let reqId;
+    if (G.pendingCapture && !captureAnim) {
+      let sequence = [];
+      let val = G.pendingCapture.currentVal;
+      let matchIndex = G.table.findIndex(c => c.value === val && c.id !== G.pendingCapture.playedCardId);
+      if (matchIndex !== -1) {
+        sequence.push(G.table[matchIndex].id);
+        let nextVal = val < 10 ? val + 1 : null;
+        while (nextVal !== null) {
+          let nextMatchIndex = G.table.findIndex(c => c.value === nextVal);
+          if (nextMatchIndex !== -1) {
+            sequence.push(G.table[nextMatchIndex].id);
+            nextVal = nextVal < 10 ? nextVal + 1 : null;
+          } else break;
+        }
+      }
       
-      if (isMyCapture || (!isOnline && myID === '0')) {
-        const timer = setTimeout(() => {
-          if (G.pendingCapture) {
-            moves.processCapture();
-          }
-        }, 1500);
-        return () => clearTimeout(timer);
+      if (sequence.length > 0) {
+        // Measure the DOM synchronously; target cards are already rendered and stable
+        const originalRects = {};
+        G.table.forEach(card => {
+          const el = document.getElementById(`table-wrapper-${card.id}`);
+          if (el) originalRects[card.id] = el.getBoundingClientRect();
+        });
+        setCaptureAnim({ step: 0, sequence, playedCardId: G.pendingCapture.playedCardId, originalRects });
+      } else {
+        const isOnline = !!ctx.multiplayer;
+        const isMyCapture = G.pendingCapture.player === myID;
+        if (isMyCapture || (!isOnline && myID === '0')) {
+          timerId = setTimeout(() => {
+            if (G.pendingCapture) moves.processCapture();
+          }, 1500);
+        }
+      }
+    } else if (!G.pendingCapture && captureAnim) {
+      setCaptureAnim(null);
+    }
+    return () => {
+      if (timerId) clearTimeout(timerId);
+      if (reqId) cancelAnimationFrame(reqId);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [G.pendingCapture, captureAnim, ctx.multiplayer, myID, moves]);
+
+  // Progress the animation sequence
+  React.useEffect(() => {
+    let timerId;
+    if (captureAnim) {
+      const { step, sequence } = captureAnim;
+      if (step < sequence.length) {
+        timerId = setTimeout(() => {
+          setCaptureAnim(prev => ({ ...prev, step: prev.step + 1 }));
+        }, 1000);
+      } else {
+        const isOnline = !!ctx.multiplayer;
+        const isMyCapture = G.pendingCapture?.player === myID;
+        if (isMyCapture || (!isOnline && myID === '0')) {
+          timerId = setTimeout(() => {
+            if (G.pendingCapture) moves.processCapture();
+          }, 1000);
+        }
       }
     }
-  }, [G.pendingCapture, moves, myID, ctx.multiplayer]);
+    return () => clearTimeout(timerId);
+  }, [captureAnim?.step, captureAnim?.sequence.length, G.pendingCapture, ctx.multiplayer, moves, myID]);
 
   let winner = null;
   if (G.gameStatus) {
@@ -426,7 +490,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                 {G.players[opponentID]?.captured.map((card) => (
                   <motion.div
                     key={`cap-opp-${card.id}`}
-                    layoutId={`cap-opp-${card.id}`}
+                    layoutId={`card-${card.id}`}
                     transition={{ type: "spring", stiffness: 40, damping: 12, mass: 1.2 }}
                     className="absolute inset-0 bg-purple-900/50 border border-purple-700/50 rounded-sm shadow-sm"
                   />
@@ -454,35 +518,95 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/felt.png')] opacity-10 rounded-3xl mix-blend-overlay pointer-events-none"></div>
             
             <AnimatePresence>
-              {G.table.map((card, idx) => (
-                <motion.div
-                  key={`table-${card.id}`}
-                  initial={{ opacity: 0, scale: 0.5, y: -200 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 1.5, filter: 'blur(10px)' }}
-                  className={G.pendingCapture?.playedCardId === card.id ? "z-50" : ""}
-                  transition={{ 
-                    duration: 0.3, 
-                    type: "spring", 
-                    stiffness: 100,
-                    delay: idx * 0.05 
-                  }}
-                >
-                  <Card 
-                    card={card} 
-                    className={`shadow-2xl transition-transform ${G.pendingCapture?.playedCardId === card.id ? 'ring-4 ring-yellow-400 scale-110 -translate-y-4 shadow-[0_0_30px_rgba(250,204,21,0.6)]' : 'hover:scale-105'}`} 
-                  />
-                  {G.pendingCapture?.playedCardId === card.id && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="absolute -top-10 left-1/2 -translate-x-1/2 bg-yellow-400 text-yellow-900 font-black px-3 py-1 rounded-full text-xs whitespace-nowrap shadow-lg uppercase tracking-wider"
-                    >
-                      {t('played')}
-                    </motion.div>
-                  )}
-                </motion.div>
-              ))}
+              {G.table.map((baseCard) => {
+                // If this base wrapper is supposed to be empty because its card moved, we render just the empty wrapper
+                const isBaseCardMoved = captureAnim && getWrapperForCard(baseCard.id) !== baseCard.id;
+                
+                // Find all cards that belong in this wrapper right now
+                const cardsInWrapper = G.table.filter(c => getWrapperForCard(c.id) === baseCard.id);
+
+                return (
+                  <div
+                    id={`table-wrapper-${baseCard.id}`}
+                    key={`table-wrapper-${baseCard.id}`}
+                    className="w-16 h-24 sm:w-20 sm:h-32 md:w-24 md:h-36 shrink-0 relative"
+                  >
+                    {!isBaseCardMoved && cardsInWrapper.map(card => {
+                      const isPlayed = !captureAnim && G.pendingCapture?.playedCardId === card.id;
+                      
+                      let animX = 0;
+                      let animY = 0;
+                      let animScale = 1;
+                      let animZ = isPlayed ? 50 : 1;
+                      let transition = { duration: 0.3, type: "spring", stiffness: 100 };
+                      
+                      if (captureAnim && captureAnim.originalRects && captureAnim.originalRects[card.id]) {
+                        const { step, sequence, playedCardId, originalRects } = captureAnim;
+                        const isPlayedCard = card.id === playedCardId;
+                        const seqIndex = sequence.indexOf(card.id);
+                        const isCollected = seqIndex !== -1 && seqIndex < step;
+                        
+                        if (isPlayedCard || isCollected) {
+                          const targetStep = Math.min(step, sequence.length - 1);
+                          const targetId = sequence[targetStep];
+                          const targetRect = originalRects[targetId];
+                          
+                          // playedCard mounts in sequence[0] wrapper, others in their own wrapper
+                          const sourceRectId = isPlayedCard ? sequence[0] : card.id;
+                          const sourceRect = originalRects[sourceRectId];
+                          
+                          if (targetRect && sourceRect) {
+                            let stackIndex = 0;
+                            if (isPlayedCard) {
+                              stackIndex = step + 1;
+                            } else if (isCollected) {
+                              stackIndex = step - seqIndex;
+                            }
+                            
+                            const offsetX = -(stackIndex * 6);
+                            const offsetY = (stackIndex * 6);
+
+                            animX = (targetRect.left - sourceRect.left) + offsetX;
+                            animY = (targetRect.top - sourceRect.top) + offsetY;
+                            animZ = 60 + stackIndex;
+                            transition = { duration: 1.0, type: "tween", ease: "easeInOut" };
+                          }
+                        } else if (seqIndex === step) {
+                          animScale = 1.05;
+                          animZ = 40;
+                        }
+                      }
+
+                      return (
+                        <motion.div
+                          key={`table-card-${card.id}`}
+                          layoutId={`card-${card.id}`}
+                          initial={{ opacity: 0, scale: 0.5, y: -200 }}
+                          animate={{ opacity: 1, scale: animScale, x: animX, y: animY }}
+                          exit={{ opacity: 0, scale: 1.5, filter: 'blur(10px)' }}
+                          style={{ zIndex: animZ }}
+                          className={`absolute inset-0 w-full h-full ${isPlayed ? "z-50" : ""}`}
+                          transition={transition}
+                        >
+                          <Card 
+                            card={card} 
+                            className={`shadow-2xl transition-transform ${isPlayed ? 'ring-4 ring-yellow-400 scale-110 -translate-y-4 shadow-[0_0_30px_rgba(250,204,21,0.6)]' : 'hover:scale-105'}`} 
+                          />
+                          {isPlayed && (
+                            <motion.div 
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="absolute -top-10 left-1/2 -translate-x-1/2 bg-yellow-400 text-yellow-900 font-black px-3 py-1 rounded-full text-xs whitespace-nowrap shadow-lg uppercase tracking-wider"
+                            >
+                              {t('played')}
+                            </motion.div>
+                          )}
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
             </AnimatePresence>
             
             {G.table.length === 0 && (
@@ -512,7 +636,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                 {G.players[myID]?.captured.map((card) => (
                   <motion.div
                     key={`cap-me-${card.id}`}
-                    layoutId={`cap-me-${card.id}`}
+                    layoutId={`card-${card.id}`}
                     transition={{ type: "spring", stiffness: 40, damping: 12, mass: 1.2 }}
                     className="absolute inset-0 bg-indigo-900/50 border border-indigo-700/50 rounded-sm shadow-sm"
                   />

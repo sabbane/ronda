@@ -1,4 +1,4 @@
-import { INVALID_MOVE } from 'boardgame.io/dist/cjs/core.js';
+import { INVALID_MOVE } from 'boardgame.io/core';
 
 export const getNextValue = (val) => {
   if (val < 10) return val + 1;
@@ -283,6 +283,8 @@ export const RondaGame = {
           currentVal: currentVal,
           isTaawidaTransfer: matchIndex === -1
         };
+        G.isAnimating = true;
+        checkWaitForUI(G, events);
       } else {
         // Normal drop, starts a new potential streak
         G.lastPlayedCard = { 
@@ -307,125 +309,68 @@ export const RondaGame = {
         }
       }
     },
-
-    processCapture: ({ G, ctx, events, playerID }) => {
+    processCapture: ({ G, ctx, events }) => {
       if (!G.pendingCapture) return INVALID_MOVE;
-      
-      const player = playerID || ctx.currentPlayer;
-      if (player !== ctx.currentPlayer) return INVALID_MOVE;
-
+      const player = G.pendingCapture.player;
       const { playedCardId, currentVal, isTaawidaTransfer } = G.pendingCapture;
-      // Also ensure the player processing the capture is the one who initiated it
-      if (G.pendingCapture.player !== player) return INVALID_MOVE;
-
       G.pendingCapture = null;
-      
       const playedCardIndex = G.table.findIndex(c => c.id === playedCardId);
-      if (playedCardIndex === -1) return INVALID_MOVE; // safety check
+      if (playedCardIndex === -1) return INVALID_MOVE;
       const playedCard = G.table.splice(playedCardIndex, 1)[0];
       const capturedCards = [playedCard];
-
-      
       let matchIndex = G.table.findIndex(c => c.value === currentVal);
-      
       if (matchIndex !== -1 || isTaawidaTransfer) {
         if (isTaawidaTransfer) {
           const newStreak = G.lastPlayedCard.streak + 1;
           const scoreToAdd = newStreak === 3 ? 5 : 10;
-          
           const opponent = G.lastPlayedCard.player;
           G.players[opponent].score -= G.lastPlayedCard.awardedPoints || 0;
-          
           const cardsToTransfer = G.lastPlayedCard.streakCards || [];
           G.players[opponent].captured = G.players[opponent].captured.filter(c => !cardsToTransfer.some(tc => tc.id === c.id));
-          
           capturedCards.push(...cardsToTransfer);
-          
           addScore(G, player, scoreToAdd);
           G.announcements.push({ player, type: 'Taawida', streak: newStreak });
-          
-          G.lastPlayedCard = {
-            value: currentVal,
-            player: player,
-            streak: newStreak,
-            awardedPoints: scoreToAdd,
-            streakCards: [...cardsToTransfer, playedCard]
-          };
+          G.lastPlayedCard = { value: currentVal, player: player, streak: newStreak, awardedPoints: scoreToAdd, streakCards: [...cardsToTransfer, playedCard] };
         } else {
           let matchedCard = G.table.splice(matchIndex, 1)[0];
           capturedCards.push(matchedCard);
-
           if (G.lastPlayedCard && G.lastPlayedCard.value === currentVal && G.lastPlayedCard.player !== player) {
             const newStreak = (G.lastPlayedCard.streak || 1) + 1;
             let awardedPoints = 0;
             let streakCards = [];
-
-            if (newStreak === 2) {
-              awardedPoints = 1;
-              addScore(G, player, awardedPoints);
-              G.announcements.push({ player, type: 'Derba' });
-              streakCards = [matchedCard, playedCard];
-            } else if (newStreak === 4) {
+            if (newStreak === 2) { awardedPoints = 1; addScore(G, player, awardedPoints); G.announcements.push({ player, type: 'Derba' }); streakCards = [matchedCard, playedCard]; }
+            else if (newStreak === 4) {
               awardedPoints = 10;
               const opponent = G.lastPlayedCard.player;
               G.players[opponent].score -= G.lastPlayedCard.awardedPoints || 0;
-              
               const cardsToTransfer = G.lastPlayedCard.streakCards || [];
               G.players[opponent].captured = G.players[opponent].captured.filter(c => !cardsToTransfer.some(tc => tc.id === c.id));
-              
               capturedCards.push(...cardsToTransfer);
               streakCards = [...cardsToTransfer, matchedCard, playedCard];
-              
               addScore(G, player, awardedPoints);
               G.announcements.push({ player, type: 'Taawida', streak: newStreak });
             }
             G.lastPlayedCard = { value: currentVal, player: player, streak: newStreak, awardedPoints, streakCards };
-          } else {
-            G.lastPlayedCard = null; // Streak broken
-          }
-          
+          } else { G.lastPlayedCard = null; }
           let nextVal = getNextValue(currentVal);
           while (nextVal !== null) {
             let nextMatchIndex = G.table.findIndex(c => c.value === nextVal);
-            if (nextMatchIndex !== -1) {
-              capturedCards.push(G.table.splice(nextMatchIndex, 1)[0]);
-              nextVal = getNextValue(nextVal);
-            } else {
-              break;
-            }
+            if (nextMatchIndex !== -1) { capturedCards.push(G.table.splice(nextMatchIndex, 1)[0]); nextVal = getNextValue(nextVal); }
+            else break;
           }
         }
-        
         G.players[player].captured.push(...capturedCards);
         G.lastCapture = player;
-        // G.lastPlayedCard is maintained if there's an active streak, otherwise it's null
         G.isAnimating = true;
-
-        if (!isTaawidaTransfer && G.table.length === 0 && (G.deck.length > 0 || G.players['0'].hand.length > 0)) {
-          addScore(G, player, 1);
-          G.announcements.push({ player, type: 'Missa' });
-        }
-
-        // King Finish Rule: if the last card of the game is a 12 (value 10) and captures
-        if (currentVal === 10 && G.deck.length === 0 && G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0) {
-          addScore(G, player, 5);
-          G.announcements.push({ player, type: 'King Finish' });
-        }
-
-        // As Finish Rule: if the last card of the game is an Ace (value 1) and captures
-        if (currentVal === 1 && G.deck.length === 0 && G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0) {
-          const opponent = player === '0' ? '1' : '0';
-          addScore(G, opponent, 5);
-          G.announcements.push({ player: opponent, type: 'As Finish' });
-        }
+        if (!isTaawidaTransfer && G.table.length === 0 && (G.deck.length > 0 || G.players['0'].hand.length > 0)) { addScore(G, player, 1); G.announcements.push({ player, type: 'Missa' }); }
+        if (currentVal === 10 && G.deck.length === 0 && G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0) { addScore(G, player, 5); G.announcements.push({ player, type: 'King Finish' }); }
+        if (currentVal === 1 && G.deck.length === 0 && G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0) { const opponent = player === '0' ? '1' : '0'; addScore(G, opponent, 5); G.announcements.push({ player: opponent, type: 'As Finish' }); }
       }
-      
       checkRoundEnd(G);
-      if (!checkWaitForUI(G, events)) {
-        events.endTurn();
-      }
+      checkWaitForUI(G, events);
     },
   },
+
 
   turn: {
     onBegin: ({ G, ctx, events }) => {
@@ -452,6 +397,11 @@ export const RondaGame = {
     stages: {
       waitForUI: {
         moves: {
+          processCapture: ({ G, ctx, events }) => {
+            // Reference the global processCapture logic
+            const moves = RondaGame.moves;
+            return moves.processCapture({ G, ctx, events });
+          },
           clearAnnouncements: ({ G, events }) => {
             G.announcements = [];
             // Guard: do not trigger turn/stage transitions if still animating
@@ -540,9 +490,8 @@ export const RondaGame = {
       
       // 2. Handle pending capture first
       if (G.pendingCapture) {
-        if (G.pendingCapture.player === player) {
-          return [{ move: 'processCapture' }];
-        }
+        // The frontend (Board.jsx) will dispatch processCapture after the animation completes.
+        // The bot should simply wait.
         return [];
       }
  
