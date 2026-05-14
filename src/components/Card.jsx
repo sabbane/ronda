@@ -5,10 +5,14 @@ import { motion } from 'framer-motion';
 
 export const Card = ({ card, hidden = false, onClick, className = '' }) => {
   if (hidden) {
+    const value = (card.displayValue !== undefined ? card.displayValue : card.value).toString();
+    const suit = `${card.suit}-vector`;
+    const imagePath = `/cards/${value} ${suit}.svg`;
+
     return (
       <motion.div
         whileHover={{ scale: 1.05 }}
-        className={`w-16 h-24 sm:w-20 sm:h-32 md:w-24 md:h-36 rounded-xl bg-white border-2 border-slate-200 shadow-xl overflow-hidden flex-shrink-0 ${className}`}
+        className={`w-16 h-24 sm:w-20 sm:h-32 md:w-24 md:h-36 rounded-xl bg-white border-2 border-slate-200 shadow-xl overflow-hidden flex-shrink-0 ${className} relative`}
       >
         <div className="w-full h-full p-1 bg-slate-50 flex items-center justify-center">
           <img 
@@ -19,6 +23,13 @@ export const Card = ({ card, hidden = false, onClick, className = '' }) => {
               e.target.style.display = 'none';
               e.target.parentElement.innerHTML = '<div class="text-xs font-bold text-slate-300 transform -rotate-45">RONDA</div>';
             }}
+          />
+          {/* Preload the actual card face to prevent flashing on slow networks */}
+          <img 
+            src={imagePath} 
+            alt="preload" 
+            style={{ position: 'absolute', width: 1, height: 1, opacity: 0.01, pointerEvents: 'none' }} 
+            aria-hidden="true"
           />
         </div>
       </motion.div>
