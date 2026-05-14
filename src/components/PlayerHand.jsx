@@ -1,11 +1,10 @@
 import React from 'react';
 import { Card } from './Card';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
-export const PlayerHand = ({ hand, isCurrentPlayer, onPlayCard, hidden = false, dealDelay = 0 }) => {
+export const PlayerHand = ({ hand, isCurrentPlayer, onPlayCard, hidden = false, dealDelay = 0, playedCardId = null }) => {
   return (
     <div className="flex justify-center gap-2 sm:gap-4 py-2 sm:py-8 min-h-[7.5rem] sm:min-h-[12.5rem] md:min-h-[13.5rem]" dir="ltr">
-      <AnimatePresence>
         {hand.map((card, index) => (
           <motion.div
             key={card.id}
@@ -34,7 +33,7 @@ export const PlayerHand = ({ hand, isCurrentPlayer, onPlayCard, hidden = false, 
           >
             <Card
               card={card}
-              hidden={hidden}
+              hidden={hidden && playedCardId !== card.id}
               onClick={() => {
                 // Keep click support as well
                 if (isCurrentPlayer && !hidden) {
@@ -45,7 +44,6 @@ export const PlayerHand = ({ hand, isCurrentPlayer, onPlayCard, hidden = false, 
             />
           </motion.div>
         ))}
-      </AnimatePresence>
     </div>
   );
 };

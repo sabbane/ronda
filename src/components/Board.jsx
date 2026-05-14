@@ -267,6 +267,8 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
     winner = G.gameStatus.winner !== undefined ? G.gameStatus.winner : 'Draw';
   }
 
+  const playedCardId = G.isAnimating ? (G.pendingCapture?.playedCardId || G.lastPlayedCard?.streakCards?.[0]?.id) : null;
+
   return (
     <div className="min-h-[100dvh] flex flex-col items-center justify-center p-2 sm:p-4 font-sans text-slate-100 relative overflow-y-auto overflow-x-hidden">
         {/* Subtle Game Background */}
@@ -509,6 +511,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
             isCurrentPlayer={false} 
             hidden={true}
             dealDelay={0.75}
+            playedCardId={playedCardId}
           />
         </div>
 
@@ -656,6 +659,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
             hand={(G.players && G.players[myID]?.hand) || []} 
             isCurrentPlayer={isCurrentPlayer(myID) && !isProcessing} 
             onPlayCard={handlePlayCard} 
+            playedCardId={playedCardId}
           />
 
           {/* Deck Info - Moved below player hand to prevent overlap on mobile */}
