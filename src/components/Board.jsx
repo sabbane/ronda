@@ -14,7 +14,6 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
   const [activeEvent, setActiveEvent] = React.useState(null);
   const [isProcessing, setIsProcessing] = React.useState(false);
   const cardRefs = React.useRef(new Map());
-  const [captureAnim, setCaptureAnim] = React.useState(null);
 
   const isCurrentPlayer = (id) => {
     const isTurn = ctx.currentPlayer === id;
@@ -168,13 +167,13 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
 
   // Handle animation wait (flying cards)
   React.useEffect(() => {
-    if (G.isAnimating && !G.pendingCapture && !captureAnim && ctx.activePlayers && ctx.activePlayers[myID] === 'waitForUI') {
+    if (G.isAnimating && !G.pendingCapture && ctx.activePlayers && ctx.activePlayers[myID] === 'waitForUI') {
       const timer = setTimeout(() => {
         moves.endAnimation();
       }, 1500); // 1.5s wait for animations
       return () => clearTimeout(timer);
     }
-  }, [G.isAnimating, G.pendingCapture, captureAnim, ctx.activePlayers, myID, moves]);
+  }, [G.isAnimating, G.pendingCapture, ctx.activePlayers, myID, moves]);
 
 
 
@@ -533,12 +532,13 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                     className="w-16 h-24 sm:w-20 sm:h-32 md:w-24 md:h-36 shrink-0 relative"
                   >
                     {!isBaseCardMoved && cardsInWrapper.map(card => {
-                      const isPlayed = G.pendingCapture?.playedCardId === card.id;
+                      const isNormalDropCheck = !G.pendingCapture && G.lastPlayedCard?.streakCards?.length === 1 && G.lastPlayedCard.streakCards[0].id === card.id && G.isAnimating;
+                      const isPlayedBadge = (G.pendingCapture?.playedCardId === card.id) || isNormalDropCheck;
                       
                       let animX = 0;
                       let animY = 0;
                       let animScale = 1;
-                      let animZ = isPlayed ? 50 : 1;
+                      let animZ = isPlayedBadge ? 50 : 1;
                       let transition = { duration: 0.3, type: "spring", stiffness: 100 };
                       
                       if (G.pendingCapture && Object.keys(captureRects).length > 0 && captureRects[card.id]) {
@@ -577,33 +577,32 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                         }
                       }
 
-                      const playedByMe = G.pendingCapture?.player === myID;
+
+                      const playedByMe = G.pendingCapture ? G.pendingCapture.player === myID : G.lastPlayedCard?.player === myID;
                       const fallbackY = playedByMe ? 200 : -200;
 
                       return (
                         <motion.div
                           key={`table-card-${card.id}`}
                           layoutId={`card-${card.id}`}
-                          initial={{ opacity: 0, scale: 0.5, y: fallbackY }}
+                          initial={isPlayedBadge ? false : { opacity: 0, scale: 0.5, y: fallbackY }}
                           animate={{ opacity: 1, scale: animScale, x: animX, y: animY }}
                           exit={{ opacity: 0, scale: 1.5, filter: 'blur(10px)' }}
                           style={{ zIndex: animZ }}
-                          className={`absolute inset-0 w-full h-full ${isPlayed ? "z-50" : ""}`}
+                          className={`absolute inset-0 w-full h-full ${isPlayedBadge ? "z-50" : ""}`}
                           transition={transition}
                         >
                           <Card 
                             card={card} 
-                            className={`shadow-2xl transition-transform ${isPlayed ? 'ring-4 ring-yellow-400 scale-110 -translate-y-4 shadow-[0_0_30px_rgba(250,204,21,0.6)]' : 'hover:scale-105'}`} 
+                            className={`shadow-2xl ${isPlayedBadge ? 'ring-4 ring-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.6)]' : 'transition-transform hover:scale-105'}`} 
                           />
-                          {isPlayed && (
-                            <motion.div 
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              className="absolute -top-10 left-1/2 -translate-x-1/2 bg-yellow-400 text-yellow-900 font-black px-3 py-1 rounded-full text-xs whitespace-nowrap shadow-lg uppercase tracking-wider"
-                            >
-                              {t('played')}
-                            </motion.div>
-                          )}
+                          <motion.div 
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: isPlayedBadge ? 1 : 0, y: isPlayedBadge ? 0 : 10 }}
+                            className="absolute -top-10 left-1/2 -translate-x-1/2 bg-yellow-400 text-yellow-900 font-black px-3 py-1 rounded-full text-xs whitespace-nowrap shadow-lg uppercase tracking-wider pointer-events-none"
+                          >
+                            {t('played')}
+                          </motion.div>
                         </motion.div>
                       );
                     })}
