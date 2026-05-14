@@ -181,46 +181,49 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
   // Dealing cards is now handled automatically in the game logic (turn.onBegin)
 
 
-  // Setup animation sequence for pending captures
+  const captureSequence = React.useMemo(() => {
+    if (!G.pendingCapture) return [];
+    let sequence = [];
+    let val = G.pendingCapture.currentVal;
+    let matchIndex = G.table.findIndex(c => c.value === val && c.id !== G.pendingCapture.playedCardId);
+    if (matchIndex !== -1) {
+      sequence.push(G.table[matchIndex].id);
+      let nextVal = val < 10 ? val + 1 : null;
+      while (nextVal !== null) {
+        let nextMatchIndex = G.table.findIndex(c => c.value === nextVal);
+        if (nextMatchIndex !== -1) {
+          sequence.push(G.table[nextMatchIndex].id);
+          nextVal = nextVal < 10 ? nextVal + 1 : null;
+        } else break;
+      }
+    }
+    return sequence;
+  }, [G.pendingCapture, G.table]);
+
+  const [captureStep, setCaptureStep] = React.useState(0);
+  const [captureRects, setCaptureRects] = React.useState({});
+
   const getWrapperForCard = (cardId) => {
-    if (!captureAnim) return cardId;
-    const { sequence, playedCardId } = captureAnim;
-    if (!sequence || sequence.length === 0) return cardId;
-    
+    if (!G.pendingCapture || captureSequence.length === 0) return cardId;
     // playedCard is ALWAYS rendered in sequence[0]'s wrapper to fly there directly
-    if (cardId === playedCardId) return sequence[0];
-    
+    if (cardId === G.pendingCapture.playedCardId) return captureSequence[0];
     // ALL OTHER CARDS stay in their OWN wrappers!
     return cardId;
   };
 
   React.useEffect(() => {
     let timerId;
-    let reqId;
-    if (G.pendingCapture && !captureAnim) {
-      let sequence = [];
-      let val = G.pendingCapture.currentVal;
-      let matchIndex = G.table.findIndex(c => c.value === val && c.id !== G.pendingCapture.playedCardId);
-      if (matchIndex !== -1) {
-        sequence.push(G.table[matchIndex].id);
-        let nextVal = val < 10 ? val + 1 : null;
-        while (nextVal !== null) {
-          let nextMatchIndex = G.table.findIndex(c => c.value === nextVal);
-          if (nextMatchIndex !== -1) {
-            sequence.push(G.table[nextMatchIndex].id);
-            nextVal = nextVal < 10 ? nextVal + 1 : null;
-          } else break;
+    if (G.pendingCapture) {
+      if (captureSequence.length > 0) {
+        // Only capture rects once at the start
+        if (Object.keys(captureRects).length === 0) {
+          const rects = {};
+          G.table.forEach(card => {
+            const el = document.getElementById(`table-wrapper-${card.id}`);
+            if (el) rects[card.id] = el.getBoundingClientRect();
+          });
+          setCaptureRects(rects);
         }
-      }
-      
-      if (sequence.length > 0) {
-        // Measure the DOM synchronously; target cards are already rendered and stable
-        const originalRects = {};
-        G.table.forEach(card => {
-          const el = document.getElementById(`table-wrapper-${card.id}`);
-          if (el) originalRects[card.id] = el.getBoundingClientRect();
-        });
-        setCaptureAnim({ step: 0, sequence, playedCardId: G.pendingCapture.playedCardId, originalRects });
       } else {
         const isOnline = !!ctx.multiplayer;
         const isMyCapture = G.pendingCapture.player === myID;
@@ -230,24 +233,22 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
           }, 1500);
         }
       }
-    } else if (!G.pendingCapture && captureAnim) {
-      setCaptureAnim(null);
+    } else {
+      setCaptureStep(0);
+      setCaptureRects({});
     }
     return () => {
       if (timerId) clearTimeout(timerId);
-      if (reqId) cancelAnimationFrame(reqId);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [G.pendingCapture, captureAnim, ctx.multiplayer, myID, moves]);
+  }, [G.pendingCapture, captureSequence, captureRects, G.table, ctx.multiplayer, myID, moves]);
 
   // Progress the animation sequence
   React.useEffect(() => {
     let timerId;
-    if (captureAnim) {
-      const { step, sequence } = captureAnim;
-      if (step < sequence.length) {
+    if (G.pendingCapture && captureSequence.length > 0 && Object.keys(captureRects).length > 0) {
+      if (captureStep < captureSequence.length) {
         timerId = setTimeout(() => {
-          setCaptureAnim(prev => ({ ...prev, step: prev.step + 1 }));
+          setCaptureStep(prev => prev + 1);
         }, 1000);
       } else {
         const isOnline = !!ctx.multiplayer;
@@ -260,7 +261,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
       }
     }
     return () => clearTimeout(timerId);
-  }, [captureAnim?.step, captureAnim?.sequence.length, G.pendingCapture, ctx.multiplayer, moves, myID]);
+  }, [captureStep, captureSequence.length, captureRects, G.pendingCapture, ctx.multiplayer, moves, myID]);
 
   let winner = null;
   if (G.gameStatus) {
@@ -520,7 +521,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
             <AnimatePresence>
               {G.table.map((baseCard) => {
                 // If this base wrapper is supposed to be empty because its card moved, we render just the empty wrapper
-                const isBaseCardMoved = captureAnim && getWrapperForCard(baseCard.id) !== baseCard.id;
+                const isBaseCardMoved = G.pendingCapture && getWrapperForCard(baseCard.id) !== baseCard.id;
                 
                 // Find all cards that belong in this wrapper right now
                 const cardsInWrapper = G.table.filter(c => getWrapperForCard(c.id) === baseCard.id);
@@ -532,7 +533,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                     className="w-16 h-24 sm:w-20 sm:h-32 md:w-24 md:h-36 shrink-0 relative"
                   >
                     {!isBaseCardMoved && cardsInWrapper.map(card => {
-                      const isPlayed = !captureAnim && G.pendingCapture?.playedCardId === card.id;
+                      const isPlayed = G.pendingCapture?.playedCardId === card.id;
                       
                       let animX = 0;
                       let animY = 0;
@@ -540,27 +541,26 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                       let animZ = isPlayed ? 50 : 1;
                       let transition = { duration: 0.3, type: "spring", stiffness: 100 };
                       
-                      if (captureAnim && captureAnim.originalRects && captureAnim.originalRects[card.id]) {
-                        const { step, sequence, playedCardId, originalRects } = captureAnim;
-                        const isPlayedCard = card.id === playedCardId;
-                        const seqIndex = sequence.indexOf(card.id);
-                        const isCollected = seqIndex !== -1 && seqIndex < step;
+                      if (G.pendingCapture && Object.keys(captureRects).length > 0 && captureRects[card.id]) {
+                        const isPlayedCard = card.id === G.pendingCapture.playedCardId;
+                        const seqIndex = captureSequence.indexOf(card.id);
+                        const isCollected = seqIndex !== -1 && seqIndex < captureStep;
                         
                         if (isPlayedCard || isCollected) {
-                          const targetStep = Math.min(step, sequence.length - 1);
-                          const targetId = sequence[targetStep];
-                          const targetRect = originalRects[targetId];
+                          const targetStep = Math.min(captureStep, captureSequence.length - 1);
+                          const targetId = captureSequence[targetStep];
+                          const targetRect = captureRects[targetId];
                           
                           // playedCard mounts in sequence[0] wrapper, others in their own wrapper
-                          const sourceRectId = isPlayedCard ? sequence[0] : card.id;
-                          const sourceRect = originalRects[sourceRectId];
+                          const sourceRectId = isPlayedCard ? captureSequence[0] : card.id;
+                          const sourceRect = captureRects[sourceRectId];
                           
                           if (targetRect && sourceRect) {
                             let stackIndex = 0;
                             if (isPlayedCard) {
-                              stackIndex = step + 1;
+                              stackIndex = captureStep + 1;
                             } else if (isCollected) {
-                              stackIndex = step - seqIndex;
+                              stackIndex = captureStep - seqIndex;
                             }
                             
                             const offsetX = -(stackIndex * 6);
@@ -571,17 +571,20 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                             animZ = 60 + stackIndex;
                             transition = { duration: 1.0, type: "tween", ease: "easeInOut" };
                           }
-                        } else if (seqIndex === step) {
+                        } else if (seqIndex === captureStep) {
                           animScale = 1.05;
                           animZ = 40;
                         }
                       }
 
+                      const playedByMe = G.pendingCapture?.player === myID;
+                      const fallbackY = playedByMe ? 200 : -200;
+
                       return (
                         <motion.div
                           key={`table-card-${card.id}`}
                           layoutId={`card-${card.id}`}
-                          initial={{ opacity: 0, scale: 0.5, y: -200 }}
+                          initial={{ opacity: 0, scale: 0.5, y: fallbackY }}
                           animate={{ opacity: 1, scale: animScale, x: animX, y: animY }}
                           exit={{ opacity: 0, scale: 1.5, filter: 'blur(10px)' }}
                           style={{ zIndex: animZ }}
