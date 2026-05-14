@@ -474,7 +474,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
 
 
         {/* Opponent Area */}
-        <div className="w-full max-w-4xl relative z-10 shrink-0">
+        <div className="w-full max-w-4xl relative z-20 shrink-0">
           <div className="flex justify-between items-center px-4 sm:px-8 mb-0 sm:mb-2">
             <div className="text-base sm:text-lg font-medium text-slate-400 flex items-center gap-3">
               {t('opponent')}
@@ -620,7 +620,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
         </div>
 
         {/* Player Area */}
-        <div className="w-full max-w-4xl relative z-10 shrink-0">
+        <div className="w-full max-w-4xl relative z-20 shrink-0">
           <div className="flex justify-between items-center px-4 sm:px-8 mt-0 sm:mt-2">
             <div className="flex items-center gap-3">
               <div className={`text-lg font-medium ${isCurrentPlayer(myID) ? 'text-indigo-400' : 'text-slate-400'}`}>

@@ -9,10 +9,11 @@ export const PlayerHand = ({ hand, isCurrentPlayer, onPlayCard, hidden = false, 
         {hand.map((card, index) => (
           <motion.div
             key={card.id}
+            className="relative z-20"
             layoutId={`card-${card.id}`}
             initial={{ opacity: 0, y: -100, x: -100, rotate: -20 }}
             animate={{ opacity: 1, y: 0, x: 0, rotate: 0 }}
-            exit={{ opacity: 0, scale: 0.5 }}
+            exit={{}}
             transition={{ 
               type: "spring", 
               stiffness: 70, 
