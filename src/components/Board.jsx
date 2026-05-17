@@ -437,7 +437,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                   {t('gameOver')}
                 </h2>
                 <div className="text-2xl mb-2 font-medium">
-                  {winner === 'Draw' ? t('itsADraw') : winner === myID ? t('youWon') : (winner === null ? t('roundOver') : t('opponentWon'))}
+                  {winner === 'Draw' ? t('itsADraw') : winner === myID ? t('youWon') : (winner === null ? t('roundOver') : t('youLost'))}
                 </div>
                 <div className="text-lg text-slate-400 mb-8 font-semibold uppercase tracking-widest">
                   {t('totalGames') || 'Total Games'}: {G.matchesWon ? G.matchesWon[myID] : 0} - {G.matchesWon ? G.matchesWon[opponentID] : 0}
