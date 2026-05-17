@@ -70,7 +70,7 @@ export const evaluateRondaTringa = (G) => {
       G.activeClash = null;
     } else {
       G.activeClash = { p0: p0Rank, p1: p1Rank };
-      G.announcements.push({ player: 'none', type: 'Clash', text: 'Clash! Both have Ronda!' });
+      G.announcements.push({ player: 'none', type: 'Clash', clashType: p0Rank.type });
     }
   } else if (p0Rank) {
     addScore(G, '0', p0Rank.type === 'Tringa' ? 5 : 1);

@@ -52,37 +52,39 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
           let customTitle = ann.type;
           let customIcon = "✨";
 
-          if (ann.type === 'Ronda') customText = t('announcements.ronda', { name });
-          if (ann.type === 'Tringa') customText = t('announcements.tringa', { name });
+          if (ann.type === 'Ronda') customText = isMe ? t('announcements.rondaMe') : t('announcements.rondaOpponent');
+          if (ann.type === 'Tringa') customText = isMe ? t('announcements.tringaMe') : t('announcements.tringaOpponent');
           if (ann.type === 'Missa') {
-            customText = t('announcements.missa', { name });
+            customText = isMe ? t('announcements.missaMe') : t('announcements.missaOpponent');
             customIcon = "🧹";
           }
           if (ann.type === 'Derba') {
-            customText = t('announcements.derba', { name });
+            customText = isMe ? t('announcements.derbaMe') : t('announcements.derbaOpponent');
             customIcon = "🎯";
           }
           if (ann.type === 'Taawida') {
             if (ann.streak === 3) {
               customTitle = t('announcements.counterAttackTitle');
-              customText = t('announcements.counterAttackDesc');
+              customText = isMe ? t('announcements.counterAttackMe') : t('announcements.counterAttackOpponent');
               customIcon = "🥊"; // Punch for counter
             } else if (ann.streak === 4) {
               customTitle = t('announcements.ultimateCounterTitle');
-              customText = t('announcements.ultimateCounterDesc');
+              customText = isMe ? t('announcements.ultimateCounterMe') : t('announcements.ultimateCounterOpponent');
               customIcon = "☢️"; // Nuclear for ultimate
-            } else {
-              customText = t('announcements.taawida', { name });
             }
           }
           if (ann.type === 'Clash') {
-            customText = t('announcements.clash');
+            customText = ann.clashType === 'Tringa' ? t('announcements.clashTringa') : t('announcements.clashRonda');
             customIcon = "⚔️";
           }
           if (ann.type === 'Clash Won') {
             const type = ann.rankType || (ann.text && typeof ann.text === 'string' ? (ann.text.match(/with (.*)!/) || [])[1] : '');
-            const pts = ann.pts || 5;
-            customText = t('announcements.clashWon', { name, type, pts });
+            const pts = ann.pts || (type === 'Tringa' ? 10 : 2);
+            if (isMe) {
+              customText = type === 'Tringa' ? t('announcements.clashWonTringaMe', { pts }) : t('announcements.clashWonRondaMe', { pts });
+            } else {
+              customText = type === 'Tringa' ? t('announcements.clashWonTringaOpp', { pts }) : t('announcements.clashWonRondaOpp', { pts });
+            }
             customIcon = "⚔️";
           }
           if (ann.type === 'Clash Draw') {
@@ -90,35 +92,31 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
             customIcon = "🤝";
           }
           if (ann.type === 'King Finish') {
-            customText = t('announcements.kingFinish', { name });
+            customText = isMe ? t('announcements.kingFinishMe') : t('announcements.kingFinishOpponent');
             customIcon = "👑";
           }
           if (ann.type === 'TringaWins') {
-            customText = t('announcements.tringaWins', { name });
+            customText = isMe ? t('announcements.tringaWinsMe') : t('announcements.tringaWinsOpponent');
             customTitle = "Tringa Wins";
             customIcon = "🏆";
           }
           if (ann.type === 'Final Fail') {
             customTitle = t('announcements.finalFailTitle');
-            customText = t('announcements.finalFailDesc');
+            customText = isMe ? t('announcements.finalFailMe') : t('announcements.finalFailOpponent');
             customIcon = "📉";
           }
           if (ann.type === 'As Finish') {
             customTitle = t('announcements.asFinishTitle');
-            customText = t('announcements.asFinishDesc');
+            customText = isMe ? t('announcements.asFinishMe') : t('announcements.asFinishOpponent');
             customIcon = "🂱";
           }
 
           // Determine color variant based on who gets points
           let variant = "info";
-          const pointEvents = ['Ronda', 'Tringa', 'Missa', 'Derba', 'Taawida', 'Clash Won', 'King Finish', 'TringaWins'];
-          const failEvents = ['Final Fail', 'As Finish'];
+          const allPointEvents = ['Ronda', 'Tringa', 'Missa', 'Derba', 'Taawida', 'Clash Won', 'King Finish', 'TringaWins', 'Final Fail', 'As Finish'];
 
-          if (pointEvents.includes(ann.type)) {
+          if (allPointEvents.includes(ann.type)) {
             variant = isMe ? "success" : "danger";
-          } else if (failEvents.includes(ann.type)) {
-            // If I fail, it's danger (red). If opponent fails, it's success (green).
-            variant = isMe ? "danger" : "success";
           }
 
           setEventQueue(prev => [...prev, { 
