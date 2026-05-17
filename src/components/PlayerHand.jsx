@@ -34,13 +34,8 @@ export const PlayerHand = ({ hand, isCurrentPlayer, onPlayCard, hidden = false, 
             <Card
               card={card}
               hidden={hidden && playedCardId !== card.id}
-              onClick={() => {
-                // Keep click support as well
-                if (isCurrentPlayer && !hidden) {
-                  onPlayCard(index);
-                }
-              }}
-              className={isCurrentPlayer && !hidden ? "hover:ring-4 hover:ring-indigo-400" : ""}
+              onClick={isCurrentPlayer && !hidden ? () => onPlayCard(index) : undefined}
+              className={isCurrentPlayer && !hidden ? "ring-4 ring-indigo-400 shadow-[0_0_25px_rgba(129,140,248,0.5)]" : ""}
             />
           </motion.div>
         ))}
