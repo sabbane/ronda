@@ -234,7 +234,7 @@ export const RondaGame = {
       lastPlayedCard: null,
       announcements: [],
       pendingCapture: null,
-      isAnimating: false,
+      isAnimating: true,
       gameStarted: true,
       endTurnAfterUI: false,
       gameStatus: null, // Custom game over state
@@ -404,18 +404,10 @@ export const RondaGame = {
           },
           clearAnnouncements: ({ G, events }) => {
             G.announcements = [];
-            // Guard: do not trigger turn/stage transitions if still animating
-            if (G.isAnimating) return;
-            if (G.gameStatus) {
-              events.setActivePlayers({ all: 'gameOver' });
-            } else {
-              events.setActivePlayers({ all: null });
-              // Guard: only endTurn once (endTurnAfterUI is consumed here)
-              if (G.endTurnAfterUI) {
-                G.endTurnAfterUI = false;
-                events.endTurn();
-              }
-            }
+            // Set isAnimating so the bot must wait for the popup exit animation
+            // Board.jsx will call endAnimation() after a short delay to release the lock.
+            G.isAnimating = true;
+            events.setActivePlayers({ all: 'waitForUI' });
           },
           endAnimation: ({ G, events }) => {
             // Guard: only process if still animating (idempotent in multiplayer)

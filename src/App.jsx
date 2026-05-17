@@ -55,7 +55,7 @@ const RondaClientBot = ReactClient({
         }
       }
     },
-    botDelay: 800
+    botDelay: 2800
   }),
 });
 

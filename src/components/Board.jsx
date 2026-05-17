@@ -165,15 +165,19 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
     }
   }, [eventQueue.length, activeEvent, G.announcements, ctx.activePlayers, myID, moves]);
 
-  // Handle animation wait (flying cards)
+  // Handle animation wait (flying cards and dealing)
   React.useEffect(() => {
     if (G.isAnimating && !G.pendingCapture && ctx.activePlayers && ctx.activePlayers[myID] === 'waitForUI') {
+      // Dealing new cards: last 3 cards settle at 1.25s delay + ~1s spring = ~2.25s.
+      // Use 3.5s to be safe. Normal card flight only needs 1.5s.
+      const isDealPhase = !G.lastPlayedCard;
+      const delay = isDealPhase ? 3500 : 1500;
       const timer = setTimeout(() => {
         moves.endAnimation();
-      }, 1500); // 1.5s wait for animations
+      }, delay);
       return () => clearTimeout(timer);
     }
-  }, [G.isAnimating, G.pendingCapture, ctx.activePlayers, myID, moves]);
+  }, [G.isAnimating, G.pendingCapture, G.lastPlayedCard, ctx.activePlayers, myID, moves]);
 
 
 
