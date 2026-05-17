@@ -134,12 +134,15 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
     }
   }, [G.announcements, myID, ctx.turn]);
 
-  // Process the event queue sequentially
+  // Process the event queue sequentially with a pause between popups
   React.useEffect(() => {
     if (!activeEvent && eventQueue.length > 0) {
-      const next = eventQueue[0];
-      setActiveEvent(next);
-      setEventQueue(prev => prev.slice(1));
+      const timer = setTimeout(() => {
+        const next = eventQueue[0];
+        setActiveEvent(next);
+        setEventQueue(prev => prev.slice(1));
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [eventQueue, activeEvent]);
 
@@ -161,7 +164,11 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
       ctx.activePlayers && 
       ctx.activePlayers[myID] === 'waitForUI'
     ) {
-      moves.clearAnnouncements();
+      // Wait 800ms for the popup's exit animation to fully complete before clearing announcements on server
+      const timer = setTimeout(() => {
+        moves.clearAnnouncements();
+      }, 800);
+      return () => clearTimeout(timer);
     }
   }, [eventQueue.length, activeEvent, G.announcements, ctx.activePlayers, myID, moves]);
 
@@ -171,7 +178,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
       // Dealing new cards: last 3 cards settle at 1.25s delay + ~1s spring = ~2.25s.
       // Use 3.5s to be safe. Normal card flight only needs 1.5s.
       const isDealPhase = !G.lastPlayedCard;
-      const delay = isDealPhase ? 3500 : 1500;
+      const delay = isDealPhase ? 3000 : 1500;
       const timer = setTimeout(() => {
         moves.endAnimation();
       }, delay);

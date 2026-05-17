@@ -404,10 +404,16 @@ export const RondaGame = {
           },
           clearAnnouncements: ({ G, events }) => {
             G.announcements = [];
-            // Set isAnimating so the bot must wait for the popup exit animation
-            // Board.jsx will call endAnimation() after a short delay to release the lock.
-            G.isAnimating = true;
-            events.setActivePlayers({ all: 'waitForUI' });
+            if (G.isAnimating) return;
+            if (G.gameStatus) {
+              events.setActivePlayers({ all: 'gameOver' });
+            } else {
+              events.setActivePlayers({ all: null });
+              if (G.endTurnAfterUI) {
+                G.endTurnAfterUI = false;
+                events.endTurn();
+              }
+            }
           },
           endAnimation: ({ G, events }) => {
             // Guard: only process if still animating (idempotent in multiplayer)
