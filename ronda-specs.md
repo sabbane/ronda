@@ -134,7 +134,7 @@ Die App ist als Progressive Web App (PWA) optimiert:
 *   **Manifest:** Vollständige `manifest.json` für App-Branding und Startbildschirme.
 *   **Service Worker:** Nutzung von `vite-plugin-pwa` mit der Strategie `autoUpdate` für nahtlose Hintergrund-Aktualisierungen und Offline-Support.
 *   **Standalone-Modus:** Optimiertes UI-Layout für den "App-Modus" auf mobilen Geräten.
-*   **Versionsmanagement:** Die App-Version (aktuell `0.7.10`) wird automatisch aus der `package.json` in den Build-Prozess injiziert.
+*   **Versionsmanagement:** Die App-Version (aktuell `0.7.11`) wird automatisch aus der `package.json` in den Build-Prozess injiziert.
 
 ## 7. Aktueller Status
 *   [x] Core Game Logic (Stechen, Sequenzen, Missa, Derba)
