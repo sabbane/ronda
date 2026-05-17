@@ -1,15 +1,15 @@
 [
   {
-    "timestamp": "2026-05-14T15:19:43.253Z",
+    "timestamp": "2026-05-17T21:04:23.757Z",
     "version": "0.5.7",
     "target": "https://www.playronda.ma",
     "backend": "https://ronda-backend.up.railway.app",
     "samples": 10,
-    "backendApiAvgMs": 48,
-    "backendApiMinMs": 27,
-    "backendApiP95Ms": 123,
+    "backendApiAvgMs": 72,
+    "backendApiMinMs": 35,
+    "backendApiP95Ms": 186,
     "websocket": {
-      "ms": 1191,
+      "ms": 1312,
       "success": true
     }
   }

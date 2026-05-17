@@ -61,7 +61,8 @@ Die App verwendet reale Bilddateien für die spanischen Spielkarten:
 *   **Suits:** Die Suits sind sowohl intern im Code als auch in den Dateinamen marokkanisch benannt: `dheb` (Gold), `jben` (Becher), `syouf` (Schwerter), `zrawet` (Keulen).
 *   **UI-Features & Optimierungen:**
     *   **Mobile-First Layout:** Nutzung von `100dvh` und dynamischen Paddings für optimale Darstellung auf mobilen Browsern.
-    *   **Visuelles Feedback:** Ankündigungen nutzen farbcodierte Varianten (Success/Danger) für bessere UX.
+    *   **Visuelles Feedback:** Ankündigungen nutzen farbcodierte Varianten (Success/Danger). Aktive Handkarten des Spielers am Zug werden mit einem sanften Glow-Effekt hervorgehoben.
+    *   **Animations- & Z-Index-Schutz:** Angepasste Hierarchien (Z-Index) und Timing-Schutz in der Deal-Phase verhindern Kartenüberlappungen und Anzeigefehler.
     *   **Rules Dialog:** Eine integrierte "How to Play" Anleitung erklärt die Regeln und Sondersituationen.
     *   **Navigation:** Ein "Back to Menu" Button ermöglicht die Rückkehr zum Hauptmenü während des Spiels.
 
@@ -70,13 +71,14 @@ Die App verwendet reale Bilddateien für die spanischen Spielkarten:
 Die App unterstützt mehrere Sprachen über einen `LanguageContext`:
 *   **Sprachen:** Englisch (EN), Französisch (FR), Deutsch (DE), Arabisch (AR).
 *   **RTL-Support:** Automatische Anpassung der Textrichtung (`dir="rtl"`) für Arabisch.
+*   **Spielerspezifische Ankündigungen:** Dynamische Unterscheidung zwischen Spieler ("You") und Gegner ("Opponent") in allen Event-Popups und Sprachen.
 
 ### 4.2 Monetarisierung
 Integration von Werbeflächen über eine dedizierte `AdSlot`-Komponente zur Umsatzgenerierung.
 
 ### 4.3 Bot- & Spiel-Logik
 *   **RandomBot:** Agiert nur für Spieler 1, wartet auf UI-Animationen und priorisiert Captures.
-*   **Stages:** Nutzung von `waitForUI` zur Synchronisation zwischen Game-Engine und Frontend-Animationen.
+*   **Stages & Timing:** Nutzung von `waitForUI` und angepassten Bot-Verzögerungen (`botDelay`) zur exakten Synchronisation zwischen Game-Engine, Popups und Frontend-Animationen.
 
 ### 4.4 Online-Multiplayer & Infrastruktur
 Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
@@ -94,17 +96,18 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 *   **Donate Button:** Integration einer `DonateButton`-Komponente ("Buy us a Mint Tea").
 *   **Social Media:** Direkter Link zur Facebook-Community für Support und Feedback.
 
-### 4.6 Testing & Qualitätssicherung
+### 4.6 Testing, Qualitätssicherung & Performance
 *   **Unit-Tests:** Prüfung der Kern-Spiellogik (Sequenzen, Scoring, Clash) in `game.test.js`.
 *   **E2E-Tests:** End-to-End-Tests des Multiplayers mit **Playwright**. 
-*   **Performance-Benchmarks:** Das Tool `latency_benchmark.spec.js` misst die Antwortzeiten des Live-Servers zur Überwachung der Performance.
+*   **Performance-Benchmarks:** Das Tool `latency_benchmark.spec.js` misst die Antwortzeiten des Live-Servers.
+*   **Asset-Preloading:** Karten-Assets werden vorab geladen (Preload im HTML und verstecktes Rendern in den Komponenten), um Latenzen oder Flackern bei der Kartenausgabe zu vermeiden.
 
 ## 5. Projektstruktur
 ```text
 /src
   /components
     Board.jsx       # Haupt-Spielfeld & Event-Handling (inkl. Rematch-UI)
-    Card.jsx        # Karten-Komponente
+    Card.jsx        # Karten-Komponente (mit Glow & Preload-Logik)
     AdSlot.jsx      # Werbe-Integration
     DonateButton.jsx # Spenden-Funktion
     Rules.jsx       # Spielanleitung (Modal)
@@ -131,7 +134,7 @@ Die App ist als Progressive Web App (PWA) optimiert:
 *   **Manifest:** Vollständige `manifest.json` für App-Branding und Startbildschirme.
 *   **Service Worker:** Nutzung von `vite-plugin-pwa` mit der Strategie `autoUpdate` für nahtlose Hintergrund-Aktualisierungen und Offline-Support.
 *   **Standalone-Modus:** Optimiertes UI-Layout für den "App-Modus" auf mobilen Geräten.
-*   **Versionsmanagement:** Die App-Version wird automatisch aus der `package.json` in den Build-Prozess injiziert.
+*   **Versionsmanagement:** Die App-Version (aktuell `0.7.9`) wird automatisch aus der `package.json` in den Build-Prozess injiziert.
 
 ## 7. Aktueller Status
 *   [x] Core Game Logic (Stechen, Sequenzen, Missa, Derba)
@@ -141,8 +144,9 @@ Die App ist als Progressive Web App (PWA) optimiert:
 *   [x] Rematch-System (beliebig viele Spiele in einem Raum)
 *   [x] Match-Wins Tracking (Gesamtscore der Session)
 *   [x] Tisch leeren am Spielende (Karten an letzten Stecher)
-*   [x] Internationalisierung (EN, FR, DE, AR) & RTL-Support
-*   [x] Mobile-First Optimierung (100dvh, Layout-Shrinking)
+*   [x] Internationalisierung (EN, FR, DE, AR) & RTL-Support mit spielerspezifischen Ankündigungen
+*   [x] Mobile-First Optimierung (100dvh, Layout-Shrinking, Glow-Effekte)
+*   [x] Performance-Optimierung (Karten-Preloading & Z-Index Schutz)
 *   [x] Integration realer Karten-Assets (Marokkanische Suits)
 *   [x] Online-Multiplayer (Host/Join System mit Slot-Validierung)
 *   [x] URL-basierter Beitritt (`?room=...`)
@@ -151,7 +155,7 @@ Die App ist als Progressive Web App (PWA) optimiert:
 *   [x] Unit-Tests für die Spielregeln
 *   [x] E2E-Multiplayer-Tests & Latency-Benchmarks
 *   [x] Werbe-Integration (`AdSlot`) & Donate-Button
-*   [x] Bot-Integration (Animation-aware)
+*   [x] Bot-Integration (Animation-aware & Timing-geschützt)
 *   [x] Rules-Dialog ("How to Play") integriert
 *   [x] Facebook-Community Link integriert
 *   [x] PWA-Integration (Manifest & Service Worker)

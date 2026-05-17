@@ -25,8 +25,8 @@ test('Test Scenario: /test/p1 should load the rigged deck correctly', async ({ p
   const backToMenuBtn = page.locator('button', { hasText: /Back to Menu|Retour au Menu|العودة إلى القائمة/i });
   await expect(backToMenuBtn).toBeVisible({ timeout: 15000 });
 
-  // Collect all card images
-  const cards = page.locator('img[src*="-vector.svg"]');
+  // Collect all card images (excluding hidden preload images)
+  const cards = page.locator('img[src*="-vector.svg"]:not([aria-hidden="true"])');
   await expect(cards).toHaveCount(7, { timeout: 10000 }); // 4 table + 3 hand
 
   const allCards = await cards.all();
@@ -83,9 +83,9 @@ test('Test Scenario: P1 and P2 should share the same test match', async ({ brows
   const backBtn2 = p2Page.locator('button', { hasText: /Back to Menu|Retour au Menu|العودة إلى القائمة/i });
   await expect(backBtn2).toBeVisible({ timeout: 15000 });
 
-  // Both should have 7 cards visible (4 table + 3 hand)
-  const p1Cards = p1Page.locator('img[src*="-vector.svg"]');
-  const p2Cards = p2Page.locator('img[src*="-vector.svg"]');
+  // Both should have 7 cards visible (4 table + 3 hand, excluding hidden preload images)
+  const p1Cards = p1Page.locator('img[src*="-vector.svg"]:not([aria-hidden="true"])');
+  const p2Cards = p2Page.locator('img[src*="-vector.svg"]:not([aria-hidden="true"])');
   await expect(p1Cards).toHaveCount(7, { timeout: 10000 });
   await expect(p2Cards).toHaveCount(7, { timeout: 10000 });
 

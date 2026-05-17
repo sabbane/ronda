@@ -14,7 +14,7 @@ test('Smoke Test: App loads correctly and is not a white page', async ({ page })
   
   // 3. Check if the main action buttons are rendered
   // This confirms the component tree didn't crash before rendering the menu
-  const playButton = page.locator('button', { hasText: /Play|Jouer|لعب/i });
+  const playButton = page.locator('button', { hasText: /Start Game|Commencer le jeu|Spiel starten|ابدأ اللعبة|Play/i });
   await expect(playButton.first()).toBeVisible();
 
   // 4. Verify no "White Screen of Death" by checking background visibility
