@@ -7,7 +7,6 @@ import { RondaGame } from './game/game';
 import { RandomBot } from 'boardgame.io/dist/esm/ai.js';
 import { RondaBoard } from './components/Board';
 
-import { DonateButton } from './components/DonateButton';
 import { useLanguage } from './contexts/LanguageContext';
 import { Rules } from './components/Rules';
 
@@ -402,9 +401,8 @@ const App = () => {
             </div>
           </div>
 
-          {/* Support Team and Version - TRULY OUTSIDE the box */}
+          {/* Version - TRULY OUTSIDE the box */}
           <div className="flex flex-col items-center gap-4 mt-6 z-30">
-            <DonateButton />
             <span className="text-[10px] text-slate-500 font-medium tracking-widest uppercase opacity-50">
               v{import.meta.env.VITE_APP_VERSION}
             </span>
