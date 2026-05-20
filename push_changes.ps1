@@ -1,47 +1,45 @@
 param (
-    [Parameter(Position = 0)]
+    [Parameter(Position=0)]
     [string]$Version
 )
 
 $ErrorActionPreference = "Stop"
 
-# 1. Status pruefen
+# 1. Check git status
 $status = git status --porcelain
 $hasChanges = $null -ne $status -and $status.Trim() -ne ""
 
-# 2. Falls Aenderungen vorhanden sind, committen
+# 2. If changes exist, commit them
 if ($hasChanges) {
-    Write-Host "Aenderungen gefunden. Staging laeuft..." -ForegroundColor Cyan
+    Write-Host "Changes found. Staging files..." -ForegroundColor Cyan
     git add .
 
-    # Nach Commit-Nachricht fragen
-    $commitMsg = Read-Host "Bitte eine Commit-Nachricht eingeben (Standard: 'chore: update changes')"
+    # Ask for commit message
+    $commitMsg = Read-Host "Enter commit message (Default: 'chore: update changes')"
     if ([string]::IsNullOrWhiteSpace($commitMsg)) {
         $commitMsg = "chore: update changes"
     }
 
-    Write-Host "Commit wird erstellt: '$commitMsg'..." -ForegroundColor Cyan
+    Write-Host "Creating commit: '$commitMsg'..." -ForegroundColor Cyan
     git commit -m $commitMsg
-}
-else {
-    Write-Host "Keine lokalen Aenderungen zum Committen vorhanden." -ForegroundColor Yellow
+} else {
+    Write-Host "No local changes to commit." -ForegroundColor Yellow
 }
 
-# 3. Version erstellen oder nur pushen
+# 3. Create version or just push
 if (-not [string]::IsNullOrEmpty($Version)) {
-    # Bereinige Versionsnummer von Anfuehrungszeichen falls vorhanden (unter Verwendung von char-Codes zur Vermeidung von Parser-Problemen)
+    # Clean version string from quotes using char codes
     $Version = $Version.Replace([char]34, "").Replace([char]39, "").Trim()
     
-    Write-Host "Erstelle Version $Version..." -ForegroundColor Cyan
+    Write-Host "Creating version $Version..." -ForegroundColor Cyan
     npm version $Version
 
-    Write-Host "Pushe main Branch und Tags zu origin..." -ForegroundColor Cyan
+    Write-Host "Pushing main branch and tags to origin..." -ForegroundColor Cyan
     git push origin main
     git push origin --tags
-}
-else {
-    Write-Host "Keine Versionsnummer uebergeben. Pushe Aenderungen auf main zu origin..." -ForegroundColor Cyan
+} else {
+    Write-Host "No version provided. Pushing changes on main to origin..." -ForegroundColor Cyan
     git push origin main
 }
 
-Write-Host "Erfolgreich abgeschlossen!" -ForegroundColor Green
+Write-Host "Completed successfully!" -ForegroundColor Green
