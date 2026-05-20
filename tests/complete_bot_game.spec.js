@@ -35,13 +35,12 @@ test.describe('Functional Test: Complete Game vs AI', () => {
     const tableCardImgs = tableArea.locator('img');
     
     console.log('Verifying initial game state rendering...');
-    // Wait for initial dealing animations
-    await page.waitForTimeout(3000); 
+    // Wait for initial dealing animations to complete and interactive cards to appear
+    await expect(page.locator('.cursor-grab')).toHaveCount(3, { timeout: 10000 });
     
     const tableCount = await tableCardImgs.count();
     // Hand cards are the ones with cursor-grab (the player's interactive cards)
-    const handCards = page.locator('.cursor-grab');
-    const handCount = await handCards.count();
+    const handCount = 3;
     
     console.log(`Diagnostic: Table card imgs: ${tableCount}, Player hand cards (cursor-grab): ${handCount}`);
     

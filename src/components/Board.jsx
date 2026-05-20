@@ -8,11 +8,66 @@ import { useLanguage } from '../contexts/LanguageContext';
 export const RondaBoard = ({ G, ctx, moves, playerID }) => {
 
   const { t } = useLanguage();
+  const moroccanSymbols = [
+    // Khamsa (Hand of Fatima)
+    ({ color }) => (
+      <svg viewBox="0 0 64 80" fill={color} xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+        <path d="M32 2 C28 2 26 6 26 10 L26 30 C22 28 18 28 16 32 C14 36 16 40 20 41 L20 55 C20 62 25 68 32 68 C39 68 44 62 44 55 L44 41 C48 40 50 36 48 32 C46 28 42 28 38 30 L38 10 C38 6 36 2 32 2 Z M22 12 C20 12 18 14 18 16 L18 36 C17 36 14 35 13 33 C12 30 14 27 17 28 L17 14 C17 11 19 10 21 10 C23 10 24 11 24 13 Z M42 12 C44 12 46 14 46 16 L46 36 C47 36 50 35 51 33 C52 30 50 27 47 28 L47 14 C47 11 45 10 43 10 C41 10 40 11 40 13 Z"/>
+        <circle cx="32" cy="45" r="5"/>
+      </svg>
+    ),
+    // 8-pointed star (Moroccan Zellige)
+    ({ color }) => (
+      <svg viewBox="0 0 64 64" fill={color} xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+        <polygon points="32,4 37,24 56,19 41,32 56,45 37,40 32,60 27,40 8,45 23,32 8,19 27,24"/>
+        <polygon points="32,4 37,24 56,19 41,32 56,45 37,40 32,60 27,40 8,45 23,32 8,19 27,24" transform="rotate(22.5 32 32)" opacity="0.6"/>
+      </svg>
+    ),
+    // Crescent Moon
+    ({ color }) => (
+      <svg viewBox="0 0 64 64" fill={color} xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+        <path d="M32 6 C18 6 8 17 8 32 C8 47 18 58 32 58 C40 58 47 54 51 48 C47 50 42 51 38 49 C27 45 20 34 23 22 C25 14 31 8 38 6 C36 6 34 6 32 6 Z"/>
+      </svg>
+    ),
+    // Moroccan Lantern (Fanar)
+    ({ color }) => (
+      <svg viewBox="0 0 40 70" fill={color} xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+        <rect x="17" y="0" width="6" height="8" rx="2"/>
+        <polygon points="20,8 5,18 5,55 20,62 35,55 35,18"/>
+        <line x1="5" y1="25" x2="35" y2="25" stroke="black" strokeWidth="1.5" opacity="0.3"/>
+        <line x1="5" y1="35" x2="35" y2="35" stroke="black" strokeWidth="1.5" opacity="0.3"/>
+        <line x1="5" y1="45" x2="35" y2="45" stroke="black" strokeWidth="1.5" opacity="0.3"/>
+        <polygon points="20,62 10,68 30,68" />
+      </svg>
+    ),
+    // Arabesque / Geometric flower
+    ({ color }) => (
+      <svg viewBox="0 0 64 64" fill={color} xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+        <circle cx="32" cy="32" r="10"/>
+        {[0,45,90,135,180,225,270,315].map((angle, i) => (
+          <ellipse key={i} cx="32" cy="32" rx="6" ry="16"
+            transform={`rotate(${angle} 32 32)`} opacity="0.75"/>
+        ))}
+      </svg>
+    ),
+  ];
+  const [confettiConfig] = React.useState(() => {
+    const colors = ['#fde047', '#f97316', '#34d399', '#f472b6', '#a78bfa', '#38bdf8', '#fb7185', '#4ade80'];
+    return [...Array(40)].map((_, i) => ({
+      left: `${Math.random() * 100}vw`,
+      scale: Math.random() * 0.6 + 0.4,
+      rotateTo: Math.random() * 720 - 360,
+      xTo: `+=${Math.random() * 120 - 60}px`,
+      duration: Math.random() * 4 + 3,
+      delay: Math.random() * 3,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      symbolIndex: i % 5,
+    }));
+  });
   const myID = playerID || '0';
   const opponentID = myID === '0' ? '1' : '0';
   const [activeEvent, setActiveEvent] = React.useState(null);
   const [isProcessing, setIsProcessing] = React.useState(false);
-  const cardRefs = React.useRef(new Map());
 
   const isCurrentPlayer = (id) => {
     const isTurn = ctx.currentPlayer === id;
@@ -45,7 +100,6 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
           processedAnnouncements.current.add(annId);
           
           const isMe = ann.player === myID;
-          const name = isMe ? t('you') : t('opponent');
           
           let customText = "";
           let customTitle = ann.type;
@@ -131,6 +185,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
         }
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [G.announcements, myID, ctx.turn]);
 
   // Process the event queue sequentially with a pause between popups
@@ -231,6 +286,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
             const el = document.getElementById(`table-wrapper-${card.id}`);
             if (el) rects[card.id] = el.getBoundingClientRect();
           });
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setCaptureRects(rects);
         }
       } else {
@@ -249,6 +305,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
     return () => {
       if (timerId) clearTimeout(timerId);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [G.pendingCapture, captureSequence, captureRects, G.table, ctx.multiplayer, myID, moves]);
 
   // Progress the animation sequence
@@ -431,32 +488,36 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
             >
               {winner === myID && (
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                  {[...Array(50)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ 
-                        top: -50, 
-                        left: `${Math.random() * 100}vw`,
-                        scale: Math.random() * 0.5 + 0.5,
-                        rotate: 0 
-                      }}
-                      animate={{ 
-                        top: '110vh',
-                        rotate: Math.random() * 360,
-                        x: `+=${Math.random() * 100 - 50}px` 
-                      }}
-                      transition={{ 
-                        duration: Math.random() * 3 + 2, 
-                        repeat: Infinity, 
-                        ease: 'linear',
-                        delay: Math.random() * 2 
-                      }}
-                      className="absolute w-3 h-6 sm:w-4 sm:h-8 rounded-sm opacity-80"
-                      style={{
-                        backgroundColor: ['#fde047', '#38bdf8', '#34d399', '#f472b6', '#a78bfa'][Math.floor(Math.random() * 5)]
-                      }}
-                    />
-                  ))}
+                  {confettiConfig.map((confetti, i) => {
+                    const Symbol = moroccanSymbols[confetti.symbolIndex];
+                    return (
+                      <motion.div
+                        key={i}
+                        initial={{ 
+                          top: -80, 
+                          left: confetti.left,
+                          scale: confetti.scale,
+                          rotate: 0,
+                          opacity: 0.85,
+                        }}
+                        animate={{ 
+                          top: '110vh',
+                          rotate: confetti.rotateTo,
+                          x: confetti.xTo,
+                        }}
+                        transition={{ 
+                          duration: confetti.duration, 
+                          repeat: Infinity, 
+                          ease: 'linear',
+                          delay: confetti.delay,
+                        }}
+                        className="absolute w-8 h-8 sm:w-10 sm:h-10"
+                        style={{ filter: `drop-shadow(0 0 4px ${confetti.color}88)` }}
+                      >
+                        <Symbol color={confetti.color} />
+                      </motion.div>
+                    );
+                  })}
                 </div>
               )}
               <motion.div 

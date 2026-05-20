@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+
 import { LobbyClient } from 'boardgame.io/dist/esm/client.js';
 import { Client as ReactClient } from 'boardgame.io/dist/esm/react.js';
 import { Local, SocketIO } from 'boardgame.io/dist/esm/multiplayer.js';
@@ -10,22 +10,7 @@ import { RondaBoard } from './components/Board';
 import { useLanguage } from './contexts/LanguageContext';
 import { Rules } from './components/Rules';
 
-const LoadingScreen = () => {
-  const { t } = useLanguage();
-  return (
-    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 text-center">
-      <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mb-6"></div>
-      <h2 className="text-2xl font-bold text-amber-200 mb-2">{t('connecting') || 'Connecting...'}</h2>
-      <p className="text-slate-400 mb-8 max-w-xs">{t('connectingDetail') || 'Waiting for the game server to respond.'}</p>
-      <button
-        onClick={() => window.dispatchEvent(new CustomEvent('ronda-menu'))}
-        className="px-6 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-sm font-medium transition-colors border border-slate-700"
-      >
-        {t('backToMenu') || 'Back to Menu'}
-      </button>
-    </div>
-  );
-};
+
 
 const MOROCCAN_NAMES = [
   'Casablanca', 'Marrakech', 'Fes', 'Tangier', 'Rabat', 'Agadir', 'Chefchaouen',
@@ -177,7 +162,6 @@ const App = () => {
     window.addEventListener('ronda-menu', handleMenu);
 
     const isAppInTestMode = import.meta.env.VITE_TEST_MODE === 'true';
-    const params = new URLSearchParams(window.location.search);
     const path = window.location.pathname;
 
     const BACKEND = serverUrl;
@@ -204,7 +188,7 @@ const App = () => {
                 const data = await resp.json();
                 if (data.ok && data.matchID) { matchID = data.matchID; break; }
               }
-            } catch (_) {}
+            } catch { /* ignore */ }
             await new Promise(r => setTimeout(r, 500));
             attempts++;
           }
@@ -230,11 +214,7 @@ const App = () => {
       }
     }
 
-    // If URL has a room, set it
-    const room = params.get('room');
-    if (room) {
-      setMatchID(room);
-    }
+    // Room is set initially via getRoomFromUrl
 
     return () => {
       window.removeEventListener('ronda-reset', handleReset);

@@ -18,7 +18,7 @@ const server = Server({
 //                      with matchID "test-scenario-room", which makes the
 //                      rigged deck active (matchID contains "test").
 // Both /test/p1 and /test/p2 then join this exact, known match ID.
-const TEST_MATCH_ID = 'test-scenario-room';
+
 
 server.router.post('/test/reset', async (ctx) => {
   try {
@@ -31,7 +31,7 @@ server.router.post('/test/reset', async (ctx) => {
     //    First, list all matches and delete any named "test-scenario-room".
     const listResp = await fetch(`${base}/games/ronda`);
     if (listResp.ok) {
-      const { matches } = await listResp.json();
+      await listResp.json();
       // We can't delete by ID via the standard lobby API, but we can track
       // the last test matchID in memory and return it to the clients.
     }

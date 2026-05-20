@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { motion } from 'framer-motion';
 
 
@@ -38,7 +38,6 @@ export const Card = ({ card, hidden = false, onClick, className = '' }) => {
 
   // card.suit is now one of: dheb, jben, syouf, zrawet
   const suit = `${card.suit}-vector`;
-  const isVector = true; // All suits are now using vector SVG cards
   const value = (card.displayValue !== undefined ? card.displayValue : card.value).toString();
   
   const extension = 'svg';

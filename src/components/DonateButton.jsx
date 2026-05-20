@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { useLanguage } from '../contexts/LanguageContext';
 
 export const DonateButton = ({ className = '', showMessage = false }) => {

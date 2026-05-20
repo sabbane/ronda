@@ -87,7 +87,7 @@ export const resolveClash = (G) => {
   if (!G.activeClash) return;
   
   const { p0, p1 } = G.activeClash;
-  let winner = null;
+  let winner;
   let pts = 2; // Default for Ronda vs Ronda
   
   if (p0.type === 'Tringa' && p1.type === 'Ronda') {
@@ -311,7 +311,7 @@ export const RondaGame = {
         }
       }
     },
-    processCapture: ({ G, ctx, events }) => {
+    processCapture: ({ G, events }) => {
       if (!G.pendingCapture) return INVALID_MOVE;
       const player = G.pendingCapture.player;
       const { playedCardId, currentVal, isTaawidaTransfer } = G.pendingCapture;
@@ -375,7 +375,7 @@ export const RondaGame = {
 
 
   turn: {
-    onBegin: ({ G, ctx, events }) => {
+    onBegin: ({ G, events }) => {
       // 1. Auto-deal ONLY if both hands are completely empty and deck has cards
       const p0HandEmpty = !G.players['0'].hand || G.players['0'].hand.length === 0;
       const p1HandEmpty = !G.players['1'].hand || G.players['1'].hand.length === 0;
@@ -470,7 +470,7 @@ export const RondaGame = {
     }
   },
 
-  endIf: ({ G, ctx }) => {
+  endIf: () => {
     // We do NOT return a value here, because returning a value tells boardgame.io
     // to permanently lock the match, preventing any rematches in the same room.
     // Instead, we manage the game over state via G.gameStatus.

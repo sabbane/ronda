@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Functional Test: Complete Multiplayer Game', () => {
   test.setTimeout(420_000); // 7 minutes - animations are now much longer
 
-  test('Two human players can complete a full game', async ({ browser, baseURL }) => {
+  test('Two human players can complete a full game', async ({ browser }) => {
     const roomID = `mp-test-${Date.now()}`;
     
     // 1. Setup Player 1 (Host)
@@ -80,7 +80,7 @@ test.describe('Functional Test: Complete Multiplayer Game', () => {
         try {
           await p1Hand.first().click({ timeout: 500 });
           await page1.waitForTimeout(500);
-        } catch {}
+        } catch { /* ignore */ }
       }
 
       // Try to play card for P2
@@ -89,7 +89,7 @@ test.describe('Functional Test: Complete Multiplayer Game', () => {
         try {
           await p2Hand.first().click({ timeout: 500 });
           await page2.waitForTimeout(500);
-        } catch {}
+        } catch { /* ignore */ }
       }
 
       await page1.waitForTimeout(600);
