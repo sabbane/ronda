@@ -28,8 +28,8 @@ if ($hasChanges) {
 
 # 3. Create version or just push
 if (-not [string]::IsNullOrEmpty($Version)) {
-    # Clean version string from quotes using char codes
-    $Version = $Version.Replace([char]34, "").Replace([char]39, "").Trim()
+    # Clean version string from quotes using string-casted char codes to avoid overload conversion issues
+    $Version = $Version.Replace([string][char]34, "").Replace([string][char]39, "").Trim()
     
     Write-Host "Creating version $Version..." -ForegroundColor Cyan
     npm version $Version
