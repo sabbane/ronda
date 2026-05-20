@@ -148,5 +148,70 @@ describe('Ronda Game Logic - Deep Testing', () => {
     expect(afterState.G.players['1'].hand.length).toBe(3); // Player 1's hand is untouched
     expect(afterState.G.table.length).toBe(initialState.G.table.length); // Table is untouched
   });
+
+  test('Smarter Bot: Scenario 1 - Bot plays direct Derba when Player plays card 5 and Bot has 5 and 3', () => {
+    const G = RondaGame.setup({ ctx: { numPlayers: 2 } });
+    G.isAnimating = false;
+    G.announcements = [];
+    
+    // Table has a 2 and the played 5
+    G.table = [
+      { value: 2, suit: 'zrawet', id: 'zrawet-2' },
+      { value: 5, suit: 'dheb', id: 'dheb-5' }
+    ];
+    
+    // Player 0 plays a 5, making it the lastPlayedCard
+    G.lastPlayedCard = {
+      value: 5,
+      player: '0',
+      streak: 1,
+      awardedPoints: 0,
+      streakCards: [{ value: 5, suit: 'dheb', id: 'dheb-5' }]
+    };
+    // Hand of player 0 has no pairs (no Ronda)
+    G.players['0'].hand = [{ value: 1, suit: 'jben' }, { value: 7, suit: 'syouf' }];
+    
+    // Bot (Player 1) has a 3 and a 5 in hand
+    G.players['1'].hand = [
+      { value: 3, suit: 'jben', id: 'jben-3' },
+      { value: 5, suit: 'syouf', id: 'syouf-5' }
+    ];
+    
+    const ctx = { currentPlayer: '1', activePlayers: null };
+    
+    const moves = RondaGame.ai.enumerate(G, ctx, '1');
+    
+    // Bot should choose to play the 5 (index 1), not the 3 (index 0)
+    expect(moves).toEqual([{ move: 'playCard', args: [1] }]);
+  });
+
+  test('Smarter Bot: Scenario 2 - Bot plays card 1 to capture 1, 2, 3, 4, 5 instead of playing 7', () => {
+    const G = RondaGame.setup({ ctx: { numPlayers: 2 } });
+    G.isAnimating = false;
+    G.announcements = [];
+    
+    // Table has 1, 2, 3, 4, 5
+    G.table = [
+      { value: 1, suit: 'dheb', id: 'dheb-1' },
+      { value: 2, suit: 'dheb', id: 'dheb-2' },
+      { value: 3, suit: 'dheb', id: 'dheb-3' },
+      { value: 4, suit: 'dheb', id: 'dheb-4' },
+      { value: 5, suit: 'dheb', id: 'dheb-5' }
+    ];
+    
+    // Bot has 7 (index 0) and 1 (index 1) in hand
+    G.players['1'].hand = [
+      { value: 7, suit: 'jben', id: 'jben-7' },
+      { value: 1, suit: 'syouf', id: 'syouf-1' }
+    ];
+    
+    const ctx = { currentPlayer: '1', activePlayers: null };
+    
+    const moves = RondaGame.ai.enumerate(G, ctx, '1');
+    
+    // Bot should choose to play the 1 (index 1) to maximize captured cards
+    expect(moves).toEqual([{ move: 'playCard', args: [1] }]);
+  });
 });
+
 

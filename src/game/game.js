@@ -1,4 +1,6 @@
 import { INVALID_MOVE } from 'boardgame.io/dist/esm/core.js';
+import { enumerateMoves } from './bot.js';
+
 
 export const getNextValue = (val) => {
   if (val < 10) return val + 1;
@@ -475,30 +477,6 @@ export const RondaGame = {
   },
 
   ai: {
-    enumerate: (G, ctx, playerID) => {
-      const player = playerID || ctx.currentPlayer;
-      
-      // 1. Check if we are in a wait state or it's not the bot's turn
-      const inWaitStage = ctx.activePlayers && ctx.activePlayers[player] === 'waitForUI';
-      if (G.isAnimating || (G.announcements && G.announcements.length > 0) || inWaitStage || player !== '1') {
-        return [];
-      }
- 
-      const hand = G.players[player]?.hand || [];
-      
-      // 2. Handle pending capture first
-      if (G.pendingCapture) {
-        // The frontend (Board.jsx) will dispatch processCapture after the animation completes.
-        // The bot should simply wait.
-        return [];
-      }
- 
-      // 3. Play a card
-      let moves = [];
-      for (let i = 0; i < hand.length; i++) {
-        moves.push({ move: 'playCard', args: [i] });
-      }
-      return moves;
-    }
+    enumerate: enumerateMoves
   }
 };

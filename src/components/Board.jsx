@@ -80,8 +80,10 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
             const type = ann.rankType || (ann.text && typeof ann.text === 'string' ? (ann.text.match(/with (.*)!/) || [])[1] : '');
             const pts = ann.pts || (type === 'Tringa' ? 10 : 2);
             if (isMe) {
+              customTitle = t('announcements.clashWonTitle');
               customText = type === 'Tringa' ? t('announcements.clashWonTringaMe', { pts }) : t('announcements.clashWonRondaMe', { pts });
             } else {
+              customTitle = t('announcements.clashLostTitle');
               customText = type === 'Tringa' ? t('announcements.clashWonTringaOpp', { pts }) : t('announcements.clashWonRondaOpp', { pts });
             }
             customIcon = "⚔️";
