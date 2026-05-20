@@ -1,0 +1,21 @@
+# 1. Lint
+npm run lint
+
+# 2. Unit-Tests (Vitest)
+npm test
+
+# 3. E2E-Tests (Playwright) — Server müssen vorher laufen!
+#    Backend starten (in separatem Terminal):
+npm run start:backend:test
+
+#    Frontend starten (in separatem Terminal):
+npm run dev:test
+
+#    Dann Playwright ausführen:
+npx playwright test --reporter=list
+
+# Einzelnen Test ausführen, z.B.:
+npx playwright test tests/complete_bot_game.spec.js --reporter=list
+
+# Mit Browser-UI (zum Debuggen):
+npx playwright test --headed --reporter=list

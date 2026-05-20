@@ -293,7 +293,7 @@ export const translations = {
     playAgain: "العب مرة أخرى",
     mainMenu: "القائمة الرئيسية",
     cardsRemaining: "البطاقات المتبقية",
-    rematchMotivation: "ماتستسلمش! وقت الريفانش!",
+    rematchMotivation: "ما تستسلمش! واجد للطرح الجاي؟",
 
     roundOver: "انتهت الجولة!",
     totalGames: "إجمالي الانتصارات",

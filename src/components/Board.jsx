@@ -524,9 +524,9 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                 initial={winner === myID ? { scale: 0.5, rotate: -5, y: 50 } : { scale: 0.8, y: 50 }}
                 animate={winner === myID ? { scale: [0.5, 1.1, 1], rotate: 0, y: 0 } : { scale: 1, y: 0 }}
                 transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                className="bg-slate-800 p-12 rounded-3xl border border-slate-700 shadow-2xl text-center relative z-10 max-w-lg w-full mx-4"
+                className="bg-slate-800 pt-8 pb-10 px-12 rounded-3xl border border-slate-700 shadow-2xl text-center relative z-10 max-w-lg w-full mx-4"
               >
-                <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                <h2 className="text-5xl font-bold mb-3 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent leading-tight">
                   {t('gameOver')}
                 </h2>
                 <div className="text-3xl mb-4 font-bold">
@@ -782,8 +782,8 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
           {/* Deck Info - Moved below player hand to prevent overlap on mobile */}
           <div className="flex justify-start px-2 sm:px-8 mt-4 sm:mt-6 pb-4 sm:pb-6">
             <div className="flex items-center gap-2 bg-slate-800/80 backdrop-blur px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-slate-700 shadow-lg z-20">
-              <div className="w-5 h-7 sm:w-6 sm:h-8 bg-indigo-600 rounded border border-indigo-400 shadow flex items-center justify-center">
-                <span className="text-[10px]">✨</span>
+              <div className="w-5 h-7 sm:w-6 sm:h-8 rounded-md border border-slate-200/30 shadow overflow-hidden flex-shrink-0 bg-white">
+                <img src="/cards/back.png" alt="Card Back" className="w-full h-full object-cover" />
               </div>
               <span className="text-slate-300 font-medium text-xs sm:text-sm">{t('cardsRemaining')}: {G.deck.length}</span>
             </div>

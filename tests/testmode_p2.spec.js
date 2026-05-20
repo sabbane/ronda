@@ -41,6 +41,7 @@ test.describe('Reproduction: Test Route Bugs', () => {
   });
 
   test('P2 sees board and can play cards after P1 plays', async ({ browser }) => {
+    test.setTimeout(90_000); // P1 waits 4s + plays + animations (~10s) before P2's turn
     // Start P1 via the correct test route
     const contextP1 = await browser.newContext();
     const pageP1 = await contextP1.newPage();
@@ -74,8 +75,9 @@ test.describe('Reproduction: Test Route Bugs', () => {
     });
 
     // STEP 2: Attempt to play a card as Player 2
+    // P2 can only play after P1's move AND all animations/announcements clear (~8-15s total).
     const p2Cards = pageP2.locator('.cursor-grab');
-    await expect(p2Cards.first()).toBeVisible({ timeout: 15000 });
+    await expect(p2Cards.first()).toBeVisible({ timeout: 40000 });
 
     // Wait for P1's move to reflect on P2's screen and animations to finish
     await pageP2.waitForTimeout(4000);

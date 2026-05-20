@@ -73,8 +73,14 @@ Die App unterstützt mehrere Sprachen über einen `LanguageContext`:
 *   **RTL-Support:** Automatische Anpassung der Textrichtung (`dir="rtl"`) für Arabisch.
 *   **Spielerspezifische Ankündigungen:** Dynamische Unterscheidung zwischen Spieler ("You") und Gegner ("Opponent") in allen Event-Popups und Sprachen.
 
-### 4.2 Monetarisierung
-Integration von Werbeflächen über eine dedizierte `AdSlot`-Komponente zur Umsatzgenerierung.
+### 4.2 Monetarisierung & Werbung
+Das Spiel setzt auf eine dedizierte `AdService`-Schicht (`src/services/AdService.js`) als zentrale Abstraktionsebene für Werbung:
+*   **AdService:** Erkennt beim Start automatisch die aktuelle Plattform (`web`, `pwa` / Google Play Store, `playgama`) und wählt das passende SDK.
+*   **Interstitial Ads (Google H5 Games Ads):** Nach Spielende (Game Over) werden Video-Anzeigen über das `adBreak`-API von Google ausgeliefert, bevor der Spieler "Play Again" oder "Main Menu" ausführen kann. Beide Buttons warten auf das `onComplete`-Callback des SDKs.
+*   **PlayGama SDK:** Falls das Spiel auf PlayGama läuft, wird automatisch das PlayGama-eigene Ad-SDK angesteuert.
+*   **Ausfallsicherheit:** Ein 45-Sekunden-Timeout und ein Offline-Check (`navigator.onLine`) stellen sicher, dass das Spiel auch bei aktivem AdBlocker oder ohne Internetverbindung reibungslos weiterläuft.
+*   **Lade-Overlay:** Während die Werbung lädt, zeigt der Game Over Screen einen Lade-Indikator an, um die Buttons zu sperren und einen sauberen UX-Flow zu gewährleisten.
+*   **Banner-Werbung:** Zusätzliche Werbeflächen über die dedizierte `AdSlot`-Komponente.
 
 ### 4.3 Bot- & Spiel-Logik
 *   **RandomBot:** Agiert nur für Spieler 1, wartet auf UI-Animationen und priorisiert Captures.
@@ -106,13 +112,15 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 ```text
 /src
   /components
-    Board.jsx       # Haupt-Spielfeld & Event-Handling (inkl. Rematch-UI)
+    Board.jsx       # Haupt-Spielfeld & Event-Handling (inkl. Rematch-UI & Ad-Trigger)
     Card.jsx        # Karten-Komponente (mit Glow & Preload-Logik)
-    AdSlot.jsx      # Werbe-Integration
+    AdSlot.jsx      # Banner-Werbe-Integration
     DonateButton.jsx # Spenden-Funktion
     Rules.jsx       # Spielanleitung (Modal)
   /contexts
     LanguageContext.jsx # i18n & Sprachsteuerung
+  /services
+    AdService.js    # Plattform-Adapter für Google H5 Ads & PlayGama SDK
   /game
     game.js         # Kern-Spiellogik (inkl. Rematch-Logik & State-Reset)
     bot.js          # KI-Verhalten
@@ -129,12 +137,26 @@ Dockerfile.backend  # Docker-Konfiguration für das Backend
   /assets           # UI-Assets (Hintergrund, etc.)
 ```
 
-## 6. PWA & Plattform-Integration
-Die App ist als Progressive Web App (PWA) optimiert:
+## 6. Plattform-Vertriebsstrategie
+Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codebasis:
+
+### 6.1 Eigene Webseite (`playronda.ma`)
+*   Klassischer Vite-Produktions-Build (`npm run build`), gehostet via Railway.app.
+*   Monetarisierung über **Google H5 Games Ads** (Interstitials nach Spielende) und Banner-Slots (`AdSlot`).
+
+### 6.2 PlayGama (HTML5-Spieleplattform)
+*   Export als statische HTML5-`.zip`-Datei (Inhalt des `dist/`-Ordners).
+*   Der `AdService` erkennt die PlayGama-Umgebung automatisch und nutzt das PlayGama-eigene SDK für Revenue Share.
+
+### 6.3 Google Play Store (Android App)
+*   **Trusted Web Activity (TWA)** via **Google Bubblewrap**: Die PWA (`playronda.ma`) wird in eine native Android-App (`.aab`) verpackt.
+*   **Automatische Updates:** Deployments auf der Webseite werden sofort in der Play Store App reflektiert.
+*   Monetarisierung ebenfalls über Google H5 Games Ads (richtlinienkonform in TWA).
+
+### 6.4 PWA-Konfiguration (gemeinsame Basis)
 *   **Manifest:** Vollständige `manifest.json` für App-Branding und Startbildschirme.
-*   **Service Worker:** Nutzung von `vite-plugin-pwa` mit der Strategie `autoUpdate` für nahtlose Hintergrund-Aktualisierungen und Offline-Support.
-*   **Standalone-Modus:** Optimiertes UI-Layout für den "App-Modus" auf mobilen Geräten.
-*   **Versionsmanagement:** Die App-Version wird automatisch aus der `package.json` in den Build-Prozess injiziert.
+*   **Service Worker:** `vite-plugin-pwa` mit `autoUpdate`-Strategie für Offline-Support und nahtlose Updates.
+*   **Versionsmanagement:** Die App-Version (aktuell `0.7.8`) wird automatisch aus der `package.json` in den Build-Prozess injiziert.
 
 ## 7. Aktueller Status
 *   [x] Core Game Logic (Stechen, Sequenzen, Missa, Derba)
@@ -154,10 +176,14 @@ Die App ist als Progressive Web App (PWA) optimiert:
 *   [x] Test-Infrastruktur (Server-Endpoints für koordinierte Tests)
 *   [x] Unit-Tests für die Spielregeln
 *   [x] E2E-Multiplayer-Tests & Latency-Benchmarks
-*   [x] Werbe-Integration (`AdSlot`) & Donate-Button
+*   [x] Werbe-Integration (`AdSlot` Banner & `AdService` Interstitial nach Spielende)
+*   [x] Google H5 Games Ads (Interstitials für Web & Google Play Store)
+*   [x] AdService Adapter (Plattformerkennung: web / pwa / playgama)
 *   [x] Bot-Integration (Animation-aware & Timing-geschützt)
 *   [x] Rules-Dialog ("How to Play") integriert
 *   [x] Facebook-Community Link integriert
 *   [x] PWA-Integration (Manifest & Service Worker)
+*   [ ] index.html: Google AdSense Publisher-ID eintragen (`ca-pub-XXXXXXXXX`)
+*   [ ] PlayGama: Spiel als HTML5-ZIP hochladen
+*   [ ] Google Play Store: Bubblewrap TWA-Packaging & Store-Listing
 *   [ ] Erweiterte KI-Heuristik
-*   [ ] Verfeinerte KI-Logik
