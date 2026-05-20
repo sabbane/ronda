@@ -429,16 +429,71 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
               animate={{ opacity: 1 }} 
               className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
             >
+              {winner === myID && (
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                  {[...Array(50)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ 
+                        top: -50, 
+                        left: `${Math.random() * 100}vw`,
+                        scale: Math.random() * 0.5 + 0.5,
+                        rotate: 0 
+                      }}
+                      animate={{ 
+                        top: '110vh',
+                        rotate: Math.random() * 360,
+                        x: `+=${Math.random() * 100 - 50}px` 
+                      }}
+                      transition={{ 
+                        duration: Math.random() * 3 + 2, 
+                        repeat: Infinity, 
+                        ease: 'linear',
+                        delay: Math.random() * 2 
+                      }}
+                      className="absolute w-3 h-6 sm:w-4 sm:h-8 rounded-sm opacity-80"
+                      style={{
+                        backgroundColor: ['#fde047', '#38bdf8', '#34d399', '#f472b6', '#a78bfa'][Math.floor(Math.random() * 5)]
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
               <motion.div 
-                initial={{ scale: 0.8, y: 50 }}
-                animate={{ scale: 1, y: 0 }}
-                className="bg-slate-800 p-12 rounded-3xl border border-slate-700 shadow-2xl text-center"
+                initial={winner === myID ? { scale: 0.5, rotate: -5, y: 50 } : { scale: 0.8, y: 50 }}
+                animate={winner === myID ? { scale: [0.5, 1.1, 1], rotate: 0, y: 0 } : { scale: 1, y: 0 }}
+                transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                className="bg-slate-800 p-12 rounded-3xl border border-slate-700 shadow-2xl text-center relative z-10 max-w-lg w-full mx-4"
               >
                 <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
                   {t('gameOver')}
                 </h2>
-                <div className="text-2xl mb-2 font-medium">
-                  {winner === 'Draw' ? t('itsADraw') : winner === myID ? t('youWon') : (winner === null ? t('roundOver') : t('youLost'))}
+                <div className="text-3xl mb-4 font-bold">
+                  {winner === 'Draw' 
+                    ? <motion.span 
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                        className="text-amber-400 flex flex-col gap-2 items-center"
+                      >
+                        <span>🤝 {t('itsADraw')} 🤝</span>
+                      </motion.span>
+                    : winner === myID 
+                      ? <span className="text-emerald-400 flex flex-col gap-2 items-center">
+                          <span>🎉 {t('youWon')} 🎉</span>
+                        </span>
+                      : (winner === null 
+                          ? t('roundOver') 
+                          : <span className="text-rose-400 flex flex-col gap-3 items-center">
+                              <span>💔 {t('youLost')} 💔</span>
+                              <motion.span 
+                                animate={{ y: [0, -5, 0] }}
+                                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                                className="text-base sm:text-lg text-slate-300 mt-2 font-normal italic"
+                              >
+                                {t('rematchMotivation')}
+                              </motion.span>
+                            </span>)
+                  }
                 </div>
                 <div className="text-lg text-slate-400 mb-8 font-semibold uppercase tracking-widest">
                   {t('totalGames') || 'Total Games'}: {G.matchesWon ? G.matchesWon[myID] : 0} - {G.matchesWon ? G.matchesWon[opponentID] : 0}
