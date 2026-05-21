@@ -43,8 +43,9 @@ if (-not [string]::IsNullOrEmpty($Version)) {
     Write-Host "Creating and switching to version branch: $branchName..." -ForegroundColor Cyan
     git checkout -b $branchName
 
+    # Using explicit refs/heads/ to prevent "src refspec matches more than one" error when branch and tag share the same name
     Write-Host "Pushing version branch $branchName to origin..." -ForegroundColor Cyan
-    git push origin $branchName
+    git push origin refs/heads/$branchName
 
     # Return to main
     Write-Host "Returning to main branch..." -ForegroundColor Cyan

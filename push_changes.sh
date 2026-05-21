@@ -38,8 +38,9 @@ if [ -n "$VERSION" ]; then
     echo -e "\e[36mCreating and switching to version branch: $BRANCH_NAME...\e[0m"
     git checkout -b "$BRANCH_NAME"
 
+    # Using explicit refs/heads/ to prevent "src refspec matches more than one" error when branch and tag share the same name
     echo -e "\e[36mPushing version branch $BRANCH_NAME to origin...\e[0m"
-    git push origin "$BRANCH_NAME"
+    git push origin refs/heads/"$BRANCH_NAME"
 
     # Return to main
     echo -e "\e[36mReturning to main branch...\e[0m"
