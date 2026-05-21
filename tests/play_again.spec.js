@@ -18,6 +18,22 @@ test('Play Again: Clicking Play Again after game over starts a new round', async
   // Start a local bot game (fastest way to reach game over)
   await page.goto('/');
 
+  // Mock Google H5 Ads adBreak to instantly bypass ads in test environment
+  await page.evaluate(() => {
+    window.adBreak = (options) => {
+      console.log('[Test Mock] window.adBreak called');
+      if (options && typeof options.adBreakDone === 'function') {
+        options.adBreakDone({ breakStatus: 'not_shown' });
+      }
+    };
+  });
+
+  // Select Language to English (for predictable button texts)
+  const enButton = page.locator('button', { hasText: /^EN$/i });
+  if (await enButton.isVisible().catch(() => false)) {
+    await enButton.click();
+  }
+
   // Click "Start Game" button
   const playBtn = page.locator('button', { hasText: /Start Game|Commencer le jeu|Spiel starten|ابدأ اللعبة|Play vs AI Bot/i });
   await playBtn.first().click();
@@ -64,6 +80,15 @@ test('Play Again: Clicking Play Again after game over starts a new round', async
   await expect(playAgainBtn).toBeVisible();
 
   // ===== CLICK: Play Again =====
+  // Re-inject mock adBreak to ensure ad service completes instantly without hanging
+  await page.evaluate(() => {
+    window.adBreak = (options) => {
+      console.log('[Test Mock] window.adBreak called before click');
+      if (options && typeof options.adBreakDone === 'function') {
+        options.adBreakDone({ breakStatus: 'not_shown' });
+      }
+    };
+  });
   await playAgainBtn.click();
 
   // ===== ASSERT 3: Overlay disappears (game restarted) =====

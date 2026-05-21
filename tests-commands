@@ -24,16 +24,14 @@ npx playwright test --headed --reporter=list
 # ─── PRODUKTIV-SYSTEM TESTEN ────────────────────────────────────────────────
 
 # Playwright gegen das live-System ausführen (kein lokaler Server nötig).
-# Die /test/p1 & /test/p2 Routen sind in Produktion deaktiviert — diese Tests werden ausgeschlossen:
-$env:BASE_URL="https://playronda.ma"; npx playwright test --reporter=list --ignore-glob="**/test_scenario_integrity.spec.js" --ignore-glob="**/testmode_p2.spec.js"
+# Die /test/p1 & /test/p2 Routen sind in Produktion deaktiviert — nur relevante Tests ausführen:
+$env:BASE_URL="https://playronda.ma"; npx playwright test tests/smoke.spec.js tests/multiplayer.spec.js tests/complete_bot_game.spec.js tests/complete_multiplayer_game.spec.js tests/play_again.spec.js tests/latency_benchmark.spec.js --reporter=list
 
 # Nur einen einzelnen Test gegen Produktion ausführen, z.B.:
 $env:BASE_URL="https://playronda.ma"; npx playwright test tests/complete_bot_game.spec.js --reporter=list
 
 # Mit Browser-UI (sichtbar) gegen Produktion debuggen:
-$env:BASE_URL="https://playronda.ma"; npx playwright test --headed --reporter=list --ignore-glob="**/test_scenario_integrity.spec.js" --ignore-glob="**/testmode_p2.spec.js"
+$env:BASE_URL="https://playronda.ma"; npx playwright test tests/smoke.spec.js tests/multiplayer.spec.js tests/complete_bot_game.spec.js tests/complete_multiplayer_game.spec.js tests/play_again.spec.js tests/latency_benchmark.spec.js --headed --reporter=list
 
-# Hinweis: Die testmode_p2.spec.js Tests benötigen den /test/* Endpunkt
-# und funktionieren nur gegen das Backend auf Railway (nicht gegen playronda.ma direkt).
-# Für diese Tests die BASE_URL auf das Railway-Frontend setzen:
-$env:BASE_URL="https://ronda-frontend-development.up.railway.app"; npx playwright test --reporter=list
+# Hinweis: Die test_scenario_integrity & testmode_p2 Tests brauchen den /test/* Endpunkt
+# und funktionieren nur lokal (mit npm run start:backend:test).

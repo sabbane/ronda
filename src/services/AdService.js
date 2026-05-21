@@ -84,6 +84,15 @@ class AdService {
       console.log('[AdService] Google H5 Games Ads (adBreak) detected. Triggering break.');
       let adStarted = false;
 
+      // Fallback Timeout: If beforeAd is not called within 1.5 seconds,
+      // assume Google H5 Ads failed to load or got blocked, and continue the game.
+      const fallbackTimeout = setTimeout(() => {
+        if (!adStarted) {
+          console.warn('[AdService] Google H5 Ad did not start within 1.5s (pending account or adblock). Bypassing.');
+          onComplete();
+        }
+      }, 1500);
+
       try {
         window.adBreak({
           type: 'next',
@@ -91,14 +100,17 @@ class AdService {
           beforeAd: () => {
             console.log('[AdService] Google H5 Ad starting.');
             adStarted = true;
+            clearTimeout(fallbackTimeout);
             onBeforeAd();
           },
           afterAd: () => {
             console.log('[AdService] Google H5 Ad completed successfully.');
+            clearTimeout(fallbackTimeout);
             onComplete();
           },
           adBreakDone: (placementInfo) => {
             console.log('[AdService] Google H5 adBreakDone. Info:', placementInfo);
+            clearTimeout(fallbackTimeout);
             // If beforeAd was never triggered, it means no ad was shown.
             // In that case, we need to complete now since afterAd won't run.
             if (!adStarted) {
@@ -108,6 +120,7 @@ class AdService {
         });
       } catch (err) {
         console.error('[AdService] Error running Google H5 adBreak:', err);
+        clearTimeout(fallbackTimeout);
         onComplete();
       }
     } else {
