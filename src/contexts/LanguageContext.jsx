@@ -24,6 +24,7 @@ export const translations = {
     mainMenu: "Main Menu",
     cardsRemaining: "Cards remaining",
     rematchMotivation: "Don't give up! Time for a rematch!",
+    adLoading: "Loading Advertisement...",
 
     roundOver: "Round Over!",
     totalGames: "Total Wins",
@@ -114,6 +115,7 @@ export const translations = {
     mainMenu: "Menu Principal",
     cardsRemaining: "Cartes restantes",
     rematchMotivation: "N'abandonnez pas ! L'heure de la revanche a sonné !",
+    adLoading: "Chargement de la publicité...",
 
     roundOver: "Manche Terminée !",
     totalGames: "Victoires Totales",
@@ -204,6 +206,7 @@ export const translations = {
     mainMenu: "Hauptmenü",
     cardsRemaining: "Verbleibende Karten",
     rematchMotivation: "Gib nicht auf! Zeit für eine Revanche!",
+    adLoading: "Werbung wird geladen...",
 
     roundOver: "Runde vorbei!",
     totalGames: "Gesamtsiege",
@@ -294,6 +297,7 @@ export const translations = {
     mainMenu: "القائمة الرئيسية",
     cardsRemaining: "البطاقات المتبقية",
     rematchMotivation: "ما تستسلمش! واجد للطرح الجاي؟",
+    adLoading: "جاري تحميل الإعلان...",
 
     roundOver: "انتهت الجولة!",
     totalGames: "إجمالي الانتصارات",

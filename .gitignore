@@ -9,9 +9,15 @@ lerna-debug.log*
 
 node_modules
 dist
+dist-*
 dist-ssr
 dev-dist
 *.local
+
+# Test outputs
+test-results/
+playwright-report/
+blob-report/
 
 # Editor directories and files
 .vscode/*

@@ -183,7 +183,8 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   [x] Rules-Dialog ("How to Play") integriert
 *   [x] Facebook-Community Link integriert
 *   [x] PWA-Integration (Manifest & Service Worker)
-*   [ ] index.html: Google AdSense Publisher-ID eintragen (`ca-pub-XXXXXXXXX`)
+*   [x] Multi-Platform-Buildsystem (`npm run build:web`, `build:playgama`, `build:all`) mit SDK-Injektion per Vite-Plugin
+*   [x] Google AdSense Publisher-ID Automatisierung (über `.env.web` & Vite-Plugin)
 *   [ ] PlayGama: Spiel als HTML5-ZIP hochladen
 *   [ ] Google Play Store: Bubblewrap TWA-Packaging & Store-Listing
 *   [ ] Erweiterte KI-Heuristik
