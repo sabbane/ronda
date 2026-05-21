@@ -10,9 +10,24 @@ const server = Server({
     'https://playronda.ma',
     'https://www.playronda.ma',
     'https://games.playgama.net',
-    'null',
-    process.env.FRONTEND_URL || '*'
+    'null'
   ]
+});
+
+// Forcefully override CORS to allow ANY origin (including null and PlayGama)
+server.app.middleware.unshift(async (ctx, next) => {
+  const origin = ctx.get('Origin') || '*';
+  
+  if (ctx.method === 'OPTIONS') {
+    ctx.set('Access-Control-Allow-Origin', origin);
+    ctx.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+    ctx.set('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    ctx.status = 204;
+    return;
+  }
+  
+  await next();
+  ctx.set('Access-Control-Allow-Origin', origin);
 });
 
 // ─── Custom REST endpoint: reset the test scenario match ─────────────────────

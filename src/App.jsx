@@ -143,8 +143,8 @@ const App = () => {
           setPlayerID('0');
           setMode('online');
         } catch (createErr) {
-          console.error('Create match error:', createErr);
-          setError("Failed to create room. Is the server running?");
+          console.error('Failed to create match:', createErr);
+          setError(`Failed to create room: ${createErr.message || createErr}`);
         }
       } else {
         setError("Room not found. Host a game first!");
