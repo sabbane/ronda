@@ -1,13 +1,17 @@
 
 import { motion } from 'framer-motion';
 
+const cardImages = import.meta.glob('../assets/cards/*.{svg,png}', { eager: true, query: '?url', import: 'default' });
 
+const getCardImage = (filename) => {
+  return cardImages[`../assets/cards/${filename}`] || null;
+};
 
 export const Card = ({ card, hidden = false, onClick, className = '' }) => {
   if (hidden) {
     const value = (card.displayValue !== undefined ? card.displayValue : card.value).toString();
     const suit = `${card.suit}-vector`;
-    const imagePath = `/cards/${value} ${suit}.svg`;
+    const imagePath = getCardImage(`${value} ${suit}.svg`);
 
     return (
       <motion.div
@@ -16,7 +20,7 @@ export const Card = ({ card, hidden = false, onClick, className = '' }) => {
       >
         <div className="w-full h-full p-1 bg-slate-50 flex items-center justify-center">
           <img 
-            src="/cards/back.png" 
+            src={getCardImage('back.png')} 
             alt="Card Back" 
             className="w-full h-full object-contain"
             onError={(e) => {
@@ -42,7 +46,7 @@ export const Card = ({ card, hidden = false, onClick, className = '' }) => {
   
   const extension = 'svg';
   const separator = ' ';
-  const imagePath = `/cards/${value}${separator}${suit}.${extension}`;
+  const imagePath = getCardImage(`${value}${separator}${suit}.${extension}`);
 
   return (
     <motion.div

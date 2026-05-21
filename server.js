@@ -9,6 +9,8 @@ const server = Server({
     'https://ronda.up.railway.app',
     'https://playronda.ma',
     'https://www.playronda.ma',
+    'https://games.playgama.net',
+    'null',
     process.env.FRONTEND_URL || '*'
   ]
 });

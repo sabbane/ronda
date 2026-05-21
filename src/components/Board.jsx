@@ -2,6 +2,7 @@ import React from 'react';
 import { PlayerHand } from './PlayerHand';
 import { Card } from './Card';
 import { motion, AnimatePresence } from 'framer-motion';
+import backCard from '../assets/cards/back.png';
 
 import { useLanguage } from '../contexts/LanguageContext';
 import { adService } from '../services/AdService';
@@ -466,23 +467,6 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
           })()}
         </AnimatePresence>
 
-        {/* Side Announcements (Legacy) */}
-        <div className="absolute top-1/4 start-8 flex flex-col gap-4 pointer-events-none z-40 hidden md:flex">
-          <AnimatePresence>
-            {G.announcements?.map((ann, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5 }}
-                className="bg-slate-800/80 backdrop-blur text-white px-4 py-2 rounded-lg shadow-lg border border-slate-700 text-sm"
-              >
-                {ann.text}
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
 
         {/* Game Over / Round Over Overlay */}
         <AnimatePresence>
@@ -803,7 +787,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
           <div className="flex justify-start px-2 sm:px-8 mt-4 sm:mt-6 pb-4 sm:pb-6">
             <div className="flex items-center gap-2 bg-slate-800/80 backdrop-blur px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-slate-700 shadow-lg z-20">
               <div className="w-5 h-7 sm:w-6 sm:h-8 rounded-md border border-slate-200/30 shadow overflow-hidden flex-shrink-0 bg-white">
-                <img src="/cards/back.png" alt="Card Back" className="w-full h-full object-cover" />
+                <img src={backCard} alt="Card Back" className="w-full h-full object-cover" />
               </div>
               <span className="text-slate-300 font-medium text-xs sm:text-sm">{t('cardsRemaining')}: {G.deck.length}</span>
             </div>

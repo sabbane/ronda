@@ -46,7 +46,7 @@ const RondaClientBot = ReactClient({
 const serverUrl = import.meta.env.VITE_SERVER_URL || (
   import.meta.env.DEV
     ? 'http://localhost:8000'
-    : `${window.location.protocol}//ronda-backend.up.railway.app`
+    : `https://ronda-backend.up.railway.app`
 );
 
 const lobbyClient = new LobbyClient({ server: serverUrl });
@@ -76,8 +76,12 @@ const App = () => {
   const { language, changeLanguage, t } = useLanguage();
 
   const updateUrl = (id) => {
-    const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}?room=${id}`;
-    window.history.replaceState({ path: newUrl }, '', newUrl);
+    try {
+      const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}?room=${id}`;
+      window.history.replaceState({ path: newUrl }, '', newUrl);
+    } catch (e) {
+      // Ignore errors in sandboxed iframes (like PlayGama)
+    }
   };
 
   const handleOnlineAction = async (targetPlayerID) => {
@@ -309,7 +313,7 @@ const App = () => {
                       />
                       <button
                         onClick={async () => {
-                          const link = `${window.location.protocol}//${window.location.host}${window.location.pathname}?room=${matchID}`;
+                          const link = `https://playronda.ma/?room=${matchID}`;
                           if (navigator.share) {
                             try {
                               await navigator.share({

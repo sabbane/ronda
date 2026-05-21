@@ -370,14 +370,31 @@ export const translations = {
 
 const LanguageContext = createContext();
 
+const safeGetLocalStorage = (key, fallback) => {
+  try {
+    return localStorage.getItem(key) || fallback;
+  } catch (e) {
+    console.warn('[LanguageContext] localStorage is blocked:', e);
+    return fallback;
+  }
+};
+
+const safeSetLocalStorage = (key, value) => {
+  try {
+    localStorage.setItem(key, value);
+  } catch (e) {
+    console.warn('[LanguageContext] localStorage is blocked:', e);
+  }
+};
+
 export const LanguageProvider = ({ children }) => {
   const [language, setLanguage] = useState(() => {
-    return localStorage.getItem('ronda-lang') || 'en';
+    return safeGetLocalStorage('ronda-lang', 'en');
   });
 
   const changeLanguage = (lang) => {
     setLanguage(lang);
-    localStorage.setItem('ronda-lang', lang);
+    safeSetLocalStorage('ronda-lang', lang);
   };
 
   const t = (key, params = {}) => {

@@ -6,6 +6,40 @@ class AdService {
     // Listen to online/offline events
     window.addEventListener('online', () => { this.isOffline = false; });
     window.addEventListener('offline', () => { this.isOffline = true; });
+
+    // PlayGama persistent listeners
+    this._playGamaOnBeforeAd = null;
+    this._playGamaOnComplete = null;
+    if (this.platform === 'playgama') {
+      this._initPlayGamaListeners();
+    }
+  }
+
+  _initPlayGamaListeners() {
+    const checkBridge = setInterval(() => {
+      if (window.bridge && window.bridge.advertisement) {
+        clearInterval(checkBridge);
+        console.log('[AdService] Registering persistent PlayGama ad listeners.');
+        window.bridge.advertisement.on('interstitial_state_changed', (state) => {
+          console.log(`[AdService] PlayGama Interstitial state changed: ${state}`);
+          if (state === 'opened') {
+            if (typeof this._playGamaOnBeforeAd === 'function') {
+              this._playGamaOnBeforeAd();
+            }
+          } else if (state === 'closed' || state === 'failed') {
+            if (typeof this._playGamaOnComplete === 'function') {
+              const cb = this._playGamaOnComplete;
+              this._playGamaOnComplete = null; // Clear to prevent double calls
+              this._playGamaOnBeforeAd = null;
+              cb();
+            }
+          }
+        });
+      }
+    }, 100);
+
+    // Stop checking after 10 seconds
+    setTimeout(() => clearInterval(checkBridge), 10000);
   }
 
   /**
@@ -57,24 +91,21 @@ class AdService {
   }
 
   _showPlayGamaAd(onBeforeAd, onComplete) {
-    if (window.bridge && window.bridge.advertisement) {
-      console.log('[AdService] PlayGama Bridge SDK detected. Showing interstitial.');
-      // Notify the UI that ad is starting
-      onBeforeAd();
+    if (window.bridge && window.bridge.advertisement && window.bridge.advertisement.isInterstitialSupported) {
+      console.log('[AdService] PlayGama Interstitial supported. Storing callbacks and showing ad.');
+      this._playGamaOnBeforeAd = onBeforeAd;
+      this._playGamaOnComplete = onComplete;
       
       try {
-        window.bridge.advertisement.showInterstitial({
-          onClose: (wasShown) => {
-            console.log(`[AdService] PlayGama interstitial closed. Was shown: ${wasShown}`);
-            onComplete();
-          }
-        });
+        window.bridge.advertisement.showInterstitial();
       } catch (err) {
         console.error('[AdService] Error running PlayGama showInterstitial:', err);
+        this._playGamaOnBeforeAd = null;
+        this._playGamaOnComplete = null;
         onComplete();
       }
     } else {
-      console.warn('[AdService] PlayGama platform configured, but window.bridge is not available. Bypassing.');
+      console.warn('[AdService] PlayGama interstitial not supported or bridge missing. Bypassing.');
       onComplete();
     }
   }
@@ -134,12 +165,12 @@ class AdService {
    */
   sendGameReady() {
     if (this.platform === 'playgama') {
-      if (window.bridge && typeof window.bridge.gameReady === 'function') {
+      if (window.bridge && window.bridge.platform && typeof window.bridge.platform.sendMessage === 'function') {
         try {
-          console.log('[AdService] Sending gameReady signal to PlayGama.');
-          window.bridge.gameReady();
+          console.log('[AdService] Sending game_ready signal to PlayGama.');
+          window.bridge.platform.sendMessage('game_ready');
         } catch (err) {
-          console.error('[AdService] Error sending PlayGama gameReady:', err);
+          console.error('[AdService] Error sending PlayGama game_ready:', err);
         }
       }
     }
