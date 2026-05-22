@@ -29,3 +29,7 @@ blob-report/
 *.njsproj
 *.sln
 *.sw?
+
+# PlayGama Releases ZIP archives
+playgama-releases/
+
