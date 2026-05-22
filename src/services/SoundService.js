@@ -49,7 +49,7 @@ class SoundService {
       {
         name: "Sahara",
         bpm: 80,
-        gain: 0.75,
+        gain: 0.90,
         instrument: "oud",
         chords: [
           // Chord 0 (D Hijaz): D3 (146.83), A3 (220.00), D4 (293.66), F#4 (369.99)
