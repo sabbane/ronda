@@ -113,11 +113,12 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 ### 4.7 Audiosystem (Procedural Sound & Music Synthesis)
 Um das Spielgefühl immersiv zu gestalten und Sondersituationen dramatisch zu untermalen, wurde ein hochauflösendes Audiosystem (`src/services/SoundService.js`) implementiert:
 *   **Procedural Web Audio API:** Anstelle von großen statischen Audio-Dateien (MP3/WAV) werden alle Soundeffekte und die Hintergrundmusik in Echtzeit über Oszillatoren, LFOs, Filter, Delay-Lines und Gain-Nodes vollsynthetisiert. Dadurch beträgt der Speicher-Overhead **0 KB** und die 100%ige Offline-Fähigkeit sowie die Kompatibilität mit dem Single-File-Build für PlayGama bleibt perfekt gewahrt.
-*   **3 Einzigartige Generative Musikstücke (BGM) mit Track-Auswahl:**
-    Der Spieler kann über einen edlen Musik-Wechsler-Button direkt neben der Mute-Taste nahtlos zwischen drei verschiedenen marokkanischen Stücken wechseln, die per weichem Crossfade ineinander übergehen:
-    1.  *Track 0: "Nasseem" (D-Hijaz, 80 BPM):* Melancholisches Hauptthema. Zeichnet sich durch eine ausdrucksstarke Holzbläser-Flöte (breathy Ney Flute mit 5,5Hz LFO-Vibrato und gefiltertem Blasrauschen) und gezupfte Oud-Akkord-Zyklen aus (45ms Arpeggiation-Verzögerung für realistischen Saiten-Anschlag).
-    2.  *Track 1: "Andalusia" (A-Moll, 90 BPM):* Ein lebhaftes Stück basierend auf der traditionellen andalusischen Kadenz (Am - G - F - E). Es verwendet ein glitzerndes, schnelles Qanun-Zupfmuster (30ms Arpeggiation und heller Pluck-Filter) und eine dynamische Ney-Flötenmelodie (6,0Hz Vibrato).
-    3.  *Track 2: "Sahara Ambient" (D-Moll Pentatonisch, 72 BPM):* Eine entspannende, raumfüllende Wüsten-Ambientfläche. Tiefe, warme Akkorde schwellen sanft an (1,4s Attack, 4,5s Release) und werden von sehnsuchtsvollen, luftigen Ney-Tönen begleitet (4,5Hz Vibrato, erhöhtes Bandpass-Rauschen zur Simulation von Wüstenwind).
+*   **4 Einzigartige Generative Musikstücke (BGM) mit Track-Auswahl:**
+    Der Spieler kann über einen Musik-Wechsler-Button direkt neben der Mute-Taste nahtlos zwischen vier verschiedenen marokkanischen Stücken wechseln. Die aktive Track-Auswahl wird in `localStorage` (`ronda_bgm_track`) persistiert. Alle Tracks nutzen eine gemeinsame breathy Ney-Flöten-Melodiestimme mit LFO-Vibrato und Blasgeräusch-Simulation sowie einen Feedback-Delay-Line für Echoanteile.
+    1.  *Track 0: "Nasseem" (D-Hijaz-Modus, 80 BPM) — Instrument: Oud:* Melancholisches, atmosphärisches Hauptthema. Warme Oud-Saiten (45ms Arpeggiation) über einer D-Hijaz-Skala. Ausdrucksstarke Ney-Flötenmelodie mit 5,5Hz LFO-Vibrato.
+    2.  *Track 1: "Andalusia" (G-Dur, 96 BPM) — Instrument: Oud:* Elegantes, lyrisches Stück auf der G-Dur-Progression (G - C - D - G). Warme, getragen gezupfte Oud-Saiten (45ms Arpeggiation) und eine fließende, singende Melodielinie mit ruhigen Intervallsprüngen.
+    3.  *Track 2: "Casablanca" (F-Dur, 120 BPM) — Instrument: Qanun:* Hochenergetisches, festliches Volksmusikstück auf der F-Dur-Progression (F - Bb - C - F). Spritzige Qanun-Zitherzupfer (30ms Arpeggiation, heller Pluck-Filter) mit dichten, schnellen Melodieläufen und markanten Tonhöhensprüngen in die hohe Oktave (F5, G5).
+    4.  *Track 3: "Sahara Ambient" (D-Moll Pentatonisch, 72 BPM) — Instrument: Ambient Pad:* Entspannende Wüsten-Ambientfläche. Tiefe, warme Sinus-Akkorde mit langsamem Swell-Anschlag (1,4s Attack, 4,5s Release) und sehnsuchtsvolle Ney-Töne (4,5Hz Vibrato, erhöhtes Rauschen zur Wüstenwind-Simulation).
 *   **10 Soundeffekte:**
     1.  *UI Click:* Kurzer, sauberer Frequenzsweep für Interaktionen.
     2.  *Card Deal:* Ein Bandpass-gefiltertes Rauschen mit exponentiellem Abklingen, um das Reiben von Papier nachzuahmen.
@@ -183,7 +184,7 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   Monetarisi### 6.4 PWA-Konfiguration (gemeinsame Basis)
 *   **Manifest:** Vollständige `manifest.json` für App-Branding und Startbildschirme.
 *   **Service Worker:** `vite-plugin-pwa` mit `autoUpdate`-Strategie für Offline-Support und nahtlose Updates.
-*   **Versionsmanagement:** Die App-Version (aktuell `0.8.8`) wird automatisch aus der `package.json` in den Build-Prozess injiziert.
+*   **Versionsmanagement:** Die App-Version (aktuell `0.8.10`) wird automatisch aus der `package.json` in den Build-Prozess injiziert.
  
 ## 7. Aktueller Status
 *   [x] Core Game Logic (Stechen, Sequenzen, Missa, Derba)
@@ -217,5 +218,6 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   [x] PlayGama: CORS Backend-Unterstützung für WebSocket-Verbindungen von `null`-Origins
 *   [x] PlayGama: Spiel als HTML5-ZIP hochgeladen und verifiziert
 *   [x] Zero-Weight Web Audio API Audiosystem (10 taktile Soundeffekte, Mute-Toggle, LocalStorage Persistenz)
+*   [x] 4 prozedurale BGM-Tracks (Nasseem, Andalusia, Casablanca, Sahara Ambient) mit Track-Wechsler-Button & LocalStorage Persistenz
 *   [ ] Google Play Store: Bubblewrap TWA-Packaging & Store-Listing
 *   [ ] Erweiterte KI-Heuristik
