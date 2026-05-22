@@ -97,6 +97,25 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
     adService.sendGameReady();
   }, []);
 
+  React.useEffect(() => {
+    const handleAdStart = () => {
+      console.log('[Board] Ad started. Pausing game interactions.');
+      setIsAdPlaying(true);
+    };
+    const handleAdComplete = () => {
+      console.log('[Board] Ad completed. Resuming game.');
+      setIsAdPlaying(false);
+    };
+
+    window.addEventListener('ronda-ad-started', handleAdStart);
+    window.addEventListener('ronda-ad-completed', handleAdComplete);
+
+    return () => {
+      window.removeEventListener('ronda-ad-started', handleAdStart);
+      window.removeEventListener('ronda-ad-completed', handleAdComplete);
+    };
+  }, []);
+
   // 1. Play card deal sound when new cards are dealt (total cards in hands increase)
   const p0HandLength = G.players['0']?.hand?.length || 0;
   const p1HandLength = G.players['1']?.hand?.length || 0;

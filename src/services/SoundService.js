@@ -20,6 +20,30 @@ class SoundService {
     const storedTrack = localStorage.getItem('ronda_bgm_track');
     this.currentTrackIndex = storedTrack !== null ? parseInt(storedTrack, 10) : 0;
 
+    this.adPlaying = false;
+    this._wasBGMPlayingBeforeAd = false;
+
+    // Listen for global ad events to auto-pause/resume BGM and mute SFX
+    window.addEventListener('ronda-ad-started', () => {
+      if (this.adPlaying) return;
+      this.adPlaying = true;
+      this._wasBGMPlayingBeforeAd = this.bgmPlaying;
+      if (this._wasBGMPlayingBeforeAd) {
+        console.log('[SoundService] Ad started. Pausing background music.');
+        this.stopBGM();
+      }
+    });
+
+    window.addEventListener('ronda-ad-completed', () => {
+      if (!this.adPlaying) return;
+      this.adPlaying = false;
+      if (this._wasBGMPlayingBeforeAd) {
+        console.log('[SoundService] Ad completed. Resuming background music.');
+        this.startBGM();
+        this._wasBGMPlayingBeforeAd = false;
+      }
+    });
+
     // 4 Unique procedural Moroccan compositions
     this.tracks = [
       {
@@ -260,7 +284,7 @@ class SoundService {
    * Lazily initialize/resume the audio context upon user gesture.
    */
   async initContext() {
-    if (this.muted) return null;
+    if (this.muted || this.adPlaying) return null;
 
     if (!this.ctx) {
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;

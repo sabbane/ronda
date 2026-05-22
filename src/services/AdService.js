@@ -23,10 +23,12 @@ class AdService {
         window.bridge.advertisement.on('interstitial_state_changed', (state) => {
           console.log(`[AdService] PlayGama Interstitial state changed: ${state}`);
           if (state === 'opened') {
+            window.dispatchEvent(new CustomEvent('ronda-ad-started'));
             if (typeof this._playGamaOnBeforeAd === 'function') {
               this._playGamaOnBeforeAd();
             }
           } else if (state === 'closed' || state === 'failed') {
+            window.dispatchEvent(new CustomEvent('ronda-ad-completed'));
             if (typeof this._playGamaOnComplete === 'function') {
               const cb = this._playGamaOnComplete;
               this._playGamaOnComplete = null; // Clear to prevent double calls
@@ -78,15 +80,26 @@ class AdService {
       if (!resolved) {
         resolved = true;
         clearTimeout(safetyTimeout);
+
+        // Dispatch general ad completed event
+        window.dispatchEvent(new CustomEvent('ronda-ad-completed'));
+
         defaultCallbacks.onComplete();
       }
     };
 
+    const beforeWrapper = () => {
+      // Dispatch general ad started event
+      window.dispatchEvent(new CustomEvent('ronda-ad-started'));
+
+      defaultCallbacks.onBeforeAd();
+    };
+
     // Platform Routing
     if (this.platform === 'playgama') {
-      this._showPlayGamaAd(defaultCallbacks.onBeforeAd, completeWrapper);
+      this._showPlayGamaAd(beforeWrapper, completeWrapper);
     } else {
-      this._showGoogleH5Ad(defaultCallbacks.onBeforeAd, completeWrapper);
+      this._showGoogleH5Ad(beforeWrapper, completeWrapper);
     }
   }
 

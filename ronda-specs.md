@@ -79,6 +79,7 @@ Das Spiel setzt auf eine dedizierte `AdService`-Schicht (`src/services/AdService
 *   **AdService:** Erkennt beim Start automatisch die aktuelle Plattform (`web`, `pwa` / Google Play Store, `playgama`) und wählt das passende SDK.
 *   **Interstitial Ads (Google H5 Games Ads):** Nach Spielende (Game Over) werden Video-Anzeigen über das `adBreak`-API von Google ausgeliefert, bevor der Spieler "Play Again" oder "Main Menu" ausführen kann. Beide Buttons warten auf das `onComplete`-Callback des SDKs.
 *   **PlayGama SDK:** Falls das Spiel auf PlayGama läuft, wird automatisch das PlayGama-eigene Ad-SDK angesteuert.
+*   **Audio-Integration (BGM Auto-Pause/Resume):** Wenn eine Werbung startet (über Google H5 oder PlayGama), stoppt der `AdService` automatisch die prozedurale Hintergrundmusik (`SoundService`), um störende Klangüberlagerungen zu vermeiden. Nach erfolgreichem Beenden, Überspringen oder Fehlschlagen der Werbung wird die BGM automatisch fortgesetzt – jedoch nur, falls sie vor der Werbung aktiv war (respektiert den Mute-Status des Benutzers).
 *   **Ausfallsicherheit:** Ein 45-Sekunden-Timeout und ein Offline-Check (`navigator.onLine`) stellen sicher, dass das Spiel auch bei aktivem AdBlocker oder ohne Internetverbindung reibungslos weiterläuft.
 *   **Lade-Overlay:** Während die Werbung lädt, zeigt der Game Over Screen einen Lade-Indikator an, um die Buttons zu sperren und einen sauberen UX-Flow zu gewährleisten.
 *   **Banner-Werbung:** Zusätzliche Werbeflächen über die dedizierte `AdSlot`-Komponente.
@@ -184,7 +185,7 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   Monetarisi### 6.4 PWA-Konfiguration (gemeinsame Basis)
 *   **Manifest:** Vollständige `manifest.json` für App-Branding und Startbildschirme.
 *   **Service Worker:** `vite-plugin-pwa` mit `autoUpdate`-Strategie für Offline-Support und nahtlose Updates.
-*   **Versionsmanagement:** Die App-Version (aktuell `0.8.10`) wird automatisch aus der `package.json` in den Build-Prozess injiziert.
+*   **Versionsmanagement:** Die App-Version (aktuell `0.9.1`) wird automatisch aus der `package.json` in den Build-Prozess injiziert.
  
 ## 7. Aktueller Status
 *   [x] Core Game Logic (Stechen, Sequenzen, Missa, Derba)
