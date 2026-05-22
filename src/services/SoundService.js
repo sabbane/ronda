@@ -49,7 +49,7 @@ class SoundService {
       {
         name: "Sahara",
         bpm: 80,
-        gain: 0.42,
+        gain: 0.75,
         instrument: "oud",
         chords: [
           // Chord 0 (D Hijaz): D3 (146.83), A3 (220.00), D4 (293.66), F#4 (369.99)
@@ -98,7 +98,7 @@ class SoundService {
       {
         name: "Andalusia",
         bpm: 108,
-        gain: 0.40,
+        gain: 0.70,
         instrument: "guitar",
         percussion: true,
         chords: [
@@ -152,65 +152,65 @@ class SoundService {
       {
         name: "Casablanca",
         bpm: 144,
-        gain: 0.40,
+        gain: 0.70,
         instrument: "qanun",
         percussion: true,
         chords: [
           // Chord 0 (D Hijaz): D3 (146.83), A3 (220.00), D4 (293.66), F#4 (369.99)
           [146.83, 220.00, 293.66, 369.99],
-          // Chord 1 (G minor): G2 (98.00), D3 (146.83), G3 (196.00), Bb3 (233.08)
-          [98.00, 146.83, 196.00, 233.08],
-          // Chord 2 (C Major): C3 (130.81), G3 (196.00), C4 (261.63), E4 (329.63)
-          [130.81, 196.00, 261.63, 329.63],
+          // Chord 1 (Eb Major): Eb3 (155.56), Bb3 (233.08), Eb4 (311.13), G4 (392.00)
+          [155.56, 233.08, 311.13, 392.00],
+          // Chord 2 (C minor): C3 (130.81), G3 (196.00), C4 (261.63), Eb4 (311.13)
+          [130.81, 196.00, 261.63, 311.13],
           // Chord 3 (D Hijaz resolve): D3 (146.83), A3 (220.00), D4 (293.66), F#4 (369.99)
           [146.83, 220.00, 293.66, 369.99]
         ],
         melody: [
-          // Bar 1 (D Hijaz) - energetic, syncopated zither runs!
-          { step: 0, f: 587.33, d: 0.25 },  // D5 (snappy 16th pluck!)
+          // Bar 1 (D Hijaz) - Energetic rising call in D Hijaz
+          { step: 0, f: 587.33, d: 0.25 },  // D5
           { step: 1, f: 622.25, d: 0.25 },  // Eb5
           { step: 2, f: 739.99, d: 0.25 },  // F#5
-          { step: 3, f: 783.99, d: 0.5 },   // G5 (leap!)
-          { step: 4, f: 739.99, d: 0.5 },   // F#5
-          { step: 6, f: 622.25, d: 0.5 },   // Eb5
-          { step: 8, f: 587.33, d: 1.0 },   // D5
-          { step: 10, f: 622.25, d: 0.5 },  // Eb5
-          { step: 11, f: 739.99, d: 0.5 },  // F#5
-          { step: 12, f: 783.99, d: 1.0 },  // G5
-          { step: 14, f: 880.00, d: 1.5 },  // A5 (soaring high cry!)
+          { step: 3, f: 783.99, d: 0.25 },  // G5
+          { step: 4, f: 880.00, d: 0.5 },   // A5
+          { step: 6, f: 783.99, d: 0.5 },   // G5
+          { step: 8, f: 739.99, d: 0.75 },  // F#5
+          { step: 11, f: 622.25, d: 0.25 }, // Eb5
+          { step: 12, f: 587.33, d: 0.5 },  // D5
+          { step: 14, f: 622.25, d: 0.5 },  // Eb5
           
-          // Bar 2 (G minor) - dancing syncopated melody
-          { step: 16, f: 932.33, d: 0.5 },  // Bb5
-          { step: 18, f: 880.00, d: 0.5 },  // A5
-          { step: 20, f: 783.99, d: 1.0 },  // G5
-          { step: 22, f: 880.00, d: 0.5 },  // A5
-          { step: 23, f: 932.33, d: 0.5 },  // Bb5
-          { step: 24, f: 1046.50, d: 1.0 }, // C6
+          // Bar 2 (Eb Major) - Dynamic dancing pattern
+          { step: 16, f: 783.99, d: 0.25 }, // G5
+          { step: 17, f: 932.33, d: 0.25 }, // Bb5
+          { step: 18, f: 783.99, d: 0.5 },  // G5
+          { step: 20, f: 622.25, d: 0.5 },  // Eb5
+          { step: 22, f: 466.16, d: 0.5 },  // Bb4
+          { step: 24, f: 783.99, d: 0.5 },  // G5
           { step: 26, f: 932.33, d: 0.5 },  // Bb5
-          { step: 27, f: 880.00, d: 0.5 },  // A5
-          { step: 28, f: 783.99, d: 2.0 },  // G5
+          { step: 28, f: 880.00, d: 1.0 },  // A5
+          { step: 30, f: 783.99, d: 0.5 },  // G5
           
-          // Bar 3 (C Major) - sweet harmonic sequence
-          { step: 32, f: 880.00, d: 0.5 },  // A5
-          { step: 34, f: 783.99, d: 0.5 },  // G5
-          { step: 36, f: 698.46, d: 1.0 },  // F5
-          { step: 38, f: 783.99, d: 0.5 },  // G5
-          { step: 39, f: 880.00, d: 0.5 },  // A5
-          { step: 40, f: 932.33, d: 1.0 },  // Bb5
-          { step: 42, f: 880.00, d: 0.5 },  // A5
-          { step: 43, f: 783.99, d: 0.5 },  // G5
-          { step: 44, f: 698.46, d: 2.0 },  // F5
+          // Bar 3 (C minor) - Bright cascading shimmer
+          { step: 32, f: 1046.50, d: 0.25 },// C6
+          { step: 33, f: 932.33, d: 0.25 }, // Bb5
+          { step: 34, f: 783.99, d: 0.25 }, // G5
+          { step: 35, f: 622.25, d: 0.25 }, // Eb5
+          { step: 36, f: 523.25, d: 0.5 },  // C5
+          { step: 38, f: 622.25, d: 0.5 },  // Eb5
+          { step: 40, f: 783.99, d: 0.5 },  // G5
+          { step: 42, f: 932.33, d: 0.5 },  // Bb5
+          { step: 44, f: 1046.50, d: 1.5 }, // C6
           
-          // Bar 4 (D Hijaz Resolve) - dramatic Phrygian cadence back to D!
-          { step: 48, f: 783.99, d: 0.5 },  // G5
-          { step: 50, f: 739.99, d: 0.5 },  // F#5
-          { step: 52, f: 622.25, d: 1.0 },  // Eb5
-          { step: 54, f: 739.99, d: 0.5 },  // F#5
-          { step: 55, f: 622.25, d: 0.5 },  // Eb5
-          { step: 56, f: 587.33, d: 2.0 },  // D5 (resolved root!)
-          { step: 60, f: 622.25, d: 0.5 },  // Eb5 (pickups for loop)
-          { step: 61, f: 739.99, d: 0.5 },  // F#5
-          { step: 62, f: 783.99, d: 1.0 }   // G5
+          // Bar 4 (D Hijaz Resolve) - Fiery virtuoso resolution
+          { step: 48, f: 880.00, d: 0.25 }, // A5
+          { step: 49, f: 932.33, d: 0.25 }, // Bb5
+          { step: 50, f: 880.00, d: 0.25 }, // A5
+          { step: 51, f: 783.99, d: 0.25 }, // G5
+          { step: 52, f: 739.99, d: 0.5 },  // F#5
+          { step: 54, f: 622.25, d: 0.5 },  // Eb5
+          { step: 56, f: 587.33, d: 1.5 },  // D5
+          { step: 60, f: 622.25, d: 0.25 }, // Eb5 (pickups for loop)
+          { step: 61, f: 739.99, d: 0.25 }, // F#5
+          { step: 62, f: 783.99, d: 0.5 }   // G5
         ]
       }
     ];
@@ -493,6 +493,58 @@ class SoundService {
       const now = ctx.currentTime;
       const instrument = track.instrument;
 
+      if (instrument === 'qanun') {
+        // Qanun Zither Lead Pluck (detuned double-string chorus + transient)
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const osc3 = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+
+        osc1.type = 'triangle';
+        osc1.frequency.setValueAtTime(freq - 1.8, now);
+
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(freq + 1.8, now);
+
+        osc3.type = 'sine';
+        osc3.frequency.setValueAtTime(freq * 2.0, now);
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(3500, now);
+        filter.Q.setValueAtTime(1.4, now);
+        filter.frequency.exponentialRampToValueAtTime(700, now + 0.14);
+
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.024, now + 0.002);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration + 0.1);
+
+        osc1.connect(filter);
+        osc2.connect(filter);
+        osc3.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.bgmMasterGain);
+        gain.connect(delayNode);
+
+        osc1.start(now);
+        osc2.start(now);
+        osc3.start(now);
+
+        this.bgmNodes.push(osc1, osc2, osc3, gain, filter);
+
+        setTimeout(() => {
+          try {
+            osc1.stop(); osc2.stop(); osc3.stop();
+            osc1.disconnect(); osc2.disconnect(); osc3.disconnect();
+            filter.disconnect(); gain.disconnect();
+          } catch { /* ignore */ }
+          this.bgmNodes = this.bgmNodes.filter(n =>
+            n !== osc1 && n !== osc2 && n !== osc3 && n !== gain && n !== filter
+          );
+        }, (duration + 0.5) * 1000);
+        return;
+      }
+
       if (instrument === 'guitar') {
         // Spanish Lead Guitar Pluck (snappy decay, octave harmonic, and custom finger vibrato)
         const osc1 = ctx.createOscillator();
@@ -568,12 +620,7 @@ class SoundService {
       let noiseLevel = 0.005;
       let attackTime = 0.16;
 
-      if (instrument === 'qanun') {
-        lfoSpeed = 6.0;   // slightly faster, lighter vibrato for lively tempo
-        lfoDepth = 2.5;
-        noiseLevel = 0.004;
-        attackTime = 0.12;
-      } else if (instrument === 'ambient') {
+      if (instrument === 'ambient') {
         lfoSpeed = 4.5;   // slower, deeper, highly soulful woodwind vibrato
         lfoDepth = 4.2;
         noiseLevel = 0.008; // more breath noise to simulate blowing wind in desert
