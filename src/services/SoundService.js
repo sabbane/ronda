@@ -44,10 +44,10 @@ class SoundService {
       }
     });
 
-    // 4 Unique procedural Moroccan compositions
+    // 3 Unique procedural Moroccan compositions
     this.tracks = [
       {
-        name: "Nasseem",
+        name: "Sahara",
         bpm: 80,
         gain: 0.42,
         instrument: "oud",
@@ -97,58 +97,64 @@ class SoundService {
       },
       {
         name: "Andalusia",
-        bpm: 96,
-        gain: 0.38,
-        instrument: "oud",
+        bpm: 108,
+        gain: 0.40,
+        instrument: "guitar",
+        percussion: true,
         chords: [
+          // A minor: A2 (110.00), E3 (164.81), A3 (220.00), C4 (261.63)
+          [110.00, 164.81, 220.00, 261.63],
           // G Major: G2 (98.00), D3 (146.83), G3 (196.00), B3 (246.94)
           [98.00, 146.83, 196.00, 246.94],
-          // C Major: C3 (130.81), G3 (196.00), C4 (261.63), E4 (329.63)
-          [130.81, 196.00, 261.63, 329.63],
-          // D Major: D3 (146.83), A3 (220.00), D4 (293.66), F#4 (369.99)
-          [146.83, 220.00, 293.66, 369.99],
-          // G Major Resolve: G3 (196.00), D4 (293.66), G4 (392.00), B4 (493.88)
-          [196.00, 293.66, 392.00, 493.88]
+          // F Major: F2 (87.31), C3 (130.81), F3 (174.61), A3 (220.00)
+          [87.31, 130.81, 174.61, 220.00],
+          // E Major: E2 (82.41), B2 (123.47), E3 (164.81), G#3 (207.65)
+          [82.41, 123.47, 164.81, 207.65]
         ],
         melody: [
-          { step: 0, f: 493.88, d: 1.2 },  // B4
-          { step: 2, f: 587.33, d: 0.6 },  // D5
-          { step: 4, f: 523.25, d: 0.6 },  // C5
+          // Bar 1 (A minor)
+          { step: 0, f: 523.25, d: 1.2 },  // C5
+          { step: 2, f: 493.88, d: 0.6 },  // B4
+          { step: 4, f: 440.00, d: 0.6 },  // A4
           { step: 6, f: 493.88, d: 0.6 },  // B4
-          { step: 8, f: 440.00, d: 1.2 },  // A4
-          { step: 10, f: 493.88, d: 0.6 }, // B4
-          { step: 12, f: 392.00, d: 1.8 }, // G4
+          { step: 8, f: 523.25, d: 1.2 },  // C5
+          { step: 10, f: 587.33, d: 0.6 }, // D5
+          { step: 12, f: 523.25, d: 1.8 }, // C5
           
-          { step: 16, f: 523.25, d: 1.2 }, // C5
-          { step: 18, f: 659.25, d: 0.6 }, // E5
-          { step: 20, f: 587.33, d: 0.6 }, // D5
-          { step: 22, f: 523.25, d: 0.6 }, // C5
+          // Bar 2 (G Major)
+          { step: 16, f: 493.88, d: 1.2 }, // B4
+          { step: 18, f: 440.00, d: 0.6 }, // A4
+          { step: 20, f: 392.00, d: 0.6 }, // G4
+          { step: 22, f: 440.00, d: 0.6 }, // A4
           { step: 24, f: 493.88, d: 1.2 }, // B4
           { step: 26, f: 523.25, d: 0.6 }, // C5
-          { step: 28, f: 440.00, d: 1.8 }, // A4
+          { step: 28, f: 493.88, d: 1.8 }, // B4
           
-          { step: 32, f: 587.33, d: 1.2 }, // D5
-          { step: 34, f: 739.99, d: 0.6 }, // F#5
-          { step: 36, f: 659.25, d: 0.6 }, // E5
-          { step: 38, f: 587.33, d: 0.6 }, // D5
-          { step: 40, f: 523.25, d: 1.2 }, // C5
+          // Bar 3 (F Major)
+          { step: 32, f: 440.00, d: 1.2 }, // A4
+          { step: 34, f: 392.00, d: 0.6 }, // G4
+          { step: 36, f: 349.23, d: 0.6 }, // F4
+          { step: 38, f: 392.00, d: 0.6 }, // G4
+          { step: 40, f: 440.00, d: 1.2 }, // A4
           { step: 42, f: 493.88, d: 0.6 }, // B4
           { step: 44, f: 440.00, d: 1.8 }, // A4
           
-          { step: 48, f: 493.88, d: 0.8 }, // B4
-          { step: 50, f: 440.00, d: 0.4 }, // A4
-          { step: 51, f: 392.00, d: 0.4 }, // G4
-          { step: 52, f: 369.99, d: 0.4 }, // F#4
-          { step: 53, f: 392.00, d: 0.4 }, // G4
-          { step: 54, f: 440.00, d: 0.8 }, // A4
-          { step: 56, f: 392.00, d: 2.8 }  // G4 (elegant major resolution!)
+          // Bar 4 (E Major resolution)
+          { step: 48, f: 415.30, d: 1.2 }, // G#4 (exotic major leading tone!)
+          { step: 50, f: 349.23, d: 0.6 }, // F4 (phrygian flat-2 color!)
+          { step: 52, f: 329.63, d: 0.6 }, // E4
+          { step: 54, f: 349.23, d: 0.6 }, // F4
+          { step: 56, f: 415.30, d: 1.2 }, // G#4
+          { step: 58, f: 349.23, d: 0.6 }, // F4
+          { step: 60, f: 329.63, d: 2.8 }  // E4 (passionate resolved root!)
         ]
       },
       {
         name: "Casablanca",
-        bpm: 120,
-        gain: 0.36,
+        bpm: 144,
+        gain: 0.40,
         instrument: "qanun",
+        percussion: true,
         chords: [
           // F Major: F3 (174.61), A3 (220.00), C4 (261.63), F4 (349.23)
           [174.61, 220.00, 261.63, 349.23],
@@ -209,40 +215,6 @@ class SoundService {
           { step: 55, f: 440.00, d: 0.3 }, // A4
           { step: 56, f: 349.23, d: 1.8 }, // F4 (powerful F-Major resolution!)
           { step: 60, f: 523.25, d: 0.6 }  // C5 (call & response pickup!)
-        ]
-      },
-      {
-        name: "Sahara Ambient",
-        bpm: 72,
-        gain: 0.35,
-        instrument: "ambient",
-        chords: [
-          // Pentatonic slow swells
-          // D2 (73.42), A2 (110.00), D3 (146.83), F3 (174.61)
-          [73.42, 110.00, 146.83, 174.61],
-          // F Major pentatonic: F2 (87.31), C3 (130.81), F3 (174.61), A3 (220.00)
-          [87.31, 130.81, 174.61, 220.00],
-          // G minor pentatonic: G2 (98.00), D3 (146.83), G3 (196.00), Bb3 (233.08)
-          [98.00, 146.83, 196.00, 233.08],
-          // A minor pentatonic: A2 (110.00), E3 (164.81), A3 (220.00), C4 (261.63)
-          [110.00, 164.81, 220.00, 261.63]
-        ],
-        melody: [
-          { step: 0, f: 293.66, d: 3.0 },  // D4
-          { step: 6, f: 349.23, d: 2.0 },  // F4
-          { step: 8, f: 392.00, d: 4.0 },  // G4
-          
-          { step: 16, f: 440.00, d: 3.0 }, // A4
-          { step: 22, f: 523.25, d: 2.0 }, // C5
-          { step: 24, f: 587.33, d: 4.0 }, // D5
-          
-          { step: 32, f: 523.25, d: 2.5 }, // C5
-          { step: 36, f: 440.00, d: 2.5 }, // A4
-          { step: 40, f: 392.00, d: 5.0 }, // G4
-          
-          { step: 48, f: 349.23, d: 3.0 }, // F4
-          { step: 52, f: 293.66, d: 2.0 }, // D4
-          { step: 54, f: 220.00, d: 5.0 }  // A3
         ]
       }
     ];
@@ -359,7 +331,7 @@ class SoundService {
     const melody = track.melody;
 
     // Helper to play procedural chords (Oud pluck, Qanun pluck, or Ambient strings)
-    const playStrummedChord = (chordNotes) => {
+    const playStrummedChord = (chordNotes, isRhythmic = false) => {
       const now = ctx.currentTime;
       const instrument = track.instrument;
 
@@ -368,7 +340,54 @@ class SoundService {
         const gain = ctx.createGain();
         const filter = ctx.createBiquadFilter();
 
-        if (instrument === 'qanun') {
+        if (instrument === 'guitar') {
+          // Spanish Nylon Guitar Strum (snappy rasgueado delay, warm triangle + bright octave sine)
+          const strumDelay = idx * 0.038;
+          const noteTime = now + strumDelay;
+
+          const osc1 = ctx.createOscillator();
+          const osc2 = ctx.createOscillator();
+          const gain = ctx.createGain();
+          const filter = ctx.createBiquadFilter();
+
+          osc1.type = 'triangle';
+          osc1.frequency.setValueAtTime(freq, noteTime);
+
+          osc2.type = 'sine';
+          osc2.frequency.setValueAtTime(freq * 2.0, noteTime);
+
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(2400, noteTime);
+          filter.Q.setValueAtTime(1.5, noteTime);
+          filter.frequency.exponentialRampToValueAtTime(400, noteTime + 0.25); // elegant acoustic damping
+
+          gain.gain.setValueAtTime(0, noteTime);
+          gain.gain.linearRampToValueAtTime(0.015, noteTime + 0.003); // sweet attack
+          gain.gain.exponentialRampToValueAtTime(0.0001, noteTime + 2.0); // warm sustain tail
+
+          osc1.connect(filter);
+          osc2.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.bgmMasterGain);
+          gain.connect(delayNode);
+
+          osc1.start(noteTime);
+          osc2.start(noteTime);
+          this.bgmNodes.push(osc1, osc2, gain, filter);
+
+          setTimeout(() => {
+            try {
+              osc1.stop();
+              osc2.stop();
+              osc1.disconnect();
+              osc2.disconnect();
+              filter.disconnect();
+              gain.disconnect();
+            } catch { /* ignore */ }
+            this.bgmNodes = this.bgmNodes.filter(n => n !== osc1 && n !== osc2 && n !== gain && n !== filter);
+          }, 2500);
+
+        } else if (instrument === 'qanun') {
           // Qanun zither strum: faster arpeggiation, brighter filter pluck envelope
           const strumDelay = idx * 0.03; // 30ms snappy delay
           const noteTime = now + strumDelay;
@@ -379,11 +398,11 @@ class SoundService {
           filter.type = 'lowpass';
           filter.frequency.setValueAtTime(2000, noteTime);
           filter.Q.setValueAtTime(1.2, noteTime);
-          filter.frequency.exponentialRampToValueAtTime(500, noteTime + 0.18);
+          filter.frequency.exponentialRampToValueAtTime(500, noteTime + (isRhythmic ? 0.08 : 0.18));
 
           gain.gain.setValueAtTime(0, noteTime);
-          gain.gain.linearRampToValueAtTime(0.014, noteTime + 0.002);
-          gain.gain.exponentialRampToValueAtTime(0.0001, noteTime + 1.4);
+          gain.gain.linearRampToValueAtTime(isRhythmic ? 0.008 : 0.014, noteTime + 0.002);
+          gain.gain.exponentialRampToValueAtTime(0.0001, noteTime + (isRhythmic ? 0.35 : 1.4));
 
           osc.connect(filter);
           filter.connect(gain);
@@ -436,7 +455,7 @@ class SoundService {
           }, 5000);
 
         } else {
-          // Default instrument: Oud strum (Track 0 "Nasseem" logic)
+          // Default instrument: Oud strum (Track 0 "Sahara" logic)
           const strumDelay = idx * 0.045; // 45ms roll delay
           const noteTime = now + strumDelay;
 
@@ -477,6 +496,68 @@ class SoundService {
     const playNeyNote = (freq, duration) => {
       const now = ctx.currentTime;
       const instrument = track.instrument;
+
+      if (instrument === 'guitar') {
+        // Spanish Lead Guitar Pluck (snappy decay, octave harmonic, and custom finger vibrato)
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+
+        osc1.type = 'triangle';
+        osc1.frequency.setValueAtTime(freq, now);
+
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(freq * 2.0, now);
+
+        // Add subtle finger vibrato for expressive Spanish lead guitar
+        const lfo = ctx.createOscillator();
+        const lfoGain = ctx.createGain();
+        lfo.frequency.value = 6.2; // 6.2Hz finger vibrato
+        lfoGain.gain.value = 1.8;   // subtle pitch vibrato
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc1.frequency);
+        lfoGain.connect(osc2.frequency);
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(2500, now);
+        filter.Q.setValueAtTime(1.2, now);
+        filter.frequency.exponentialRampToValueAtTime(500, now + 0.2); // pluck damping
+
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.022, now + 0.003); // slightly louder lead pluck
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration + 0.2);
+
+        osc1.connect(filter);
+        osc2.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.bgmMasterGain);
+        gain.connect(delayNode);
+
+        osc1.start(now);
+        osc2.start(now);
+        lfo.start(now);
+
+        this.bgmNodes.push(osc1, osc2, gain, filter, lfo, lfoGain);
+
+        setTimeout(() => {
+          try {
+            osc1.stop();
+            osc2.stop();
+            lfo.stop();
+            osc1.disconnect();
+            osc2.disconnect();
+            lfo.disconnect();
+            lfoGain.disconnect();
+            filter.disconnect();
+            gain.disconnect();
+          } catch { /* ignore */ }
+          this.bgmNodes = this.bgmNodes.filter(n =>
+            n !== osc1 && n !== osc2 && n !== gain && n !== filter && n !== lfo && n !== lfoGain
+          );
+        }, (duration + 0.8) * 1000);
+        return;
+      }
 
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -579,22 +660,122 @@ class SoundService {
       }, (duration + 0.8) * 1000);
     };
 
+    // ── Derbouka percussion engine ────────────────────────────────────────────
+    // Three synthesized hit types authentic to Moroccan hand-drum technique.
+    const playDerboukaHit = (type) => {
+      if (!this.bgmPlaying) return;
+      const now = ctx.currentTime;
+
+      if (type === 'dom') {
+        // DOM — deep bass centre-hit: short sine thud that drops fast
+        const osc = ctx.createOscillator();
+        const g   = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.exponentialRampToValueAtTime(55, now + 0.18);
+        g.gain.setValueAtTime(0.55, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+        osc.connect(g); g.connect(this.bgmMasterGain);
+        osc.start(now); osc.stop(now + 0.25);
+        // add a brief body resonance (bandpass noise)
+        const dur = 0.12;
+        const ns = ctx.createBufferSource();
+        ns.buffer = this.createNoiseBuffer(ctx, dur);
+        const bf = ctx.createBiquadFilter();
+        bf.type = 'bandpass';
+        bf.frequency.value = 180; bf.Q.value = 6;
+        const ng = ctx.createGain();
+        ng.gain.setValueAtTime(0.18, now);
+        ng.gain.exponentialRampToValueAtTime(0.001, now + dur);
+        ns.connect(bf); bf.connect(ng); ng.connect(this.bgmMasterGain);
+        ns.start(now); ns.stop(now + dur + 0.02);
+
+      } else if (type === 'tek') {
+        // TEK — crisp high edge-hit (right hand): sharp transient + tone
+        const osc = ctx.createOscillator();
+        const g   = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(680, now);
+        osc.frequency.exponentialRampToValueAtTime(280, now + 0.06);
+        g.gain.setValueAtTime(0.30, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.10);
+        osc.connect(g); g.connect(this.bgmMasterGain);
+        osc.start(now); osc.stop(now + 0.12);
+        // snap transient
+        const dur = 0.03;
+        const ns = ctx.createBufferSource();
+        ns.buffer = this.createNoiseBuffer(ctx, dur);
+        const hpf = ctx.createBiquadFilter();
+        hpf.type = 'highpass'; hpf.frequency.value = 2200;
+        const ng = ctx.createGain();
+        ng.gain.setValueAtTime(0.20, now);
+        ng.gain.exponentialRampToValueAtTime(0.001, now + dur);
+        ns.connect(hpf); hpf.connect(ng); ng.connect(this.bgmMasterGain);
+        ns.start(now); ns.stop(now + dur + 0.01);
+
+      } else if (type === 'ka') {
+        // KA — muted left-hand slap: very short mid thump, no sustain
+        const osc = ctx.createOscillator();
+        const g   = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(320, now);
+        osc.frequency.exponentialRampToValueAtTime(160, now + 0.04);
+        g.gain.setValueAtTime(0.18, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+        osc.connect(g); g.connect(this.bgmMasterGain);
+        osc.start(now); osc.stop(now + 0.08);
+      }
+    };
+
+    // Maqsum-style Derbouka pattern (16-step, repeating every bar):
+    // positions 0..15 within each 16-step bar:
+    //   DOM   .   .  TEK  DOM  DOM  .  TEK   .  DOM  .  TEK  DOM   .   KA  TEK
+    //    0    1   2   3    4    5   6   7    8    9  10   11   12  13   14   15
+    const DERBOUKA_PATTERN = [
+      'dom', null, null, 'tek',
+      'dom', 'dom', null, 'tek',
+      null,  'dom', null, 'tek',
+      'dom', null, 'ka', 'tek'
+    ];
+
+    // Spanish Rumba Cajon/Palmas pattern:
+    // positions 0..15:
+    //   DOM   .   .  TEK   .  DOM  TEK   .  DOM   .   .  TEK   .  DOM  KA  TEK
+    const RUMBA_PATTERN = [
+      'dom', null, null, 'tek',
+      null,  'dom', 'tek', null,
+      'dom', null, null, 'tek',
+      null,  'dom', 'ka', 'tek'
+    ];
+
     // 4. BGM Clock Sequencer - ticks dynamically based on the track's BPM
     let step = 0;
 
     const tick = () => {
       if (!this.bgmPlaying) return;
 
-      // Chord Triggering (every 16 beats)
+      // Chord Triggering (every 16 beats for main chord, plus rhythmic backing for Casablanca)
       if (step % 16 === 0) {
         const chordIndex = Math.floor(step / 16) % chords.length;
         playStrummedChord(chords[chordIndex]);
+      } else if (track.instrument === 'qanun' && (step % 16 === 3 || step % 16 === 6 || step % 16 === 8 || step % 16 === 11 || step % 16 === 14)) {
+        const chordIndex = Math.floor(step / 16) % chords.length;
+        playStrummedChord(chords[chordIndex], true);
       }
 
       // Melody Triggering
       const note = melody.find(m => m.step === step);
       if (note) {
         playNeyNote(note.f, note.d);
+      }
+
+      // Percussion (only for tracks with percussion: true)
+      if (track.percussion) {
+        const patternStep = step % 16;
+        const hit = track.instrument === 'guitar'
+          ? RUMBA_PATTERN[patternStep]
+          : DERBOUKA_PATTERN[patternStep];
+        if (hit) playDerboukaHit(hit);
       }
 
       // Advance sequence counter (wraps at 64 steps)
