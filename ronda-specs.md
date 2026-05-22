@@ -110,9 +110,13 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 *   **Performance-Benchmarks:** Das Tool `latency_benchmark.spec.js` misst die Antwortzeiten des Live-Servers.
 *   **Asset-Preloading:** Karten-Assets werden vorab geladen (Preload im HTML und verstecktes Rendern in den Komponenten), um Latenzen oder Flackern bei der Kartenausgabe zu vermeiden.
 
-### 4.7 Audiosystem (Procedural Sound Synthesis)
-Um das Spielgefühl immersiv zu gestalten und Sondersituationen dramatisch zu untermalen, wurde ein taktiler Sound-Service (`src/services/SoundService.js`) implementiert:
-*   **Procedural Web Audio API:** Anstelle von großen statischen Audio-Dateien (MP3/WAV) werden alle Soundeffekte in Echtzeit über Oszillatoren, Filter und Gain-Nodes synthetisiert. Dadurch beträgt der Speicher-Overhead **0 KB** und die volle Kompatibilität mit dem Single-File-Build für PlayGama bleibt gewahrt.
+### 4.7 Audiosystem (Procedural Sound & Music Synthesis)
+Um das Spielgefühl immersiv zu gestalten und Sondersituationen dramatisch zu untermalen, wurde ein hochauflösendes Audiosystem (`src/services/SoundService.js`) implementiert:
+*   **Procedural Web Audio API:** Anstelle von großen statischen Audio-Dateien (MP3/WAV) werden alle Soundeffekte und die Hintergrundmusik in Echtzeit über Oszillatoren, Filter, Delay-Lines und Gain-Nodes vollsynthetisiert. Dadurch beträgt der Speicher-Overhead **0 KB** und die 100%ige Offline-Fähigkeit sowie die Kompatibilität mit dem Single-File-Build für PlayGama bleibt perfekt gewahrt.
+*   **Generative Hintergrundmusik (BGM):**
+    *   *Ambient-Akkord-Pad:* Ein tiefer, weicher Pad-Synthesizer (leicht detunierte Dreieckswellen mit einem 320Hz Tiefpassfilter), der alle 8 Sekunden sanft zwischen Akkorden einer andalusischen Kadenz in A-Moll crossfaded (`Am -> Fmaj7 -> Cmaj -> Gmaj`), um ein nahtloses marokkanisches Klangbett zu legen.
+    *   *Generativer Pluck-Synthesizer:* Ein auf ~110 BPM synchronisierter Sequenzer, der auf den Beats mit einer Wahrscheinlichkeit von 28% zarte Zupftöne einstreut. Die Tonhöhen werden aus der andanlusisch-pentatonischen A-Moll-Skala gelost und harmonisch auf den aktiven Pad-Akkord abgestimmt.
+    *   *Saiten-Simulation & Echo:* Ein dynamischer Tiefpassfilter-Sweep (1,8kHz auf 380Hz in 0,15s) simuliert das physikalische Abklingverhalten einer gezupften Oud-Saite. Die Töne fließen durch eine Feedback-Delay-Line mit punktierter Achtelverzögerung (0,41s) und erzeugen eine immersive, raumfüllende Hall-Atmosphäre.
 *   **10 Soundeffekte:**
     1.  *UI Click:* Kurzer, sauberer Frequenzsweep für Interaktionen.
     2.  *Card Deal:* Ein Bandpass-gefiltertes Rauschen mit exponentiellem Abklingen, um das Reiben von Papier nachzuahmen.
@@ -124,9 +128,9 @@ Um das Spielgefühl immersiv zu gestalten und Sondersituationen dramatisch zu un
     8.  *Clash-Ankündigung:* Metallischer Klirr-Sound (Kombination unharmonischer hoher Frequenzen) gefolgt von einem Bandschwert-Swoosh.
     9.  *Victory-Melodie:* Triumphaler, fröhlicher C-Dur-Akkordverlauf mit warmen Dreiecks- und Sinustönen.
     10. *Defeat-Melodie:* Schwermütige, absteigende Moll-Tonfolge.
-*   **Reaktive Sound-Trigger:** In `src/components/Board.jsx` überwachen declarative `useEffect`-Hooks den Spielstatus (Handkartenlänge, Tischkartenanzahl, eroberte Karten, Popups, GameOver-Status) und lösen die Sounds lippensynchron aus.
-*   **Mute-Option & Persistenz:** Ein Sound-Toggle (Speaker-Icon) ist sowohl im Hauptmenü (neben den Flaggen) als auch direkt auf dem Spielfeld (oben rechts) platziert. Der Zustand (Muted/Unmuted) wird persistiert in `localStorage` (`ronda_muted`) und automatisch auf allen Ansichten synchronisiert.
-*   **Autoplay-Policy:** Die Audiokontext-Initialisierung (`AudioContext`) erfolgt träge (lazy) beim allerersten Benutzer-Klick, um moderne Browser-Sicherheitseinstellungen nahtlos zu erfüllen.
+*   **Reaktive Sound-Trigger:** In `src/components/Board.jsx` überwachen declarative `useEffect`-Hooks den Spielstatus (Handkartenlänge, Tischkartenanzahl, eroberte Karten, Popups, GameOver-Status) und lösen die Sounds lippensynchron aus. Alle Event-Sounds passen sich tonal an den Spielausgang an (Dur/hell bei Erfolg, Moll/tief bei gegnerischem Punkterfolg).
+*   **Mute-Option & Persistenz:** Ein Sound-Toggle (Speaker-Icon) ist sowohl im Hauptmenü (neben den Flaggen) als auch direkt auf dem Spielfeld (gegenüber der Restkartenanzeige am unteren Rand) platziert. Der Zustand (Muted/Unmuted) wird persistiert in `localStorage` (`ronda_muted`) und steuert das An- und Ausschalten von Soundeffekten und der Hintergrundmusik in Echtzeit.
+*   **Autoplay-Policy & Gesten-Trigger:** Die Initialisierung der Audio-Pipeline erfolgt absolut regelkonform. Neben dem lazy Trigger durch Schaltflächen-Klicks lauscht ein globaler Einmal-Event-Listener (`click`, `pointerdown`, `keydown`) im `SoundProvider` auf die allererste Interaktion des Benutzers auf dem gesamten Bildschirm, um die BGM augenblicklich und geräuschlos zu starten.
 
 ## 5. Projektstruktur
 ```text

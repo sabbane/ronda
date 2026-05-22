@@ -12,6 +12,32 @@ export const SoundProvider = ({ children }) => {
     soundService.muted = isMuted;
   }, [isMuted]);
 
+  // Satisfy autoplay policies by triggering initialization on the very first user gesture anywhere
+  useEffect(() => {
+    const handleGesture = async () => {
+      if (!isMuted) {
+        try {
+          await soundService.initContext();
+        } catch (e) {
+          console.warn('Autoplay gesture initialization failed:', e);
+        }
+      }
+      cleanup();
+    };
+
+    const cleanup = () => {
+      window.removeEventListener('click', handleGesture);
+      window.removeEventListener('pointerdown', handleGesture);
+      window.removeEventListener('keydown', handleGesture);
+    };
+
+    window.addEventListener('click', handleGesture);
+    window.addEventListener('pointerdown', handleGesture);
+    window.addEventListener('keydown', handleGesture);
+
+    return cleanup;
+  }, [isMuted]);
+
   const toggleMute = () => {
     setIsMuted(prev => {
       const newVal = !prev;
