@@ -12,6 +12,7 @@ Offizielle Website: [https://www.playronda.ma](https://www.playronda.ma)
 *   **Styling:** Tailwind CSS (für Layout & Design)
 *   **Animationen:** Framer Motion (für Kartenbewegungen)
 *   **PWA:** vite-plugin-pwa (für Offline-Support und Installation)
+*   **Single-File Bundling:** vite-plugin-singlefile (für die PlayGama-Plattform-Inlining)
 *   **Icons:** Lucide React
 
 ## 3. Spielregeln & Implementierung
@@ -54,8 +55,8 @@ Die Punkte werden während des Spiels und am Ende berechnet. Das Scoring ist add
 *   **Endabrechnung:** Jeder Spieler zählt seine gewonnenen Karten. Punkte aus Sondersituationen (oder gewonnene Extrakarten) werden addiert.
 
 ### 3.4 Karten-Assets & Design
-Die App verwendet reale Bilddateien für die spanischen Spielkarten:
-*   **Speicherort:** `public/cards/`
+Die App verwendet reale Bilddateien für die spanischen Spielkarten sowie hochauflösende Hintergründe:
+*   **Speicherort:** `src/assets/cards/` (Karten) und `src/assets/` (Hintergründe). Die Assets wurden in den `src`-Ordner verschoben, damit sie über das ES-Modulsystem importiert und für Offline-Builds (z. B. PlayGama) vollautomatisch als Base64-Strings in das HTML-Dokument inlined werden können.
 *   **Format:** PNG (transparent)
 *   **Dateinamen-Konvention:** `{Value}-{Suit}.png` (z.B. `01-dheb.png`)
 *   **Suits:** Die Suits sind sowohl intern im Code als auch in den Dateinamen marokkanisch benannt: `dheb` (Gold), `jben` (Becher), `syouf` (Schwerter), `zrawet` (Keulen).
@@ -89,6 +90,7 @@ Das Spiel setzt auf eine dedizierte `AdService`-Schicht (`src/services/AdService
 ### 4.4 Online-Multiplayer & Infrastruktur
 Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 *   **Backend:** Node.js Server (`server.js`) basierend auf `boardgame.io/server`.
+*   **CORS & Sandbox-Kompatibilität:** Im Backend wurde das Koa-CORS-Middleware überschrieben, um `null` als Origin zu erlauben. Dies ist zwingend erforderlich, da PlayGama in einem stark sandboxed Iframe ohne `allow-same-origin` ausgeführt wird und Anfragen mit `Origin: null` sendet.
 *   **URL-Mapping:** Dynamische Auflösung der Backend-URL für lokale und produktive Umgebungen.
 *   **Containerisierung:** 
     *   `Dockerfile.frontend`: Multi-Stage Build für das React Frontend.
@@ -111,9 +113,11 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 ## 5. Projektstruktur
 ```text
 /src
+  /assets           # UI-Assets (Hintergrundbilder, Icons & Kartenbilder für Inlining)
+    /cards          # Bilddateien der spanischen Karten
   /components
     Board.jsx       # Haupt-Spielfeld & Event-Handling (inkl. Rematch-UI & Ad-Trigger)
-    Card.jsx        # Karten-Komponente (mit Glow & Preload-Logik)
+    Card.jsx        # Karten-Komponente (mit Glow & Preload-Logik aus src/assets/cards)
     AdSlot.jsx      # Banner-Werbe-Integration
     DonateButton.jsx # Spenden-Funktion
     Rules.jsx       # Spielanleitung (Modal)
@@ -133,8 +137,7 @@ server.js           # Backend-Server für Online-Multiplayer
 Dockerfile.frontend # Docker-Konfiguration für das Frontend
 Dockerfile.backend  # Docker-Konfiguration für das Backend
 /public
-  /cards            # Bilddateien der Karten
-  /assets           # UI-Assets (Hintergrund, etc.)
+  /assets           # Statische Assets für Web/PWA-Builds (Fallback)
 ```
 
 ## 6. Plattform-Vertriebsstrategie
@@ -145,19 +148,20 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   Monetarisierung über **Google H5 Games Ads** (Interstitials nach Spielende) und Banner-Slots (`AdSlot`).
 
 ### 6.2 PlayGama (HTML5-Spieleplattform)
-*   Export als statische HTML5-`.zip`-Datei (Inhalt des `dist/`-Ordners).
-*   Der `AdService` erkennt die PlayGama-Umgebung automatisch und nutzt das PlayGama-eigene SDK für Revenue Share.
+*   **Export-Format:** Export als statische, selbsttragende HTML5-`.zip`-Datei (Inhalt des `dist-playgama/`-Ordners).
+*   **Single-File Inlining:** Durch Nutzung von `vite-plugin-singlefile` wird das gesamte Frontend (JS, CSS, SVGs, Spielkarten, Hintergrundbilder) in eine einzige `index.html` gepackt. Dies verhindert Dateipfad-Fehler und CORS-Verstöße innerhalb des PlayGama-Iframes.
+*   **Frühe SDK-Initialisierung:** Das PlayGama Bridge SDK wird über ein benutzerdefiniertes Vite-Plugin direkt in den `<head>` injiziert und über ein schlankes, unabhängiges Inline-Skript initialisiert, noch bevor React geladen wird. Dies löst das `game_ready`-Event sofort aus und vermeidet Lade-Timeouts.
+*   **Diagnose-UI:** Falls das PlayGama-SDK durch Werbeblocker (AdBlock, uBlock) oder Brave Shields blockiert wird, fängt das Skript dies ab und rendert ein modulares Overlay, welches den Spieler zur temporären Deaktivierung auffordert.
+*   **AdService Integration:** Der `AdService` steuert bei PlayGama vollautomatisch das plattformspezifische Werbe-SDK an, um Interstitial-Anzeigen bei Game Over einzublenden.
 
 ### 6.3 Google Play Store (Android App)
 *   **Trusted Web Activity (TWA)** via **Google Bubblewrap**: Die PWA (`playronda.ma`) wird in eine native Android-App (`.aab`) verpackt.
 *   **Automatische Updates:** Deployments auf der Webseite werden sofort in der Play Store App reflektiert.
-*   Monetarisierung ebenfalls über Google H5 Games Ads (richtlinienkonform in TWA).
-
-### 6.4 PWA-Konfiguration (gemeinsame Basis)
+*   Monetarisi### 6.4 PWA-Konfiguration (gemeinsame Basis)
 *   **Manifest:** Vollständige `manifest.json` für App-Branding und Startbildschirme.
 *   **Service Worker:** `vite-plugin-pwa` mit `autoUpdate`-Strategie für Offline-Support und nahtlose Updates.
-*   **Versionsmanagement:** Die App-Version (aktuell `0.7.8`) wird automatisch aus der `package.json` in den Build-Prozess injiziert.
-
+*   **Versionsmanagement:** Die App-Version (aktuell `0.8.8`) wird automatisch aus der `package.json` in den Build-Prozess injiziert.
+ 
 ## 7. Aktueller Status
 *   [x] Core Game Logic (Stechen, Sequenzen, Missa, Derba)
 *   [x] Taawida-System (Konter & Ultimativer Konter mit Karten-Transfer)
@@ -185,6 +189,9 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   [x] PWA-Integration (Manifest & Service Worker)
 *   [x] Multi-Platform-Buildsystem (`npm run build:web`, `build:playgama`, `build:all`) mit SDK-Injektion per Vite-Plugin
 *   [x] Google AdSense Publisher-ID Automatisierung (über `.env.web` & Vite-Plugin)
-*   [ ] PlayGama: Spiel als HTML5-ZIP hochladen
+*   [x] PlayGama: Vollständige Single-File-Integrierbarkeit (Base64-Karten und -Hintergründe)
+*   [x] PlayGama: Früh-Initialisierung des SDKs mit AdBlock-UI in der `index.html`
+*   [x] PlayGama: CORS Backend-Unterstützung für WebSocket-Verbindungen von `null`-Origins
+*   [x] PlayGama: Spiel als HTML5-ZIP hochgeladen und verifiziert
 *   [ ] Google Play Store: Bubblewrap TWA-Packaging & Store-Listing
 *   [ ] Erweiterte KI-Heuristik

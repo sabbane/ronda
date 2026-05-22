@@ -80,7 +80,7 @@ const App = () => {
     try {
       const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}?room=${id}`;
       window.history.replaceState({ path: newUrl }, '', newUrl);
-    } catch (e) {
+    } catch {
       // Ignore errors in sandboxed iframes (like PlayGama)
     }
   };
