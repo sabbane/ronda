@@ -79,7 +79,10 @@ Das Spiel setzt auf eine dedizierte `AdService`-Schicht (`src/services/AdService
 *   **AdService:** Erkennt beim Start automatisch die aktuelle Plattform (`web`, `pwa` / Google Play Store, `playgama`) und wählt das passende SDK.
 *   **Interstitial Ads (Google H5 Games Ads):** Nach Spielende (Game Over) werden Video-Anzeigen über das `adBreak`-API von Google ausgeliefert, bevor der Spieler "Play Again" oder "Main Menu" ausführen kann. Beide Buttons warten auf das `onComplete`-Callback des SDKs.
 *   **PlayGama SDK:** Falls das Spiel auf PlayGama läuft, wird automatisch das PlayGama-eigene Ad-SDK angesteuert.
-*   **Audio-Integration (BGM Auto-Pause/Resume):** Wenn eine Werbung startet (über Google H5 oder PlayGama), stoppt der `AdService` automatisch die prozedurale Hintergrundmusik (`SoundService`), um störende Klangüberlagerungen zu vermeiden. Nach erfolgreichem Beenden, Überspringen oder Fehlschlagen der Werbung wird die BGM automatisch fortgesetzt – jedoch nur, falls sie vor der Werbung aktiv war (respektiert den Mute-Status des Benutzers).
+*   **Audio-Integration & Full Game Pause (Event-Driven):** Wenn eine Werbung startet (über Google H5 oder PlayGama), löst der `AdService` ein globales Custom Event (`ronda-ad-started`) aus. Dies führt zu:
+    *   **UI Lock:** Die React-Spielfläche fängt das Event auf und blendet ein Full-Screen Glassmorphism-Overlay ein, welches sämtliche Benutzerinteraktionen blockiert. Das komplette Spiel ist somit pausiert.
+    *   **Audio Silence:** Der `SoundService` fängt das Event ebenfalls ab, pausiert die Hintergrundmusik und blockiert über einen internen `adPlaying`-State die Ausführung jeglicher Soundeffekte.
+    *   Sobald die Werbung beendet ist (`ronda-ad-completed`), wird das Overlay entfernt und die Audiowiedergabe nahtlos fortgesetzt (unter Respektierung des vorherigen Mute-Status). Die Architektur ist dadurch vollständig entkoppelt.
 *   **Ausfallsicherheit:** Ein 45-Sekunden-Timeout und ein Offline-Check (`navigator.onLine`) stellen sicher, dass das Spiel auch bei aktivem AdBlocker oder ohne Internetverbindung reibungslos weiterläuft.
 *   **Lade-Overlay:** Während die Werbung lädt, zeigt der Game Over Screen einen Lade-Indikator an, um die Buttons zu sperren und einen sauberen UX-Flow zu gewährleisten.
 *   **Banner-Werbung:** Zusätzliche Werbeflächen über die dedizierte `AdSlot`-Komponente.
@@ -219,6 +222,7 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   [x] PlayGama: CORS Backend-Unterstützung für WebSocket-Verbindungen von `null`-Origins
 *   [x] PlayGama: Spiel als HTML5-ZIP hochgeladen und verifiziert
 *   [x] Zero-Weight Web Audio API Audiosystem (10 taktile Soundeffekte, Mute-Toggle, LocalStorage Persistenz)
+*   [x] Vollständige Ad-Pausierung (Game & Sound) via Event-Driven Architecture (`ronda-ad-started` / `ronda-ad-completed`)
 *   [x] 4 prozedurale BGM-Tracks (Nasseem, Andalusia, Casablanca, Sahara Ambient) mit Track-Wechsler-Button & LocalStorage Persistenz
 *   [ ] Google Play Store: Bubblewrap TWA-Packaging & Store-Listing
 *   [ ] Erweiterte KI-Heuristik

@@ -775,10 +775,10 @@ class SoundService {
     //   DOM   .   .  TEK  DOM  DOM  .  TEK   .  DOM  .  TEK  DOM   .   KA  TEK
     //    0    1   2   3    4    5   6   7    8    9  10   11   12  13   14   15
     const DERBOUKA_PATTERN = [
-      'dom', null, null, 'tek',
-      'dom', 'dom', null, 'tek',
-      null,  'dom', null, 'tek',
-      'dom', null, 'ka', 'tek'
+      'dom', 'ka', 'ka', 'tek',
+      'dom', 'ka', 'dom', 'tek',
+      'ka',  'dom', 'ka', 'tek',
+      'dom', 'ka', 'ka', 'tek'
     ];
 
     // Spanish Rumba Cajon/Palmas pattern:
