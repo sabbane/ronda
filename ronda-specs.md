@@ -112,11 +112,12 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 
 ### 4.7 Audiosystem (Procedural Sound & Music Synthesis)
 Um das Spielgefühl immersiv zu gestalten und Sondersituationen dramatisch zu untermalen, wurde ein hochauflösendes Audiosystem (`src/services/SoundService.js`) implementiert:
-*   **Procedural Web Audio API:** Anstelle von großen statischen Audio-Dateien (MP3/WAV) werden alle Soundeffekte und die Hintergrundmusik in Echtzeit über Oszillatoren, Filter, Delay-Lines und Gain-Nodes vollsynthetisiert. Dadurch beträgt der Speicher-Overhead **0 KB** und die 100%ige Offline-Fähigkeit sowie die Kompatibilität mit dem Single-File-Build für PlayGama bleibt perfekt gewahrt.
-*   **Generative Hintergrundmusik (BGM):**
-    *   *Ambient-Akkord-Pad:* Ein tiefer, weicher Pad-Synthesizer (leicht detunierte Dreieckswellen mit einem 320Hz Tiefpassfilter), der alle 8 Sekunden sanft zwischen Akkorden einer andalusischen Kadenz in A-Moll crossfaded (`Am -> Fmaj7 -> Cmaj -> Gmaj`), um ein nahtloses marokkanisches Klangbett zu legen.
-    *   *Generativer Pluck-Synthesizer:* Ein auf ~110 BPM synchronisierter Sequenzer, der auf den Beats mit einer Wahrscheinlichkeit von 28% zarte Zupftöne einstreut. Die Tonhöhen werden aus der andanlusisch-pentatonischen A-Moll-Skala gelost und harmonisch auf den aktiven Pad-Akkord abgestimmt.
-    *   *Saiten-Simulation & Echo:* Ein dynamischer Tiefpassfilter-Sweep (1,8kHz auf 380Hz in 0,15s) simuliert das physikalische Abklingverhalten einer gezupften Oud-Saite. Die Töne fließen durch eine Feedback-Delay-Line mit punktierter Achtelverzögerung (0,41s) und erzeugen eine immersive, raumfüllende Hall-Atmosphäre.
+*   **Procedural Web Audio API:** Anstelle von großen statischen Audio-Dateien (MP3/WAV) werden alle Soundeffekte und die Hintergrundmusik in Echtzeit über Oszillatoren, LFOs, Filter, Delay-Lines und Gain-Nodes vollsynthetisiert. Dadurch beträgt der Speicher-Overhead **0 KB** und die 100%ige Offline-Fähigkeit sowie die Kompatibilität mit dem Single-File-Build für PlayGama bleibt perfekt gewahrt.
+*   **3 Einzigartige Generative Musikstücke (BGM) mit Track-Auswahl:**
+    Der Spieler kann über einen edlen Musik-Wechsler-Button direkt neben der Mute-Taste nahtlos zwischen drei verschiedenen marokkanischen Stücken wechseln, die per weichem Crossfade ineinander übergehen:
+    1.  *Track 0: "Nasseem" (D-Hijaz, 80 BPM):* Melancholisches Hauptthema. Zeichnet sich durch eine ausdrucksstarke Holzbläser-Flöte (breathy Ney Flute mit 5,5Hz LFO-Vibrato und gefiltertem Blasrauschen) und gezupfte Oud-Akkord-Zyklen aus (45ms Arpeggiation-Verzögerung für realistischen Saiten-Anschlag).
+    2.  *Track 1: "Andalusia" (A-Moll, 90 BPM):* Ein lebhaftes Stück basierend auf der traditionellen andalusischen Kadenz (Am - G - F - E). Es verwendet ein glitzerndes, schnelles Qanun-Zupfmuster (30ms Arpeggiation und heller Pluck-Filter) und eine dynamische Ney-Flötenmelodie (6,0Hz Vibrato).
+    3.  *Track 2: "Sahara Ambient" (D-Moll Pentatonisch, 72 BPM):* Eine entspannende, raumfüllende Wüsten-Ambientfläche. Tiefe, warme Akkorde schwellen sanft an (1,4s Attack, 4,5s Release) und werden von sehnsuchtsvollen, luftigen Ney-Tönen begleitet (4,5Hz Vibrato, erhöhtes Bandpass-Rauschen zur Simulation von Wüstenwind).
 *   **10 Soundeffekte:**
     1.  *UI Click:* Kurzer, sauberer Frequenzsweep für Interaktionen.
     2.  *Card Deal:* Ein Bandpass-gefiltertes Rauschen mit exponentiellem Abklingen, um das Reiben von Papier nachzuahmen.

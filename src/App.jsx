@@ -10,7 +10,7 @@ import { RondaBoard } from './components/Board';
 
 import { useLanguage } from './contexts/LanguageContext';
 import { Rules } from './components/Rules';
-import { Volume2, VolumeX } from 'lucide-react';
+import { Volume2, VolumeX, Music } from 'lucide-react';
 import { useSound } from './contexts/SoundContext';
 
 
@@ -77,7 +77,7 @@ const App = () => {
   const [error, setError] = useState(null);
   const [isCheckingRoom, setIsCheckingRoom] = useState(false);
   const { language, changeLanguage, t } = useLanguage();
-  const { isMuted, toggleMute, playClick } = useSound();
+  const { isMuted, toggleMute, playClick, currentTrack, tracks, nextTrack } = useSound();
 
   const updateUrl = (id) => {
     try {
@@ -283,6 +283,14 @@ const App = () => {
                 <img src="https://flagcdn.com/w40/ma.png" alt="AR" className="w-4 h-3 object-cover rounded-sm" /> AR
               </button>
               <div className="w-[1px] h-6 bg-white/15 align-middle self-center mx-1"></div>
+              <button
+                onClick={() => { playClick(); nextTrack(); }}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 bg-white/10 text-slate-300 hover:bg-white/20 backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
+                title={tracks && tracks[currentTrack] ? `Track wechseln: ${tracks[currentTrack].name}` : "Track wechseln"}
+              >
+                <Music size={14} className="text-amber-400 animate-pulse" />
+                <span>{tracks && tracks[currentTrack] ? tracks[currentTrack].name : "Musik"}</span>
+              </button>
               <button
                 onClick={toggleMute}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 bg-white/10 text-slate-300 hover:bg-white/20 backdrop-blur-md transition-all border border-white/10 cursor-pointer`}

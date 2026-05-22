@@ -15,6 +15,156 @@ class SoundService {
     this.bgmNodes = [];      // Track active audio nodes for clean disposal on mute
     this.bgmIntervals = [];  // Track scheduler intervals
     this.currentChordIndex = 0;
+
+    // Load active BGM track
+    const storedTrack = localStorage.getItem('ronda_bgm_track');
+    this.currentTrackIndex = storedTrack !== null ? parseInt(storedTrack, 10) : 0;
+
+    // 3 Unique procedural Moroccan compositions
+    this.tracks = [
+      {
+        name: "Nasseem",
+        bpm: 80,
+        gain: 0.42,
+        instrument: "oud",
+        chords: [
+          // Chord 0 (D Hijaz): D3 (146.83), A3 (220.00), D4 (293.66), F#4 (369.99)
+          [146.83, 220.00, 293.66, 369.99],
+          // Chord 1 (Eb Major): Eb3 (155.56), Bb3 (233.08), Eb4 (311.13), Bb4 (466.16)
+          [155.56, 233.08, 311.13, 466.16],
+          // Chord 2 (Cm / C minor): C3 (130.81), G3 (196.00), C4 (261.63), Eb4 (311.13)
+          [130.81, 196.00, 261.63, 311.13],
+          // Chord 3 (D Majorish cadence): D3 (146.83), A3 (220.00), D4 (293.66), F#4 (369.99)
+          [146.83, 220.00, 293.66, 369.99]
+        ],
+        melody: [
+          { step: 0, f: 293.66, d: 1.4 },  // D4
+          { step: 2, f: 311.13, d: 0.7 },  // Eb4
+          { step: 3, f: 369.99, d: 0.7 },  // F#4
+          { step: 4, f: 392.00, d: 1.4 },  // G4
+          { step: 6, f: 369.99, d: 0.7 },  // F#4
+          { step: 7, f: 311.13, d: 0.7 },  // Eb4
+          { step: 8, f: 293.66, d: 2.8 },  // D4
+          
+          { step: 16, f: 440.00, d: 1.4 }, // A4
+          { step: 18, f: 466.16, d: 0.7 }, // Bb4
+          { step: 19, f: 523.25, d: 0.7 }, // C5
+          { step: 20, f: 587.33, d: 1.4 }, // D5
+          { step: 22, f: 523.25, d: 0.7 }, // C5
+          { step: 23, f: 466.16, d: 0.7 }, // Bb4
+          { step: 24, f: 440.00, d: 2.8 }, // A4
+          
+          { step: 32, f: 466.16, d: 1.4 }, // Bb4
+          { step: 34, f: 440.00, d: 0.7 }, // A4
+          { step: 35, f: 392.00, d: 0.7 }, // G4
+          { step: 36, f: 369.99, d: 1.4 }, // F#4
+          { step: 38, f: 392.00, d: 0.7 }, // G4
+          { step: 39, f: 311.13, d: 0.7 }, // Eb4
+          { step: 40, f: 293.66, d: 2.8 }, // D4
+          
+          { step: 48, f: 392.00, d: 1.4 }, // G4
+          { step: 50, f: 440.00, d: 0.7 }, // A4
+          { step: 51, f: 466.16, d: 0.7 }, // Bb4
+          { step: 52, f: 440.00, d: 1.4 }, // A4
+          { step: 54, f: 369.99, d: 0.7 }, // F#4
+          { step: 55, f: 311.13, d: 0.7 }, // Eb4
+          { step: 56, f: 293.66, d: 2.8 }  // D4
+        ]
+      },
+      {
+        name: "Andalusia",
+        bpm: 90,
+        gain: 0.38,
+        instrument: "qanun",
+        chords: [
+          // Am: A2 (110.00), E3 (164.81), A3 (220.00), C4 (261.63)
+          [110.00, 164.81, 220.00, 261.63],
+          // G: G2 (98.00), D3 (146.83), G3 (196.00), B3 (246.94)
+          [98.00, 146.83, 196.00, 246.94],
+          // F: F2 (87.31), C3 (130.81), F3 (174.61), A3 (220.00)
+          [87.31, 130.81, 174.61, 220.00],
+          // E: E2 (82.41), B2 (123.47), E3 (164.81), G#3 (207.65)
+          [82.41, 123.47, 164.81, 207.65]
+        ],
+        melody: [
+          { step: 0, f: 440.00, d: 0.6 },  // A4
+          { step: 1, f: 493.88, d: 0.6 },  // B4
+          { step: 2, f: 523.25, d: 1.2 },  // C5
+          { step: 4, f: 493.88, d: 0.6 },  // B4
+          { step: 5, f: 440.00, d: 0.6 },  // A4
+          { step: 6, f: 392.00, d: 1.2 },  // G4
+          
+          { step: 8, f: 392.00, d: 0.6 },  // G4
+          { step: 9, f: 440.00, d: 0.6 },  // A4
+          { step: 10, f: 493.88, d: 1.2 }, // B4
+          { step: 12, f: 440.00, d: 0.6 }, // A4
+          { step: 13, f: 392.00, d: 0.6 }, // G4
+          { step: 14, f: 349.23, d: 1.2 }, // F4
+          
+          { step: 16, f: 349.23, d: 0.6 }, // F4
+          { step: 17, f: 392.00, d: 0.6 }, // G4
+          { step: 18, f: 440.00, d: 1.2 }, // A4
+          { step: 20, f: 392.00, d: 0.6 }, // G4
+          { step: 21, f: 349.23, d: 0.6 }, // F4
+          { step: 22, f: 329.63, d: 2.4 }, // E4
+          
+          { step: 32, f: 523.25, d: 0.6 }, // C5
+          { step: 33, f: 587.33, d: 0.6 }, // D5
+          { step: 34, f: 659.25, d: 1.2 }, // E5
+          { step: 36, f: 587.33, d: 0.6 }, // D5
+          { step: 37, f: 523.25, d: 0.6 }, // C5
+          { step: 38, f: 493.88, d: 1.2 }, // B4
+          
+          { step: 40, f: 493.88, d: 0.6 }, // B4
+          { step: 41, f: 523.25, d: 0.6 }, // C5
+          { step: 42, f: 587.33, d: 1.2 }, // D5
+          { step: 44, f: 523.25, d: 0.6 }, // C5
+          { step: 45, f: 493.88, d: 0.6 }, // B4
+          { step: 46, f: 440.00, d: 1.2 }, // A4
+          
+          { step: 48, f: 440.00, d: 0.6 }, // A4
+          { step: 49, f: 493.88, d: 0.6 }, // B4
+          { step: 50, f: 523.25, d: 1.2 }, // C5
+          { step: 52, f: 493.88, d: 0.6 }, // B4
+          { step: 53, f: 440.00, d: 0.6 }, // A4
+          { step: 54, f: 415.30, d: 2.4 }  // G#4 (Spanish cadence resolve!)
+        ]
+      },
+      {
+        name: "Sahara Ambient",
+        bpm: 72,
+        gain: 0.35,
+        instrument: "ambient",
+        chords: [
+          // Pentatonic slow swells
+          // D2 (73.42), A2 (110.00), D3 (146.83), F3 (174.61)
+          [73.42, 110.00, 146.83, 174.61],
+          // F Major pentatonic: F2 (87.31), C3 (130.81), F3 (174.61), A3 (220.00)
+          [87.31, 130.81, 174.61, 220.00],
+          // G minor pentatonic: G2 (98.00), D3 (146.83), G3 (196.00), Bb3 (233.08)
+          [98.00, 146.83, 196.00, 233.08],
+          // A minor pentatonic: A2 (110.00), E3 (164.81), A3 (220.00), C4 (261.63)
+          [110.00, 164.81, 220.00, 261.63]
+        ],
+        melody: [
+          { step: 0, f: 293.66, d: 3.0 },  // D4
+          { step: 6, f: 349.23, d: 2.0 },  // F4
+          { step: 8, f: 392.00, d: 4.0 },  // G4
+          
+          { step: 16, f: 440.00, d: 3.0 }, // A4
+          { step: 22, f: 523.25, d: 2.0 }, // C5
+          { step: 24, f: 587.33, d: 4.0 }, // D5
+          
+          { step: 32, f: 523.25, d: 2.5 }, // C5
+          { step: 36, f: 440.00, d: 2.5 }, // A4
+          { step: 40, f: 392.00, d: 5.0 }, // G4
+          
+          { step: 48, f: 349.23, d: 3.0 }, // F4
+          { step: 52, f: 293.66, d: 2.0 }, // D4
+          { step: 54, f: 220.00, d: 5.0 }  // A3
+        ]
+      }
+    ];
   }
 
   get muted() {
@@ -29,6 +179,24 @@ class SoundService {
     } else {
       this.startBGM();
     }
+  }
+
+  async changeTrack(index) {
+    const finalIdx = index % this.tracks.length;
+    this.currentTrackIndex = finalIdx;
+    localStorage.setItem('ronda_bgm_track', String(finalIdx));
+    if (this.bgmPlaying) {
+      await this.stopBGM();
+      // Wait for the old track to fade out completely
+      await new Promise(resolve => setTimeout(resolve, 360));
+      await this.startBGM();
+    }
+    return finalIdx;
+  }
+
+  async nextTrack() {
+    const nextIdx = (this.currentTrackIndex + 1) % this.tracks.length;
+    return await this.changeTrack(nextIdx);
   }
 
   /**
@@ -63,8 +231,8 @@ class SoundService {
 
   /**
    * Start highly authentic and beautiful Moroccan background music.
-   * Generates a slow, relaxing traditional composition loop (48 seconds / 64 steps at 80 BPM).
-   * Features arpeggiated/strummed Oud chords and a breathy Ney flute melody in the traditional Hijaz scale.
+   * Generates a slow, relaxing traditional composition loop based on the active track choice.
+   * Features arpeggiated/strummed traditional instruments and a breathy woodwind Ney flute melody.
    */
   async startBGM() {
     if (this.muted) return;
@@ -79,11 +247,16 @@ class SoundService {
     const ctx = this.ctx;
     this.bgmPlaying = true;
 
+    const track = this.tracks[this.currentTrackIndex];
+    const bpm = track.bpm;
+    const beatDuration = 60 / bpm; // duration of one beat in seconds
+    const masterGainValue = track.gain;
+
     // 1. Master BGM Gain to allow elegant fades and subtle background leveling
     this.bgmMasterGain = ctx.createGain();
     this.bgmMasterGain.gain.setValueAtTime(0, ctx.currentTime);
     // Smooth 2.5 second fade-in to let the music rise gently
-    this.bgmMasterGain.gain.linearRampToValueAtTime(0.42, ctx.currentTime + 2.5);
+    this.bgmMasterGain.gain.linearRampToValueAtTime(masterGainValue, ctx.currentTime + 2.5);
     this.bgmMasterGain.connect(ctx.destination);
     this.bgmNodes.push(this.bgmMasterGain);
 
@@ -91,7 +264,8 @@ class SoundService {
     const delayNode = ctx.createDelay(2.0);
     const delayGain = ctx.createGain();
 
-    delayNode.delayTime.setValueAtTime(0.5625, ctx.currentTime); // ~80 BPM dotted-eighth beat delay
+    const delayTime = beatDuration * 0.75; // dotted-eighth beat delay
+    delayNode.delayTime.setValueAtTime(delayTime, ctx.currentTime); 
     delayGain.gain.setValueAtTime(0.34, ctx.currentTime);       // feedback volume
 
     delayNode.connect(delayGain);
@@ -100,102 +274,128 @@ class SoundService {
 
     this.bgmNodes.push(delayNode, delayGain);
 
-    // 3. Scale and chords definition in the traditional Arabic/Moroccan Hijaz scale (D-Hijaz)
-    // Notes: D (root), Eb, F#, G, A, Bb, C
-    const chords = [
-      // Chord 0 (D Hijaz): D3 (146.83), A3 (220.00), D4 (293.66), F#4 (369.99)
-      [146.83, 220.00, 293.66, 369.99],
-      // Chord 1 (Eb Major): Eb3 (155.56), Bb3 (233.08), Eb4 (311.13), Bb4 (466.16)
-      [155.56, 233.08, 311.13, 466.16],
-      // Chord 2 (Cm / C minor): C3 (130.81), G3 (196.00), C4 (261.63), Eb4 (311.13)
-      [130.81, 196.00, 261.63, 311.13],
-      // Chord 3 (D Majorish cadence): D3 (146.83), A3 (220.00), D4 (293.66), F#4 (369.99)
-      [146.83, 220.00, 293.66, 369.99]
-    ];
+    const chords = track.chords;
+    const melody = track.melody;
 
-    // Hand-crafted traditional Moroccan melody on the Ney Flute (64 steps)
-    // Each step is 1 beat = 0.75 seconds. Total loop duration = 48 seconds!
-    const melody = [
-      { step: 0, f: 293.66, d: 1.4 },  // D4
-      { step: 2, f: 311.13, d: 0.7 },  // Eb4
-      { step: 3, f: 369.99, d: 0.7 },  // F#4
-      { step: 4, f: 392.00, d: 1.4 },  // G4
-      { step: 6, f: 369.99, d: 0.7 },  // F#4
-      { step: 7, f: 311.13, d: 0.7 },  // Eb4
-      { step: 8, f: 293.66, d: 2.8 },  // D4
-      
-      { step: 16, f: 440.00, d: 1.4 }, // A4
-      { step: 18, f: 466.16, d: 0.7 }, // Bb4
-      { step: 19, f: 523.25, d: 0.7 }, // C5
-      { step: 20, f: 587.33, d: 1.4 }, // D5
-      { step: 22, f: 523.25, d: 0.7 }, // C5
-      { step: 23, f: 466.16, d: 0.7 }, // Bb4
-      { step: 24, f: 440.00, d: 2.8 }, // A4
-      
-      { step: 32, f: 466.16, d: 1.4 }, // Bb4
-      { step: 34, f: 440.00, d: 0.7 }, // A4
-      { step: 35, f: 392.00, d: 0.7 }, // G4
-      { step: 36, f: 369.99, d: 1.4 }, // F#4
-      { step: 38, f: 392.00, d: 0.7 }, // G4
-      { step: 39, f: 311.13, d: 0.7 }, // Eb4
-      { step: 40, f: 293.66, d: 2.8 }, // D4
-      
-      { step: 48, f: 392.00, d: 1.4 }, // G4
-      { step: 50, f: 440.00, d: 0.7 }, // A4
-      { step: 51, f: 466.16, d: 0.7 }, // Bb4
-      { step: 52, f: 440.00, d: 1.4 }, // A4
-      { step: 54, f: 369.99, d: 0.7 }, // F#4
-      { step: 55, f: 311.13, d: 0.7 }, // Eb4
-      { step: 56, f: 293.66, d: 2.8 }  // D4
-    ];
-
-    // Helper to play an acoustic Oud strum (rolls notes with a slight delay)
+    // Helper to play procedural chords (Oud pluck, Qanun pluck, or Ambient strings)
     const playStrummedChord = (chordNotes) => {
       const now = ctx.currentTime;
-      chordNotes.forEach((freq, idx) => {
-        const strumDelay = idx * 0.045; // 45ms arpeggiation (finger roll effect)
-        const noteTime = now + strumDelay;
+      const instrument = track.instrument;
 
+      chordNotes.forEach((freq, idx) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         const filter = ctx.createBiquadFilter();
 
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(freq, noteTime);
+        if (instrument === 'qanun') {
+          // Qanun zither strum: faster arpeggiation, brighter filter pluck envelope
+          const strumDelay = idx * 0.03; // 30ms snappy delay
+          const noteTime = now + strumDelay;
 
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(1200, noteTime);
-        filter.Q.setValueAtTime(1.0, noteTime);
-        filter.frequency.exponentialRampToValueAtTime(320, noteTime + 0.22); // plucked damping
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, noteTime);
 
-        gain.gain.setValueAtTime(0, noteTime);
-        gain.gain.linearRampToValueAtTime(0.015, noteTime + 0.003); // extremely quiet and warm
-        gain.gain.exponentialRampToValueAtTime(0.0001, noteTime + 1.8); // natural echo tail
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(2000, noteTime);
+          filter.Q.setValueAtTime(1.2, noteTime);
+          filter.frequency.exponentialRampToValueAtTime(500, noteTime + 0.18);
 
-        osc.connect(filter);
-        filter.connect(gain);
-        gain.connect(this.bgmMasterGain);
-        gain.connect(delayNode);
+          gain.gain.setValueAtTime(0, noteTime);
+          gain.gain.linearRampToValueAtTime(0.014, noteTime + 0.002);
+          gain.gain.exponentialRampToValueAtTime(0.0001, noteTime + 1.4);
 
-        osc.start(noteTime);
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.bgmMasterGain);
+          gain.connect(delayNode);
 
-        this.bgmNodes.push(osc, gain, filter);
+          osc.start(noteTime);
+          this.bgmNodes.push(osc, gain, filter);
 
-        setTimeout(() => {
-          try {
-            osc.stop();
-            osc.disconnect();
-            filter.disconnect();
-            gain.disconnect();
-          } catch (e) { /* ignore */ }
-          this.bgmNodes = this.bgmNodes.filter(n => n !== osc && n !== gain && n !== filter);
-        }, 2500);
+          setTimeout(() => {
+            try {
+              osc.stop();
+              osc.disconnect();
+              filter.disconnect();
+              gain.disconnect();
+            } catch { /* ignore */ }
+            this.bgmNodes = this.bgmNodes.filter(n => n !== osc && n !== gain && n !== filter);
+          }, 2200);
+
+        } else if (instrument === 'ambient') {
+          // Sahara Ambient chords: warm slow-attack synth pad swells instead of a pluck
+          const noteTime = now; // play all together for deep harmony pad
+          
+          osc.type = 'sine'; // super pure warm frequency
+          osc.frequency.setValueAtTime(freq, noteTime);
+
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(600, noteTime); // dark and warm
+          filter.Q.setValueAtTime(1.0, noteTime);
+
+          gain.gain.setValueAtTime(0, noteTime);
+          gain.gain.linearRampToValueAtTime(0.012, noteTime + 1.4); // extremely slow swell
+          gain.gain.exponentialRampToValueAtTime(0.0001, noteTime + 4.5); // long ambient release
+
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.bgmMasterGain);
+
+          osc.start(noteTime);
+          this.bgmNodes.push(osc, gain, filter);
+
+          setTimeout(() => {
+            try {
+              osc.stop();
+              osc.disconnect();
+              filter.disconnect();
+              gain.disconnect();
+            } catch { /* ignore */ }
+            this.bgmNodes = this.bgmNodes.filter(n => n !== osc && n !== gain && n !== filter);
+          }, 5000);
+
+        } else {
+          // Default instrument: Oud strum (Track 0 "Nasseem" logic)
+          const strumDelay = idx * 0.045; // 45ms roll delay
+          const noteTime = now + strumDelay;
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, noteTime);
+
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(1200, noteTime);
+          filter.Q.setValueAtTime(1.0, noteTime);
+          filter.frequency.exponentialRampToValueAtTime(320, noteTime + 0.22); // pluck damping
+
+          gain.gain.setValueAtTime(0, noteTime);
+          gain.gain.linearRampToValueAtTime(0.015, noteTime + 0.003); // quiet and warm
+          gain.gain.exponentialRampToValueAtTime(0.0001, noteTime + 1.8);
+
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.bgmMasterGain);
+          gain.connect(delayNode);
+
+          osc.start(noteTime);
+          this.bgmNodes.push(osc, gain, filter);
+
+          setTimeout(() => {
+            try {
+              osc.stop();
+              osc.disconnect();
+              filter.disconnect();
+              gain.disconnect();
+            } catch { /* ignore */ }
+            this.bgmNodes = this.bgmNodes.filter(n => n !== osc && n !== gain && n !== filter);
+          }, 2500);
+        }
       });
     };
 
-    // Helper to play a breathy Ney flute note
+    // Helper to play a breathy Ney woodwind flute note
     const playNeyNote = (freq, duration) => {
       const now = ctx.currentTime;
+      const instrument = track.instrument;
 
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -204,12 +404,30 @@ class SoundService {
       osc.type = 'sine';
       osc.frequency.setValueAtTime(freq, now);
 
-      // Subtle Vibrato LFO (5.5Hz) for realistic, expressive woodwind tone
+      // Determine track-specific woodwind vibrato speed & depth
+      let lfoSpeed = 5.5;
+      let lfoDepth = 3.2;
+      let noiseLevel = 0.005;
+      let attackTime = 0.16;
+
+      if (instrument === 'qanun') {
+        lfoSpeed = 6.0;   // slightly faster, lighter vibrato for lively tempo
+        lfoDepth = 2.5;
+        noiseLevel = 0.004;
+        attackTime = 0.12;
+      } else if (instrument === 'ambient') {
+        lfoSpeed = 4.5;   // slower, deeper, highly soulful woodwind vibrato
+        lfoDepth = 4.2;
+        noiseLevel = 0.008; // more breath noise to simulate blowing wind in desert
+        attackTime = 0.35; // slow swelling breath entry
+      }
+
+      // Subtle Vibrato LFO for realistic, expressive woodwind tone
       const lfo = ctx.createOscillator();
       const lfoGain = ctx.createGain();
 
-      lfo.frequency.value = 5.5; // Vibrato speed
-      lfoGain.gain.value = 3.2;  // Vibrato depth
+      lfo.frequency.value = lfoSpeed;
+      lfoGain.gain.value = lfoDepth;
 
       lfo.connect(lfoGain);
       lfoGain.connect(osc.frequency);
@@ -226,20 +444,20 @@ class SoundService {
 
       const breathGain = ctx.createGain();
       breathGain.gain.setValueAtTime(0, now);
-      breathGain.gain.linearRampToValueAtTime(0.005, now + 0.14); // soft breathing swell
-      breathGain.gain.setValueAtTime(0.005, now + duration - 0.06);
+      breathGain.gain.linearRampToValueAtTime(noiseLevel, now + attackTime); // soft breathing swell
+      breathGain.gain.setValueAtTime(noiseLevel, now + duration - 0.06);
       breathGain.gain.linearRampToValueAtTime(0, now + duration + 0.1);
 
       noiseSource.connect(breathFilter);
       breathFilter.connect(breathGain);
       breathGain.connect(this.bgmMasterGain);
 
-      // Flute envelope
+      // Flute lowpass envelope
       filter.type = 'lowpass';
       filter.frequency.setValueAtTime(1400, now);
 
       gain.gain.setValueAtTime(0, now);
-      gain.gain.linearRampToValueAtTime(0.015, now + 0.16); // slow breathing blow attack
+      gain.gain.linearRampToValueAtTime(0.015, now + attackTime); // slow breathing blow attack
       gain.gain.setValueAtTime(0.015, now + duration - 0.08);
       gain.gain.linearRampToValueAtTime(0.0001, now + duration + 0.15); // soft breath release
 
@@ -270,7 +488,7 @@ class SoundService {
           breathGain.disconnect();
           filter.disconnect();
           gain.disconnect();
-        } catch (e) { /* ignore */ }
+        } catch { /* ignore */ }
 
         this.bgmNodes = this.bgmNodes.filter(n =>
           n !== osc && n !== gain && n !== filter &&
@@ -280,13 +498,13 @@ class SoundService {
       }, (duration + 0.8) * 1000);
     };
 
-    // 4. BGM Clock Sequencer - ticks every beat (0.75s) at 80 BPM
+    // 4. BGM Clock Sequencer - ticks dynamically based on the track's BPM
     let step = 0;
 
     const tick = () => {
       if (!this.bgmPlaying) return;
 
-      // Chord Triggering (every 16 beats = 12 seconds)
+      // Chord Triggering (every 16 beats)
       if (step % 16 === 0) {
         const chordIndex = Math.floor(step / 16) % chords.length;
         playStrummedChord(chords[chordIndex]);
@@ -298,14 +516,14 @@ class SoundService {
         playNeyNote(note.f, note.d);
       }
 
-      // Advance sequence counter (wraps at 64 steps = 48 seconds)
+      // Advance sequence counter (wraps at 64 steps)
       step = (step + 1) % 64;
     };
 
     // Run first step immediately
     tick();
 
-    const sequencerInterval = setInterval(tick, 750);
+    const sequencerInterval = setInterval(tick, beatDuration * 1000);
     this.bgmIntervals.push(sequencerInterval);
   }
 
@@ -326,7 +544,7 @@ class SoundService {
         const now = this.ctx.currentTime;
         this.bgmMasterGain.gain.setValueAtTime(this.bgmMasterGain.gain.value, now);
         this.bgmMasterGain.gain.linearRampToValueAtTime(0, now + 0.35);
-      } catch (e) { /* ignore */ }
+      } catch { /* ignore */ }
     }
 
     const nodesToDispose = [...this.bgmNodes];
@@ -337,10 +555,10 @@ class SoundService {
       nodesToDispose.forEach(node => {
         try {
           node.stop();
-        } catch (e) { /* ignore */ }
+        } catch { /* ignore */ }
         try {
           node.disconnect();
-        } catch (e) { /* ignore */ }
+        } catch { /* ignore */ }
       });
     }, 450);
   }

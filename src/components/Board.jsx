@@ -8,7 +8,7 @@ import gameBg from '../assets/game_background.png';
 import { useLanguage } from '../contexts/LanguageContext';
 import { adService } from '../services/AdService';
 import { useSound } from '../contexts/SoundContext';
-import { Volume2, VolumeX } from 'lucide-react';
+import { Volume2, VolumeX, Music } from 'lucide-react';
 
 export const RondaBoard = ({ G, ctx, moves, playerID }) => {
 
@@ -78,6 +78,9 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
   const {
     isMuted,
     toggleMute,
+    currentTrack,
+    tracks,
+    nextTrack,
     playClick,
     playCardDeal,
     playCardPlace,
@@ -892,14 +895,27 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
               <span className="text-slate-300 font-medium text-xs sm:text-sm">{t('cardsRemaining')}: {G.deck.length}</span>
             </div>
 
-            {/* Sound Toggle Button */}
-            <button 
-              onClick={toggleMute}
-              className="flex items-center justify-center p-3 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-slate-700 transition-all active:scale-95 shadow-lg cursor-pointer z-20"
-              title={isMuted ? "Unmute Sound" : "Mute Sound"}
-            >
-              {isMuted ? <VolumeX size={18} className="text-red-400" /> : <Volume2 size={18} className="text-emerald-400" />}
-            </button>
+            {/* Sound & Music Controls */}
+            <div className="flex items-center gap-2 z-20">
+              {/* Music Selector Button */}
+              <button 
+                onClick={() => { playClick(); nextTrack(); }}
+                className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-slate-700 transition-all active:scale-95 shadow-lg cursor-pointer"
+                title={tracks && tracks[currentTrack] ? `Track wechseln: ${tracks[currentTrack].name}` : "Track wechseln"}
+              >
+                <Music size={16} className="text-amber-400 animate-pulse" />
+                <span className="text-slate-300 font-medium text-xs sm:text-sm">{tracks && tracks[currentTrack] ? tracks[currentTrack].name : "Musik"}</span>
+              </button>
+
+              {/* Sound Toggle Button */}
+              <button 
+                onClick={toggleMute}
+                className="flex items-center justify-center p-2.5 sm:p-3 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-slate-700 transition-all active:scale-95 shadow-lg cursor-pointer"
+                title={isMuted ? "Unmute Sound" : "Mute Sound"}
+              >
+                {isMuted ? <VolumeX size={16} className="text-red-400" /> : <Volume2 size={16} className="text-emerald-400" />}
+              </button>
+            </div>
           </div>
         </div>
 

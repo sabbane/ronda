@@ -6,6 +6,7 @@ const SoundContext = createContext();
 
 export const SoundProvider = ({ children }) => {
   const [isMuted, setIsMuted] = useState(soundService.muted);
+  const [currentTrack, setCurrentTrack] = useState(soundService.currentTrackIndex);
 
   // Synchronize initial state
   useEffect(() => {
@@ -44,6 +45,16 @@ export const SoundProvider = ({ children }) => {
       soundService.muted = newVal;
       return newVal;
     });
+  };
+
+  const changeTrack = async (idx) => {
+    const finalIdx = await soundService.changeTrack(idx);
+    setCurrentTrack(finalIdx);
+  };
+
+  const nextTrack = async () => {
+    const finalIdx = await soundService.nextTrack();
+    setCurrentTrack(finalIdx);
   };
 
   const playClick = () => {
@@ -91,6 +102,10 @@ export const SoundProvider = ({ children }) => {
       value={{
         isMuted,
         toggleMute,
+        currentTrack,
+        tracks: soundService.tracks,
+        changeTrack,
+        nextTrack,
         playClick,
         playCardDeal,
         playCardPlace,
