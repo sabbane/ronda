@@ -5,6 +5,7 @@ import App from './App.jsx'
 
 import { registerSW } from 'virtual:pwa-register'
 import { LanguageProvider } from './contexts/LanguageContext'
+import { SoundProvider } from './contexts/SoundContext'
 
 // Register service worker with automatic updates
 registerSW({ immediate: true })
@@ -12,9 +13,11 @@ registerSW({ immediate: true })
 const initApp = () => {
   createRoot(document.getElementById('root')).render(
     <StrictMode>
-      <LanguageProvider>
-        <App />
-      </LanguageProvider>
+      <SoundProvider>
+        <LanguageProvider>
+          <App />
+        </LanguageProvider>
+      </SoundProvider>
     </StrictMode>,
   )
 }

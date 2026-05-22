@@ -110,6 +110,24 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 *   **Performance-Benchmarks:** Das Tool `latency_benchmark.spec.js` misst die Antwortzeiten des Live-Servers.
 *   **Asset-Preloading:** Karten-Assets werden vorab geladen (Preload im HTML und verstecktes Rendern in den Komponenten), um Latenzen oder Flackern bei der Kartenausgabe zu vermeiden.
 
+### 4.7 Audiosystem (Procedural Sound Synthesis)
+Um das Spielgefühl immersiv zu gestalten und Sondersituationen dramatisch zu untermalen, wurde ein taktiler Sound-Service (`src/services/SoundService.js`) implementiert:
+*   **Procedural Web Audio API:** Anstelle von großen statischen Audio-Dateien (MP3/WAV) werden alle Soundeffekte in Echtzeit über Oszillatoren, Filter und Gain-Nodes synthetisiert. Dadurch beträgt der Speicher-Overhead **0 KB** und die volle Kompatibilität mit dem Single-File-Build für PlayGama bleibt gewahrt.
+*   **10 Soundeffekte:**
+    1.  *UI Click:* Kurzer, sauberer Frequenzsweep für Interaktionen.
+    2.  *Card Deal:* Ein Bandpass-gefiltertes Rauschen mit exponentiellem Abklingen, um das Reiben von Papier nachzuahmen.
+    3.  *Card Place:* Eine Kombination aus tiefem Sinus-Thud (Holzklopfen) und kurzem Hochpass-Rauschen (Karten-Snap).
+    4.  *Card Sweep:* Drei aufeinanderfolgende, überlappende Rausch-Bursts und ein abschließendes Platziergeräusch, um das Zusammenziehen von Karten zu vertonen.
+    5.  *Missa-Ankündigung:* Aufsteigendes C-Dur-Arpeggio mit weichem Dreiecks-Oszillator.
+    6.  *Derba-Ankündigung:* Absteigender, druckvoller Arcade-Stinger.
+    7.  *Ronda/Tringa-Ankündigung:* Aufsteigende pentatonische Tonleiter mit glockenspielartigem Charakter.
+    8.  *Clash-Ankündigung:* Metallischer Klirr-Sound (Kombination unharmonischer hoher Frequenzen) gefolgt von einem Bandschwert-Swoosh.
+    9.  *Victory-Melodie:* Triumphaler, fröhlicher C-Dur-Akkordverlauf mit warmen Dreiecks- und Sinustönen.
+    10. *Defeat-Melodie:* Schwermütige, absteigende Moll-Tonfolge.
+*   **Reaktive Sound-Trigger:** In `src/components/Board.jsx` überwachen declarative `useEffect`-Hooks den Spielstatus (Handkartenlänge, Tischkartenanzahl, eroberte Karten, Popups, GameOver-Status) und lösen die Sounds lippensynchron aus.
+*   **Mute-Option & Persistenz:** Ein Sound-Toggle (Speaker-Icon) ist sowohl im Hauptmenü (neben den Flaggen) als auch direkt auf dem Spielfeld (oben rechts) platziert. Der Zustand (Muted/Unmuted) wird persistiert in `localStorage` (`ronda_muted`) und automatisch auf allen Ansichten synchronisiert.
+*   **Autoplay-Policy:** Die Audiokontext-Initialisierung (`AudioContext`) erfolgt träge (lazy) beim allerersten Benutzer-Klick, um moderne Browser-Sicherheitseinstellungen nahtlos zu erfüllen.
+
 ## 5. Projektstruktur
 ```text
 /src
@@ -193,5 +211,6 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   [x] PlayGama: Früh-Initialisierung des SDKs mit AdBlock-UI in der `index.html`
 *   [x] PlayGama: CORS Backend-Unterstützung für WebSocket-Verbindungen von `null`-Origins
 *   [x] PlayGama: Spiel als HTML5-ZIP hochgeladen und verifiziert
+*   [x] Zero-Weight Web Audio API Audiosystem (10 taktile Soundeffekte, Mute-Toggle, LocalStorage Persistenz)
 *   [ ] Google Play Store: Bubblewrap TWA-Packaging & Store-Listing
 *   [ ] Erweiterte KI-Heuristik

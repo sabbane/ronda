@@ -7,6 +7,8 @@ import gameBg from '../assets/game_background.png';
 
 import { useLanguage } from '../contexts/LanguageContext';
 import { adService } from '../services/AdService';
+import { useSound } from '../contexts/SoundContext';
+import { Volume2, VolumeX } from 'lucide-react';
 
 export const RondaBoard = ({ G, ctx, moves, playerID }) => {
 
@@ -73,9 +75,104 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [isAdPlaying, setIsAdPlaying] = React.useState(false);
 
+  const {
+    isMuted,
+    toggleMute,
+    playClick,
+    playCardDeal,
+    playCardPlace,
+    playCardSweep,
+    playMissa,
+    playDerba,
+    playRondaTringa,
+    playClash,
+    playVictory,
+    playDefeat
+  } = useSound();
+
   React.useEffect(() => {
     adService.sendGameReady();
   }, []);
+
+  // 1. Play card deal sound when new cards are dealt (total cards in hands increase)
+  const p0HandLength = G.players['0']?.hand?.length || 0;
+  const p1HandLength = G.players['1']?.hand?.length || 0;
+  const totalHandCards = p0HandLength + p1HandLength;
+  const prevHandCards = React.useRef(totalHandCards);
+  
+  React.useEffect(() => {
+    if (totalHandCards > prevHandCards.current) {
+      playCardDeal();
+    }
+    prevHandCards.current = totalHandCards;
+  }, [totalHandCards, playCardDeal]);
+
+  // 2. Play card place sound when a card is played onto the table (table cards increase by 1)
+  const tableLength = G.table?.length || 0;
+  const prevTableLength = React.useRef(tableLength);
+
+  React.useEffect(() => {
+    if (tableLength > prevTableLength.current) {
+      if (tableLength - prevTableLength.current === 1) {
+        playCardPlace();
+      }
+    }
+    prevTableLength.current = tableLength;
+  }, [tableLength, playCardPlace]);
+
+  // 3. Play card sweep sound when cards are captured (total captured cards increase)
+  const p0Captured = G.players['0']?.captured?.length || 0;
+  const p1Captured = G.players['1']?.captured?.length || 0;
+  const totalCaptured = p0Captured + p1Captured;
+  const prevCaptured = React.useRef(totalCaptured);
+
+  React.useEffect(() => {
+    if (totalCaptured > prevCaptured.current) {
+      playCardSweep();
+    }
+    prevCaptured.current = totalCaptured;
+  }, [totalCaptured, playCardSweep]);
+
+  // 4. Play announcement chime sound when activeEvent popups appear
+  React.useEffect(() => {
+    if (activeEvent) {
+      const type = activeEvent.type;
+      const streak = activeEvent.streak;
+      const isSuccess = activeEvent.displayVariant === 'success';
+      
+      if (type === 'Missa') {
+        playMissa(isSuccess);
+      } else if (type === 'Derba') {
+        playDerba(isSuccess);
+      } else if (type === 'Taawida') {
+        if (streak >= 3) {
+          playRondaTringa(isSuccess);
+        } else {
+          playDerba(isSuccess);
+        }
+      } else if (type === 'Clash') {
+        playClash(isSuccess);
+      } else if (['Ronda', 'Tringa', 'TringaWins', 'Clash Won', 'King Finish', 'As Finish', 'Final Fail'].includes(type)) {
+        playRondaTringa(isSuccess);
+      }
+    }
+  }, [activeEvent, playMissa, playDerba, playRondaTringa, playClash]);
+
+  // 5. Play Victory / Defeat sound when the game ends
+  const isGameOver = !!(G.gameStatus && ctx.activePlayers?.[myID] === 'gameOver');
+  const prevIsGameOver = React.useRef(isGameOver);
+
+  React.useEffect(() => {
+    if (isGameOver && !prevIsGameOver.current) {
+      const gameWinner = G.gameStatus?.winner !== undefined ? G.gameStatus.winner : 'Draw';
+      if (gameWinner === myID) {
+        playVictory();
+      } else {
+        playDefeat();
+      }
+    }
+    prevIsGameOver.current = isGameOver;
+  }, [isGameOver, G.gameStatus, myID, playVictory, playDefeat]);
 
   const isCurrentPlayer = (id) => {
     const isTurn = ctx.currentPlayer === id;
@@ -361,8 +458,8 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
         {/* Back to Menu Button */}
         <div className="absolute top-4 start-4 z-[60]">
           <button 
-            onClick={() => window.dispatchEvent(new CustomEvent('ronda-menu'))}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-white/10 transition-all active:scale-95 shadow-lg group"
+            onClick={() => { playClick(); window.dispatchEvent(new CustomEvent('ronda-menu')); }}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-white/10 transition-all active:scale-95 shadow-lg group cursor-pointer"
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
@@ -568,6 +665,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
                   <button 
                     onClick={() => {
+                      playClick();
                       adService.showInterstitial({
                         onBeforeAd: () => setIsAdPlaying(true),
                         onComplete: () => {
@@ -576,12 +674,13 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                         }
                       });
                     }}
-                    className="px-8 py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-full font-bold transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-amber-900/40 border border-amber-400/30"
+                    className="px-8 py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-full font-bold transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-amber-900/40 border border-amber-400/30 cursor-pointer"
                   >
                     {t('playAgain')}
                   </button>
                   <button 
                     onClick={() => {
+                      playClick();
                       adService.showInterstitial({
                         onBeforeAd: () => setIsAdPlaying(true),
                         onComplete: () => {
@@ -590,7 +689,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                         }
                       });
                     }}
-                    className="px-8 py-3 bg-slate-700 hover:bg-slate-600 text-slate-100 rounded-full font-bold transition-all transform hover:scale-105 active:scale-95 shadow-lg border border-slate-600"
+                    className="px-8 py-3 bg-slate-700 hover:bg-slate-600 text-slate-100 rounded-full font-bold transition-all transform hover:scale-105 active:scale-95 shadow-lg border border-slate-600 cursor-pointer"
                   >
                     {t('mainMenu')}
                   </button>
@@ -784,14 +883,23 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
             playedCardId={playedCardId}
           />
 
-          {/* Deck Info - Moved below player hand to prevent overlap on mobile */}
-          <div className="flex justify-start px-2 sm:px-8 mt-4 sm:mt-6 pb-4 sm:pb-6">
+          {/* Deck Info & Sound Toggle - Moved below player hand to prevent overlap on mobile */}
+          <div className="flex justify-between items-center px-2 sm:px-8 mt-4 sm:mt-6 pb-4 sm:pb-6 w-full">
             <div className="flex items-center gap-2 bg-slate-800/80 backdrop-blur px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-slate-700 shadow-lg z-20">
               <div className="w-5 h-7 sm:w-6 sm:h-8 rounded-md border border-slate-200/30 shadow overflow-hidden flex-shrink-0 bg-white">
                 <img src={backCard} alt="Card Back" className="w-full h-full object-cover" />
               </div>
               <span className="text-slate-300 font-medium text-xs sm:text-sm">{t('cardsRemaining')}: {G.deck.length}</span>
             </div>
+
+            {/* Sound Toggle Button */}
+            <button 
+              onClick={toggleMute}
+              className="flex items-center justify-center p-3 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-slate-700 transition-all active:scale-95 shadow-lg cursor-pointer z-20"
+              title={isMuted ? "Unmute Sound" : "Mute Sound"}
+            >
+              {isMuted ? <VolumeX size={18} className="text-red-400" /> : <Volume2 size={18} className="text-emerald-400" />}
+            </button>
           </div>
         </div>
 

@@ -1,9 +1,11 @@
 
 import { useLanguage } from '../contexts/LanguageContext';
 import moroccanBg from '../assets/moroccan_background.png';
+import { useSound } from '../contexts/SoundContext';
 
 export const Rules = ({ onBack }) => {
   const { language, changeLanguage, t } = useLanguage();
+  const { playClick } = useSound();
 
   return (
     <div className="min-h-screen flex flex-col items-center text-white relative overflow-hidden overflow-y-auto">
@@ -23,8 +25,8 @@ export const Rules = ({ onBack }) => {
         {/* Header section: Back button and Language Switcher */}
         <div className="flex justify-between items-center mb-8 relative">
           <button 
-            onClick={onBack}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-white/10 transition-all active:scale-95 shadow-lg group"
+            onClick={() => { playClick(); onBack(); }}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-white/10 transition-all active:scale-95 shadow-lg group cursor-pointer"
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
@@ -41,26 +43,26 @@ export const Rules = ({ onBack }) => {
           {/* Language Selector */}
           <div className="flex gap-2" dir="ltr">
             <button
-              onClick={() => changeLanguage('en')}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'en' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10`}
+              onClick={() => { playClick(); changeLanguage('en'); }}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'en' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
             >
               <img src="https://flagcdn.com/w40/gb.png" alt="EN" className="w-4 h-3 object-cover rounded-sm" /> EN
             </button>
             <button
-              onClick={() => changeLanguage('de')}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'de' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10`}
+              onClick={() => { playClick(); changeLanguage('de'); }}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'de' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
             >
               <img src="https://flagcdn.com/w40/de.png" alt="DE" className="w-4 h-3 object-cover rounded-sm" /> DE
             </button>
             <button
-              onClick={() => changeLanguage('fr')}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'fr' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10`}
+              onClick={() => { playClick(); changeLanguage('fr'); }}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'fr' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
             >
               <img src="https://flagcdn.com/w40/fr.png" alt="FR" className="w-4 h-3 object-cover rounded-sm" /> FR
             </button>
             <button
-              onClick={() => changeLanguage('ar')}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'ar' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10`}
+              onClick={() => { playClick(); changeLanguage('ar'); }}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'ar' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
             >
               <img src="https://flagcdn.com/w40/ma.png" alt="AR" className="w-4 h-3 object-cover rounded-sm" /> AR
             </button>

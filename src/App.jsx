@@ -10,6 +10,8 @@ import { RondaBoard } from './components/Board';
 
 import { useLanguage } from './contexts/LanguageContext';
 import { Rules } from './components/Rules';
+import { Volume2, VolumeX } from 'lucide-react';
+import { useSound } from './contexts/SoundContext';
 
 
 
@@ -75,6 +77,7 @@ const App = () => {
   const [error, setError] = useState(null);
   const [isCheckingRoom, setIsCheckingRoom] = useState(false);
   const { language, changeLanguage, t } = useLanguage();
+  const { isMuted, toggleMute, playClick } = useSound();
 
   const updateUrl = (id) => {
     try {
@@ -253,31 +256,40 @@ const App = () => {
           <div className="bg-slate-900/80 backdrop-blur-xl p-8 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 text-center max-w-md w-full relative">
 
 
-            {/* Language Selector in Center */}
-            <div className="flex justify-center gap-2 mb-8" dir="ltr">
+            {/* Language & Sound Selector in Center */}
+            <div className="flex flex-wrap justify-center gap-2 mb-8" dir="ltr">
               <button
-                onClick={() => changeLanguage('en')}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'en' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10`}
+                onClick={() => { playClick(); changeLanguage('en'); }}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'en' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
               >
                 <img src="https://flagcdn.com/w40/gb.png" alt="EN" className="w-4 h-3 object-cover rounded-sm" /> EN
               </button>
               <button
-                onClick={() => changeLanguage('de')}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'de' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10`}
+                onClick={() => { playClick(); changeLanguage('de'); }}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'de' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
               >
                 <img src="https://flagcdn.com/w40/de.png" alt="DE" className="w-4 h-3 object-cover rounded-sm" /> DE
               </button>
               <button
-                onClick={() => changeLanguage('fr')}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'fr' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10`}
+                onClick={() => { playClick(); changeLanguage('fr'); }}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'fr' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
               >
                 <img src="https://flagcdn.com/w40/fr.png" alt="FR" className="w-4 h-3 object-cover rounded-sm" /> FR
               </button>
               <button
-                onClick={() => changeLanguage('ar')}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'ar' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10`}
+                onClick={() => { playClick(); changeLanguage('ar'); }}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'ar' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
               >
                 <img src="https://flagcdn.com/w40/ma.png" alt="AR" className="w-4 h-3 object-cover rounded-sm" /> AR
+              </button>
+              <div className="w-[1px] h-6 bg-white/15 align-middle self-center mx-1"></div>
+              <button
+                onClick={toggleMute}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 bg-white/10 text-slate-300 hover:bg-white/20 backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
+                title={isMuted ? "Unmute Sound" : "Mute Sound"}
+              >
+                {isMuted ? <VolumeX size={14} className="text-red-400" /> : <Volume2 size={14} className="text-emerald-400" />}
+                <span>{isMuted ? "Muted" : "Sound"}</span>
               </button>
             </div>
 
@@ -289,8 +301,8 @@ const App = () => {
               <div className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
                 <h2 className="text-xl font-bold mb-4 text-amber-200/80 uppercase tracking-widest text-sm">{t('singleplayer')}</h2>
                 <button
-                  onClick={() => setMode('bot')}
-                  className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 px-6 py-4 rounded-xl font-bold transition-all transform hover:scale-[1.02] active:scale-[0.98] text-lg shadow-xl"
+                  onClick={() => { playClick(); setMode('bot'); }}
+                  className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 px-6 py-4 rounded-xl font-bold transition-all transform hover:scale-[1.02] active:scale-[0.98] text-lg shadow-xl cursor-pointer"
                 >
                   {t('playVsBot')}
                 </button>
@@ -314,6 +326,7 @@ const App = () => {
                       />
                       <button
                         onClick={async () => {
+                          playClick();
                           const link = `https://playronda.ma/?room=${matchID}`;
                           if (navigator.share) {
                             try {
@@ -330,7 +343,7 @@ const App = () => {
                             alert(t('linkCopied') || 'Link copied to clipboard!');
                           }
                         }}
-                        className="bg-slate-800 hover:bg-slate-700 p-3 rounded-xl border border-white/10 text-amber-400 transition-all active:scale-95"
+                        className="bg-slate-800 hover:bg-slate-700 p-3 rounded-xl border border-white/10 text-amber-400 transition-all active:scale-95 cursor-pointer"
                         title={t('shareLink') || 'Share Invitation Link'}
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
@@ -346,15 +359,15 @@ const App = () => {
                   <div className="flex gap-3">
                     <button
                       disabled={isCheckingRoom}
-                      onClick={() => handleOnlineAction('0')}
-                      className="flex-1 bg-white/10 hover:bg-white/20 disabled:opacity-50 px-4 py-3 rounded-xl font-bold transition-all shadow-lg text-sm border border-white/5"
+                      onClick={() => { playClick(); handleOnlineAction('0'); }}
+                      className="flex-1 bg-white/10 hover:bg-white/20 disabled:opacity-50 px-4 py-3 rounded-xl font-bold transition-all shadow-lg text-sm border border-white/5 cursor-pointer"
                     >
                       {isCheckingRoom && playerID === '0' ? '...' : t('host')}
                     </button>
                     <button
                       disabled={isCheckingRoom}
-                      onClick={() => handleOnlineAction('1')}
-                      className="flex-1 bg-amber-600/20 hover:bg-amber-600/30 disabled:opacity-50 px-4 py-3 rounded-xl font-bold transition-all shadow-lg text-sm border border-amber-500/20 text-amber-200"
+                      onClick={() => { playClick(); handleOnlineAction('1'); }}
+                      className="flex-1 bg-amber-600/20 hover:bg-amber-600/30 disabled:opacity-50 px-4 py-3 rounded-xl font-bold transition-all shadow-lg text-sm border border-amber-500/20 text-amber-200 cursor-pointer"
                     >
                       {isCheckingRoom && playerID === '1' ? '...' : t('join')}
                     </button>
@@ -365,8 +378,8 @@ const App = () => {
               {/* Rules and Contact Buttons */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
-                  onClick={() => setMode('rules')}
-                  className="flex-1 bg-white/5 hover:bg-white/10 p-4 rounded-2xl font-bold transition-all border border-white/10 backdrop-blur-sm flex items-center justify-center gap-2 text-amber-200"
+                  onClick={() => { playClick(); setMode('rules'); }}
+                  className="flex-1 bg-white/5 hover:bg-white/10 p-4 rounded-2xl font-bold transition-all border border-white/10 backdrop-blur-sm flex items-center justify-center gap-2 text-amber-200 cursor-pointer"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
                   {t('rulesBtn')}
@@ -376,8 +389,9 @@ const App = () => {
                   href="https://www.facebook.com/profile.php?id=61589185596057"
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={playClick}
                   title={t('contactUs')}
-                  className="flex-1 bg-[#1877F2]/10 hover:bg-[#1877F2]/20 p-4 rounded-2xl font-bold transition-all border border-[#1877F2]/30 backdrop-blur-sm flex items-center justify-center gap-2 text-[#1877F2] hover:text-white"
+                  className="flex-1 bg-[#1877F2]/10 hover:bg-[#1877F2]/20 p-4 rounded-2xl font-bold transition-all border border-[#1877F2]/30 backdrop-blur-sm flex items-center justify-center gap-2 text-[#1877F2] hover:text-white cursor-pointer"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
                   {t('contactUs')}
