@@ -3,6 +3,7 @@ import { PlayerHand } from './PlayerHand';
 import { Card } from './Card';
 import { motion, AnimatePresence } from 'framer-motion';
 import backCard from '../assets/cards/back.png';
+import gameBg from '../assets/game_background.png';
 
 import { useLanguage } from '../contexts/LanguageContext';
 import { adService } from '../services/AdService';
@@ -349,7 +350,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
         <div 
           className="fixed inset-0 pointer-events-none"
           style={{
-            backgroundImage: "url('/assets/game_background.png')",
+            backgroundImage: `url(${gameBg})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             filter: 'brightness(0.7)',

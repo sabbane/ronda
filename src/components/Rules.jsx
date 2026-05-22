@@ -1,5 +1,6 @@
 
 import { useLanguage } from '../contexts/LanguageContext';
+import moroccanBg from '../assets/moroccan_background.png';
 
 export const Rules = ({ onBack }) => {
   const { language, changeLanguage, t } = useLanguage();
@@ -10,7 +11,7 @@ export const Rules = ({ onBack }) => {
       <div
         className="fixed inset-0 z-0 scale-105 pointer-events-none"
         style={{
-          backgroundImage: "url('/assets/moroccan_background.png')",
+          backgroundImage: `url(${moroccanBg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           filter: 'brightness(0.4) saturate(1.1)'

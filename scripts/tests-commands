@@ -34,4 +34,4 @@ $env:BASE_URL="https://playronda.ma"; npx playwright test tests/complete_bot_gam
 $env:BASE_URL="https://playronda.ma"; npx playwright test tests/smoke.spec.js tests/multiplayer.spec.js tests/complete_bot_game.spec.js tests/complete_multiplayer_game.spec.js tests/play_again.spec.js tests/latency_benchmark.spec.js --headed --reporter=list
 
 # Hinweis: Die test_scenario_integrity & testmode_p2 Tests brauchen den /test/* Endpunkt
-# und funktionieren nur lokal (mit npm run start:backend:test).
+# und funktionieren nur lokal (mit npm run start:backend:test).

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import moroccanBg from './assets/moroccan_background.png';
 
 import { LobbyClient } from 'boardgame.io/dist/esm/client.js';
 import { Client as ReactClient } from 'boardgame.io/dist/esm/react.js';
@@ -241,7 +242,7 @@ const App = () => {
         <div
           className="fixed inset-0 z-0 scale-105"
           style={{
-            backgroundImage: "url('/assets/moroccan_background.png')",
+            backgroundImage: `url(${moroccanBg})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             filter: 'brightness(0.4) saturate(1.1)'
