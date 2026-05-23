@@ -151,9 +151,9 @@ class SoundService {
       },
       {
         name: "Casablanca",
-        bpm: 144,
-        gain: 0.70,
-        instrument: "qanun",
+        bpm: 92,
+        gain: 0.75,
+        instrument: "hiphop",
         percussion: true,
         chords: [
           // Chord 0 (D Hijaz): D3 (146.83), A3 (220.00), D4 (293.66), F#4 (369.99)
@@ -383,39 +383,94 @@ class SoundService {
             this.bgmNodes = this.bgmNodes.filter(n => n !== osc1 && n !== osc2 && n !== gain && n !== filter);
           }, 2500);
 
+        } else if (instrument === 'hiphop') {
+          // Lo-Fi Hip Hop Electric Piano + Deep 808 Bass
+          const noteTime = now;
+          
+          if (idx === 0) {
+            // Deep 808 Bass on root note
+            const bassOsc = ctx.createOscillator();
+            const bassGain = ctx.createGain();
+            bassOsc.type = 'sine';
+            bassOsc.frequency.setValueAtTime(freq / 2.0, noteTime);
+            
+            bassGain.gain.setValueAtTime(0, noteTime);
+            bassGain.gain.linearRampToValueAtTime(0.04, noteTime + 0.05);
+            bassGain.gain.exponentialRampToValueAtTime(0.0001, noteTime + 2.5);
+            
+            bassOsc.connect(bassGain);
+            bassGain.connect(this.bgmMasterGain);
+            bassOsc.start(noteTime);
+            this.bgmNodes.push(bassOsc, bassGain);
+            setTimeout(() => { try { bassOsc.stop(); bassOsc.disconnect(); bassGain.disconnect(); } catch{ /* ignore */ } }, 3000);
+          }
+
+          // Lo-Fi E-Piano Chord
+          const strumDelay = idx * 0.015; 
+          const pTime = noteTime + strumDelay;
+          
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, pTime);
+          
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(1200, pTime);
+          filter.Q.setValueAtTime(1.0, pTime);
+          
+          gain.gain.setValueAtTime(0, pTime);
+          gain.gain.linearRampToValueAtTime(0.015, pTime + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.0001, pTime + 1.2);
+          
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.bgmMasterGain);
+          gain.connect(delayNode);
+          
+          osc.start(pTime);
+          this.bgmNodes.push(osc, gain, filter);
+          setTimeout(() => { try { osc.stop(); osc.disconnect(); filter.disconnect(); gain.disconnect(); } catch{ /* ignore */ } }, 1500);
+
         } else if (instrument === 'qanun') {
-          // Qanun zither strum: faster arpeggiation, brighter filter pluck envelope
+          // Qanun zither strum: sharper, metallic arpeggiation
           const strumDelay = idx * 0.03; // 30ms snappy delay
           const noteTime = now + strumDelay;
+          const osc2 = ctx.createOscillator(); // Extra oscillator for zing
 
           osc.type = 'triangle';
           osc.frequency.setValueAtTime(freq, noteTime);
+          
+          osc2.type = 'sawtooth';
+          osc2.frequency.setValueAtTime(freq * 2.0, noteTime);
 
           filter.type = 'lowpass';
-          filter.frequency.setValueAtTime(2000, noteTime);
-          filter.Q.setValueAtTime(1.2, noteTime);
-          filter.frequency.exponentialRampToValueAtTime(500, noteTime + (isRhythmic ? 0.08 : 0.18));
+          filter.frequency.setValueAtTime(4500, noteTime); // Much brighter
+          filter.Q.setValueAtTime(1.8, noteTime); // More resonance
+          filter.frequency.exponentialRampToValueAtTime(800, noteTime + (isRhythmic ? 0.08 : 0.18));
 
           gain.gain.setValueAtTime(0, noteTime);
-          gain.gain.linearRampToValueAtTime(isRhythmic ? 0.008 : 0.014, noteTime + 0.002);
+          // Slightly lower gain because sawtooth is louder
+          gain.gain.linearRampToValueAtTime(isRhythmic ? 0.005 : 0.009, noteTime + 0.002);
           gain.gain.exponentialRampToValueAtTime(0.0001, noteTime + (isRhythmic ? 0.35 : 1.4));
 
           osc.connect(filter);
+          osc2.connect(filter);
           filter.connect(gain);
           gain.connect(this.bgmMasterGain);
           gain.connect(delayNode);
 
           osc.start(noteTime);
-          this.bgmNodes.push(osc, gain, filter);
+          osc2.start(noteTime);
+          this.bgmNodes.push(osc, osc2, gain, filter);
 
           setTimeout(() => {
             try {
               osc.stop();
+              osc2.stop();
               osc.disconnect();
+              osc2.disconnect();
               filter.disconnect();
               gain.disconnect();
             } catch { /* ignore */ }
-            this.bgmNodes = this.bgmNodes.filter(n => n !== osc && n !== gain && n !== filter);
+            this.bgmNodes = this.bgmNodes.filter(n => n !== osc && n !== osc2 && n !== gain && n !== filter);
           }, 2200);
 
         } else if (instrument === 'ambient') {
@@ -493,30 +548,62 @@ class SoundService {
       const now = ctx.currentTime;
       const instrument = track.instrument;
 
+      if (instrument === 'hiphop') {
+        // G-Funk / Hip Hop Sine Lead (smooth portamento synth)
+        const osc1 = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(freq, now);
+        
+        const lfo = ctx.createOscillator();
+        const lfoGain = ctx.createGain();
+        lfo.frequency.value = 4.5;
+        lfoGain.gain.value = 3.0;
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc1.frequency);
+        
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.018, now + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration + 0.2);
+        
+        osc1.connect(gain);
+        gain.connect(this.bgmMasterGain);
+        gain.connect(delayNode);
+        
+        osc1.start(now);
+        lfo.start(now);
+        
+        this.bgmNodes.push(osc1, gain, lfo, lfoGain);
+        setTimeout(() => { try { osc1.stop(); lfo.stop(); osc1.disconnect(); lfo.disconnect(); gain.disconnect(); } catch{ /* ignore */ } }, (duration + 0.5) * 1000);
+        return;
+      }
+
       if (instrument === 'qanun') {
-        // Qanun Zither Lead Pluck (detuned double-string chorus + transient)
+        // Qanun Zither Lead Pluck (metallic, sharper with sawtooth and square)
         const osc1 = ctx.createOscillator();
         const osc2 = ctx.createOscillator();
         const osc3 = ctx.createOscillator();
         const gain = ctx.createGain();
         const filter = ctx.createBiquadFilter();
 
-        osc1.type = 'triangle';
+        osc1.type = 'sawtooth';
         osc1.frequency.setValueAtTime(freq - 1.8, now);
 
         osc2.type = 'triangle';
         osc2.frequency.setValueAtTime(freq + 1.8, now);
 
-        osc3.type = 'sine';
+        osc3.type = 'square';
         osc3.frequency.setValueAtTime(freq * 2.0, now);
 
         filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(3500, now);
-        filter.Q.setValueAtTime(1.4, now);
-        filter.frequency.exponentialRampToValueAtTime(700, now + 0.14);
+        filter.frequency.setValueAtTime(5000, now); // Higher starting freq
+        filter.Q.setValueAtTime(2.2, now); // Resonant metallic twang
+        filter.frequency.exponentialRampToValueAtTime(1000, now + 0.14); // Faster drop to higher floor
 
         gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(0.024, now + 0.002);
+        // Lower target gain due to richer harmonics
+        gain.gain.linearRampToValueAtTime(0.016, now + 0.002);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + duration + 0.1);
 
         osc1.connect(filter);
@@ -714,12 +801,12 @@ class SoundService {
         const osc = ctx.createOscillator();
         const g   = ctx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(140, now);
-        osc.frequency.exponentialRampToValueAtTime(55, now + 0.18);
-        g.gain.setValueAtTime(0.55, now);
-        g.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+        osc.frequency.setValueAtTime(track.instrument === 'hiphop' ? 100 : 140, now);
+        osc.frequency.exponentialRampToValueAtTime(track.instrument === 'hiphop' ? 30 : 55, now + 0.18);
+        g.gain.setValueAtTime(track.instrument === 'hiphop' ? 0.75 : 0.55, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + (track.instrument === 'hiphop' ? 0.35 : 0.22));
         osc.connect(g); g.connect(this.bgmMasterGain);
-        osc.start(now); osc.stop(now + 0.25);
+        osc.start(now); osc.stop(now + (track.instrument === 'hiphop' ? 0.4 : 0.25));
         // add a brief body resonance (bandpass noise)
         const dur = 0.12;
         const ns = ctx.createBufferSource();
@@ -791,6 +878,13 @@ class SoundService {
       null,  'dom', 'ka', 'tek'
     ];
 
+    const HIPHOP_PATTERN = [
+      'dom', 'ka', 'ka', 'tek',
+      'ka',  'dom', 'dom', 'tek',
+      'dom', 'ka', 'ka', 'tek',
+      'ka',  'dom', 'ka', 'tek'
+    ];
+
     // 4. BGM Clock Sequencer - ticks dynamically based on the track's BPM
     let step = 0;
 
@@ -801,7 +895,7 @@ class SoundService {
       if (step % 16 === 0) {
         const chordIndex = Math.floor(step / 16) % chords.length;
         playStrummedChord(chords[chordIndex]);
-      } else if (track.instrument === 'qanun' && (step % 16 === 3 || step % 16 === 6 || step % 16 === 8 || step % 16 === 11 || step % 16 === 14)) {
+      } else if ((track.instrument === 'qanun' || track.instrument === 'hiphop') && (step % 16 === 3 || step % 16 === 6 || step % 16 === 8 || step % 16 === 11 || step % 16 === 14)) {
         const chordIndex = Math.floor(step / 16) % chords.length;
         playStrummedChord(chords[chordIndex], true);
       }
@@ -815,9 +909,11 @@ class SoundService {
       // Percussion (only for tracks with percussion: true)
       if (track.percussion) {
         const patternStep = step % 16;
-        const hit = track.instrument === 'guitar'
-          ? RUMBA_PATTERN[patternStep]
-          : DERBOUKA_PATTERN[patternStep];
+        let hit;
+        if (track.instrument === 'guitar') hit = RUMBA_PATTERN[patternStep];
+        else if (track.instrument === 'hiphop') hit = HIPHOP_PATTERN[patternStep];
+        else hit = DERBOUKA_PATTERN[patternStep];
+
         if (hit) playDerboukaHit(hit);
       }
 
