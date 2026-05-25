@@ -224,8 +224,8 @@ export const RondaGame = {
 
     const table = deck.splice(0, 4);
     const players = {
-      '0': { hand: deck.splice(0, 3), captured: [], score: 0 },
-      '1': { hand: deck.splice(0, 3), captured: [], score: 0 },
+      '0': { hand: deck.splice(0, 3), captured: [], score: 0, name: '' },
+      '1': { hand: deck.splice(0, 3), captured: [], score: 0, name: '' },
     };
     
     let G = {
@@ -237,7 +237,7 @@ export const RondaGame = {
       announcements: [],
       pendingCapture: null,
       isAnimating: true,
-      gameStarted: true,
+      gameStarted: isTestMode || setupData?.gameStarted === true,
       endTurnAfterUI: false,
       gameStatus: null, // Custom game over state
       matchesWon: { '0': 0, '1': 0 }, // Track overall games won
@@ -249,6 +249,31 @@ export const RondaGame = {
   },
 
   moves: {
+    startGame: {
+      move: ({ G, events }) => {
+        G.gameStarted = true;
+        if ((G.announcements && G.announcements.length > 0) || G.isAnimating) {
+          G.endTurnAfterUI = false;
+          events.setActivePlayers({ all: 'waitForUI' });
+        }
+      },
+      noLimit: true
+    },
+    setPlayerName: {
+      move: ({ G, playerID }, name) => {
+        const pID = playerID || '0';
+        if (G.players[pID]) {
+          G.players[pID].name = name;
+        }
+      },
+      noLimit: true
+    },
+    hostLeft: {
+      move: ({ G }) => {
+        G.hostLeft = true;
+      },
+      noLimit: true
+    },
     playCard: ({ G, ctx, events, playerID }, cardIndex) => {
       if (G.pendingCapture) return INVALID_MOVE;
 
@@ -425,6 +450,10 @@ export const RondaGame = {
 
   turn: {
     onBegin: ({ G, events }) => {
+      if (G.gameStarted === false) {
+        events.setActivePlayers({ all: 'lobby' });
+        return;
+      }
       // 1. Auto-deal ONLY if both hands are completely empty and deck has cards
       const p0HandEmpty = !G.players['0'].hand || G.players['0'].hand.length === 0;
       const p1HandEmpty = !G.players['1'].hand || G.players['1'].hand.length === 0;
@@ -446,6 +475,36 @@ export const RondaGame = {
       }
     },
     stages: {
+      lobby: {
+        moves: {
+          setPlayerName: {
+            move: ({ G, playerID }, name) => {
+              const pID = playerID || '0';
+              if (G.players[pID]) {
+                G.players[pID].name = name;
+              }
+            },
+            noLimit: true
+          },
+          startGame: {
+            move: ({ G, events }) => {
+              G.gameStarted = true;
+              events.setActivePlayers({ all: null });
+              if ((G.announcements && G.announcements.length > 0) || G.isAnimating) {
+                G.endTurnAfterUI = false;
+                events.setActivePlayers({ all: 'waitForUI' });
+              }
+            },
+            noLimit: true
+          },
+          hostLeft: {
+            move: ({ G }) => {
+              G.hostLeft = true;
+            },
+            noLimit: true
+          }
+        }
+      },
       waitForUI: {
         moves: {
           processCapture: ({ G, ctx, events }) => {

@@ -10,9 +10,9 @@ import { adService } from '../services/AdService';
 import { useSound } from '../contexts/SoundContext';
 import { Volume2, VolumeX, Music } from 'lucide-react';
 
-export const RondaBoard = ({ G, ctx, moves, playerID }) => {
+export const RondaBoard = ({ G, ctx, moves, playerID, matchID }) => {
 
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const moroccanSymbols = [
     // Khamsa (Hand of Fatima)
     ({ color }) => (
@@ -74,6 +74,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
   const [activeEvent, setActiveEvent] = React.useState(null);
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [isAdPlaying, setIsAdPlaying] = React.useState(false);
+  const isLeavingRef = React.useRef(false);
 
   const {
     isMuted,
@@ -96,6 +97,20 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
   React.useEffect(() => {
     adService.sendGameReady();
   }, []);
+
+  React.useEffect(() => {
+    if (isLeavingRef.current) return;
+    const savedNickname = localStorage.getItem('ronda_nickname') || 'Spieler';
+    if (G.players && G.players[myID] && G.players[myID].name !== savedNickname) {
+      moves.setPlayerName(savedNickname);
+    }
+  }, [myID, G.players, moves]);
+
+  React.useEffect(() => {
+    if (G.hostLeft === true && myID === '1' && G.gameStarted === false) {
+      window.dispatchEvent(new CustomEvent('ronda-host-left'));
+    }
+  }, [G.hostLeft, myID, G.gameStarted]);
 
   React.useEffect(() => {
     const handleAdStart = () => {
@@ -227,29 +242,30 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
           processedAnnouncements.current.add(annId);
           
           const isMe = ann.player === myID;
+          const oppName = G.players[opponentID]?.name || t('opponent');
           
           let customText = "";
           let customTitle = ann.type;
           let customIcon = "✨";
 
-          if (ann.type === 'Ronda') customText = isMe ? t('announcements.rondaMe') : t('announcements.rondaOpponent');
-          if (ann.type === 'Tringa') customText = isMe ? t('announcements.tringaMe') : t('announcements.tringaOpponent');
+          if (ann.type === 'Ronda') customText = isMe ? t('announcements.rondaMe', { oppName }) : t('announcements.rondaOpponent', { oppName });
+          if (ann.type === 'Tringa') customText = isMe ? t('announcements.tringaMe', { oppName }) : t('announcements.tringaOpponent', { oppName });
           if (ann.type === 'Missa') {
-            customText = isMe ? t('announcements.missaMe') : t('announcements.missaOpponent');
+            customText = isMe ? t('announcements.missaMe', { oppName }) : t('announcements.missaOpponent', { oppName });
             customIcon = "🧹";
           }
           if (ann.type === 'Derba') {
-            customText = isMe ? t('announcements.derbaMe') : t('announcements.derbaOpponent');
+            customText = isMe ? t('announcements.derbaMe', { oppName }) : t('announcements.derbaOpponent', { oppName });
             customIcon = "🎯";
           }
           if (ann.type === 'Taawida') {
             if (ann.streak === 3) {
               customTitle = t('announcements.counterAttackTitle');
-              customText = isMe ? t('announcements.counterAttackMe') : t('announcements.counterAttackOpponent');
+              customText = isMe ? t('announcements.counterAttackMe', { oppName }) : t('announcements.counterAttackOpponent', { oppName });
               customIcon = "🥊"; // Punch for counter
             } else if (ann.streak === 4) {
               customTitle = t('announcements.ultimateCounterTitle');
-              customText = isMe ? t('announcements.ultimateCounterMe') : t('announcements.ultimateCounterOpponent');
+              customText = isMe ? t('announcements.ultimateCounterMe', { oppName }) : t('announcements.ultimateCounterOpponent', { oppName });
               customIcon = "☢️"; // Nuclear for ultimate
             }
           }
@@ -262,10 +278,10 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
             const pts = ann.pts || (type === 'Tringa' ? 10 : 2);
             if (isMe) {
               customTitle = t('announcements.clashWonTitle');
-              customText = type === 'Tringa' ? t('announcements.clashWonTringaMe', { pts }) : t('announcements.clashWonRondaMe', { pts });
+              customText = type === 'Tringa' ? t('announcements.clashWonTringaMe', { pts, oppName }) : t('announcements.clashWonRondaMe', { pts, oppName });
             } else {
               customTitle = t('announcements.clashLostTitle');
-              customText = type === 'Tringa' ? t('announcements.clashWonTringaOpp', { pts }) : t('announcements.clashWonRondaOpp', { pts });
+              customText = type === 'Tringa' ? t('announcements.clashWonTringaOpp', { pts, oppName }) : t('announcements.clashWonRondaOpp', { pts, oppName });
             }
             customIcon = "⚔️";
           }
@@ -274,22 +290,22 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
             customIcon = "🤝";
           }
           if (ann.type === 'King Finish') {
-            customText = isMe ? t('announcements.kingFinishMe') : t('announcements.kingFinishOpponent');
+            customText = isMe ? t('announcements.kingFinishMe', { oppName }) : t('announcements.kingFinishOpponent', { oppName });
             customIcon = "👑";
           }
           if (ann.type === 'TringaWins') {
-            customText = isMe ? t('announcements.tringaWinsMe') : t('announcements.tringaWinsOpponent');
+            customText = isMe ? t('announcements.tringaWinsMe', { oppName }) : t('announcements.tringaWinsOpponent', { oppName });
             customTitle = "Tringa Wins";
             customIcon = "🏆";
           }
           if (ann.type === 'Final Fail') {
             customTitle = t('announcements.finalFailTitle');
-            customText = isMe ? t('announcements.finalFailMe') : t('announcements.finalFailOpponent');
+            customText = isMe ? t('announcements.finalFailMe', { oppName }) : t('announcements.finalFailOpponent', { oppName });
             customIcon = "📉";
           }
           if (ann.type === 'As Finish') {
             customTitle = t('announcements.asFinishTitle');
-            customText = isMe ? t('announcements.asFinishMe') : t('announcements.asFinishOpponent');
+            customText = isMe ? t('announcements.asFinishMe', { oppName }) : t('announcements.asFinishOpponent', { oppName });
             customIcon = "🂱";
           }
 
@@ -459,6 +475,211 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
   let winner = null;
   if (G.gameStatus) {
     winner = G.gameStatus.winner !== undefined ? G.gameStatus.winner : 'Draw';
+  }
+
+  if (G.gameStarted === false) {
+    const inviteLink = `${window.location.protocol}//${window.location.host}${window.location.pathname}?room=${matchID || ''}`;
+    const p0Name = G.players['0']?.name || 'Host';
+    const p1Name = G.players['1']?.name || '';
+    const hasGuestJoined = !!p1Name.trim();
+
+    const handleShare = async () => {
+      playClick();
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: 'Ronda',
+            text: t('shareText') || 'Join my Ronda game!',
+            url: inviteLink
+          });
+        } catch (err) {
+          console.error('Share failed:', err);
+        }
+      } else {
+        navigator.clipboard.writeText(inviteLink);
+        alert(t('linkCopied') || 'Link copied to clipboard!');
+      }
+    };
+
+    const handleLeaveLobby = () => {
+      playClick();
+      isLeavingRef.current = true;
+      if (myID === '1') {
+        moves.setPlayerName('');
+      } else if (myID === '0') {
+        moves.hostLeft();
+      }
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('ronda-menu'));
+      }, 100);
+    };
+
+    return (
+      <div className="min-h-[100dvh] flex flex-col items-center justify-center p-4 font-sans text-slate-100 relative overflow-y-auto overflow-x-hidden">
+        {/* Subtle Game Background */}
+        <div 
+          className="fixed inset-0 pointer-events-none"
+          style={{
+            backgroundImage: `url(${gameBg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            filter: 'brightness(0.5)',
+            zIndex: 0
+          }}
+        />
+
+        {/* Back to Menu Button */}
+        <div className="absolute top-4 start-4 z-[60]">
+          <button 
+            onClick={handleLeaveLobby}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-white/10 transition-all active:scale-95 shadow-lg group cursor-pointer"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="18" height="18" 
+              viewBox="0 0 24 24" 
+              fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+              className="group-hover:-translate-x-1 transition-transform rtl:group-hover:translate-x-1"
+            >
+              <path d="m15 18-6-6 6-6"/>
+            </svg>
+            <span className="text-sm font-bold uppercase tracking-wider">{t('backToMenu')}</span>
+          </button>
+        </div>
+
+        {/* Music & Sound in Lobby */}
+        <div className="absolute top-4 end-4 z-[60] flex items-center gap-2">
+          <button 
+            onClick={() => { playClick(); nextTrack(); }}
+            className="flex items-center gap-2 px-3 py-1.5 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-white/10 transition-all active:scale-95 shadow-lg cursor-pointer"
+          >
+            <Music size={14} className="text-amber-400 animate-pulse" />
+            <span className="text-slate-300 font-medium text-xs hidden sm:inline">{tracks && tracks[currentTrack] ? tracks[currentTrack].name : "Musik"}</span>
+          </button>
+          <button 
+            onClick={toggleMute}
+            className="flex items-center justify-center p-2 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-white/10 transition-all active:scale-95 shadow-lg cursor-pointer"
+          >
+            {isMuted ? <VolumeX size={14} className="text-red-400" /> : <Volume2 size={14} className="text-emerald-400" />}
+          </button>
+        </div>
+
+        {/* Main Lobby Glass Box */}
+        <div className="bg-slate-900/80 backdrop-blur-2xl p-6 sm:p-10 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 text-center max-w-xl w-full relative z-10 my-8">
+          <h1 className="text-4xl sm:text-5xl font-black mb-1 text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-500 tracking-tighter drop-shadow-2xl">
+            {language === 'de' ? 'Spiel-Lobby' : 'Game Lobby'}
+          </h1>
+          <p className="text-slate-400 text-xs sm:text-sm mb-6 sm:mb-8 font-medium tracking-wide uppercase">
+            {language === 'de' ? 'Warten auf Spieler...' : 'Waiting for players...'}
+          </p>
+
+          {/* Invitation / Room ID Card */}
+          <div className="bg-black/40 border border-white/5 rounded-2xl p-4 mb-6 sm:mb-8 flex flex-col gap-3">
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-slate-400 uppercase tracking-widest font-bold">{language === 'de' ? 'Raum-ID' : 'Room ID'}</span>
+              <span className="text-sm font-mono font-bold text-amber-300 bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20">{matchID}</span>
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                readOnly
+                value={inviteLink}
+                className="flex-1 bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none"
+              />
+              <button
+                onClick={handleShare}
+                className="bg-amber-600 hover:bg-amber-500 px-4 py-2 rounded-xl text-xs font-bold text-white transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-md"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                {language === 'de' ? 'Teilen' : 'Share'}
+              </button>
+            </div>
+          </div>
+
+          {/* Players Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
+            {/* Player 0 (Host) Slot */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col items-center relative overflow-hidden group shadow-lg">
+              <div className="absolute top-3 right-3 bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full">
+                Host
+              </div>
+              <div className="w-16 h-16 rounded-full bg-amber-600/20 border border-amber-500/30 flex items-center justify-center mb-3 text-amber-400">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              </div>
+              <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1">{language === 'de' ? 'Spieler 1' : 'Player 1'}</span>
+              
+              {myID === '0' ? (
+                <input
+                  type="text"
+                  maxLength={15}
+                  value={G.players['0']?.name || ''}
+                  onChange={(e) => moves.setPlayerName(e.target.value)}
+                  className="bg-black/50 border border-white/10 rounded-xl px-3 py-1.5 text-center text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 w-full"
+                  placeholder={language === 'de' ? 'Dein Name' : 'Your name'}
+                />
+              ) : (
+                <span className="text-base font-bold text-slate-200">{p0Name || 'Host'}</span>
+              )}
+            </div>
+
+            {/* Player 1 (Guest) Slot */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col items-center relative overflow-hidden group shadow-lg">
+              <div className="absolute top-3 right-3 bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full">
+                {language === 'de' ? 'Gast' : 'Guest'}
+              </div>
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 ${hasGuestJoined ? 'bg-purple-600/20 border border-purple-500/30 text-purple-400' : 'bg-white/5 border border-white/5 text-slate-600 animate-pulse'}`}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              </div>
+              <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1">{language === 'de' ? 'Spieler 2' : 'Player 2'}</span>
+              
+              {!hasGuestJoined ? (
+                <span className="text-xs font-semibold text-slate-500 animate-pulse uppercase tracking-wider py-1">
+                  {language === 'de' ? 'Warte auf Gegner...' : 'Waiting for guest...'}
+                </span>
+              ) : myID === '1' ? (
+                <input
+                  type="text"
+                  maxLength={15}
+                  value={G.players['1']?.name || ''}
+                  onChange={(e) => moves.setPlayerName(e.target.value)}
+                  className="bg-black/50 border border-white/10 rounded-xl px-3 py-1.5 text-center text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 w-full"
+                  placeholder={language === 'de' ? 'Dein Name' : 'Your name'}
+                />
+              ) : (
+                <span className="text-base font-bold text-slate-200">{p1Name}</span>
+              )}
+            </div>
+          </div>
+
+          {/* Lobby Controls */}
+          <div className="border-t border-white/5 pt-6 flex flex-col gap-4">
+            {myID === '0' ? (
+              <button
+                disabled={!hasGuestJoined || !G.players['0']?.name?.trim() || !G.players['1']?.name?.trim()}
+                onClick={() => { playClick(); moves.startGame(); }}
+                className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 disabled:opacity-30 disabled:pointer-events-none px-6 py-4 rounded-xl font-bold transition-all transform hover:scale-[1.02] active:scale-[0.98] text-lg shadow-xl cursor-pointer"
+              >
+                {language === 'de' ? 'Spiel starten' : 'Start Game'}
+              </button>
+            ) : (
+              <div className="bg-black/20 border border-white/5 rounded-xl py-3 px-4 flex items-center justify-center gap-2.5">
+                <span className="w-3.5 h-3.5 rounded-full border-2 border-t-purple-400 border-white/10 animate-spin"></span>
+                <span className="text-xs font-semibold text-purple-300 uppercase tracking-wider">
+                  {language === 'de' ? 'Warte auf Spielstart durch Host...' : 'Waiting for host to start...'}
+                </span>
+              </div>
+            )}
+
+            <button
+              onClick={handleLeaveLobby}
+              className="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl font-bold transition-all text-sm border border-white/5 text-slate-400 hover:text-slate-300 cursor-pointer"
+            >
+              {language === 'de' ? 'Raum verlassen' : 'Leave Lobby'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const playedCardId = G.isAnimating ? (G.pendingCapture?.playedCardId || G.lastPlayedCard?.streakCards?.[0]?.id) : null;
@@ -671,14 +892,14 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
                 </div>
                 <div className="flex gap-8 justify-center text-xl bg-slate-900/50 p-6 rounded-2xl border border-slate-700/50">
                   <div className="flex flex-col items-center">
-                    <span className="text-sm text-slate-400 mb-1">{t('you')}</span>
+                    <span className="text-sm text-slate-400 mb-1">{G.players[myID]?.name || t('you')}</span>
                     <span className="text-3xl font-bold text-indigo-400">
                       {G.gameStatus ? G.gameStatus[`p${myID}Score`] : 0}
                     </span>
                   </div>
                   <div className="w-px bg-slate-700"></div>
                   <div className="flex flex-col items-center">
-                    <span className="text-sm text-slate-400 mb-1">{t('opponent')}</span>
+                    <span className="text-sm text-slate-400 mb-1">{G.players[opponentID]?.name || t('opponent')}</span>
                     <span className="text-3xl font-bold text-purple-400">
                       {G.gameStatus ? G.gameStatus[`p${opponentID}Score`] : 0}
                     </span>
@@ -728,7 +949,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
         <div className="w-full max-w-4xl relative z-20 shrink-0">
           <div className="flex justify-between items-center px-4 sm:px-8 mb-0 sm:mb-2">
             <div className="text-base sm:text-lg font-medium text-slate-400 flex items-center gap-3">
-              {t('opponent')}
+              {G.players[opponentID]?.name || t('opponent')}
               {isCurrentPlayer(opponentID) && (
                 <span className="flex h-3 w-3">
                   <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-purple-400 opacity-75"></span>
@@ -870,7 +1091,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID }) => {
           <div className="flex justify-between items-center px-4 sm:px-8 mt-0 sm:mt-2">
             <div className="flex items-center gap-3">
               <div className={`text-lg font-medium ${isCurrentPlayer(myID) ? 'text-indigo-400' : 'text-slate-400'}`}>
-                {t('you')} {isCurrentPlayer(myID) && t('yourTurn')}
+                {G.players[myID]?.name || t('you')} {isCurrentPlayer(myID) && t('yourTurn')}
               </div>
               {isCurrentPlayer(myID) && (
                 <span className="flex h-3 w-3">

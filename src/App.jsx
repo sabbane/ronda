@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import moroccanBg from './assets/moroccan_background.png';
 
 import { LobbyClient } from 'boardgame.io/dist/esm/client.js';
@@ -64,20 +64,39 @@ const RondaClientOnline = ReactClient({
 
 
 const App = () => {
-  const getRoomFromUrl = () => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('room') || getRandomMoroccanName();
-  };
-
   const [mode, setMode] = useState(null); // 'bot' or 'online'
   const [testMode, setTestMode] = useState(false);
   const [playerID, setPlayerID] = useState('0');
-  const [matchID, setMatchID] = useState(getRoomFromUrl);
+  const [matchID, setMatchID] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('room') || getRandomMoroccanName();
+  });
+  const [nickname, setNickname] = useState(() => {
+    return localStorage.getItem('ronda_nickname') || '';
+  });
+  const [multiplayerAction, setMultiplayerAction] = useState(null); // 'create' | 'join' | null
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [joinMode, setJoinMode] = useState('public'); // 'public' | 'private'
+  const [publicRooms, setPublicRooms] = useState([]);
+  const [isLoadingRooms, setIsLoadingRooms] = useState(false);
   const [gameKey, setGameKey] = useState(0);
   const [error, setError] = useState(null);
+  const [credentials, setCredentials] = useState(null);
   const [isCheckingRoom, setIsCheckingRoom] = useState(false);
   const { language, changeLanguage, t } = useLanguage();
   const { isMuted, toggleMute, playClick, currentTrack, tracks, nextTrack } = useSound();
+
+  const modeRef = useRef(mode);
+  const matchIDRef = useRef(matchID);
+  const playerIDRef = useRef(playerID);
+  const credentialsRef = useRef(credentials);
+  const languageRef = useRef(language);
+
+  useEffect(() => { modeRef.current = mode; }, [mode]);
+  useEffect(() => { matchIDRef.current = matchID; }, [matchID]);
+  useEffect(() => { playerIDRef.current = playerID; }, [playerID]);
+  useEffect(() => { credentialsRef.current = credentials; }, [credentials]);
+  useEffect(() => { languageRef.current = language; }, [language]);
 
   const updateUrl = (id) => {
     try {
@@ -88,86 +107,166 @@ const App = () => {
     }
   };
 
-  const handleOnlineAction = async (targetPlayerID) => {
+  const handleCreateRoom = async () => {
+    if (!nickname.trim()) {
+      setError(t('enterNameError'));
+      return;
+    }
     setIsCheckingRoom(true);
     setError(null);
     try {
-      // Fetch current match state from server
-      const match = await lobbyClient.getMatch(RondaGame.name, matchID);
-      
-      if (match) {
-        // Match exists, check if the slot we want is taken
-        const pID = parseInt(targetPlayerID);
-        const player = match.players[pID];
-        
-        // A slot is taken if it has a name or is explicitly marked as connected
-        const isSlotTaken = !!(player.name || player.isConnected);
-        
-        if (isSlotTaken) {
-          if (targetPlayerID === '0') {
-            setError(t('roomOccupied'));
-          } else {
-            setError(t('roomFull'));
-          }
-          setIsCheckingRoom(false);
-          return;
-        }
-      }
-      
-      if (!match) {
-        if (targetPlayerID === '0') {
-          // Create match if hosting and doesn't exist
-          await lobbyClient.createMatch(RondaGame.name, {
-            numPlayers: 2,
-            unlisted: false,
-            setupData: { testMode },
-            matchID: matchID
-          });
-        } else {
-          // Trying to join a non-existent room
-          setError("Room not found. Host a game first!");
-          setIsCheckingRoom(false);
-          return;
-        }
-      }
-      
-      setPlayerID(targetPlayerID);
+      localStorage.setItem('ronda_nickname', nickname);
+      const match = await lobbyClient.createMatch(RondaGame.name, {
+        numPlayers: 2,
+        unlisted: isPrivate,
+        setupData: { gameStarted: false, testMode }
+      });
+      const realMatchID = match.matchID;
+      const joinData = await lobbyClient.joinMatch(RondaGame.name, realMatchID, {
+        playerID: '0',
+        playerName: nickname
+      });
+      setCredentials(joinData.playerCredentials);
+      setPlayerID('0');
+      setMatchID(realMatchID);
       setMode('online');
+      updateUrl(realMatchID);
     } catch (err) {
-      console.error('Room check error:', err);
-      // If error is 404 (not found), that's fine for hosting
-      if (targetPlayerID === '0') {
-        try {
-          await lobbyClient.createMatch(RondaGame.name, {
-            numPlayers: 2,
-            unlisted: false,
-            setupData: { testMode },
-            matchID: matchID
-          });
-          setPlayerID('0');
-          setMode('online');
-        } catch (createErr) {
-          console.error('Failed to create match:', createErr);
-          setError(`Failed to create room: ${createErr.message || createErr}`);
-        }
-      } else {
-        setError("Room not found. Host a game first!");
-      }
+      console.error('Failed to create match:', err);
+      setError(t('createRoomError'));
     } finally {
       setIsCheckingRoom(false);
     }
   };
 
+  const handleJoinRoom = async (targetMatchID) => {
+    if (!nickname.trim()) {
+      setError(t('enterNameError'));
+      return;
+    }
+    setIsCheckingRoom(true);
+    setError(null);
+    try {
+      localStorage.setItem('ronda_nickname', nickname);
+      const match = await lobbyClient.getMatch(RondaGame.name, targetMatchID);
+      if (!match) {
+        setError(t('roomNotFoundError'));
+        setIsCheckingRoom(false);
+        return;
+      }
+      const p1Slot = match.players[1];
+      const isSlotTaken = !!(p1Slot.name || p1Slot.isConnected);
+      if (isSlotTaken) {
+        setError(t('roomFullError'));
+        setIsCheckingRoom(false);
+        return;
+      }
+      const joinData = await lobbyClient.joinMatch(RondaGame.name, targetMatchID, {
+        playerID: '1',
+        playerName: nickname
+      });
+      setCredentials(joinData.playerCredentials);
+      setPlayerID('1');
+      setMatchID(targetMatchID);
+      setMode('online');
+      updateUrl(targetMatchID);
+    } catch (err) {
+      console.error('Failed to join match:', err);
+      setError(t('joinError'));
+    } finally {
+      setIsCheckingRoom(false);
+    }
+  };
+
+  const fetchPublicRooms = async () => {
+    setIsLoadingRooms(true);
+    setError(null);
+    try {
+      const resp = await lobbyClient.listMatches(RondaGame.name);
+      if (resp && resp.matches) {
+        const openMatches = resp.matches.filter(m => {
+          if (m.unlisted) return false;
+          const p1 = m.players[1];
+          const isSlotAvailable = !p1 || !(p1.name || p1.isConnected);
+          return isSlotAvailable;
+        });
+        setPublicRooms(openMatches);
+      }
+    } catch (err) {
+      console.error('Failed to list matches:', err);
+      setError(t('fetchRoomsError'));
+    } finally {
+      setIsLoadingRooms(false);
+    }
+  };
+
+  useEffect(() => {
+    if (multiplayerAction === 'join' && joinMode === 'public') {
+      fetchPublicRooms();
+    }
+  }, [multiplayerAction, joinMode]);
+
   useEffect(() => {
     const handleReset = () => setGameKey(prev => prev + 1);
     const handleMenu = () => {
+      const mode = modeRef.current;
+      const matchID = matchIDRef.current;
+      const playerID = playerIDRef.current;
+      const credentials = credentialsRef.current;
+
       setMode(null);
       setError(null);
       setTestMode(false);
+      setMultiplayerAction(null);
       setGameKey(prev => prev + 1);
+
+      setTimeout(() => {
+        if (mode === 'online' && matchID && playerID) {
+          lobbyClient.leaveMatch(RondaGame.name, matchID, {
+            playerID,
+            credentials
+          }).catch(err => console.error('Failed to leave match via lobbyClient:', err));
+        }
+        setCredentials(null);
+      }, 100);
+
+      try {
+        const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
+        window.history.replaceState({ path: newUrl }, '', newUrl);
+      } catch { /* ignore */ }
     };
+
+    const handleHostLeft = () => {
+      const mode = modeRef.current;
+      const matchID = matchIDRef.current;
+      const playerID = playerIDRef.current;
+      const credentials = credentialsRef.current;
+
+      setMode(null);
+      setTestMode(false);
+      setMultiplayerAction(null);
+      setGameKey(prev => prev + 1);
+      setError(languageRef.current === 'de' ? 'Der Host hat den Raum verlassen.' : 'The host has left the room.');
+
+      setTimeout(() => {
+        if (mode === 'online' && matchID && playerID) {
+          lobbyClient.leaveMatch(RondaGame.name, matchID, {
+            playerID,
+            credentials
+          }).catch(err => console.error('Failed to leave match as guest:', err));
+        }
+        setCredentials(null);
+      }, 100);
+
+      try {
+        const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
+        window.history.replaceState({ path: newUrl }, '', newUrl);
+      } catch { /* ignore */ }
+    };
+
     window.addEventListener('ronda-reset', handleReset);
     window.addEventListener('ronda-menu', handleMenu);
+    window.addEventListener('ronda-host-left', handleHostLeft);
 
     const isAppInTestMode = import.meta.env.VITE_TEST_MODE === 'true';
     const path = window.location.pathname;
@@ -179,15 +278,12 @@ const App = () => {
         let matchID;
 
         if (pID === '0') {
-          // P1 (host): create a fresh test match via our custom endpoint.
-          // This guarantees the rigged deck is applied (setupData.testMode=true).
           const resp = await fetch(`${BACKEND}/test/reset`, { method: 'POST' });
           const data = await resp.json();
           if (!data.ok || !data.matchID) throw new Error('Server could not create test match');
           matchID = data.matchID;
           console.log('[TestMode] P1: fresh test match created:', matchID);
         } else {
-          // P2 (guest): poll the server for the match ID that P1 already created.
           let attempts = 0;
           while (attempts < 20) {
             try {
@@ -213,7 +309,6 @@ const App = () => {
       }
     };
 
-    // Test routes are only active when the app is explicitly started in test mode
     if (isAppInTestMode) {
       if (path === '/test/p1') {
         setupTestMatch('0');
@@ -222,11 +317,18 @@ const App = () => {
       }
     }
 
-    // Room is set initially via getRoomFromUrl
+    const params = new URLSearchParams(window.location.search);
+    const roomParam = params.get('room');
+    if (roomParam && !isAppInTestMode) {
+      setMatchID(roomParam);
+      setMultiplayerAction('join');
+      setJoinMode('private');
+    }
 
     return () => {
       window.removeEventListener('ronda-reset', handleReset);
       window.removeEventListener('ronda-menu', handleMenu);
+      window.removeEventListener('ronda-host-left', handleHostLeft);
     };
   }, []);
 
@@ -304,84 +406,233 @@ const App = () => {
             <h1 className="text-7xl font-black mb-8 text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-500 tracking-tighter drop-shadow-2xl">
               {t('logo')}
             </h1>
-
             <div className="flex flex-col gap-6">
-              <div className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
-                <h2 className="text-xl font-bold mb-4 text-amber-200/80 uppercase tracking-widest text-sm">{t('singleplayer')}</h2>
-                <button
-                  onClick={() => { playClick(); setMode('bot'); }}
-                  className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 px-6 py-4 rounded-xl font-bold transition-all transform hover:scale-[1.02] active:scale-[0.98] text-lg shadow-xl cursor-pointer"
-                >
-                  {t('playVsBot')}
-                </button>
-              </div>
+              {multiplayerAction === null ? (
+                <>
+                  {/* Singleplayer Box */}
+                  <div className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
+                    <h2 className="text-xl font-bold mb-4 text-amber-200/80 uppercase tracking-widest text-sm">{t('singleplayer')}</h2>
+                    <button
+                      onClick={() => { playClick(); setMode('bot'); }}
+                      className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 px-6 py-4 rounded-xl font-bold transition-all transform hover:scale-[1.02] active:scale-[0.98] text-lg shadow-xl cursor-pointer"
+                    >
+                      {t('playVsBot')}
+                    </button>
+                  </div>
 
-              <div className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
-                <h2 className="text-xl font-bold mb-4 text-amber-200/80 uppercase tracking-widest text-sm">{t('onlineMultiplayer')}</h2>
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-2">
-                    <label className="block text-xs text-slate-400 mb-1 text-left uppercase tracking-wider ml-1">{t('matchId')}</label>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={matchID}
-                        onChange={e => {
-                          setMatchID(e.target.value);
-                          updateUrl(e.target.value);
-                        }}
-                        className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-mono focus:outline-none focus:border-amber-500/50 transition-colors"
-                        placeholder={t('enterRoomId')}
-                      />
+                  {/* Online Multiplayer Box */}
+                  <div className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
+                    <h2 className="text-xl font-bold mb-4 text-amber-200/80 uppercase tracking-widest text-sm">{t('onlineMultiplayer')}</h2>
+                    <div className="flex flex-col gap-3">
                       <button
-                        onClick={async () => {
-                          playClick();
-                          const link = `https://playronda.ma/?room=${matchID}`;
-                          if (navigator.share) {
-                            try {
-                              await navigator.share({
-                                title: 'Ronda',
-                                text: t('shareText') || 'Join my Ronda game!',
-                                url: link
-                              });
-                            } catch (err) {
-                              console.error('Share failed:', err);
-                            }
-                          } else {
-                            navigator.clipboard.writeText(link);
-                            alert(t('linkCopied') || 'Link copied to clipboard!');
-                          }
-                        }}
-                        className="bg-slate-800 hover:bg-slate-700 p-3 rounded-xl border border-white/10 text-amber-400 transition-all active:scale-95 cursor-pointer"
-                        title={t('shareLink') || 'Share Invitation Link'}
+                        onClick={() => { playClick(); setMultiplayerAction('create'); }}
+                        className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 px-5 py-3.5 rounded-xl font-bold transition-all transform hover:scale-[1.01] active:scale-[0.99] text-base shadow-lg cursor-pointer"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                        {t('createRoom')}
+                      </button>
+                      <button
+                        onClick={() => { playClick(); setMultiplayerAction('join'); }}
+                        className="w-full bg-white/10 hover:bg-white/15 px-5 py-3.5 rounded-xl font-bold transition-all transform hover:scale-[1.01] active:scale-[0.99] text-base border border-white/5 cursor-pointer"
+                      >
+                        {t('joinRoom')}
                       </button>
                     </div>
                   </div>
+                </>
+              ) : (
+                /* Dynamic Merged Panel for Room Creation / Joining */
+                <div className="bg-slate-900/90 border border-amber-500/20 p-6 rounded-3xl backdrop-blur-xl shadow-2xl relative text-left">
+                  <h2 className="text-2xl font-extrabold mb-6 text-amber-200 border-b border-white/10 pb-3 flex justify-between items-center">
+                    <span>
+                      {multiplayerAction === 'create' ? t('createRoom') : t('joinRoom')}
+                    </span>
+                    <span className="text-xs font-mono text-slate-500 uppercase tracking-wider bg-slate-950/60 px-2.5 py-1 rounded-md border border-white/5">
+                      Multiplayer
+                    </span>
+                  </h2>
+
                   {error && (
-                    <div className="bg-red-500/20 border border-red-500/50 text-red-200 p-3 rounded-xl text-xs font-medium animate-pulse">
+                    <div className="bg-red-500/10 border border-red-500/40 text-red-200 px-4 py-3 rounded-xl text-xs font-medium mb-5 animate-pulse">
                       {error}
                     </div>
                   )}
 
-                  <div className="flex gap-3">
-                    <button
-                      disabled={isCheckingRoom}
-                      onClick={() => { playClick(); handleOnlineAction('0'); }}
-                      className="flex-1 bg-white/10 hover:bg-white/20 disabled:opacity-50 px-4 py-3 rounded-xl font-bold transition-all shadow-lg text-sm border border-white/5 cursor-pointer"
-                    >
-                      {isCheckingRoom && playerID === '0' ? '...' : t('host')}
-                    </button>
-                    <button
-                      disabled={isCheckingRoom}
-                      onClick={() => { playClick(); handleOnlineAction('1'); }}
-                      className="flex-1 bg-amber-600/20 hover:bg-amber-600/30 disabled:opacity-50 px-4 py-3 rounded-xl font-bold transition-all shadow-lg text-sm border border-amber-500/20 text-amber-200 cursor-pointer"
-                    >
-                      {isCheckingRoom && playerID === '1' ? '...' : t('join')}
-                    </button>
-                  </div>
+                  {multiplayerAction === 'create' ? (
+                    /* CREATE ROOM VIEW */
+                    <div className="flex flex-col gap-4">
+                      {/* Name input */}
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs text-slate-400 font-bold uppercase tracking-wider">{t('yourNickname')}</label>
+                        <input
+                          type="text"
+                          value={nickname}
+                          maxLength={15}
+                          onChange={e => setNickname(e.target.value)}
+                          className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-medium focus:outline-none focus:border-amber-500/50 transition-colors"
+                          placeholder={t('enterNickname')}
+                        />
+                      </div>
+
+
+                      {/* Room Privacy Choice */}
+                      <div className="flex flex-col gap-1.5 mt-1">
+                        <label className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">{t('roomPrivacy')}</label>
+                        <div className="grid grid-cols-2 gap-2 bg-black/40 p-1 rounded-xl border border-white/5">
+                          <button
+                            type="button"
+                            onClick={() => { playClick(); setIsPrivate(false); }}
+                            className={`py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${!isPrivate ? 'bg-amber-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
+                          >
+                            {t('public')}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { playClick(); setIsPrivate(true); }}
+                            className={`py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${isPrivate ? 'bg-amber-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
+                          >
+                            {t('private')}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Create and Cancel buttons */}
+                      <div className="flex gap-3 mt-4 border-t border-white/5 pt-4">
+                        <button
+                          onClick={() => { playClick(); setMultiplayerAction(null); setError(null); }}
+                          className="flex-1 bg-white/5 hover:bg-white/10 px-4 py-3 rounded-xl font-bold transition-all text-sm border border-white/5 text-slate-300 text-center cursor-pointer"
+                        >
+                          {t('cancel')}
+                        </button>
+                        <button
+                          disabled={isCheckingRoom}
+                          onClick={() => { playClick(); handleCreateRoom(); }}
+                          className="flex-1 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 disabled:opacity-50 px-4 py-3 rounded-xl font-bold transition-all shadow-lg text-sm text-center cursor-pointer"
+                        >
+                          {isCheckingRoom ? '...' : t('create')}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* JOIN ROOM VIEW */
+                    <div className="flex flex-col gap-4">
+                      {/* Name input */}
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs text-slate-400 font-bold uppercase tracking-wider">{t('yourNickname')}</label>
+                        <input
+                          type="text"
+                          value={nickname}
+                          maxLength={15}
+                          onChange={e => setNickname(e.target.value)}
+                          className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-medium focus:outline-none focus:border-amber-500/50 transition-colors"
+                          placeholder={t('enterNickname')}
+                        />
+                      </div>
+
+                      {/* Join mode tabs */}
+                      <div className="grid grid-cols-2 gap-2 bg-black/40 p-1 rounded-xl border border-white/5 mt-1">
+                        <button
+                          type="button"
+                          onClick={() => { playClick(); setJoinMode('public'); }}
+                          className={`py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${joinMode === 'public' ? 'bg-amber-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
+                        >
+                          {t('publicRooms')}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { playClick(); setJoinMode('private'); }}
+                          className={`py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${joinMode === 'private' ? 'bg-amber-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
+                        >
+                          {t('privateRoom')}
+                        </button>
+                      </div>
+
+                      {joinMode === 'public' ? (
+                        /* PUBLIC ROOMS BROWSER */
+                        <div className="flex flex-col gap-2 mt-2">
+                          <div className="flex justify-between items-center mb-1">
+                            <label className="text-xs text-slate-400 font-bold uppercase tracking-wider">{t('openRooms')}</label>
+                            <button
+                              onClick={() => { playClick(); fetchPublicRooms(); }}
+                              className="text-[10px] text-amber-400/80 hover:text-amber-300 font-semibold uppercase tracking-wider cursor-pointer"
+                            >
+                              {t('refresh')}
+                            </button>
+                          </div>
+
+                          {isLoadingRooms ? (
+                            <div className="py-8 text-center text-slate-400 text-sm animate-pulse flex items-center justify-center gap-2 bg-black/20 rounded-xl border border-white/5">
+                              <span className="w-4 h-4 rounded-full border-2 border-t-amber-400 border-white/10 animate-spin"></span>
+                              {t('searchingRooms')}
+                            </div>
+                          ) : publicRooms.length === 0 ? (
+                            <div className="py-8 text-center text-slate-500 text-sm bg-black/20 rounded-xl border border-white/5 px-4">
+                              {t('noRoomsFound')}
+                            </div>
+                          ) : (
+                            <div className="max-h-[160px] overflow-y-auto flex flex-col gap-2 pr-1 custom-scrollbar">
+                              {publicRooms.map(room => {
+                                const hostPlayer = room.players[0];
+                                const hostName = hostPlayer ? (hostPlayer.name || 'Host') : 'Host';
+                                return (
+                                  <div
+                                    key={room.matchID}
+                                    className="flex justify-between items-center p-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 transition-all"
+                                  >
+                                    <div className="flex flex-col">
+                                      <span className="text-xs font-mono font-bold text-amber-200">{room.matchID}</span>
+                                      <span className="text-[10px] text-slate-400 mt-0.5">Host: {hostName}</span>
+                                    </div>
+                                    <button
+                                      onClick={() => { playClick(); handleJoinRoom(room.matchID); }}
+                                      className="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold shadow-md transition-all active:scale-95 cursor-pointer"
+                                    >
+                                      {t('join')}
+                                    </button>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        /* PRIVATE ROOM JOIN INPUT */
+                        <div className="flex flex-col gap-1.5 mt-2">
+                          <label className="text-xs text-slate-400 font-bold uppercase tracking-wider">{t('matchId')}</label>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={matchID}
+                              onChange={e => {
+                                setMatchID(e.target.value);
+                                updateUrl(e.target.value);
+                              }}
+                              className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-mono focus:outline-none focus:border-amber-500/50 transition-colors"
+                              placeholder={t('enterRoomId')}
+                            />
+                            <button
+                              disabled={isCheckingRoom}
+                              onClick={() => { playClick(); handleJoinRoom(matchID); }}
+                              className="bg-amber-600 hover:bg-amber-500 disabled:opacity-50 px-5 py-3 rounded-xl font-bold transition-all shadow-md text-sm cursor-pointer"
+                            >
+                              {isCheckingRoom ? '...' : t('join')}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Cancel button */}
+                      <div className="flex mt-4 border-t border-white/5 pt-4">
+                        <button
+                          onClick={() => { playClick(); setMultiplayerAction(null); setError(null); }}
+                          className="w-full bg-white/5 hover:bg-white/10 px-4 py-3 rounded-xl font-bold transition-all text-sm border border-white/5 text-slate-300 text-center cursor-pointer"
+                        >
+                          {t('back')}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
 
               {/* Rules and Contact Buttons */}
               <div className="flex flex-col sm:flex-row gap-4">
@@ -392,7 +643,7 @@ const App = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
                   {t('rulesBtn')}
                 </button>
-                
+
                 <a
                   href="https://www.facebook.com/profile.php?id=61589185596057"
                   target="_blank"
@@ -428,7 +679,7 @@ const App = () => {
           key={`bot-${gameKey}`}
           matchID={`bot-room-${gameKey}`}
           playerID="0"
-          setupData={{ testMode }}
+          setupData={{ testMode, gameStarted: true }}
         />
       )}
       {mode === 'online' && (
@@ -436,7 +687,8 @@ const App = () => {
           key={`online-${gameKey}`}
           matchID={matchID}
           playerID={playerID}
-          setupData={{ testMode }}
+          credentials={credentials}
+          setupData={{ testMode, gameStarted: false }}
         />
       )}
     </div>
