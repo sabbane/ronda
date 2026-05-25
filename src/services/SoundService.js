@@ -44,7 +44,7 @@ class SoundService {
       }
     });
 
-    // 3 Unique procedural Moroccan compositions
+    // 3 Unique procedural compositions
     this.tracks = [
       {
         name: "Sahara",
@@ -152,65 +152,98 @@ class SoundService {
       {
         name: "Casablanca",
         bpm: 92,
-        gain: 0.75,
+        gain: 0.85,
         instrument: "hiphop",
-        percussion: true,
+        percussion: false,
         chords: [
-          // Chord 0 (D Hijaz): D3 (146.83), A3 (220.00), D4 (293.66), F#4 (369.99)
-          [146.83, 220.00, 293.66, 369.99],
-          // Chord 1 (Eb Major): Eb3 (155.56), Bb3 (233.08), Eb4 (311.13), G4 (392.00)
-          [155.56, 233.08, 311.13, 392.00],
-          // Chord 2 (C minor): C3 (130.81), G3 (196.00), C4 (261.63), Eb4 (311.13)
-          [130.81, 196.00, 261.63, 311.13],
-          // Chord 3 (D Hijaz resolve): D3 (146.83), A3 (220.00), D4 (293.66), F#4 (369.99)
-          [146.83, 220.00, 293.66, 369.99]
+          // Chord 0 (E minor 7): E3 (164.81), G3 (196.00), B3 (246.94), D4 (293.66)
+          [164.81, 196.00, 246.94, 293.66],
+          // Chord 1 (A minor 7): A3 (220.00), C4 (261.63), E4 (329.63), G4 (392.00)
+          [220.00, 261.63, 329.63, 392.00],
+          // Chord 2 (D minor 7): D3 (146.83), F3 (174.61), A3 (220.00), C4 (261.63)
+          [146.83, 174.61, 220.00, 261.63],
+          // Chord 3 (B minor 7): B3 (246.94), D4 (293.66), F#4 (369.99), A4 (440.00)
+          [246.94, 293.66, 369.99, 440.00]
         ],
         melody: [
-          // Bar 1 (D Hijaz) - Energetic rising call in D Hijaz
-          { step: 0, f: 587.33, d: 0.25 },  // D5
-          { step: 1, f: 622.25, d: 0.25 },  // Eb5
-          { step: 2, f: 739.99, d: 0.25 },  // F#5
-          { step: 3, f: 783.99, d: 0.25 },  // G5
-          { step: 4, f: 880.00, d: 0.5 },   // A5
-          { step: 6, f: 783.99, d: 0.5 },   // G5
-          { step: 8, f: 739.99, d: 0.75 },  // F#5
-          { step: 11, f: 622.25, d: 0.25 }, // Eb5
-          { step: 12, f: 587.33, d: 0.5 },  // D5
-          { step: 14, f: 622.25, d: 0.5 },  // Eb5
+          // Classic funky West Coast whistling lead
+          { step: 0, f: 987.77, d: 1.5 },   // B5
+          { step: 3, f: 1174.66, d: 0.5 },  // D6
+          { step: 4, f: 1318.51, d: 2.0 },  // E6
+          { step: 8, f: 1174.66, d: 1.0 },  // D6
+          { step: 10, f: 987.77, d: 1.0 },  // B5
+          { step: 12, f: 880.00, d: 2.0 },  // A5
           
-          // Bar 2 (Eb Major) - Dynamic dancing pattern
-          { step: 16, f: 783.99, d: 0.25 }, // G5
-          { step: 17, f: 932.33, d: 0.25 }, // Bb5
-          { step: 18, f: 783.99, d: 0.5 },  // G5
-          { step: 20, f: 622.25, d: 0.5 },  // Eb5
-          { step: 22, f: 466.16, d: 0.5 },  // Bb4
-          { step: 24, f: 783.99, d: 0.5 },  // G5
-          { step: 26, f: 932.33, d: 0.5 },  // Bb5
-          { step: 28, f: 880.00, d: 1.0 },  // A5
-          { step: 30, f: 783.99, d: 0.5 },  // G5
+          { step: 16, f: 880.00, d: 1.5 },  // A5
+          { step: 19, f: 783.99, d: 0.5 },  // G5
+          { step: 20, f: 880.00, d: 2.0 },  // A5
+          { step: 24, f: 987.77, d: 1.0 },  // B5
+          { step: 26, f: 1174.66, d: 1.0 }, // D6
+          { step: 28, f: 1318.51, d: 2.5 }, // E6
+
+          { step: 32, f: 1318.51, d: 1.5 }, // E6
+          { step: 35, f: 1479.98, d: 0.5 }, // F#6
+          { step: 36, f: 1567.98, d: 2.0 }, // G6
+          { step: 40, f: 1479.98, d: 1.0 }, // F#6
+          { step: 42, f: 1318.51, d: 1.0 }, // E6
+          { step: 44, f: 1174.66, d: 2.0 }, // D6
+
+          { step: 48, f: 1174.66, d: 1.5 }, // D6
+          { step: 51, f: 987.77, d: 0.5 },  // B5
+          { step: 52, f: 880.00, d: 1.0 },  // A5
+          { step: 54, f: 783.99, d: 1.0 },  // G5
+          { step: 56, f: 659.25, d: 3.0 }   // E5
+        ]
+      },
+      {
+        name: "Elghiwane",
+        bpm: 96,
+        gain: 0.80,
+        instrument: "ghiwane",
+        percussion: false,
+        chords: [
+          // Chord 0 (D minor): D3 (146.83), A3 (220.00), D4 (293.66), F4 (349.23)
+          [146.83, 220.00, 293.66, 349.23],
+          // Chord 1 (G minor): G3 (196.00), B3 (246.94), D4 (293.66), G4 (392.00)
+          [196.00, 246.94, 293.66, 392.00],
+          // Chord 2 (A minor): A3 (220.00), C4 (261.63), E4 (329.63), A4 (440.00)
+          [220.00, 261.63, 329.63, 440.00],
+          // Chord 3 (D minor resolve): D3 (146.83), A3 (220.00), D4 (293.66), F4 (349.23)
+          [146.83, 220.00, 293.66, 349.23]
+        ],
+        melody: [
+          // Soulful folk Banjo / Vocal theme inspired by "Siniya" (The Tray)
+          { step: 0, f: 587.33, d: 0.5 },   // D5
+          { step: 2, f: 587.33, d: 0.5 },   // D5
+          { step: 3, f: 659.25, d: 0.5 },   // E5
+          { step: 4, f: 698.46, d: 1.0 },   // F5
+          { step: 6, f: 659.25, d: 0.5 },   // E5
+          { step: 7, f: 587.33, d: 0.5 },   // D5
+          { step: 8, f: 587.33, d: 1.5 },   // D5
           
-          // Bar 3 (C minor) - Bright cascading shimmer
-          { step: 32, f: 1046.50, d: 0.25 },// C6
-          { step: 33, f: 932.33, d: 0.25 }, // Bb5
-          { step: 34, f: 783.99, d: 0.25 }, // G5
-          { step: 35, f: 622.25, d: 0.25 }, // Eb5
-          { step: 36, f: 523.25, d: 0.5 },  // C5
-          { step: 38, f: 622.25, d: 0.5 },  // Eb5
-          { step: 40, f: 783.99, d: 0.5 },  // G5
-          { step: 42, f: 932.33, d: 0.5 },  // Bb5
-          { step: 44, f: 1046.50, d: 1.5 }, // C6
-          
-          // Bar 4 (D Hijaz Resolve) - Fiery virtuoso resolution
-          { step: 48, f: 880.00, d: 0.25 }, // A5
-          { step: 49, f: 932.33, d: 0.25 }, // Bb5
-          { step: 50, f: 880.00, d: 0.25 }, // A5
-          { step: 51, f: 783.99, d: 0.25 }, // G5
-          { step: 52, f: 739.99, d: 0.5 },  // F#5
-          { step: 54, f: 622.25, d: 0.5 },  // Eb5
-          { step: 56, f: 587.33, d: 1.5 },  // D5
-          { step: 60, f: 622.25, d: 0.25 }, // Eb5 (pickups for loop)
-          { step: 61, f: 739.99, d: 0.25 }, // F#5
-          { step: 62, f: 783.99, d: 0.5 }   // G5
+          { step: 16, f: 698.46, d: 0.5 },  // F5
+          { step: 18, f: 698.46, d: 0.5 },  // F5
+          { step: 19, f: 783.99, d: 0.5 },  // G5
+          { step: 20, f: 880.00, d: 1.0 },  // A5
+          { step: 22, f: 783.99, d: 0.5 },  // G5
+          { step: 23, f: 698.46, d: 0.5 },  // F5
+          { step: 24, f: 659.25, d: 1.5 },  // E5
+
+          { step: 32, f: 783.99, d: 0.5 },  // G5
+          { step: 34, f: 783.99, d: 0.5 },  // G5
+          { step: 35, f: 698.46, d: 0.5 },  // F5
+          { step: 36, f: 659.25, d: 1.0 },  // E5
+          { step: 38, f: 587.33, d: 0.5 },  // D5
+          { step: 39, f: 523.25, d: 0.5 },  // C5
+          { step: 40, f: 587.33, d: 1.5 },  // D5
+
+          { step: 48, f: 523.25, d: 0.5 },  // C5
+          { step: 50, f: 587.33, d: 0.5 },  // D5
+          { step: 51, f: 659.25, d: 0.5 },  // E5
+          { step: 52, f: 587.33, d: 1.0 },  // D5
+          { step: 54, f: 523.25, d: 0.5 },  // C5
+          { step: 55, f: 440.00, d: 0.5 },  // A4
+          { step: 56, f: 293.66, d: 2.0 }   // D4
         ]
       }
     ];
@@ -387,8 +420,8 @@ class SoundService {
           // Lo-Fi Hip Hop Electric Piano + Deep 808 Bass
           const noteTime = now;
           
-          if (idx === 0) {
-            // Deep 808 Bass on root note
+          if (idx === 0 && !isRhythmic) {
+            // Deep 808 Bass on root note - ONLY on main downbeats to prevent muddy overlap
             const bassOsc = ctx.createOscillator();
             const bassGain = ctx.createGain();
             bassOsc.type = 'sine';
@@ -417,7 +450,8 @@ class SoundService {
           filter.Q.setValueAtTime(1.0, pTime);
           
           gain.gain.setValueAtTime(0, pTime);
-          gain.gain.linearRampToValueAtTime(0.015, pTime + 0.01);
+          const pianoVolume = isRhythmic ? 0.005 : 0.015; // lower volume for rhythmic offbeat swells
+          gain.gain.linearRampToValueAtTime(pianoVolume, pTime + 0.01);
           gain.gain.exponentialRampToValueAtTime(0.0001, pTime + 1.2);
           
           osc.connect(filter);
@@ -428,6 +462,65 @@ class SoundService {
           osc.start(pTime);
           this.bgmNodes.push(osc, gain, filter);
           setTimeout(() => { try { osc.stop(); osc.disconnect(); filter.disconnect(); gain.disconnect(); } catch{ /* ignore */ } }, 1500);
+
+        } else if (instrument === 'ghiwane') {
+          // Deep woody Guembri bass + Hypnotic traditional Banjo/Loutar pluck
+          const noteTime = now;
+          
+          if (idx === 0 && !isRhythmic) {
+            // Deep organic Gnawa Guembri bass thud
+            const bassOsc = ctx.createOscillator();
+            const bassGain = ctx.createGain();
+            const bassFilter = ctx.createBiquadFilter();
+            bassOsc.type = 'triangle';
+            bassOsc.frequency.setValueAtTime(freq / 2.0, noteTime);
+            
+            bassFilter.type = 'lowpass';
+            bassFilter.frequency.setValueAtTime(350, noteTime);
+            bassFilter.frequency.exponentialRampToValueAtTime(70, noteTime + 0.15);
+            
+            bassGain.gain.setValueAtTime(0, noteTime);
+            bassGain.gain.linearRampToValueAtTime(0.045, noteTime + 0.01);
+            bassGain.gain.exponentialRampToValueAtTime(0.0001, noteTime + 1.2);
+            
+            bassOsc.connect(bassFilter);
+            bassFilter.connect(bassGain);
+            bassGain.connect(this.bgmMasterGain);
+            bassOsc.start(noteTime);
+            this.bgmNodes.push(bassOsc, bassGain, bassFilter);
+            setTimeout(() => { try { bassOsc.stop(); bassOsc.disconnect(); bassFilter.disconnect(); bassGain.disconnect(); } catch{ /* ignore */ } }, 2000);
+          }
+
+          // Hypnotic Moroccan folk Banjo/Loutar plucked strum
+          const strumDelay = idx * 0.045; // Traditional arpeggiated roll delay
+          const pTime = noteTime + strumDelay;
+          
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, pTime);
+          
+          const osc2 = ctx.createOscillator();
+          osc2.type = 'square';
+          osc2.frequency.setValueAtTime(freq * 2.0, pTime); // strong metallic overtone
+          
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(3200, pTime);
+          filter.Q.setValueAtTime(2.5, pTime);
+          filter.frequency.exponentialRampToValueAtTime(450, pTime + 0.14);
+          
+          gain.gain.setValueAtTime(0, pTime);
+          gain.gain.linearRampToValueAtTime(0.009, pTime + 0.003);
+          gain.gain.exponentialRampToValueAtTime(0.0001, pTime + 0.6);
+          
+          osc.connect(filter);
+          osc2.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.bgmMasterGain);
+          gain.connect(delayNode);
+          
+          osc.start(pTime);
+          osc2.start(pTime);
+          this.bgmNodes.push(osc, osc2, gain, filter);
+          setTimeout(() => { try { osc.stop(); osc2.stop(); osc.disconnect(); osc2.disconnect(); filter.disconnect(); gain.disconnect(); } catch{ /* ignore */ } }, 1000);
 
         } else if (instrument === 'qanun') {
           // Qanun zither strum: sharper, metallic arpeggiation
@@ -576,6 +669,62 @@ class SoundService {
         
         this.bgmNodes.push(osc1, gain, lfo, lfoGain);
         setTimeout(() => { try { osc1.stop(); lfo.stop(); osc1.disconnect(); lfo.disconnect(); gain.disconnect(); } catch{ /* ignore */ } }, (duration + 0.5) * 1000);
+        return;
+      }
+
+      if (instrument === 'ghiwane') {
+        // Hypnotic Moroccan folk Banjo/Loutar lead pluck
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+
+        osc1.type = 'sawtooth';
+        osc1.frequency.setValueAtTime(freq - 1.0, now);
+
+        osc2.type = 'square';
+        osc2.frequency.setValueAtTime(freq * 2.0, now); // strong metallic octave overtone
+
+        // High finger tremolo / plucking effect
+        const lfo = ctx.createOscillator();
+        const lfoGain = ctx.createGain();
+        lfo.frequency.value = 8.5; 
+        lfoGain.gain.value = 3.5;
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc1.frequency);
+        lfoGain.connect(osc2.frequency);
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(3500, now);
+        filter.Q.setValueAtTime(3.0, now); // high acoustic twang resonance
+        filter.frequency.exponentialRampToValueAtTime(700, now + 0.12);
+
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.022, now + 0.003); // sharp snappy attack
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration + 0.15);
+
+        osc1.connect(filter);
+        osc2.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.bgmMasterGain);
+        gain.connect(delayNode);
+
+        osc1.start(now);
+        osc2.start(now);
+        lfo.start(now);
+
+        this.bgmNodes.push(osc1, osc2, lfo, lfoGain, gain, filter);
+
+        setTimeout(() => {
+          try {
+            osc1.stop(); osc2.stop(); lfo.stop();
+            osc1.disconnect(); osc2.disconnect(); lfo.disconnect(); lfoGain.disconnect();
+            filter.disconnect(); gain.disconnect();
+          } catch { /* ignore */ }
+          this.bgmNodes = this.bgmNodes.filter(n =>
+            n !== osc1 && n !== osc2 && n !== lfo && n !== lfoGain && n !== gain && n !== filter
+          );
+        }, (duration + 0.5) * 1000);
         return;
       }
 
@@ -827,10 +976,13 @@ class SoundService {
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(680, now);
         osc.frequency.exponentialRampToValueAtTime(280, now + 0.06);
-        g.gain.setValueAtTime(0.30, now);
+        
+        const isHiphop = track.instrument === 'hiphop';
+        g.gain.setValueAtTime(isHiphop ? 0.12 : 0.30, now); // reduced volume for hiphop
         g.gain.exponentialRampToValueAtTime(0.001, now + 0.10);
         osc.connect(g); g.connect(this.bgmMasterGain);
         osc.start(now); osc.stop(now + 0.12);
+        
         // snap transient
         const dur = 0.03;
         const ns = ctx.createBufferSource();
@@ -838,7 +990,7 @@ class SoundService {
         const hpf = ctx.createBiquadFilter();
         hpf.type = 'highpass'; hpf.frequency.value = 2200;
         const ng = ctx.createGain();
-        ng.gain.setValueAtTime(0.20, now);
+        ng.gain.setValueAtTime(isHiphop ? 0.07 : 0.20, now); // reduced transient volume for hiphop
         ng.gain.exponentialRampToValueAtTime(0.001, now + dur);
         ns.connect(hpf); hpf.connect(ng); ng.connect(this.bgmMasterGain);
         ns.start(now); ns.stop(now + dur + 0.01);
@@ -885,17 +1037,25 @@ class SoundService {
       'ka',  'dom', 'ka', 'tek'
     ];
 
+    // Hypnotic, driving Nass El Ghiwane folk march Bendir/Darbouka pattern
+    const GHIWANE_PATTERN = [
+      'dom', 'ka', 'tek', 'ka',
+      'dom', 'ka', 'dom', 'tek',
+      'dom', 'ka', 'tek', 'ka',
+      'dom', 'ka', 'ka', 'tek'
+    ];
+
     // 4. BGM Clock Sequencer - ticks dynamically based on the track's BPM
     let step = 0;
 
     const tick = () => {
       if (!this.bgmPlaying) return;
 
-      // Chord Triggering (every 16 beats for main chord, plus rhythmic backing for Casablanca)
+      // Chord Triggering (every 16 beats for main chord, plus rhythmic backing for Casablanca and Elghiwane)
       if (step % 16 === 0) {
         const chordIndex = Math.floor(step / 16) % chords.length;
         playStrummedChord(chords[chordIndex]);
-      } else if ((track.instrument === 'qanun' || track.instrument === 'hiphop') && (step % 16 === 3 || step % 16 === 6 || step % 16 === 8 || step % 16 === 11 || step % 16 === 14)) {
+      } else if ((track.instrument === 'qanun' || track.instrument === 'hiphop' || track.instrument === 'ghiwane') && (step % 16 === 3 || step % 16 === 6 || step % 16 === 8 || step % 16 === 11 || step % 16 === 14)) {
         const chordIndex = Math.floor(step / 16) % chords.length;
         playStrummedChord(chords[chordIndex], true);
       }
@@ -912,6 +1072,7 @@ class SoundService {
         let hit;
         if (track.instrument === 'guitar') hit = RUMBA_PATTERN[patternStep];
         else if (track.instrument === 'hiphop') hit = HIPHOP_PATTERN[patternStep];
+        else if (track.instrument === 'ghiwane') hit = GHIWANE_PATTERN[patternStep];
         else hit = DERBOUKA_PATTERN[patternStep];
 
         if (hit) playDerboukaHit(hit);

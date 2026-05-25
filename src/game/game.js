@@ -322,49 +322,98 @@ export const RondaGame = {
       const capturedCards = [playedCard];
       let matchIndex = G.table.findIndex(c => c.value === currentVal);
       if (matchIndex !== -1 || isTaawidaTransfer) {
+        let hadMissa = false;
         if (isTaawidaTransfer) {
           const newStreak = G.lastPlayedCard.streak + 1;
           const scoreToAdd = newStreak === 3 ? 5 : 10;
           const opponent = G.lastPlayedCard.player;
           G.players[opponent].score -= G.lastPlayedCard.awardedPoints || 0;
-          const cardsToTransfer = G.lastPlayedCard.streakCards || [];
+          if (G.lastPlayedCard.hadMissa) {
+            G.players[opponent].score -= 1;
+            addScore(G, player, 1);
+            G.announcements.push({ player, type: 'Missa' });
+            hadMissa = true;
+          }
+          const cardsToTransfer = G.lastPlayedCard.capturedCardsInTurn || G.lastPlayedCard.streakCards || [];
           G.players[opponent].captured = G.players[opponent].captured.filter(c => !cardsToTransfer.some(tc => tc.id === c.id));
           capturedCards.push(...cardsToTransfer);
           addScore(G, player, scoreToAdd);
           G.announcements.push({ player, type: 'Taawida', streak: newStreak });
-          G.lastPlayedCard = { value: currentVal, player: player, streak: newStreak, awardedPoints: scoreToAdd, streakCards: [...cardsToTransfer, playedCard] };
+          G.lastPlayedCard = {
+            value: currentVal,
+            player: player,
+            streak: newStreak,
+            awardedPoints: scoreToAdd,
+            streakCards: [...(G.lastPlayedCard.streakCards || []), playedCard],
+            capturedCardsInTurn: [...capturedCards],
+            hadMissa
+          };
         } else {
           let matchedCard = G.table.splice(matchIndex, 1)[0];
           capturedCards.push(matchedCard);
+          let newStreak = 1;
+          let awardedPoints = 0;
+          let streakCards = [];
           if (G.lastPlayedCard && G.lastPlayedCard.value === currentVal && G.lastPlayedCard.player !== player) {
-            const newStreak = (G.lastPlayedCard.streak || 1) + 1;
-            let awardedPoints = 0;
-            let streakCards = [];
-            if (newStreak === 2) { awardedPoints = 1; addScore(G, player, awardedPoints); G.announcements.push({ player, type: 'Derba' }); streakCards = [matchedCard, playedCard]; }
-            else if (newStreak === 4) {
+            newStreak = (G.lastPlayedCard.streak || 1) + 1;
+            if (newStreak === 2) {
+              awardedPoints = 1;
+              addScore(G, player, awardedPoints);
+              G.announcements.push({ player, type: 'Derba' });
+              streakCards = [matchedCard, playedCard];
+            } else if (newStreak === 4) {
               awardedPoints = 10;
               const opponent = G.lastPlayedCard.player;
               G.players[opponent].score -= G.lastPlayedCard.awardedPoints || 0;
-              const cardsToTransfer = G.lastPlayedCard.streakCards || [];
+              if (G.lastPlayedCard.hadMissa) {
+                G.players[opponent].score -= 1;
+                addScore(G, player, 1);
+                G.announcements.push({ player, type: 'Missa' });
+                hadMissa = true;
+              }
+              const cardsToTransfer = G.lastPlayedCard.capturedCardsInTurn || G.lastPlayedCard.streakCards || [];
               G.players[opponent].captured = G.players[opponent].captured.filter(c => !cardsToTransfer.some(tc => tc.id === c.id));
               capturedCards.push(...cardsToTransfer);
-              streakCards = [...cardsToTransfer, matchedCard, playedCard];
+              streakCards = [...(G.lastPlayedCard.streakCards || []), matchedCard, playedCard];
               addScore(G, player, awardedPoints);
               G.announcements.push({ player, type: 'Taawida', streak: newStreak });
             }
-            G.lastPlayedCard = { value: currentVal, player: player, streak: newStreak, awardedPoints, streakCards };
-          } else { G.lastPlayedCard = null; }
+          }
           let nextVal = getNextValue(currentVal);
           while (nextVal !== null) {
             let nextMatchIndex = G.table.findIndex(c => c.value === nextVal);
-            if (nextMatchIndex !== -1) { capturedCards.push(G.table.splice(nextMatchIndex, 1)[0]); nextVal = getNextValue(nextVal); }
-            else break;
+            if (nextMatchIndex !== -1) {
+              capturedCards.push(G.table.splice(nextMatchIndex, 1)[0]);
+              nextVal = getNextValue(nextVal);
+            } else {
+              break;
+            }
+          }
+          if (newStreak > 1) {
+            G.lastPlayedCard = {
+              value: currentVal,
+              player: player,
+              streak: newStreak,
+              awardedPoints,
+              streakCards,
+              capturedCardsInTurn: [...capturedCards],
+              hadMissa: false
+            };
+          } else {
+            G.lastPlayedCard = null;
           }
         }
         G.players[player].captured.push(...capturedCards);
         G.lastCapture = player;
         G.isAnimating = true;
-        if (!isTaawidaTransfer && G.table.length === 0 && (G.deck.length > 0 || G.players['0'].hand.length > 0)) { addScore(G, player, 1); G.announcements.push({ player, type: 'Missa' }); }
+        if (!isTaawidaTransfer && G.table.length === 0 && (G.deck.length > 0 || G.players['0'].hand.length > 0)) {
+          addScore(G, player, 1);
+          G.announcements.push({ player, type: 'Missa' });
+          hadMissa = true;
+          if (G.lastPlayedCard) {
+            G.lastPlayedCard.hadMissa = true;
+          }
+        }
         if (currentVal === 10 && G.deck.length === 0 && G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0) { addScore(G, player, 5); G.announcements.push({ player, type: 'King Finish' }); }
         if (currentVal === 1 && G.deck.length === 0 && G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0) { const opponent = player === '0' ? '1' : '0'; addScore(G, opponent, 5); G.announcements.push({ player: opponent, type: 'As Finish' }); }
       }
