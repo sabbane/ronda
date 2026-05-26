@@ -539,11 +539,15 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
     : false;
 
   const myTeamName = numP === 4
-    ? `${G.players['0']?.name || 'Player 1'} & ${G.players['2']?.name || 'Player 3'}`
+    ? (isMyTeamA
+        ? (G.teamNames?.TeamA?.trim() || `${G.players['0']?.name || 'Player 1'} & ${G.players['2']?.name || 'Player 3'}`)
+        : (G.teamNames?.TeamB?.trim() || `${G.players['1']?.name || 'Player 2'} & ${G.players['3']?.name || 'Player 4'}`))
     : (G.players[myID]?.name || t('you'));
 
   const oppTeamName = numP === 4
-    ? `${G.players['1']?.name || 'Player 2'} & ${G.players['3']?.name || 'Player 4'}`
+    ? (isMyTeamA
+        ? (G.teamNames?.TeamB?.trim() || `${G.players['1']?.name || 'Player 2'} & ${G.players['3']?.name || 'Player 4'}`)
+        : (G.teamNames?.TeamA?.trim() || `${G.players['0']?.name || 'Player 1'} & ${G.players['2']?.name || 'Player 3'}`))
     : (G.players[opponentID]?.name || t('opponent'));
 
   const myTeamScore = numP === 4
@@ -674,68 +678,191 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
           </div>
 
           {/* Players Grid */}
-          <div className={`grid grid-cols-1 gap-4 sm:gap-6 mb-8 ${numP === 4 ? 'sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2' : 'sm:grid-cols-2'}`}>
-            {Array.from({ length: numP }, (_, i) => String(i)).map((pID) => {
-              const isHost = pID === '0';
-              const pName = G.players[pID]?.name || '';
-              const hasJoined = isHost || !!pName.trim();
-              const isLocalPlayer = myID === pID;
-              
-              // Define styling/roles based on ID and language
-              let role = 'Guest';
-              let badgeColor = 'bg-purple-500/20 text-purple-300 border-purple-500/30';
-              let iconBg = hasJoined ? 'bg-purple-600/20 border-purple-500/30 text-purple-400' : 'bg-white/5 border border-white/5 text-slate-600 animate-pulse';
-              
-              if (pID === '0') {
-                role = 'Host';
-                badgeColor = 'bg-amber-500/20 text-amber-300 border border-amber-500/30';
-                iconBg = 'bg-amber-600/20 border border-amber-500/30 text-amber-400';
-              } else if (pID === '2') {
-                role = language === 'de' ? 'Partner (A)' : language === 'fr' ? 'Partenaire (A)' : language === 'ar' ? 'شريك (أ)' : 'Partner (A)';
-                badgeColor = 'bg-amber-500/20 text-amber-300 border border-amber-500/30';
-                iconBg = hasJoined ? 'bg-amber-600/20 border border-amber-500/30 text-amber-400' : 'bg-white/5 border border-white/5 text-slate-600 animate-pulse';
-              } else if (pID === '1') {
-                role = language === 'de' ? 'Gegner 1 (B)' : language === 'fr' ? 'Adversaire 1 (B)' : language === 'ar' ? 'خصم ١ (ب)' : 'Opponent 1 (B)';
-                badgeColor = 'bg-purple-500/20 text-purple-300 border-purple-500/30';
-                iconBg = hasJoined ? 'bg-purple-600/20 border-purple-500/30 text-purple-400' : 'bg-white/5 border border-white/5 text-slate-600 animate-pulse';
-              } else if (pID === '3') {
-                role = language === 'de' ? 'Gegner 2 (B)' : language === 'fr' ? 'Adversaire 2 (B)' : language === 'ar' ? 'خصم ٢ (ب)' : 'Opponent 2 (B)';
-                badgeColor = 'bg-purple-500/20 text-purple-300 border-purple-500/30';
-                iconBg = hasJoined ? 'bg-purple-600/20 border-purple-500/30 text-purple-400' : 'bg-white/5 border border-white/5 text-slate-600 animate-pulse';
-              }
+          {numP === 2 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
+              {['0', '1'].map((pID) => {
+                const isHost = pID === '0';
+                const pName = G.players[pID]?.name || '';
+                const hasJoined = isHost || !!pName.trim();
+                const isLocalPlayer = myID === pID;
+                const role = isHost ? 'Host' : (language === 'de' ? 'Gegner' : language === 'fr' ? 'Adversaire' : language === 'ar' ? 'خصم' : 'Opponent');
+                const badgeColor = isHost ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' : 'bg-purple-500/20 text-purple-300 border-purple-500/30';
+                const iconBg = hasJoined ? (isHost ? 'bg-amber-600/20 border-amber-500/30 text-amber-400' : 'bg-purple-600/20 border-purple-500/30 text-purple-400') : 'bg-white/5 border border-white/5 text-slate-600 animate-pulse';
 
-              return (
-                <div key={pID} className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col items-center relative overflow-hidden group shadow-lg">
-                  <div className={`absolute top-3 right-3 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full border ${badgeColor}`}>
-                    {role}
-                  </div>
-                  <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 ${iconBg}`}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                  </div>
-                  <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1">
-                    {language === 'de' ? `Spieler ${parseInt(pID) + 1}` : `Player ${parseInt(pID) + 1}`}
-                  </span>
-                  
-                  {!hasJoined ? (
-                    <span className="text-xs font-semibold text-slate-500 animate-pulse uppercase tracking-wider py-1">
-                      {language === 'de' ? 'Warte...' : 'Waiting...'}
+                return (
+                  <div key={pID} className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col items-center relative overflow-hidden group shadow-lg">
+                    <div className={`absolute top-3 right-3 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full border ${badgeColor}`}>
+                      {role}
+                    </div>
+                    <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 ${iconBg}`}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
+                    <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1">
+                      {language === 'de' ? `Spieler ${parseInt(pID) + 1}` : `Player ${parseInt(pID) + 1}`}
                     </span>
-                  ) : isLocalPlayer ? (
+                    {!hasJoined ? (
+                      <span className="text-xs font-semibold text-slate-500 animate-pulse uppercase tracking-wider py-1">
+                        {language === 'de' ? 'Warte...' : 'Waiting...'}
+                      </span>
+                    ) : isLocalPlayer ? (
+                      <input
+                        type="text"
+                        maxLength={15}
+                        value={G.players[pID]?.name || ''}
+                        onChange={(e) => moves.setPlayerName(e.target.value)}
+                        className="bg-black/50 border border-white/10 rounded-xl px-3 py-1.5 text-center text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 w-full animate-fade-in"
+                        placeholder={language === 'de' ? 'Dein Name' : 'Your name'}
+                      />
+                    ) : (
+                      <span className="text-base font-bold text-slate-200">{pName || 'Host'}</span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            /* 4 Players layout divided into Team A vs Team B */
+            <div className="flex flex-col gap-8 mb-8 text-start select-none">
+              {/* TEAM A Column */}
+              <div className="bg-white/5 border border-white/10 rounded-3xl p-5 shadow-inner">
+                {/* Team A Header / Name Input */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 pb-3 border-b border-white/5">
+                  <span className="text-sm font-extrabold text-amber-300 uppercase tracking-widest flex items-center gap-2">
+                    🛡️ {language === 'de' ? 'Team A' : 'Team A'}
+                  </span>
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <span className="text-xs text-slate-400 whitespace-nowrap">{language === 'de' ? 'Team Name:' : 'Team Name:'}</span>
                     <input
                       type="text"
-                      maxLength={15}
-                      value={G.players[pID]?.name || ''}
-                      onChange={(e) => moves.setPlayerName(e.target.value)}
-                      className="bg-black/50 border border-white/10 rounded-xl px-3 py-1.5 text-center text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 w-full animate-fade-in"
-                      placeholder={language === 'de' ? 'Dein Name' : 'Your name'}
+                      maxLength={20}
+                      value={G.teamNames?.TeamA || ''}
+                      readOnly={myID !== '0' && myID !== '2'}
+                      onChange={(e) => moves.setTeamName({ team: 'TeamA', name: e.target.value })}
+                      placeholder={language === 'de' ? 'Team A Name...' : 'Enter Team A Name...'}
+                      className={`bg-black/35 border ${myID === '0' || myID === '2' ? 'border-amber-500/30 focus:border-amber-500/60 focus:outline-none' : 'border-white/5 pointer-events-none'} rounded-lg px-2.5 py-1 text-white text-xs font-bold w-full sm:w-48`}
                     />
-                  ) : (
-                    <span className="text-base font-bold text-slate-200">{pName || 'Host'}</span>
-                  )}
+                  </div>
                 </div>
-              );
-            })}
-          </div>
+                {/* Team A Player cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {['0', '2'].map((pID) => {
+                    const isHost = pID === '0';
+                    const pName = G.players[pID]?.name || '';
+                    const hasJoined = isHost || !!pName.trim();
+                    const isLocalPlayer = myID === pID;
+                    const role = isHost ? 'Host' : (language === 'de' ? 'Partner (A)' : 'Partner (A)');
+                    const badgeColor = 'bg-amber-500/20 text-amber-300 border border-amber-500/30';
+                    const iconBg = hasJoined ? 'bg-amber-600/20 border border-amber-500/30 text-amber-400' : 'bg-white/5 border border-white/5 text-slate-600 animate-pulse';
+
+                    return (
+                      <div key={pID} className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center relative overflow-hidden group shadow-lg">
+                        <div className={`absolute top-3 right-3 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full border ${badgeColor}`}>
+                          {role}
+                        </div>
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2.5 ${iconBg}`}>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        </div>
+                        <span className="text-[9px] text-slate-400 uppercase tracking-widest font-bold mb-1">
+                          {language === 'de' ? `Spieler ${parseInt(pID) + 1}` : `Player ${parseInt(pID) + 1}`}
+                        </span>
+                        {!hasJoined ? (
+                          <button
+                            onClick={() => {
+                              playClick();
+                              window.dispatchEvent(new CustomEvent('ronda-switch-seat', { detail: { newPlayerID: pID } }));
+                            }}
+                            className="mt-1 w-full bg-amber-500/10 hover:bg-amber-500/25 text-amber-300 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border border-amber-500/25 hover:scale-105 active:scale-95 cursor-pointer text-center"
+                          >
+                            {language === 'de' ? 'Team A beitreten' : 'Join Team A'}
+                          </button>
+                        ) : isLocalPlayer ? (
+                          <input
+                            type="text"
+                            maxLength={15}
+                            value={G.players[pID]?.name || ''}
+                            onChange={(e) => moves.setPlayerName(e.target.value)}
+                            className="bg-black/50 border border-white/10 rounded-xl px-3 py-1.5 text-center text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 w-full animate-fade-in"
+                            placeholder={language === 'de' ? 'Dein Name' : 'Your name'}
+                          />
+                        ) : (
+                          <span className="text-base font-bold text-slate-200">{pName || 'Host'}</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* TEAM B Column */}
+              <div className="bg-white/5 border border-white/10 rounded-3xl p-5 shadow-inner">
+                {/* Team B Header / Name Input */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 pb-3 border-b border-white/5">
+                  <span className="text-sm font-extrabold text-purple-300 uppercase tracking-widest flex items-center gap-2">
+                    ⚔️ {language === 'de' ? 'Team B' : 'Team B'}
+                  </span>
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <span className="text-xs text-slate-400 whitespace-nowrap">{language === 'de' ? 'Team Name:' : 'Team Name:'}</span>
+                    <input
+                      type="text"
+                      maxLength={20}
+                      value={G.teamNames?.TeamB || ''}
+                      readOnly={myID !== '1' && myID !== '3'}
+                      onChange={(e) => moves.setTeamName({ team: 'TeamB', name: e.target.value })}
+                      placeholder={language === 'de' ? 'Team B Name...' : 'Enter Team B Name...'}
+                      className={`bg-black/35 border ${myID === '1' || myID === '3' ? 'border-purple-500/30 focus:border-purple-500/60 focus:outline-none' : 'border-white/5 pointer-events-none'} rounded-lg px-2.5 py-1 text-white text-xs font-bold w-full sm:w-48`}
+                    />
+                  </div>
+                </div>
+                {/* Team B Player cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {['1', '3'].map((pID) => {
+                    const pName = G.players[pID]?.name || '';
+                    const hasJoined = !!pName.trim();
+                    const isLocalPlayer = myID === pID;
+                    const role = pID === '1' ? (language === 'de' ? 'Gegner 1 (B)' : 'Opponent 1 (B)') : (language === 'de' ? 'Gegner 2 (B)' : 'Opponent 2 (B)');
+                    const badgeColor = 'bg-purple-500/20 text-purple-300 border-purple-500/30';
+                    const iconBg = hasJoined ? 'bg-purple-600/20 border-purple-500/30 text-purple-400' : 'bg-white/5 border border-white/5 text-slate-600 animate-pulse';
+
+                    return (
+                      <div key={pID} className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center relative overflow-hidden group shadow-lg">
+                        <div className={`absolute top-3 right-3 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full border ${badgeColor}`}>
+                          {role}
+                        </div>
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2.5 ${iconBg}`}>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        </div>
+                        <span className="text-[9px] text-slate-400 uppercase tracking-widest font-bold mb-1">
+                          {language === 'de' ? `Spieler ${parseInt(pID) + 1}` : `Player ${parseInt(pID) + 1}`}
+                        </span>
+                        {!hasJoined ? (
+                          <button
+                            onClick={() => {
+                              playClick();
+                              window.dispatchEvent(new CustomEvent('ronda-switch-seat', { detail: { newPlayerID: pID } }));
+                            }}
+                            className="mt-1 w-full bg-purple-500/10 hover:bg-purple-500/25 text-purple-300 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border border-purple-500/25 hover:scale-105 active:scale-95 cursor-pointer text-center"
+                          >
+                            {language === 'de' ? 'Team B beitreten' : 'Join Team B'}
+                          </button>
+                        ) : isLocalPlayer ? (
+                          <input
+                            type="text"
+                            maxLength={15}
+                            value={G.players[pID]?.name || ''}
+                            onChange={(e) => moves.setPlayerName(e.target.value)}
+                            className="bg-black/50 border border-white/10 rounded-xl px-3 py-1.5 text-center text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 w-full animate-fade-in"
+                            placeholder={language === 'de' ? 'Dein Name' : 'Your name'}
+                          />
+                        ) : (
+                          <span className="text-base font-bold text-slate-200">{pName}</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Lobby Controls */}
           <div className="border-t border-white/5 pt-6 flex flex-col gap-4">

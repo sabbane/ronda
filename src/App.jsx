@@ -106,12 +106,14 @@ const App = () => {
   const playerIDRef = useRef(playerID);
   const credentialsRef = useRef(credentials);
   const languageRef = useRef(language);
+  const nicknameRef = useRef(nickname);
 
   useEffect(() => { modeRef.current = mode; }, [mode]);
   useEffect(() => { matchIDRef.current = matchID; }, [matchID]);
   useEffect(() => { playerIDRef.current = playerID; }, [playerID]);
   useEffect(() => { credentialsRef.current = credentials; }, [credentials]);
   useEffect(() => { languageRef.current = language; }, [language]);
+  useEffect(() => { nicknameRef.current = nickname; }, [nickname]);
 
   const updateUrl = (id) => {
     try {
@@ -175,7 +177,7 @@ const App = () => {
       let availablePlayerID = null;
       for (let i = 1; i < match.players.length; i++) {
         const slot = match.players[i];
-        if (!slot.name && !slot.isConnected) {
+        if (!slot.name || !slot.isConnected) {
           availablePlayerID = String(i);
           break;
         }
@@ -214,7 +216,7 @@ const App = () => {
         const openMatches = resp.matches.filter(m => {
           if (m.unlisted) return false;
           // A room is joinable if there is at least one free slot (index >= 1)
-          const isSlotAvailable = m.players.slice(1).some(p => !p.name && !p.isConnected);
+          const isSlotAvailable = m.players.slice(1).some(p => !p.name || !p.isConnected);
           return isSlotAvailable;
         });
         setPublicRooms(openMatches);
@@ -295,6 +297,46 @@ const App = () => {
     window.addEventListener('ronda-menu', handleMenu);
     window.addEventListener('ronda-host-left', handleHostLeft);
 
+    const handleSwitchSeat = async (event) => {
+      const newPlayerID = event.detail?.newPlayerID;
+      if (!newPlayerID) return;
+
+      const currentMode = modeRef.current;
+      const currentMatchID = matchIDRef.current;
+      const currentPlayerID = playerIDRef.current;
+      const currentCredentials = credentialsRef.current;
+      const currentNickname = nicknameRef.current || 'Spieler';
+
+      console.log('[App] handleSwitchSeat requested:', currentPlayerID, '->', newPlayerID);
+
+      try {
+        // 1. Leave the old slot if we have one
+        if (currentMode === 'online' && currentMatchID && currentPlayerID) {
+          await lobbyClient.leaveMatch(RondaGame.name, currentMatchID, {
+            playerID: currentPlayerID,
+            credentials: currentCredentials
+          }).catch(err => console.error('Failed to leave old seat during switch:', err));
+        }
+
+        // 2. Join the new slot
+        const joinData = await lobbyClient.joinMatch(RondaGame.name, currentMatchID, {
+          playerID: newPlayerID,
+          playerName: currentNickname
+        });
+
+        // 3. Update state
+        setCredentials(joinData.playerCredentials);
+        setPlayerID(newPlayerID);
+        setGameKey(prev => prev + 1); // Clean remount of the board client
+        console.log('[App] handleSwitchSeat completed successfully. Switched to slot:', newPlayerID);
+      } catch (err) {
+        console.error('[App] Failed to switch seat:', err);
+        setError(t('joinError') || 'Fehler beim Sitzplatzwechsel');
+      }
+    };
+
+    window.addEventListener('ronda-switch-seat', handleSwitchSeat);
+
     const isAppInTestMode = import.meta.env.VITE_TEST_MODE === 'true';
     const path = window.location.pathname;
     console.log('[App] mount: pathname:', path, 'isAppInTestMode:', isAppInTestMode);
@@ -357,6 +399,7 @@ const App = () => {
       window.removeEventListener('ronda-reset', handleReset);
       window.removeEventListener('ronda-menu', handleMenu);
       window.removeEventListener('ronda-host-left', handleHostLeft);
+      window.removeEventListener('ronda-switch-seat', handleSwitchSeat);
     };
   }, []);
 

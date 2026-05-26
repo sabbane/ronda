@@ -283,6 +283,7 @@ export const RondaGame = {
       endTurnAfterUI: false,
       gameStatus: null, // Custom game over state
       matchesWon, // Track overall games won
+      teamNames: { TeamA: '', TeamB: '' },
     };
 
     evaluateRondaTringa(G);
@@ -306,6 +307,14 @@ export const RondaGame = {
         const pID = playerID || '0';
         if (G.players[pID]) {
           G.players[pID].name = name;
+        }
+      },
+      noLimit: true
+    },
+    setTeamName: {
+      move: ({ G }, { team, name }) => {
+        if (G.teamNames) {
+          G.teamNames[team] = name;
         }
       },
       noLimit: true
@@ -549,6 +558,14 @@ export const RondaGame = {
             },
             noLimit: true
           },
+          setTeamName: {
+            move: ({ G }, { team, name }) => {
+              if (G.teamNames) {
+                G.teamNames[team] = name;
+              }
+            },
+            noLimit: true
+          },
           startGame: {
             move: ({ G, events }) => {
               G.gameStarted = true;
@@ -627,10 +644,12 @@ export const RondaGame = {
       gameOver: {
         moves: {
           restartGame: ({ G, ctx, events }) => {
-            // Preserve overall match wins and player nicknames dynamically for all players
+            // Preserve overall match wins, player nicknames, and custom team names dynamically
             const numP = Object.keys(G.players).length;
             const matches = {};
             const names = {};
+            const preservedTeamNames = G.teamNames ? { ...G.teamNames } : { TeamA: '', TeamB: '' };
+            
             for (let i = 0; i < numP; i++) {
               const pID = String(i);
               matches[pID] = G.matchesWon ? (G.matchesWon[pID] || 0) : 0;
@@ -646,8 +665,9 @@ export const RondaGame = {
             }
             Object.assign(G, fresh);
 
-            // Restore overall match wins, nicknames, and ensure the game starts directly
+            // Restore overall match wins, nicknames, team names, and ensure the game starts directly
             G.matchesWon = matches;
+            G.teamNames = preservedTeamNames;
             G.gameStarted = true;
             for (let i = 0; i < numP; i++) {
               const pID = String(i);
