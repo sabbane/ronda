@@ -44,10 +44,10 @@ class SoundService {
       }
     });
 
-    // 3 Unique procedural compositions
+    // 2 Procedural compositions
     this.tracks = [
       {
-        name: "Sahara",
+        name: "Desert Night",
         bpm: 80,
         gain: 0.90,
         instrument: "oud",
@@ -86,27 +86,31 @@ class SoundService {
           { step: 39, f: 311.13, d: 0.7 }, // Eb4
           { step: 40, f: 293.66, d: 2.8 }, // D4
           
-          { step: 48, f: 392.00, d: 1.4 }, // G4
-          { step: 50, f: 440.00, d: 0.7 }, // A4
-          { step: 51, f: 466.16, d: 0.7 }, // Bb4
-          { step: 52, f: 440.00, d: 1.4 }, // A4
-          { step: 54, f: 369.99, d: 0.7 }, // F#4
-          { step: 55, f: 311.13, d: 0.7 }, // Eb4
-          { step: 56, f: 293.66, d: 2.8 }  // D4
+          { step: 0, f: 293.66, d: 1.4 },
+          { step: 2, f: 311.13, d: 0.7 },
+          { step: 3, f: 369.99, d: 0.7 },
+          { step: 4, f: 392.00, d: 1.4 },
+          { step: 6, f: 369.99, d: 0.7 },
+          { step: 7, f: 311.13, d: 0.7 },
+          { step: 8, f: 293.66, d: 2.8 },
+          { step: 16, f: 440.00, d: 1.4 },
+          { step: 18, f: 466.16, d: 0.7 },
+          { step: 19, f: 523.25, d: 0.7 },
+          { step: 20, f: 587.33, d: 1.4 },
+          { step: 22, f: 523.25, d: 0.7 },
+          { step: 23, f: 466.16, d: 0.7 },
+          { step: 24, f: 440.00, d: 2.8 }
         ]
       },
       {
-        name: "Andalusia",
+        name: "Casablanca",
         bpm: 108,
         gain: 0.70,
         instrument: "guitar",
         percussion: true,
         chords: [
-          // A minor: A2 (110.00), E3 (164.81), A3 (220.00), C4 (261.63)
           [110.00, 164.81, 220.00, 261.63],
-          // G Major: G2 (98.00), D3 (146.83), G3 (196.00), B3 (246.94)
           [98.00, 146.83, 196.00, 246.94],
-          // F Major: F2 (87.31), C3 (130.81), F3 (174.61), A3 (220.00)
           [87.31, 130.81, 174.61, 220.00],
           // E Major: E2 (82.41), B2 (123.47), E3 (164.81), G#3 (207.65)
           [82.41, 123.47, 164.81, 207.65]
@@ -147,103 +151,6 @@ class SoundService {
           { step: 56, f: 415.30, d: 1.2 }, // G#4
           { step: 58, f: 349.23, d: 0.6 }, // F4
           { step: 60, f: 329.63, d: 2.8 }  // E4 (passionate resolved root!)
-        ]
-      },
-      {
-        name: "Casablanca",
-        bpm: 92,
-        gain: 0.85,
-        instrument: "hiphop",
-        percussion: false,
-        chords: [
-          // Chord 0 (E minor 7): E3 (164.81), G3 (196.00), B3 (246.94), D4 (293.66)
-          [164.81, 196.00, 246.94, 293.66],
-          // Chord 1 (A minor 7): A3 (220.00), C4 (261.63), E4 (329.63), G4 (392.00)
-          [220.00, 261.63, 329.63, 392.00],
-          // Chord 2 (D minor 7): D3 (146.83), F3 (174.61), A3 (220.00), C4 (261.63)
-          [146.83, 174.61, 220.00, 261.63],
-          // Chord 3 (B minor 7): B3 (246.94), D4 (293.66), F#4 (369.99), A4 (440.00)
-          [246.94, 293.66, 369.99, 440.00]
-        ],
-        melody: [
-          // Classic funky West Coast whistling lead
-          { step: 0, f: 987.77, d: 1.5 },   // B5
-          { step: 3, f: 1174.66, d: 0.5 },  // D6
-          { step: 4, f: 1318.51, d: 2.0 },  // E6
-          { step: 8, f: 1174.66, d: 1.0 },  // D6
-          { step: 10, f: 987.77, d: 1.0 },  // B5
-          { step: 12, f: 880.00, d: 2.0 },  // A5
-          
-          { step: 16, f: 880.00, d: 1.5 },  // A5
-          { step: 19, f: 783.99, d: 0.5 },  // G5
-          { step: 20, f: 880.00, d: 2.0 },  // A5
-          { step: 24, f: 987.77, d: 1.0 },  // B5
-          { step: 26, f: 1174.66, d: 1.0 }, // D6
-          { step: 28, f: 1318.51, d: 2.5 }, // E6
-
-          { step: 32, f: 1318.51, d: 1.5 }, // E6
-          { step: 35, f: 1479.98, d: 0.5 }, // F#6
-          { step: 36, f: 1567.98, d: 2.0 }, // G6
-          { step: 40, f: 1479.98, d: 1.0 }, // F#6
-          { step: 42, f: 1318.51, d: 1.0 }, // E6
-          { step: 44, f: 1174.66, d: 2.0 }, // D6
-
-          { step: 48, f: 1174.66, d: 1.5 }, // D6
-          { step: 51, f: 987.77, d: 0.5 },  // B5
-          { step: 52, f: 880.00, d: 1.0 },  // A5
-          { step: 54, f: 783.99, d: 1.0 },  // G5
-          { step: 56, f: 659.25, d: 3.0 }   // E5
-        ]
-      },
-      {
-        name: "Elghiwane",
-        bpm: 96,
-        gain: 0.80,
-        instrument: "ghiwane",
-        percussion: false,
-        chords: [
-          // Chord 0 (D minor): D3 (146.83), A3 (220.00), D4 (293.66), F4 (349.23)
-          [146.83, 220.00, 293.66, 349.23],
-          // Chord 1 (G minor): G3 (196.00), B3 (246.94), D4 (293.66), G4 (392.00)
-          [196.00, 246.94, 293.66, 392.00],
-          // Chord 2 (A minor): A3 (220.00), C4 (261.63), E4 (329.63), A4 (440.00)
-          [220.00, 261.63, 329.63, 440.00],
-          // Chord 3 (D minor resolve): D3 (146.83), A3 (220.00), D4 (293.66), F4 (349.23)
-          [146.83, 220.00, 293.66, 349.23]
-        ],
-        melody: [
-          // Soulful folk Banjo / Vocal theme inspired by "Siniya" (The Tray)
-          { step: 0, f: 587.33, d: 0.5 },   // D5
-          { step: 2, f: 587.33, d: 0.5 },   // D5
-          { step: 3, f: 659.25, d: 0.5 },   // E5
-          { step: 4, f: 698.46, d: 1.0 },   // F5
-          { step: 6, f: 659.25, d: 0.5 },   // E5
-          { step: 7, f: 587.33, d: 0.5 },   // D5
-          { step: 8, f: 587.33, d: 1.5 },   // D5
-          
-          { step: 16, f: 698.46, d: 0.5 },  // F5
-          { step: 18, f: 698.46, d: 0.5 },  // F5
-          { step: 19, f: 783.99, d: 0.5 },  // G5
-          { step: 20, f: 880.00, d: 1.0 },  // A5
-          { step: 22, f: 783.99, d: 0.5 },  // G5
-          { step: 23, f: 698.46, d: 0.5 },  // F5
-          { step: 24, f: 659.25, d: 1.5 },  // E5
-
-          { step: 32, f: 783.99, d: 0.5 },  // G5
-          { step: 34, f: 783.99, d: 0.5 },  // G5
-          { step: 35, f: 698.46, d: 0.5 },  // F5
-          { step: 36, f: 659.25, d: 1.0 },  // E5
-          { step: 38, f: 587.33, d: 0.5 },  // D5
-          { step: 39, f: 523.25, d: 0.5 },  // C5
-          { step: 40, f: 587.33, d: 1.5 },  // D5
-
-          { step: 48, f: 523.25, d: 0.5 },  // C5
-          { step: 50, f: 587.33, d: 0.5 },  // D5
-          { step: 51, f: 659.25, d: 0.5 },  // E5
-          { step: 52, f: 587.33, d: 1.0 },  // D5
-          { step: 54, f: 523.25, d: 0.5 },  // C5
-          { step: 55, f: 440.00, d: 0.5 },  // A4
-          { step: 56, f: 293.66, d: 2.0 }   // D4
         ]
       }
     ];
@@ -287,28 +194,33 @@ class SoundService {
   async initContext() {
     if (this.muted || this.adPlaying) return null;
 
-    if (!this.ctx) {
-      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContextClass) return null;
-      this.ctx = new AudioContextClass();
-    }
-
-    if (this.ctx.state === 'suspended') {
-      try {
-        await this.ctx.resume();
-      } catch (e) {
-        console.warn('AudioContext failed to resume:', e);
+    try {
+      if (!this.ctx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return null;
+        this.ctx = new AudioContextClass();
       }
-    }
 
-    // Automatically trigger BGM on first successful user interaction
-    if (this.ctx && this.ctx.state === 'running' && !this.bgmPlaying) {
-      setTimeout(() => {
-        this.startBGM();
-      }, 100);
-    }
+      if (this.ctx.state === 'suspended') {
+        try {
+          await this.ctx.resume();
+        } catch (e) {
+          console.warn('AudioContext failed to resume:', e);
+        }
+      }
 
-    return this.ctx;
+      // Automatically trigger BGM on first successful user interaction
+      if (this.ctx && this.ctx.state === 'running' && !this.bgmPlaying) {
+        setTimeout(() => {
+          this.startBGM().catch(e => console.warn('Failed to start BGM in timeout:', e));
+        }, 100);
+      }
+
+      return this.ctx;
+    } catch (e) {
+      console.warn('[SoundService] initContext failed:', e);
+      return null;
+    }
   }
 
   /**
@@ -1142,24 +1054,28 @@ class SoundService {
    * 1. UI Click: Clean crisp frequency sweep.
    */
   async playClick() {
-    const ctx = await this.initContext();
-    if (!ctx) return;
+    try {
+      const ctx = await this.initContext();
+      if (!ctx) return;
 
-    const osc = ctx.createOscillator();
-    const gainNode = ctx.createGain();
+      const osc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
 
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(1000, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(350, ctx.currentTime + 0.05);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1000, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(350, ctx.currentTime + 0.05);
 
-    gainNode.gain.setValueAtTime(0.06, ctx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+      gainNode.gain.setValueAtTime(0.06, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
 
-    osc.connect(gainNode);
-    gainNode.connect(ctx.destination);
+      osc.connect(gainNode);
+      gainNode.connect(ctx.destination);
 
-    osc.start();
-    osc.stop(ctx.currentTime + 0.06);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.06);
+    } catch (e) {
+      console.warn('[SoundService] playClick failed:', e);
+    }
   }
 
   /**

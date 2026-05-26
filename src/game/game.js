@@ -237,7 +237,7 @@ export const RondaGame = {
       announcements: [],
       pendingCapture: null,
       isAnimating: true,
-      gameStarted: isTestMode || setupData?.gameStarted === true,
+      gameStarted: setupData ? (isTestMode || setupData.gameStarted === true) : true,
       endTurnAfterUI: false,
       gameStatus: null, // Custom game over state
       matchesWon: { '0': 0, '1': 0 }, // Track overall games won
@@ -548,9 +548,11 @@ export const RondaGame = {
       gameOver: {
         moves: {
           restartGame: ({ G, ctx, events }) => {
-            // Preserve overall match wins
+            // Preserve overall match wins and player nicknames
             const matches0 = G.matchesWon ? G.matchesWon['0'] : 0;
             const matches1 = G.matchesWon ? G.matchesWon['1'] : 0;
+            const name0 = G.players && G.players['0'] ? G.players['0'].name : '';
+            const name1 = G.players && G.players['1'] ? G.players['1'].name : '';
 
             const fresh = RondaGame.setup({ ctx });
 
@@ -561,8 +563,11 @@ export const RondaGame = {
             }
             Object.assign(G, fresh);
 
-            // Restore overall match wins
+            // Restore overall match wins, nicknames, and ensure the game starts directly
             G.matchesWon = { '0': matches0, '1': matches1 };
+            G.gameStarted = true;
+            if (G.players && G.players['0']) G.players['0'].name = name0;
+            if (G.players && G.players['1']) G.players['1'].name = name1;
 
             // Clear any stages so players can play cards
             events.setActivePlayers({ all: null });

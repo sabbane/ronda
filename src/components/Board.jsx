@@ -3,14 +3,13 @@ import { PlayerHand } from './PlayerHand';
 import { Card } from './Card';
 import { motion, AnimatePresence } from 'framer-motion';
 import backCard from '../assets/cards/back.png';
-import gameBg from '../assets/game_background.png';
 
 import { useLanguage } from '../contexts/LanguageContext';
 import { adService } from '../services/AdService';
 import { useSound } from '../contexts/SoundContext';
-import { Volume2, VolumeX, Music } from 'lucide-react';
+import { Volume2, VolumeX, Music, Copy } from 'lucide-react';
 
-export const RondaBoard = ({ G, ctx, moves, playerID, matchID }) => {
+export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected }) => {
 
   const { language, t } = useLanguage();
   const moroccanSymbols = [
@@ -99,12 +98,18 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID }) => {
   }, []);
 
   React.useEffect(() => {
-    if (isLeavingRef.current) return;
+    if (isLeavingRef.current) {
+      console.log('[Board] Skipping setPlayerName because player is leaving.');
+      return;
+    }
     const savedNickname = localStorage.getItem('ronda_nickname') || 'Spieler';
-    if (G.players && G.players[myID] && G.players[myID].name !== savedNickname) {
+    const isInLobbyStage = G.gameStarted === false || ctx.activePlayers?.[myID] === 'lobby';
+    console.log('[Board] myID:', myID, 'matchID:', matchID, 'savedNickname:', savedNickname, 'currentNameInG:', G.players?.[myID]?.name, 'isConnected:', isConnected, 'isInLobbyStage:', isInLobbyStage, 'gameStarted:', G.gameStarted, 'activePlayers:', ctx.activePlayers);
+    if (isConnected && isInLobbyStage && G.players && G.players[myID] && G.players[myID].name !== savedNickname) {
+      console.log('[Board] calling setPlayerName with:', savedNickname);
       moves.setPlayerName(savedNickname);
     }
-  }, [myID, G.players, moves]);
+  }, [myID, G.players, moves, isConnected, ctx.activePlayers, G.gameStarted]);
 
   React.useEffect(() => {
     if (G.hostLeft === true && myID === '1' && G.gameStarted === false) {
@@ -516,14 +521,13 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID }) => {
 
     return (
       <div className="min-h-[100dvh] flex flex-col items-center justify-center p-4 font-sans text-slate-100 relative overflow-y-auto overflow-x-hidden">
-        {/* Subtle Game Background */}
         <div 
           className="fixed inset-0 pointer-events-none"
           style={{
-            backgroundImage: `url(${gameBg})`,
+            backgroundImage: "url('/assets/background-zellig.svg')",
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            filter: 'brightness(0.5)',
+            filter: 'brightness(0.45) saturate(1.05)',
             zIndex: 0
           }}
         />
@@ -577,22 +581,16 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID }) => {
           <div className="bg-black/40 border border-white/5 rounded-2xl p-4 mb-6 sm:mb-8 flex flex-col gap-3">
             <div className="flex justify-between items-center">
               <span className="text-xs text-slate-400 uppercase tracking-widest font-bold">{language === 'de' ? 'Raum-ID' : 'Room ID'}</span>
-              <span className="text-sm font-mono font-bold text-amber-300 bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20">{matchID}</span>
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                readOnly
-                value={inviteLink}
-                className="flex-1 bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none"
-              />
-              <button
-                onClick={handleShare}
-                className="bg-amber-600 hover:bg-amber-500 px-4 py-2 rounded-xl text-xs font-bold text-white transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-md"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                {language === 'de' ? 'Teilen' : 'Share'}
-              </button>
+              <span className="text-sm font-mono font-bold text-amber-300 bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20 flex items-center gap-2">
+                {matchID}
+                <button
+                  onClick={() => navigator.clipboard.writeText(matchID)}
+                  className="p-1 hover:bg-amber-500/20 rounded-full transition-colors"
+                  title={language === 'de' ? 'Kopieren' : 'Copy'}
+                >
+                  <Copy size={14} className="text-amber-300" />
+                </button>
+              </span>
             </div>
           </div>
 
@@ -685,15 +683,14 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID }) => {
   const playedCardId = G.isAnimating ? (G.pendingCapture?.playedCardId || G.lastPlayedCard?.streakCards?.[0]?.id) : null;
 
   return (
-    <div className="min-h-[100dvh] flex flex-col items-center justify-center p-2 sm:p-4 font-sans text-slate-100 relative overflow-y-auto overflow-x-hidden">
-        {/* Subtle Game Background */}
+    <div className="min-h-[100dvh] flex flex-col items-center justify-center p-2 sm:p-4 font-sans text-slate-100 relative overflow-hidden">
         <div 
           className="fixed inset-0 pointer-events-none"
           style={{
-            backgroundImage: `url(${gameBg})`,
+            backgroundImage: "url('/assets/background-zellig.svg')",
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            filter: 'brightness(0.7)',
+            filter: 'brightness(0.3) saturate(0.95)',
             zIndex: 0
           }}
         />
@@ -986,8 +983,8 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID }) => {
         </div>
 
         {/* Table Area - Min height for exactly 2 rows, grows on 3rd row */}
-        <div className="w-full flex items-center justify-center my-1 sm:my-2 relative z-10 shrink-0" dir="ltr">
-          <div className="relative w-full max-w-4xl min-h-[14rem] sm:min-h-[21rem] md:min-h-[23rem] bg-emerald-900/40 rounded-3xl border-4 border-emerald-800/50 shadow-2xl shadow-emerald-900/20 backdrop-blur-sm flex flex-wrap gap-1 sm:gap-3 p-2 sm:p-6 items-center justify-center">
+        <div className="w-full flex items-center justify-center my-0.5 sm:my-2 relative z-10 shrink-0" dir="ltr">
+          <div className="game-table border-green-700/90 shadow-2xl shadow-green-900/30">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/felt.png')] opacity-10 rounded-3xl mix-blend-overlay pointer-events-none"></div>
             
             <AnimatePresence>
@@ -1002,7 +999,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID }) => {
                   <div
                     id={`table-wrapper-${baseCard.id}`}
                     key={`table-wrapper-${baseCard.id}`}
-                    className="w-16 h-24 sm:w-20 sm:h-32 md:w-24 md:h-36 shrink-0 relative"
+                    className="game-card-container"
                   >
                     {!isBaseCardMoved && cardsInWrapper.map(card => {
                       const isNormalDropCheck = !G.pendingCapture && G.lastPlayedCard?.streakCards?.length === 1 && G.lastPlayedCard.streakCards[0].id === card.id && G.isAnimating;

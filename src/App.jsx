@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import moroccanBg from './assets/moroccan_background.png';
 
 import { LobbyClient } from 'boardgame.io/dist/esm/client.js';
 import { Client as ReactClient } from 'boardgame.io/dist/esm/react.js';
@@ -46,19 +45,25 @@ const RondaClientBot = ReactClient({
   }),
 });
 
-const serverUrl = import.meta.env.VITE_SERVER_URL || (
+const restServerUrl = import.meta.env.VITE_SERVER_URL || (
+  import.meta.env.DEV
+    ? 'http://127.0.0.1:8000'
+    : `https://ronda-backend.up.railway.app`
+);
+
+const socketServerUrl = import.meta.env.VITE_SERVER_URL || (
   import.meta.env.DEV
     ? 'http://localhost:8000'
     : `https://ronda-backend.up.railway.app`
 );
 
-const lobbyClient = new LobbyClient({ server: serverUrl });
+const lobbyClient = new LobbyClient({ server: restServerUrl });
 
 const RondaClientOnline = ReactClient({
   game: RondaGame,
   board: RondaBoard,
   numPlayers: 2,
-  multiplayer: SocketIO({ server: serverUrl }),
+  multiplayer: SocketIO({ server: socketServerUrl }),
 });
 
 
@@ -77,6 +82,7 @@ const App = () => {
   const [multiplayerAction, setMultiplayerAction] = useState(null); // 'create' | 'join' | null
   const [isPrivate, setIsPrivate] = useState(false);
   const [joinMode, setJoinMode] = useState('public'); // 'public' | 'private'
+  const [joinRoomId, setJoinRoomId] = useState('');
   const [publicRooms, setPublicRooms] = useState([]);
   const [isLoadingRooms, setIsLoadingRooms] = useState(false);
   const [gameKey, setGameKey] = useState(0);
@@ -140,6 +146,7 @@ const App = () => {
   };
 
   const handleJoinRoom = async (targetMatchID) => {
+    console.log('[App] handleJoinRoom called: targetMatchID:', targetMatchID, 'nickname:', nickname);
     if (!nickname.trim()) {
       setError(t('enterNameError'));
       return;
@@ -246,7 +253,7 @@ const App = () => {
       setTestMode(false);
       setMultiplayerAction(null);
       setGameKey(prev => prev + 1);
-      setError(languageRef.current === 'de' ? 'Der Host hat den Raum verlassen.' : 'The host has left the room.');
+      setError(t('hostLeftError'));
 
       setTimeout(() => {
         if (mode === 'online' && matchID && playerID) {
@@ -270,8 +277,8 @@ const App = () => {
 
     const isAppInTestMode = import.meta.env.VITE_TEST_MODE === 'true';
     const path = window.location.pathname;
-
-    const BACKEND = serverUrl;
+    console.log('[App] mount: pathname:', path, 'isAppInTestMode:', isAppInTestMode);
+    const BACKEND = restServerUrl;
 
     const setupTestMatch = async (pID) => {
       try {
@@ -342,97 +349,85 @@ const App = () => {
 
   if (!mode) {
     return (
-      <div className="min-h-screen flex flex-col items-center text-white relative overflow-hidden overflow-y-auto">
-        {/* Background Image with Moroccan Vibe */}
-        <div
-          className="fixed inset-0 z-0 scale-105"
-          style={{
-            backgroundImage: `url(${moroccanBg})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            filter: 'brightness(0.4) saturate(1.1)'
-          }}
-        />
+      <div className="min-h-screen flex flex-col items-center text-white bg-blue-600 bg-opacity-70 relative overflow-hidden overflow-y-auto">
+        {/* Background removed */}
+        {/* Title moved inside card */}
+        <div className="flex-1 flex flex-col w-full items-center justify-center p-4 z-30 pt-4 pb-8 menu-container">
+          <div className="p-8 rounded-3xl shadow-[0_0_60px_rgba(30,58,138,0.35)] border-2 border-amber-400/30 text-center max-w-lg w-full relative menu-card" style={{backgroundColor: 'rgba(30, 58, 138, 0.7)'}}>
+            <h1 className="text-7xl font-black mb-4 text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-400 to-rose-500 tracking-tighter drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)] menu-logo">{t('logo')}</h1>
 
-        <div className="flex-1 flex flex-col w-full items-center justify-center p-4 z-30 pt-12 pb-8">
-          <div className="bg-slate-900/80 backdrop-blur-xl p-8 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 text-center max-w-md w-full relative">
+             {/* Language & Sound Selector in Center */}
+            <div className="flex flex-col items-center gap-3 mb-8 menu-selectors" dir="ltr">
+              {/* Language Selector row */}
+              <div className="flex justify-center gap-2">
+                <button
+                  onClick={() => { playClick(); changeLanguage('en'); }}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'en' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.5)] border-amber-400/50' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
+                >
+                  <img src="https://flagcdn.com/w40/gb.png" alt="EN" className="w-4 h-3 object-cover rounded-sm" /> EN
+                </button>
+                <button
+                  onClick={() => { playClick(); changeLanguage('fr'); }}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'fr' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.5)] border-amber-400/50' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
+                >
+                  <img src="https://flagcdn.com/w40/fr.png" alt="FR" className="w-4 h-3 object-cover rounded-sm" /> FR
+                </button>
+                <button
+                  onClick={() => { playClick(); changeLanguage('ar'); }}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'ar' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.5)] border-amber-400/50' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
+                >
+                  <img src="https://flagcdn.com/w40/ma.png" alt="AR" className="w-4 h-3 object-cover rounded-sm" /> AR
+                </button>
+              </div>
 
-
-            {/* Language & Sound Selector in Center */}
-            <div className="flex flex-wrap justify-center gap-2 mb-8" dir="ltr">
-              <button
-                onClick={() => { playClick(); changeLanguage('en'); }}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'en' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
-              >
-                <img src="https://flagcdn.com/w40/gb.png" alt="EN" className="w-4 h-3 object-cover rounded-sm" /> EN
-              </button>
-              <button
-                onClick={() => { playClick(); changeLanguage('de'); }}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'de' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
-              >
-                <img src="https://flagcdn.com/w40/de.png" alt="DE" className="w-4 h-3 object-cover rounded-sm" /> DE
-              </button>
-              <button
-                onClick={() => { playClick(); changeLanguage('fr'); }}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'fr' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
-              >
-                <img src="https://flagcdn.com/w40/fr.png" alt="FR" className="w-4 h-3 object-cover rounded-sm" /> FR
-              </button>
-              <button
-                onClick={() => { playClick(); changeLanguage('ar'); }}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'ar' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
-              >
-                <img src="https://flagcdn.com/w40/ma.png" alt="AR" className="w-4 h-3 object-cover rounded-sm" /> AR
-              </button>
-              <div className="w-[1px] h-6 bg-white/15 align-middle self-center mx-1"></div>
-              <button
-                onClick={() => { playClick(); nextTrack(); }}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 bg-white/10 text-slate-300 hover:bg-white/20 backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
-                title={tracks && tracks[currentTrack] ? `Track wechseln: ${tracks[currentTrack].name}` : "Track wechseln"}
-              >
-                <Music size={14} className="text-amber-400 animate-pulse" />
-                <span>{tracks && tracks[currentTrack] ? tracks[currentTrack].name : "Musik"}</span>
-              </button>
-              <button
-                onClick={toggleMute}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 bg-white/10 text-slate-300 hover:bg-white/20 backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
-                title={isMuted ? "Unmute Sound" : "Mute Sound"}
-              >
-                {isMuted ? <VolumeX size={14} className="text-red-400" /> : <Volume2 size={14} className="text-emerald-400" />}
-                <span>{isMuted ? "Muted" : "Sound"}</span>
-              </button>
+              {/* Music and Mute controls row */}
+              <div className="flex justify-center gap-2">
+                <button
+                  onClick={() => { playClick(); nextTrack(); }}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 bg-white/10 text-slate-300 hover:bg-white/20 backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
+                  title={tracks && tracks[currentTrack] ? `Track wechseln: ${tracks[currentTrack].name}` : "Track wechseln"}
+                >
+                  <Music size={14} className="text-amber-400 animate-pulse" />
+                  <span>{tracks && tracks[currentTrack] ? tracks[currentTrack].name : "Musik"}</span>
+                </button>
+                <button
+                  onClick={toggleMute}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 bg-white/10 text-slate-300 hover:bg-white/20 backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
+                  title={isMuted ? "Unmute Sound" : "Mute Sound"}
+                >
+                  {isMuted ? <VolumeX size={14} className="text-red-400" /> : <Volume2 size={14} className="text-emerald-400" />}
+                  <span>{isMuted ? "Muted" : "Sound"}</span>
+                </button>
+              </div>
             </div>
 
-            <h1 className="text-7xl font-black mb-8 text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-500 tracking-tighter drop-shadow-2xl">
-              {t('logo')}
-            </h1>
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6 menu-sections">
               {multiplayerAction === null ? (
                 <>
                   {/* Singleplayer Box */}
-                  <div className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
-                    <h2 className="text-xl font-bold mb-4 text-amber-200/80 uppercase tracking-widest text-sm">{t('singleplayer')}</h2>
+                  <div className="bg-black/30 p-6 rounded-2xl border border-emerald-500/10 menu-box backdrop-blur-sm">
+                    <h2 className="text-sm font-extrabold mb-4 text-amber-200/90 uppercase tracking-widest">{t('singleplayer')}</h2>
                     <button
                       onClick={() => { playClick(); setMode('bot'); }}
-                      className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 px-6 py-4 rounded-xl font-bold transition-all transform hover:scale-[1.02] active:scale-[0.98] text-lg shadow-xl cursor-pointer"
+                      className="w-full bg-gradient-to-r from-rose-600 to-amber-500 hover:from-rose-500 hover:to-amber-400 px-6 py-4 rounded-xl font-bold transition-all transform hover:scale-[1.02] active:scale-[0.98] text-lg shadow-[0_0_25px_rgba(244,63,94,0.35)] cursor-pointer menu-btn-large border border-rose-400/20"
                     >
                       {t('playVsBot')}
                     </button>
                   </div>
 
                   {/* Online Multiplayer Box */}
-                  <div className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
-                    <h2 className="text-xl font-bold mb-4 text-amber-200/80 uppercase tracking-widest text-sm">{t('onlineMultiplayer')}</h2>
+                  <div className="bg-black/30 p-6 rounded-2xl border border-emerald-500/10 menu-box backdrop-blur-sm">
+                    <h2 className="text-sm font-extrabold mb-4 text-amber-200/90 uppercase tracking-widest">{t('onlineMultiplayer')}</h2>
                     <div className="flex flex-col gap-3">
                       <button
                         onClick={() => { playClick(); setMultiplayerAction('create'); }}
-                        className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 px-5 py-3.5 rounded-xl font-bold transition-all transform hover:scale-[1.01] active:scale-[0.99] text-base shadow-lg cursor-pointer"
+                        className="w-full bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 px-5 py-3.5 rounded-xl font-bold transition-all transform hover:scale-[1.01] active:scale-[0.99] text-base shadow-[0_0_20px_rgba(14,165,233,0.35)] cursor-pointer menu-btn-medium border border-sky-400/20"
                       >
                         {t('createRoom')}
                       </button>
                       <button
                         onClick={() => { playClick(); setMultiplayerAction('join'); }}
-                        className="w-full bg-white/10 hover:bg-white/15 px-5 py-3.5 rounded-xl font-bold transition-all transform hover:scale-[1.01] active:scale-[0.99] text-base border border-white/5 cursor-pointer"
+                        className="w-full bg-slate-900/50 hover:bg-slate-950/60 px-5 py-3.5 rounded-xl font-bold transition-all transform hover:scale-[1.01] active:scale-[0.99] text-base border border-sky-500/25 text-sky-200 hover:text-white cursor-pointer menu-btn-medium"
                       >
                         {t('joinRoom')}
                       </button>
@@ -441,8 +436,8 @@ const App = () => {
                 </>
               ) : (
                 /* Dynamic Merged Panel for Room Creation / Joining */
-                <div className="bg-slate-900/90 border border-amber-500/20 p-6 rounded-3xl backdrop-blur-xl shadow-2xl relative text-left">
-                  <h2 className="text-2xl font-extrabold mb-6 text-amber-200 border-b border-white/10 pb-3 flex justify-between items-center">
+                <div className="border-2 border-amber-400/30 p-6 rounded-3xl shadow-2xl relative text-left menu-subpanel" style={{backgroundColor: 'rgba(30, 58, 138, 0.7)'}}>
+                  <h2 className="text-2xl font-extrabold mb-6 text-amber-300 border-b border-white/10 pb-3 flex justify-between items-center">
                     <span>
                       {multiplayerAction === 'create' ? t('createRoom') : t('joinRoom')}
                     </span>
@@ -481,14 +476,14 @@ const App = () => {
                           <button
                             type="button"
                             onClick={() => { playClick(); setIsPrivate(false); }}
-                            className={`py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${!isPrivate ? 'bg-amber-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
+                            className={`py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${!isPrivate ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md border border-amber-400/30' : 'text-slate-400 hover:text-white'}`}
                           >
                             {t('public')}
                           </button>
                           <button
                             type="button"
                             onClick={() => { playClick(); setIsPrivate(true); }}
-                            className={`py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${isPrivate ? 'bg-amber-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
+                            className={`py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${isPrivate ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md border border-amber-400/30' : 'text-slate-400 hover:text-white'}`}
                           >
                             {t('private')}
                           </button>
@@ -499,14 +494,14 @@ const App = () => {
                       <div className="flex gap-3 mt-4 border-t border-white/5 pt-4">
                         <button
                           onClick={() => { playClick(); setMultiplayerAction(null); setError(null); }}
-                          className="flex-1 bg-white/5 hover:bg-white/10 px-4 py-3 rounded-xl font-bold transition-all text-sm border border-white/5 text-slate-300 text-center cursor-pointer"
+                          className="flex-1 bg-slate-900/40 hover:bg-slate-900/60 px-4 py-3 rounded-xl font-bold transition-all text-sm border border-emerald-500/20 text-slate-300 text-center cursor-pointer"
                         >
                           {t('cancel')}
                         </button>
                         <button
                           disabled={isCheckingRoom}
                           onClick={() => { playClick(); handleCreateRoom(); }}
-                          className="flex-1 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 disabled:opacity-50 px-4 py-3 rounded-xl font-bold transition-all shadow-lg text-sm text-center cursor-pointer"
+                          className="flex-1 bg-gradient-to-r from-rose-600 to-amber-500 hover:from-rose-500 hover:to-amber-400 disabled:opacity-50 px-4 py-3 rounded-xl font-bold transition-all shadow-lg shadow-rose-900/30 text-sm text-center cursor-pointer border border-rose-400/20"
                         >
                           {isCheckingRoom ? '...' : t('create')}
                         </button>
@@ -533,14 +528,14 @@ const App = () => {
                         <button
                           type="button"
                           onClick={() => { playClick(); setJoinMode('public'); }}
-                          className={`py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${joinMode === 'public' ? 'bg-amber-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
+                          className={`py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${joinMode === 'public' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md border border-amber-400/30' : 'text-slate-400 hover:text-white'}`}
                         >
                           {t('publicRooms')}
                         </button>
                         <button
                           type="button"
                           onClick={() => { playClick(); setJoinMode('private'); }}
-                          className={`py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${joinMode === 'private' ? 'bg-amber-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
+                          className={`py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${joinMode === 'private' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md border border-amber-400/30' : 'text-slate-400 hover:text-white'}`}
                         >
                           {t('privateRoom')}
                         </button>
@@ -569,7 +564,7 @@ const App = () => {
                               {t('noRoomsFound')}
                             </div>
                           ) : (
-                            <div className="max-h-[160px] overflow-y-auto flex flex-col gap-2 pr-1 custom-scrollbar">
+                            <div className="max-h-[160px] overflow-y-auto flex flex-col gap-2 pr-1 custom-scrollbar menu-rooms-list">
                               {publicRooms.map(room => {
                                 const hostPlayer = room.players[0];
                                 const hostName = hostPlayer ? (hostPlayer.name || 'Host') : 'Host';
@@ -584,7 +579,7 @@ const App = () => {
                                     </div>
                                     <button
                                       onClick={() => { playClick(); handleJoinRoom(room.matchID); }}
-                                      className="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold shadow-md transition-all active:scale-95 cursor-pointer"
+                                      className="px-3.5 py-1.5 bg-gradient-to-r from-rose-600 to-amber-500 hover:from-rose-500 hover:to-amber-400 text-white rounded-lg text-xs font-bold shadow-md border border-rose-400/20 transition-all active:scale-95 cursor-pointer"
                                     >
                                       {t('join')}
                                     </button>
@@ -601,30 +596,29 @@ const App = () => {
                           <div className="flex gap-2">
                             <input
                               type="text"
-                              value={matchID}
-                              onChange={e => {
-                                setMatchID(e.target.value);
-                                updateUrl(e.target.value);
-                              }}
+                              value={joinRoomId}
+                              onChange={e => setJoinRoomId(e.target.value)}
                               className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-mono focus:outline-none focus:border-amber-500/50 transition-colors"
                               placeholder={t('enterRoomId')}
+                              required
                             />
                             <button
-                              disabled={isCheckingRoom}
-                              onClick={() => { playClick(); handleJoinRoom(matchID); }}
-                              className="bg-amber-600 hover:bg-amber-500 disabled:opacity-50 px-5 py-3 rounded-xl font-bold transition-all shadow-md text-sm cursor-pointer"
+                              disabled={isCheckingRoom || !joinRoomId.trim()}
+                              onClick={() => { playClick(); handleJoinRoom(joinRoomId.trim()); }}
+                              className="bg-gradient-to-r from-rose-600 to-amber-500 hover:from-rose-500 hover:to-amber-400 disabled:opacity-50 px-5 py-3 rounded-xl font-bold transition-all shadow-md border border-rose-400/20 text-sm cursor-pointer"
                             >
                               {isCheckingRoom ? '...' : t('join')}
                             </button>
                           </div>
                         </div>
+
                       )}
 
                       {/* Cancel button */}
                       <div className="flex mt-4 border-t border-white/5 pt-4">
                         <button
                           onClick={() => { playClick(); setMultiplayerAction(null); setError(null); }}
-                          className="w-full bg-white/5 hover:bg-white/10 px-4 py-3 rounded-xl font-bold transition-all text-sm border border-white/5 text-slate-300 text-center cursor-pointer"
+                          className="w-full bg-slate-900/40 hover:bg-slate-900/60 px-4 py-3 rounded-xl font-bold transition-all text-sm border border-emerald-500/20 text-slate-300 text-center cursor-pointer"
                         >
                           {t('back')}
                         </button>
@@ -635,32 +629,20 @@ const App = () => {
               )}
 
               {/* Rules and Contact Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 menu-footer-row">
                 <button
                   onClick={() => { playClick(); setMode('rules'); }}
-                  className="flex-1 bg-white/5 hover:bg-white/10 p-4 rounded-2xl font-bold transition-all border border-white/10 backdrop-blur-sm flex items-center justify-center gap-2 text-amber-200 cursor-pointer"
+                  className="flex-1 bg-blue-900/40 hover:bg-blue-800/60 p-4 rounded-2xl font-bold transition-all border border-blue-800/30 flex items-center justify-center gap-2 text-blue-200 hover:text-white cursor-pointer menu-footer-btn shadow-[0_0_10px_rgba(30,58,138,0.2)]"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
                   {t('rulesBtn')}
                 </button>
-
-                <a
-                  href="https://www.facebook.com/profile.php?id=61589185596057"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={playClick}
-                  title={t('contactUs')}
-                  className="flex-1 bg-[#1877F2]/10 hover:bg-[#1877F2]/20 p-4 rounded-2xl font-bold transition-all border border-[#1877F2]/30 backdrop-blur-sm flex items-center justify-center gap-2 text-[#1877F2] hover:text-white cursor-pointer"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-                  {t('contactUs')}
-                </a>
               </div>
             </div>
           </div>
 
           {/* Version - TRULY OUTSIDE the box */}
-          <div className="flex flex-col items-center gap-4 mt-6 z-30">
+          <div className="flex flex-col items-center gap-4 mt-6 z-30 menu-version">
             <span className="text-[10px] text-slate-500 font-medium tracking-widest uppercase opacity-50">
               v{import.meta.env.VITE_APP_VERSION}
             </span>
@@ -682,7 +664,7 @@ const App = () => {
           setupData={{ testMode, gameStarted: true }}
         />
       )}
-      {mode === 'online' && (
+      {mode === 'online' && (credentials || testMode) && (
         <RondaClientOnline
           key={`online-${gameKey}`}
           matchID={matchID}

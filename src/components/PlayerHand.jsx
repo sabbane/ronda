@@ -4,11 +4,10 @@ import { motion } from 'framer-motion';
 
 export const PlayerHand = ({ hand, isCurrentPlayer, onPlayCard, hidden = false, dealDelay = 0, playedCardId = null }) => {
   return (
-    <div className="flex justify-center gap-2 sm:gap-4 py-2 sm:py-8 min-h-[7.5rem] sm:min-h-[12.5rem] md:min-h-[13.5rem]" dir="ltr">
+    <div className="game-hand" dir="ltr">
         {hand.map((card, index) => (
           <motion.div
             key={card.id}
-            className="relative z-20"
             layoutId={`card-${card.id}`}
             initial={{ opacity: 0, y: -100, x: -100, rotate: -20 }}
             animate={{ opacity: 1, y: 0, x: 0, rotate: 0 }}
@@ -29,7 +28,7 @@ export const PlayerHand = ({ hand, isCurrentPlayer, onPlayCard, hidden = false, 
               }
             }}
             whileDrag={{ scale: 1.1, zIndex: 100 }}
-            className={isCurrentPlayer && !hidden ? "cursor-grab active:cursor-grabbing" : ""}
+            className={`hand-card-container relative z-20 ${isCurrentPlayer && !hidden ? "cursor-grab active:cursor-grabbing" : ""}`}
           >
             <Card
               card={card}

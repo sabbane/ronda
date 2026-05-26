@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const BACKEND = 'http://localhost:8000';
+const BACKEND = 'http://127.0.0.1:8000';
 
 /**
  * Regression test: Test Scenario Integrity

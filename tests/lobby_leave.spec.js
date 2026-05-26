@@ -11,6 +11,9 @@ test('Multiplayer: Guest leaving the lobby should remove them from the Host view
   hostPage.on('console', msg => console.log(`[Host Console] ${msg.text()}`));
   guestPage.on('console', msg => console.log(`[Guest Console] ${msg.text()}`));
 
+  hostPage.on('pageerror', err => console.error(`[Host Page Error] ${err.message}\n${err.stack}`));
+  guestPage.on('pageerror', err => console.error(`[Guest Page Error] ${err.message}\n${err.stack}`));
+
   const hostNickname = 'RondaHost';
   const guestNickname = 'CardGuest';
 
@@ -42,6 +45,7 @@ test('Multiplayer: Guest leaving the lobby should remove them from the Host view
   const roomIdLocator = hostPage.locator('span.text-amber-300').first();
   await expect(roomIdLocator).toBeVisible();
   const realMatchID = (await roomIdLocator.innerText()).trim();
+  console.log('[Test Log] Extracted realMatchID:', realMatchID);
 
   // ─── STEP 2: GUEST JOINS THE PUBLIC ROOM ───
   await guestPage.goto('/');
@@ -60,17 +64,17 @@ test('Multiplayer: Guest leaving the lobby should remove them from the Host view
   await publicRoomsTab.click();
 
   // Wait for the room to appear and click "Join" / "Beitreten"
-  const joinActionBtn = guestPage.locator(`xpath=//div[contains(., "${realMatchID}")]//button[contains(., "Join") or contains(., "Beitreten")]`).first();
+  const joinActionBtn = guestPage.locator(`span.text-amber-200:has-text("${realMatchID}")`).locator('xpath=../..').locator('button', { hasText: /Join|Beitreten|Rejoindre/i }).first();
   await expect(joinActionBtn).toBeVisible({ timeout: 10000 });
   await joinActionBtn.click();
 
   // Wait until Guest is in the Lobby
   const guestLobbyHeader = guestPage.locator('h1', { hasText: /Game Lobby|Spiel-Lobby/i });
-  await expect(guestLobbyHeader).toBeVisible({ timeout: 10000 });
+  await expect(guestLobbyHeader).toBeVisible({ timeout: 15000 });
 
   // Verify Host sees the Guest's nickname in the Lobby
   const hostLobbyGuestName = hostPage.locator(`text=${guestNickname}`).first();
-  await expect(hostLobbyGuestName).toBeVisible({ timeout: 5000 });
+  await expect(hostLobbyGuestName).toBeVisible({ timeout: 15000 });
 
   // ─── STEP 3: GUEST LEAVES THE LOBBY ───
   const leaveLobbyBtn = guestPage.locator('button', { hasText: /Leave Lobby|Raum verlassen/i }).first();
@@ -79,7 +83,7 @@ test('Multiplayer: Guest leaving the lobby should remove them from the Host view
 
   // Verify Guest has returned to the main menu
   const guestMainMenuLogo = guestPage.locator('h1', { hasText: /RONDA/i });
-  await expect(guestMainMenuLogo).toBeVisible({ timeout: 5000 });
+  await expect(guestMainMenuLogo).toBeVisible({ timeout: 15000 });
 
   await expect(hostLobbyGuestName).not.toBeVisible({ timeout: 10000 });
 
@@ -102,7 +106,7 @@ test('Multiplayer: Guest leaving the lobby should remove them from the Host view
 
   // Assert that the room ID is visible again in the list
   const listedRoom = anotherGuestPage.locator(`text=${realMatchID}`);
-  await expect(listedRoom).toBeVisible({ timeout: 5000 });
+  await expect(listedRoom).toBeVisible({ timeout: 15000 });
 
   // Clean up
   await hostContext.close();

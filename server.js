@@ -5,6 +5,8 @@ const server = Server({
   games: [RondaGame],
   origins: [
     Origins.LOCALHOST,
+    'http://127.0.0.1:5173',
+    'http://localhost:5173',
     'https://ronda-frontend-development.up.railway.app',
     'https://ronda.up.railway.app',
     'https://playronda.ma',
@@ -40,7 +42,7 @@ server.app.middleware.unshift(async (ctx, next) => {
 server.router.post('/test/reset', async (ctx) => {
   try {
     const PORT = process.env.PORT || 8000;
-    const base = `http://localhost:${PORT}`;
+    const base = `http://127.0.0.1:${PORT}`;
 
     // 1) Try to create the match with the known ID.
     //    boardgame.io ignores the 'matchID' field in the body —

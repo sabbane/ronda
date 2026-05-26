@@ -102,6 +102,7 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 *   **Lobby-Management:** Nutzung des `LobbyClient` zur Prüfung des Raum-Status vor dem Beitritt.
 *   **Rematches:** Das Spiel nutzt einen manuellen `G.gameStatus` anstatt `endIf`. Dies ermöglicht es Spielern, in derselben Match-ID beliebig viele Runden hintereinander zu spielen ("Play Again").
 *   **Match-Tracking:** Die Gesamtzahl der gewonnenen Spiele pro Session wird in `G.matchesWon` getrackt.
+*   **Lobby-System:** Vor Spielstart sind beide Spieler in einer Lobby-Phase. Dort können sie ihren Namen setzen (`setPlayerName`). Nur der Host kann das Spiel starten (`startGame`). Ein `hostLeft`-Flag sorgt dafür, dass der verbleibende Spieler sauber informiert wird, wenn der Host die Lobby verlässt.
 *   **Test-Infrastruktur:** Dedizierte Server-Endpoints (`/test/reset`, `/test/match-id`) ermöglichen eine präzise Koordination von Test-Szenarien.
 
 ### 4.5 Community & Support
@@ -117,11 +118,10 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 ### 4.7 Audiosystem (Procedural Sound & Music Synthesis)
 Um das Spielgefühl immersiv zu gestalten und Sondersituationen dramatisch zu untermalen, wurde ein hochauflösendes Audiosystem (`src/services/SoundService.js`) implementiert:
 *   **Procedural Web Audio API:** Anstelle von großen statischen Audio-Dateien (MP3/WAV) werden alle Soundeffekte und die Hintergrundmusik in Echtzeit über Oszillatoren, LFOs, Filter, Delay-Lines und Gain-Nodes vollsynthetisiert. Dadurch beträgt der Speicher-Overhead **0 KB** und die 100%ige Offline-Fähigkeit sowie die Kompatibilität mit dem Single-File-Build für PlayGama bleibt perfekt gewahrt.
-*   **3 Einzigartige Generative Musikstücke (BGM) mit Track-Auswahl:**
-    Der Spieler kann über einen Musik-Wechsler-Button direkt neben der Mute-Taste nahtlos zwischen drei verschiedenen marokkanischen Stücken wechseln. Die aktive Track-Auswahl wird in `localStorage` (`ronda_bgm_track`) persistiert. Alle Tracks nutzen eine gemeinsame breathy Ney-Flöten-Melodiestimme mit LFO-Vibrato und Blasgeräusch-Simulation sowie einen Feedback-Delay-Line für Echoanteile.
-    1.  *Track 0: "Sahara" (D-Moll Pentatonisch, 72 BPM) — Instrument: Ambient Pad:* Entspannende Wüsten-Ambientfläche. Tiefe, warme Sinus-Akkorde mit langsamem Swell-Anschlag (1,4s Attack, 4,5s Release) und sehnsuchtsvolle Ney-Töne (4,5Hz Vibrato, erhöhtes Rauschen zur Wüstenwind-Simulation).
-    2.  *Track 1: "Andalusia" (G-Dur, 96 BPM) — Instrument: Oud:* Elegantes, lyrisches Stück auf der G-Dur-Progression (G - C - D - G). Warme, getragen gezupfte Oud-Saiten (45ms Arpeggiation) und eine fließende, singende Melodielinie mit ruhigen Intervallsprüngen.
-    3.  *Track 2: "Casablanca" (F-Dur, 92 BPM) — Instrument: Lo-Fi Hip Hop:* Entspannter, moderner Hip-Hop Beat auf der F-Dur-Progression (F - Bb - C - F). Kombination aus warmen E-Piano Akkorden, einem extrem tiefen 808-Sub-Bass, einer klassischen Boom-Bap Percussion (harte Kick) und einer pfeifenden G-Funk Sine-Lead-Melodie mit leichtem Vibrato.
+*   **2 Einzigartige Generative Musikstücke (BGM) mit Track-Auswahl:**
+    Der Spieler kann über einen Musik-Wechsler-Button direkt neben der Mute-Taste nahtlos zwischen zwei verschiedenen Stücken wechseln. Die aktive Track-Auswahl wird in `localStorage` (`ronda_bgm_track`) persistiert.
+    1.  *Track 0: "Desert Night" (D-Hijaz, 80 BPM) — Instrument: Oud:* Melancholisches, atmosphärisches Hauptthema über der D-Hijaz-Skala. Warme Oud-Saiten (45ms Arpeggiation) mit tiefen Sinus-Akkorden und einer ausdrucksstarken Ney-Flötenmelodie.
+    2.  *Track 1: "Casablanca" (A-Moll, 108 BPM) — Instrument: Spanische Gitarre:* Leidenschaftliches, lyrisches Stück auf der A-Moll-Progression (Am - G - F - E). Warme, getragen gezupfte Nylonsaiten-Akkorde (38ms Rasgueado-Arpeggiation) mit einer ausdrucksstarken Melodielinie und einer Spanisch-Rumba Cajon-Percussion.
 *   **10 Soundeffekte:**
     1.  *UI Click:* Kurzer, sauberer Frequenzsweep für Interaktionen.
     2.  *Card Deal:* Ein Bandpass-gefiltertes Rauschen mit exponentiellem Abklingen, um das Reiben von Papier nachzuahmen.
@@ -158,8 +158,11 @@ Um das Spielgefühl immersiv zu gestalten und Sondersituationen dramatisch zu un
     game.test.js    # Unit-Tests für Spielregeln
   App.jsx           # Einstiegspunkt, Lobby-Logik, URL-Sync & Online-Client
 /tests
-  multiplayer.spec.js # Playwright E2E-Tests
-  latency_benchmark.spec.js # Performance Benchmarks
+  multiplayer.spec.js         # Playwright E2E-Tests (Kernspiel-Flow)
+  lobby_leave.spec.js         # E2E-Tests für Lobby-Verlassen-Szenarien
+  lobby_navigation.spec.js    # E2E-Tests für Lobby-Navigation
+  public_rooms.spec.js        # E2E-Tests für öffentliche Raumlisten
+  latency_benchmark.spec.js   # Performance Benchmarks
 server.js           # Backend-Server für Online-Multiplayer
 Dockerfile.frontend # Docker-Konfiguration für das Frontend
 Dockerfile.backend  # Docker-Konfiguration für das Backend
@@ -187,7 +190,7 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   Monetarisi### 6.4 PWA-Konfiguration (gemeinsame Basis)
 *   **Manifest:** Vollständige `manifest.json` für App-Branding und Startbildschirme.
 *   **Service Worker:** `vite-plugin-pwa` mit `autoUpdate`-Strategie für Offline-Support und nahtlose Updates.
-*   **Versionsmanagement:** Die App-Version (aktuell `0.9.1`) wird automatisch aus der `package.json` in den Build-Prozess injiziert.
+*   **Versionsmanagement:** Die App-Version (aktuell `0.9.4`) wird automatisch aus der `package.json` in den Build-Prozess injiziert.
  
 ## 7. Aktueller Status
 *   [x] Core Game Logic (Stechen, Sequenzen, Missa, Derba)
@@ -220,8 +223,10 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   [x] PlayGama: Früh-Initialisierung des SDKs mit AdBlock-UI in der `index.html`
 *   [x] PlayGama: CORS Backend-Unterstützung für WebSocket-Verbindungen von `null`-Origins
 *   [x] PlayGama: Spiel als HTML5-ZIP hochgeladen und verifiziert
+*   [x] Lobby-System (Spielernamen, gameStarted-Flag, hostLeft-Erkennung)
+*   [x] Neue E2E-Tests (Lobby Leave, Lobby Navigation, Public Rooms)
 *   [x] Zero-Weight Web Audio API Audiosystem (10 taktile Soundeffekte, Mute-Toggle, LocalStorage Persistenz)
 *   [x] Vollständige Ad-Pausierung (Game & Sound) via Event-Driven Architecture (`ronda-ad-started` / `ronda-ad-completed`)
-*   [x] 3 prozedurale BGM-Tracks (Sahara, Andalusia, Casablanca) mit Track-Wechsler-Button & LocalStorage Persistenz
+*   [x] 2 prozedurale BGM-Tracks (Desert Night, Casablanca) mit Track-Wechsler-Button & LocalStorage Persistenz
 *   [ ] Google Play Store: Bubblewrap TWA-Packaging & Store-Listing
 *   [ ] Erweiterte KI-Heuristik

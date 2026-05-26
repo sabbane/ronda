@@ -6,7 +6,7 @@ export const translations = {
     singleplayer: "Singleplayer",
     playVsBot: "Start Game",
     onlineMultiplayer: "Online Multiplayer",
-    matchId: "Match ID",
+    matchId: "Room ID",
     enterRoomId: "Enter Room ID",
     logo: "RONDA",
     host: "Host",
@@ -120,7 +120,7 @@ export const translations = {
     singleplayer: "Un Joueur",
     playVsBot: "Commencer le jeu",
     onlineMultiplayer: "Multijoueur en Ligne",
-    matchId: "ID du Match",
+    matchId: "ID du Salon",
     enterRoomId: "Entrer l'ID",
     logo: "RONDA",
     host: "Créer",
@@ -230,120 +230,6 @@ export const translations = {
       asFinishOpponent: "Vous avez capturé avec l'As ! (+5 {oppName})"
     }
   },
-  de: {
-    singleplayer: "Einzelspieler",
-    playVsBot: "Spiel starten",
-    onlineMultiplayer: "Online-Mehrspieler",
-    matchId: "Match-ID",
-    enterRoomId: "Raum-ID eingeben",
-    logo: "RONDA",
-    host: "Erstellen",
-    join: "Beitreten",
-    opponent: "Gegner",
-    you: "Du",
-    yourTurn: "(Du bist dran)",
-    cards: "Karten:",
-    tableEmpty: "Der Tisch ist leer",
-    gameOver: "Spiel vorbei!",
-    itsADraw: "Unentschieden!",
-    youWon: "Du hast gewonnen!",
-    youLost: "Du hast verloren!",
-    playAgain: "Nochmal spielen",
-    mainMenu: "Hauptmenü",
-    cardsRemaining: "Verbleibende Karten",
-    rematchMotivation: "Gib nicht auf! Zeit für eine Revanche!",
-    adLoading: "Werbung wird geladen...",
-
-    roundOver: "Runde vorbei!",
-    totalGames: "Gesamtsiege",
-    shareText: "Tritt meinem Ronda-Spiel bei!",
-    linkCopied: "Link in die Zwischenablage kopiert!",
-    donateBtn: "Spendier uns einen Minztee",
-    donateMsg: "Gefällt dir das Spiel? Spendier dem Team einen Minztee!",
-    connecting: "Verbindung wird hergestellt...",
-    connectingDetail: "Warten auf Antwort vom Spielserver.",
-    roomOccupied: "Raum ist besetzt, bitte wähle einen anderen Namen.",
-    roomFull: "Raum ist voll.",
-    createRoom: "Raum erstellen",
-    joinRoom: "Raum beitreten",
-    yourNickname: "Dein Name",
-    enterNickname: "Namen eingeben",
-    roomPrivacy: "Raum-Typ",
-    public: "Öffentlich",
-    private: "Privat",
-    cancel: "Abbrechen",
-    back: "Zurück",
-    create: "Erstellen",
-    publicRooms: "Öffentliche Räume",
-    privateRoom: "Privater Raum",
-    refresh: "Aktualisieren",
-    openRooms: "Offene Räume",
-    searchingRooms: "Suche nach Räumen...",
-    noRoomsFound: "Keine offenen Räume gefunden. Erstelle selbst einen!",
-    enterNameError: "Bitte gib einen Namen ein.",
-    createRoomError: "Raum existiert bereits oder der Server ist offline. Bitte wähle eine andere ID.",
-    roomNotFoundError: "Raum nicht gefunden.",
-    roomFullError: "Raum ist bereits voll.",
-    joinError: "Raum nicht gefunden oder Fehler beim Beitreten.",
-    fetchRoomsError: "Fehler beim Abrufen der öffentlichen Räume.",
-    hostLeftError: "Der Host hat den Raum verlassen.",
-    backToMenu: "Zurück zum Menü",
-    shareLink: "Einladungslink kopieren",
-    rulesBtn: "Spielregeln",
-    contactUs: "Kontaktiere uns",
-    rulesTitle: "Wie man Ronda spielt",
-    rulesIntro: "Ronda ist ein beliebtes Kartenspiel mit 40 Karten. Das Ziel ist es, Karten zu sammeln und die meisten Punkte zu erzielen.",
-    rulesGameplay: "Spielablauf: Jeder Spieler erhält 3 Karten pro Runde. Spiele eine Karte pro Zug. Wenn deine Karte mit einer Karte auf dem Tisch übereinstimmt, nimmst du sie sowie alle nachfolgenden Karten in der Reihe.",
-    rulesPoints: "Punkte: Der Spieler mit den meisten Karten gewinnt die Runde. Spezielle Züge geben sofortige Bonuspunkte:",
-    rulesMissa: "• Missa: Alle Karten vom Tisch abräumen (+1 Punkt).",
-    rulesDerba: "• Derba (Schlag): Genau die Karte nehmen, die der Gegner gerade gespielt hat (+1 Punkt).",
-    rulesRonda: "• Ronda: Ein Paar auf der Hand haben, nachdem die Karten ausgeteilt wurden (+1 Punkt).",
-    rulesTringa: "• Tringa: Drei gleiche Karten auf der Hand haben (+5 Punkte).",
-    rulesSpecialMovesTitle: "Besondere Ereignisse",
-    rulesClash: "• Clash of Rondas: Wenn beide Spieler Ronda haben, gewinnt das höhere Paar (+2 Punkte).",
-    rulesTringaVsRonda: "• Tringa vs Ronda: Tringa schlägt Ronda und gewinnt alle Punkte (+6).",
-    rulesTringaVsTringa: "• Tringa vs Tringa: Wenn beide Spieler Tringa haben, gewinnt der höhere Rang (+10 Punkte).",
-    rulesCounterAttack: "• Gegenangriff: Kontern einer Derba (Taawida) (+5 Punkte).",
-    rulesUltimateAttack: "• Ultimativer Konter: Kontern eines Gegenangriffs (+10 Punkte).",
-    rulesFinalFail: "• Finaler Fehlschlag: Die letzte Karte verpassen gibt dem Gegner +5 Punkte.",
-    rulesKingFinish: "• King Finish: Mit der allerletzten Karte des Spiels einen Stich mit einem König machen (+5 Punkte).",
-    rulesAsFinish: "• As-Finish: Mit der allerletzten Karte des Spiels einen Stich mit einem Ass machen (+5 Punkte für den Gegner).",
-    announcements: {
-      rondaMe: "Du hast eine Ronda (+1 Sie)",
-      rondaOpponent: "{oppName} hat eine Ronda (+1 {oppName})",
-      tringaMe: "Du hast eine Tringa (+5 Sie)",
-      tringaOpponent: "{oppName} hat eine Tringa (+5 {oppName})",
-      missaMe: "Du hast den Tisch abgeräumt (+1 Sie)",
-      missaOpponent: "{oppName} hat den Tisch abgeräumt (+1 {oppName})",
-      derbaMe: "Du hast {oppName} getroffen (+1 Sie)",
-      derbaOpponent: "{oppName} hat dich getroffen (+1 {oppName})",
-      counterAttackTitle: "Gegenangriff",
-      counterAttackMe: "Du hast den Angriff von {oppName} gekontert (+5 Sie)",
-      counterAttackOpponent: "Dein Angriff wurde von {oppName} gekontert (+5 {oppName})",
-      ultimateCounterTitle: "Ultimativer Konter",
-      ultimateCounterMe: "Du hast einen ultimativen Konter ausgeführt (+10 Sie)",
-      ultimateCounterOpponent: "{oppName} hat einen ultimativen Konter ausgeführt (+10 {oppName})",
-      clashRonda: "Ihr habt beide Ronda. Der Gewinner wird am Ende der Runde bekannt gegeben",
-      clashTringa: "Ihr habt beide Tringa. Der Gewinner wird am Ende der Runde bekannt gegeben",
-      clashWonTitle: "Clash gewonnen",
-      clashLostTitle: "Clash verloren",
-      clashWonRondaMe: "Du hast den Clash der Rondas gewonnen (+{pts} Sie)",
-      clashWonTringaMe: "Du hast den Clash der Tringas gewonnen (+{pts} Sie)",
-      clashWonRondaOpp: "Du hast den Clash der Rondas verloren (+{pts} {oppName})",
-      clashWonTringaOpp: "Du hast den Clash der Tringas verloren (+{pts} {oppName})",
-      clashDraw: "Clash Unentschieden!",
-      kingFinishMe: "👑 King Finish! (+5 Sie)",
-      kingFinishOpponent: "👑 King Finish! (+5 {oppName})",
-      tringaWinsMe: "Deine Tringa schlägt die Ronda von {oppName} (+6 Sie)",
-      tringaWinsOpponent: "Die Tringa von {oppName} schlägt deine Ronda (+6 {oppName})",
-      finalFailTitle: "Finaler Fehlschlag",
-      finalFailMe: "{oppName} hat die letzte Karte verpasst! (+5 Sie)",
-      finalFailOpponent: "Du hast die letzte Karte verpasst! (+5 {oppName})",
-      asFinishTitle: "As-Finish",
-      asFinishMe: "{oppName} hat mit dem Ass gewonnen! (+5 Sie)",
-      asFinishOpponent: "Du hast mit dem Ass gewonnen! (+5 {oppName})"
-    }
-  },
   ar: {
     singleplayer: "لاعب واحد",
     playVsBot: "ابدأ اللعبة",
@@ -424,38 +310,38 @@ export const translations = {
     rulesAsFinish: "• القاعة باللاص: الربح بالآص في آخر ورقة في اللعبة يعطي الخصم +5 نقاط.",
     announcements: {
       rondaMe: "عندك روندا (+1 لك)",
-      rondaOpponent: "{oppName} عندو روندا (+1 {oppName})",
+      rondaOpponent: "عند الخصم روندا (+1 للخصم)",
       tringaMe: "عندك ترينجا (+5 لك)",
-      tringaOpponent: "{oppName} عندو ترينجا (+5 {oppName})",
+      tringaOpponent: "عند الخصم ترينجا (+5 للخصم)",
       missaMe: "مسحتي الطاولة (+1 لك)",
-      missaOpponent: "{oppName} مسح الطاولة (+1 {oppName})",
-      derbaMe: "ضربتي {oppName} (+1 لك)",
-      derbaOpponent: "{oppName} ضربك (+1 {oppName})",
+      missaOpponent: "الخصم مسح الطاولة (+1 للخصم)",
+      derbaMe: "ضربتي الخصم (+1 لك)",
+      derbaOpponent: "الخصم ضربك (+1 للخصم)",
       counterAttackTitle: "هجوم مضاد",
-      counterAttackMe: "رديتي الضربة لـ {oppName} (+5 لك)",
-      counterAttackOpponent: "صد {oppName} ضربتك (+5 {oppName})",
+      counterAttackMe: "رديتي الضربة للخصم (+5 لك)",
+      counterAttackOpponent: "صد الخصم ضربتك (+5 للخصم)",
       ultimateCounterTitle: "صد نهائي",
       ultimateCounterMe: "رديتي هجوم مضاد نهائي (+10 لك)",
-      ultimateCounterOpponent: "الخصم رد ليك هجوم مضاد نهائي (+10 {oppName})",
+      ultimateCounterOpponent: "الخصم رد ليك هجوم مضاد نهائي (+10 للخصم)",
       clashRonda: "بجوجكم عندكم روندا. غادي يتعرف الرابح فاللخر د الجولة",
       clashTringa: "بجوجكم عندكم ترينجا. غادي يتعرف الرابح فاللخر د الجولة",
       clashWonTitle: "فوز في التصادم",
       clashLostTitle: "خسارة في التصادم",
       clashWonRondaMe: "ربحتي إصطدام الروندات (+{pts} لك)",
       clashWonTringaMe: "ربحتي إصطدام الترينجات (+{pts} لك)",
-      clashWonRondaOpp: "خسرتي إصطدام الروندات (+{pts} {oppName})",
-      clashWonTringaOpp: "خسرتي إصطدام الترينجات (+{pts} {oppName})",
+      clashWonRondaOpp: "خسرتي إصطدام الروندات (+{pts} للخصم)",
+      clashWonTringaOpp: "خسرتي إصطدام الترينجات (+{pts} للخصم)",
       clashDraw: "تعادل في التصادم",
       kingFinishMe: "👑 القاعة بالراي! (+5 لك)",
-      kingFinishOpponent: "👑 القاعة بالراي! (+5 {oppName})",
+      kingFinishOpponent: "👑 القاعة بالراي! (+5 للخصم)",
       tringaWinsMe: "الترينجا ديالك غلبت الروندا د الخصم (+6 لك)",
-      tringaWinsOpponent: "الترينجا د الخصم غلبت الروندا ديالك (+6 {oppName})",
+      tringaWinsOpponent: "الترينجا د الخصم غلبت الروندا ديالك (+6 للخصم)",
       finalFailTitle: "القاعة مشات",
       finalFailMe: "الخصم زگل الورقة الأخيرة! (+5 لك)",
-      finalFailOpponent: "زگلت الورقة الأخيرة! (+5 {oppName})",
+      finalFailOpponent: "زگلت الورقة الأخيرة! (+5 للخصم)",
       asFinishTitle: "القاعة باللاص",
       asFinishMe: "الخصم ربح بالآص في الأخير! (+5 لك)",
-      asFinishOpponent: "ربحتي بالآص في الأخير! (+5 {oppName})"
+      asFinishOpponent: "ربحتي بالآص في الأخير! (+5 للخصم)"
     }
   }
 };
@@ -481,19 +367,21 @@ const safeSetLocalStorage = (key, value) => {
 
 export const LanguageProvider = ({ children }) => {
   const [language, setLanguage] = useState(() => {
-    return safeGetLocalStorage('ronda-lang', 'en');
+    const saved = safeGetLocalStorage('ronda-lang', 'en');
+    return translations[saved] ? saved : 'en';
   });
 
   const changeLanguage = (lang) => {
-    setLanguage(lang);
-    safeSetLocalStorage('ronda-lang', lang);
+    const target = translations[lang] ? lang : 'en';
+    setLanguage(target);
+    safeSetLocalStorage('ronda-lang', target);
   };
 
   const t = (key, params = {}) => {
     const keys = key.split('.');
-    let value = translations[language];
+    let value = translations[language] || translations['en'];
     for (const k of keys) {
-      if (value[k] === undefined) return key;
+      if (!value || value[k] === undefined) return key;
       value = value[k];
     }
 
