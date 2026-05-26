@@ -8,19 +8,19 @@ export const Rules = ({ onBack }) => {
   const { playClick } = useSound();
 
   return (
-    <div className="min-h-screen flex flex-col items-center text-white relative overflow-hidden overflow-y-auto">
-      {/* Background Image with Moroccan Vibe */}
+    <div className="h-screen w-full flex flex-col items-center text-white relative overflow-y-auto custom-scrollbar">
+      {/* Background Image with Moroccan Zellige Theme */}
       <div
         className="fixed inset-0 z-0 scale-105 pointer-events-none"
         style={{
-          backgroundImage: `url(${moroccanBg})`,
+          backgroundImage: "url('/assets/background-zellig.svg')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          filter: 'brightness(0.4) saturate(1.1)'
+          filter: 'brightness(0.3) saturate(0.95)'
         }}
       />
 
-      <div className="w-full max-w-2xl p-4 z-30 pt-12 pb-8 relative flex flex-col min-h-screen">
+      <div className="w-full max-w-2xl p-4 z-30 pt-12 pb-8 relative flex flex-col">
         
         {/* Header section: Back button and Language Switcher */}
         <div className="flex justify-between items-center mb-8 relative">
@@ -49,12 +49,6 @@ export const Rules = ({ onBack }) => {
               <img src="https://flagcdn.com/w40/gb.png" alt="EN" className="w-4 h-3 object-cover rounded-sm" /> EN
             </button>
             <button
-              onClick={() => { playClick(); changeLanguage('de'); }}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'de' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
-            >
-              <img src="https://flagcdn.com/w40/de.png" alt="DE" className="w-4 h-3 object-cover rounded-sm" /> DE
-            </button>
-            <button
               onClick={() => { playClick(); changeLanguage('fr'); }}
               className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'fr' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
             >
@@ -69,7 +63,7 @@ export const Rules = ({ onBack }) => {
           </div>
         </div>
 
-        <div className="bg-slate-900/80 backdrop-blur-xl p-6 sm:p-10 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 text-left w-full flex-1 mb-8">
+        <div className="bg-[#0b0f19] p-6 sm:p-10 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.6)] border border-white/10 text-left w-full flex-1 mb-8">
           <h1 className="text-4xl sm:text-5xl font-black mb-8 text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-500 tracking-tighter drop-shadow-lg text-center">
             {t('rulesTitle')}
           </h1>

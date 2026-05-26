@@ -22,7 +22,7 @@ test('Multiplayer: Two players can join and see the board', async ({ browser }) 
   await pageB.goto('/');
 
   await pageB.fill('input[type="text"]', roomID);
-  await pageB.click('button:has-text("Join")');
+  await pageB.locator('button', { hasText: /Join|Rejoindre|Beitreten|انضمام/i }).first().click();
 
   // Both should see the game container
   await expect(pageA.locator('.min-h-screen').first()).toBeVisible({ timeout: 15000 });

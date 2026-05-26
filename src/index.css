@@ -118,8 +118,8 @@ html, body, #root {
   }
 }
 
-/* 2. Constrained Viewport Height: Height <= 1000px (e.g. standard 1080p displays or 14" Laptops) */
-@media (max-height: 1000px) {
+/* 2. Constrained Viewport Height: Height <= 1000px (Mobile only) */
+@media (max-height: 1000px) and (max-width: 767px) {
   .game-card-container {
     width: 5rem !important;
     height: 7.5rem !important;
@@ -139,8 +139,8 @@ html, body, #root {
   }
 }
 
-/* 3. Highly Constrained Viewport Height: Height <= 800px */
-@media (max-height: 800px) {
+/* 3. Highly Constrained Viewport Height: Height <= 800px (Mobile only) */
+@media (max-height: 800px) and (max-width: 767px) {
   .game-card-container {
     width: 4.25rem !important;
     height: 6.375rem !important;
@@ -161,8 +161,8 @@ html, body, #root {
   }
 }
 
-/* 4. Ultra Constrained Viewport Height: Height <= 650px */
-@media (max-height: 650px) {
+/* 4. Ultra Constrained Viewport Height: Height <= 650px (Mobile only) */
+@media (max-height: 650px) and (max-width: 767px) {
   .game-card-container {
     width: 3.5rem !important;
     height: 5.25rem !important;
@@ -212,8 +212,8 @@ html, body, #root {
   transition: all 0.3s ease-in-out;
 }
 
-/* 2. Constrained Viewport Height: Height <= 1000px */
-@media (max-height: 1000px) {
+/* 2. Constrained Viewport Height: Height <= 1000px (Mobile only) */
+@media (max-height: 1000px) and (max-width: 767px) {
   .menu-container {
     padding-top: 1.5rem !important;
     padding-bottom: 1rem !important;
@@ -273,8 +273,8 @@ html, body, #root {
   }
 }
 
-/* 3. Highly Constrained Viewport Height: Height <= 800px */
-@media (max-height: 800px) {
+/* 3. Highly Constrained Viewport Height: Height <= 800px (Mobile only) */
+@media (max-height: 800px) and (max-width: 767px) {
   .menu-container {
     padding-top: 0.75rem !important;
     padding-bottom: 0.5rem !important;
@@ -345,8 +345,8 @@ html, body, #root {
   }
 }
 
-/* 4. Ultra Constrained Viewport Height: Height <= 650px */
-@media (max-height: 650px) {
+/* 4. Ultra Constrained Viewport Height: Height <= 650px (Mobile only) */
+@media (max-height: 650px) and (max-width: 767px) {
   .menu-container {
     padding-top: 0.25rem !important;
     padding-bottom: 0.25rem !important;
@@ -416,4 +416,22 @@ html, body, #root {
     margin-top: 0.25rem !important;
   }
 }
+
+/* Custom scrollbar track solid styling to hide background under the scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 12px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #070a12 !important; /* Solid dark color to prevent background from being visible behind the scrollbar */
+  border-left: 1px solid rgba(255, 255, 255, 0.05);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(245, 158, 11, 0.3) !important; /* Amber thumb matching theme */
+  border-radius: 6px !important;
+  border: 3px solid #070a12 !important;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 158, 11, 0.6) !important;
+}
+
 

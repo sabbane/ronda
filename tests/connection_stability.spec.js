@@ -18,7 +18,7 @@ test('Multiplayer: Should NOT get stuck on Connecting screen', async ({ page }) 
 
   // 2. Click Host
   const hostBtn = page.locator('button', { hasText: /Host|Héberger|استضافة/i });
-  await hostBtn.click();
+  await hostBtn.first().click();
 
   // 3. EXPECT: The Loading Screen should appear briefly but THEN disappear
   // The loading screen has the "Connecting..." text (or localized version)

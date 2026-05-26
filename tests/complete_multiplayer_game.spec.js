@@ -36,7 +36,7 @@ test.describe('Functional Test: Complete Multiplayer Game', () => {
     await roomInput2.fill(roomID);
     
     const joinBtn = page2.locator('button', { hasText: /Join|Rejoindre|Beitreten|انضمام/i });
-    await joinBtn.click();
+    await joinBtn.first().click();
 
     // 3. Verify Board Loading & Rendering for both
     const tableArea1 = page1.locator('.bg-emerald-900\\/40').first();
