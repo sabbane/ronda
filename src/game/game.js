@@ -55,31 +55,45 @@ export const getHandRank = (hand) => {
 };
 
 export const evaluateRondaTringa = (G) => {
-  const p0Rank = getHandRank(G.players['0'].hand);
-  const p1Rank = getHandRank(G.players['1'].hand);
+  const numP = Object.keys(G.players).length;
+  if (numP === 2) {
+    const p0Rank = getHandRank(G.players['0'].hand);
+    const p1Rank = getHandRank(G.players['1'].hand);
 
-  if (p0Rank && p1Rank) {
-    if (p0Rank.type !== p1Rank.type) {
-      // Tringa vs Ronda: Resolve immediately
-      const winner = p0Rank.type === 'Tringa' ? '0' : '1';
-      const pts = 6;
-      addScore(G, winner, pts);
-      G.announcements.push({ 
-        player: winner, 
-        type: 'TringaWins', 
-        pts: pts 
-      });
-      G.activeClash = null;
-    } else {
-      G.activeClash = { p0: p0Rank, p1: p1Rank };
-      G.announcements.push({ player: 'none', type: 'Clash', clashType: p0Rank.type });
+    if (p0Rank && p1Rank) {
+      if (p0Rank.type !== p1Rank.type) {
+        // Tringa vs Ronda: Resolve immediately
+        const winner = p0Rank.type === 'Tringa' ? '0' : '1';
+        const pts = 6;
+        addScore(G, winner, pts);
+        G.announcements.push({ 
+          player: winner, 
+          type: 'TringaWins', 
+          pts: pts 
+        });
+        G.activeClash = null;
+      } else {
+        G.activeClash = { p0: p0Rank, p1: p1Rank };
+        G.announcements.push({ player: 'none', type: 'Clash', clashType: p0Rank.type });
+      }
+    } else if (p0Rank) {
+      addScore(G, '0', p0Rank.type === 'Tringa' ? 5 : 1);
+      G.announcements.push({ player: '0', type: p0Rank.type });
+    } else if (p1Rank) {
+      addScore(G, '1', p1Rank.type === 'Tringa' ? 5 : 1);
+      G.announcements.push({ player: '1', type: p1Rank.type });
     }
-  } else if (p0Rank) {
-    addScore(G, '0', p0Rank.type === 'Tringa' ? 5 : 1);
-    G.announcements.push({ player: '0', type: p0Rank.type });
-  } else if (p1Rank) {
-    addScore(G, '1', p1Rank.type === 'Tringa' ? 5 : 1);
-    G.announcements.push({ player: '1', type: p1Rank.type });
+  } else {
+    // 4 Players: Evaluate each player individually
+    for (let i = 0; i < numP; i++) {
+      const pID = String(i);
+      const pRank = getHandRank(G.players[pID].hand);
+      if (pRank) {
+        const pts = pRank.type === 'Tringa' ? 5 : 1;
+        addScore(G, pID, pts);
+        G.announcements.push({ player: pID, type: pRank.type });
+      }
+    }
   }
 };
 
@@ -126,13 +140,17 @@ export const resolveClash = (G) => {
 };
 
 export const checkRoundEnd = (G) => {
-  if (G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0) {
+  const numP = Object.keys(G.players).length;
+  const allEmpty = Object.keys(G.players).every(pID => !G.players[pID].hand || G.players[pID].hand.length === 0);
+
+  if (allEmpty) {
     resolveClash(G);
     
     // If deck is also empty, the game (round) is totally over
     if (G.deck.length === 0 && !G.gameStatus) {
       if (!G.matchesWon) {
-        G.matchesWon = { '0': 0, '1': 0 };
+        G.matchesWon = {};
+        for (let i = 0; i < numP; i++) G.matchesWon[String(i)] = 0;
       }
 
       // Give remaining table cards to the last player who captured
@@ -141,19 +159,38 @@ export const checkRoundEnd = (G) => {
         G.table = [];
       }
 
-      const p0Total = G.players['0'].score + G.players['0'].captured.length;
-      const p1Total = G.players['1'].score + G.players['1'].captured.length;
-      let winner = 'Draw';
-      if (p0Total > p1Total) {
-        winner = '0';
-        G.matchesWon['0']++;
+      if (numP === 2) {
+        const p0Total = G.players['0'].score + G.players['0'].captured.length;
+        const p1Total = G.players['1'].score + G.players['1'].captured.length;
+        let winner = 'Draw';
+        if (p0Total > p1Total) {
+          winner = '0';
+          G.matchesWon['0']++;
+        }
+        else if (p1Total > p0Total) {
+          winner = '1';
+          G.matchesWon['1']++;
+        }
+        G.gameStatus = { winner, p0Score: p0Total, p1Score: p1Total };
+      } else {
+        // 4 Players: Team A (0 & 2) vs Team B (1 & 3)
+        const teamATotal = (G.players['0'].score + G.players['0'].captured.length) + 
+                           (G.players['2'].score + G.players['2'].captured.length);
+        const teamBTotal = (G.players['1'].score + G.players['1'].captured.length) + 
+                           (G.players['3'].score + G.players['3'].captured.length);
+                           
+        let winner = 'Draw';
+        if (teamATotal > teamBTotal) {
+          winner = 'TeamA';
+          G.matchesWon['0']++;
+          G.matchesWon['2']++;
+        } else if (teamBTotal > teamATotal) {
+          winner = 'TeamB';
+          G.matchesWon['1']++;
+          G.matchesWon['3']++;
+        }
+        G.gameStatus = { winner, p0Score: teamATotal, p1Score: teamBTotal };
       }
-      else if (p1Total > p0Total) {
-        winner = '1';
-        G.matchesWon['1']++;
-      }
-      
-      G.gameStatus = { winner, p0Score: p0Total, p1Score: p1Total };
     }
   }
 };
@@ -180,6 +217,8 @@ const checkWaitForUI = (G, events) => {
 
 export const RondaGame = {
   name: 'ronda',
+  minPlayers: 2,
+  maxPlayers: 4,
   setup: ({ ctx }, setupData) => {
     let deck;
     const matchID = ctx?.matchID;
@@ -223,10 +262,13 @@ export const RondaGame = {
 
 
     const table = deck.splice(0, 4);
-    const players = {
-      '0': { hand: deck.splice(0, 3), captured: [], score: 0, name: '' },
-      '1': { hand: deck.splice(0, 3), captured: [], score: 0, name: '' },
-    };
+    const numP = ctx.numPlayers || 2;
+    const players = {};
+    const matchesWon = {};
+    for (let i = 0; i < numP; i++) {
+      players[String(i)] = { hand: deck.splice(0, 3), captured: [], score: 0, name: '' };
+      matchesWon[String(i)] = 0;
+    }
     
     let G = {
       deck,
@@ -240,7 +282,7 @@ export const RondaGame = {
       gameStarted: setupData ? (isTestMode || setupData.gameStarted === true) : true,
       endTurnAfterUI: false,
       gameStatus: null, // Custom game over state
-      matchesWon: { '0': 0, '1': 0 }, // Track overall games won
+      matchesWon, // Track overall games won
     };
 
     evaluateRondaTringa(G);
@@ -271,6 +313,14 @@ export const RondaGame = {
     hostLeft: {
       move: ({ G }) => {
         G.hostLeft = true;
+      },
+      noLimit: true
+    },
+    playerLeft: {
+      move: ({ G, playerID }) => {
+        console.log('[Game] playerLeft move fired by', playerID);
+        if (!G.playerLeft) G.playerLeft = {};
+        G.playerLeft[playerID] = true;
       },
       noLimit: true
     },
@@ -324,8 +374,10 @@ export const RondaGame = {
         G.isAnimating = true;
         
         // Final Fail Rule: if the last card of the game is played and does not capture
-        if (G.deck.length === 0 && G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0) {
-          const opponent = player === '0' ? '1' : '0';
+        const allHandsEmpty = Object.keys(G.players).every(pID => G.players[pID].hand.length === 0);
+        if (G.deck.length === 0 && allHandsEmpty) {
+          const numP = Object.keys(G.players).length;
+          const opponent = numP === 2 ? (player === '0' ? '1' : '0') : String((parseInt(player) + 1) % numP);
           addScore(G, opponent, 5);
           G.announcements.push({ player: opponent, type: 'Final Fail' });
         }
@@ -431,7 +483,8 @@ export const RondaGame = {
         G.players[player].captured.push(...capturedCards);
         G.lastCapture = player;
         G.isAnimating = true;
-        if (!isTaawidaTransfer && G.table.length === 0 && (G.deck.length > 0 || G.players['0'].hand.length > 0)) {
+        const anyHandHasCards = Object.keys(G.players).some(pID => G.players[pID].hand.length > 0);
+        if (!isTaawidaTransfer && G.table.length === 0 && (G.deck.length > 0 || anyHandHasCards)) {
           addScore(G, player, 1);
           G.announcements.push({ player, type: 'Missa' });
           hadMissa = true;
@@ -439,8 +492,17 @@ export const RondaGame = {
             G.lastPlayedCard.hadMissa = true;
           }
         }
-        if (currentVal === 10 && G.deck.length === 0 && G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0) { addScore(G, player, 5); G.announcements.push({ player, type: 'King Finish' }); }
-        if (currentVal === 1 && G.deck.length === 0 && G.players['0'].hand.length === 0 && G.players['1'].hand.length === 0) { const opponent = player === '0' ? '1' : '0'; addScore(G, opponent, 5); G.announcements.push({ player: opponent, type: 'As Finish' }); }
+        const allHandsAreEmpty = Object.keys(G.players).every(pID => G.players[pID].hand.length === 0);
+        if (currentVal === 10 && G.deck.length === 0 && allHandsAreEmpty) { 
+          addScore(G, player, 5); 
+          G.announcements.push({ player, type: 'King Finish' }); 
+        }
+        if (currentVal === 1 && G.deck.length === 0 && allHandsAreEmpty) { 
+          const numP = Object.keys(G.players).length;
+          const opponent = numP === 2 ? (player === '0' ? '1' : '0') : String((parseInt(player) + 1) % numP);
+          addScore(G, opponent, 5); 
+          G.announcements.push({ player: opponent, type: 'As Finish' }); 
+        }
       }
       checkRoundEnd(G);
       checkWaitForUI(G, events);
@@ -454,13 +516,14 @@ export const RondaGame = {
         events.setActivePlayers({ all: 'lobby' });
         return;
       }
-      // 1. Auto-deal ONLY if both hands are completely empty and deck has cards
-      const p0HandEmpty = !G.players['0'].hand || G.players['0'].hand.length === 0;
-      const p1HandEmpty = !G.players['1'].hand || G.players['1'].hand.length === 0;
+      // 1. Auto-deal ONLY if all hands are completely empty and deck has cards
+      const numP = Object.keys(G.players).length;
+      const allHandsEmpty = Object.keys(G.players).every(pID => !G.players[pID].hand || G.players[pID].hand.length === 0);
       
-      if (p0HandEmpty && p1HandEmpty && G.deck.length > 0) {
-        G.players['0'].hand = G.deck.splice(0, 3);
-        G.players['1'].hand = G.deck.splice(0, 3);
+      if (allHandsEmpty && G.deck.length > 0) {
+        for (let i = 0; i < numP; i++) {
+          G.players[String(i)].hand = G.deck.splice(0, 3);
+        }
         G.lastPlayedCard = null; // Clear last played card so Derba doesn't carry over to a new round
         G.isAnimating = true;
         evaluateRondaTringa(G);
@@ -500,6 +563,14 @@ export const RondaGame = {
           hostLeft: {
             move: ({ G }) => {
               G.hostLeft = true;
+            },
+            noLimit: true
+          },
+          playerLeft: {
+            move: ({ G, playerID }) => {
+              console.log('[Game] playerLeft move fired (lobby stage) by', playerID);
+              if (!G.playerLeft) G.playerLeft = {};
+              G.playerLeft[playerID] = true;
             },
             noLimit: true
           }
@@ -542,17 +613,29 @@ export const RondaGame = {
             }
             // If there are still announcements, do nothing:
             // clearAnnouncements will handle the transition when they are cleared.
+          },
+          playerLeft: {
+            move: ({ G, playerID }) => {
+              console.log('[Game] playerLeft move fired (waitForUI stage) by', playerID);
+              if (!G.playerLeft) G.playerLeft = {};
+              G.playerLeft[playerID] = true;
+            },
+            noLimit: true
           }
         }
       },
       gameOver: {
         moves: {
           restartGame: ({ G, ctx, events }) => {
-            // Preserve overall match wins and player nicknames
-            const matches0 = G.matchesWon ? G.matchesWon['0'] : 0;
-            const matches1 = G.matchesWon ? G.matchesWon['1'] : 0;
-            const name0 = G.players && G.players['0'] ? G.players['0'].name : '';
-            const name1 = G.players && G.players['1'] ? G.players['1'].name : '';
+            // Preserve overall match wins and player nicknames dynamically for all players
+            const numP = Object.keys(G.players).length;
+            const matches = {};
+            const names = {};
+            for (let i = 0; i < numP; i++) {
+              const pID = String(i);
+              matches[pID] = G.matchesWon ? (G.matchesWon[pID] || 0) : 0;
+              names[pID] = G.players && G.players[pID] ? G.players[pID].name : '';
+            }
 
             const fresh = RondaGame.setup({ ctx });
 
@@ -564,10 +647,14 @@ export const RondaGame = {
             Object.assign(G, fresh);
 
             // Restore overall match wins, nicknames, and ensure the game starts directly
-            G.matchesWon = { '0': matches0, '1': matches1 };
+            G.matchesWon = matches;
             G.gameStarted = true;
-            if (G.players && G.players['0']) G.players['0'].name = name0;
-            if (G.players && G.players['1']) G.players['1'].name = name1;
+            for (let i = 0; i < numP; i++) {
+              const pID = String(i);
+              if (G.players && G.players[pID]) {
+                G.players[pID].name = names[pID];
+              }
+            }
 
             // Clear any stages so players can play cards
             events.setActivePlayers({ all: null });
@@ -577,6 +664,14 @@ export const RondaGame = {
             if (G.announcements.length > 0 || G.isAnimating) {
               events.setActivePlayers({ all: 'waitForUI' });
             }
+          },
+          playerLeft: {
+            move: ({ G, playerID }) => {
+              console.log('[Game] playerLeft move fired (gameOver stage) by', playerID);
+              if (!G.playerLeft) G.playerLeft = {};
+              G.playerLeft[playerID] = true;
+            },
+            noLimit: true
           }
         }
       }

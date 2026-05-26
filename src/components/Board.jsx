@@ -9,7 +9,7 @@ import { adService } from '../services/AdService';
 import { useSound } from '../contexts/SoundContext';
 import { Volume2, VolumeX, Music, Copy } from 'lucide-react';
 
-export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected }) => {
+export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matchData }) => {
 
   const { language, t } = useLanguage();
   const moroccanSymbols = [
@@ -70,10 +70,29 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected }) =>
   });
   const myID = playerID || '0';
   const opponentID = myID === '0' ? '1' : '0';
+  const numP = G.players ? Object.keys(G.players).length : 2;
+  const leftID = numP === 4 ? String((parseInt(myID) + 3) % 4) : '';
+  const topID = numP === 4 ? String((parseInt(myID) + 2) % 4) : '';
+  const rightID = numP === 4 ? String((parseInt(myID) + 1) % 4) : '';
   const [activeEvent, setActiveEvent] = React.useState(null);
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [isAdPlaying, setIsAdPlaying] = React.useState(false);
+  const [opponentLeft, setOpponentLeft] = React.useState(false);
   const isLeavingRef = React.useRef(false);
+
+  const getOpponentLeftTitle = () => {
+    if (language === 'de') return 'Spieler hat das Spiel verlassen';
+    if (language === 'fr') return 'L\'adversaire a quitté le jeu';
+    if (language === 'ar') return 'غادر الخصم اللعبة';
+    return 'Opponent has left the game';
+  };
+
+  const getOpponentLeftMsg = () => {
+    if (language === 'de') return 'Das Spiel wurde beendet, da dein Mitspieler das Spiel verlassen hat.';
+    if (language === 'fr') return 'Le jeu est terminé car l\'autre joueur a quitté la partie.';
+    if (language === 'ar') return 'انتهت اللعبة لأن اللاعب الآخر غادر المباراة.';
+    return 'The game has ended because the other player left the game.';
+  };
 
   const {
     isMuted,
@@ -104,7 +123,6 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected }) =>
     }
     const savedNickname = localStorage.getItem('ronda_nickname') || 'Spieler';
     const isInLobbyStage = G.gameStarted === false || ctx.activePlayers?.[myID] === 'lobby';
-    console.log('[Board] myID:', myID, 'matchID:', matchID, 'savedNickname:', savedNickname, 'currentNameInG:', G.players?.[myID]?.name, 'isConnected:', isConnected, 'isInLobbyStage:', isInLobbyStage, 'gameStarted:', G.gameStarted, 'activePlayers:', ctx.activePlayers);
     if (isConnected && isInLobbyStage && G.players && G.players[myID] && G.players[myID].name !== savedNickname) {
       console.log('[Board] calling setPlayerName with:', savedNickname);
       moves.setPlayerName(savedNickname);
@@ -116,6 +134,37 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected }) =>
       window.dispatchEvent(new CustomEvent('ronda-host-left'));
     }
   }, [G.hostLeft, myID, G.gameStarted]);
+
+  // isConnected is only defined in multiplayer mode (not in bot mode)
+  const isMultiplayer = isConnected !== undefined;
+
+  React.useEffect(() => {
+    console.log('[Board] G.playerLeft watcher:', JSON.stringify(G.playerLeft), 'opponentID:', opponentID, 'gameStarted:', G.gameStarted, 'isMultiplayer:', isMultiplayer);
+    if (!G.gameStarted || !isMultiplayer || opponentLeft) return;
+    if (G.playerLeft && G.playerLeft[opponentID] === true) {
+      console.log('[Board] Opponent left detected! Setting opponentLeft=true');
+      setOpponentLeft(true);
+    }
+  }, [G.playerLeft, opponentID, G.gameStarted, isMultiplayer, opponentLeft]);
+
+  React.useEffect(() => {
+    console.log('[Board] matchData watcher:', JSON.stringify(matchData), 'opponentID:', opponentID, 'gameStarted:', G.gameStarted, 'isMultiplayer:', isMultiplayer);
+    if (!G.gameStarted || !isMultiplayer || opponentLeft || !matchData) return;
+    const opponentData = matchData.find(p => String(p.id) === String(opponentID));
+    if (opponentData && opponentData.isConnected === false) {
+      console.log('[Board] Opponent disconnected detected via matchData! Setting opponentLeft=true');
+      setOpponentLeft(true);
+    }
+  }, [matchData, opponentID, G.gameStarted, isMultiplayer, opponentLeft]);
+
+  React.useEffect(() => {
+    if (!G.gameStarted || !isMultiplayer) return;
+    const handleBeforeUnload = () => {
+      try { moves.playerLeft(); } catch { /* ignore */ }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [G.gameStarted, isMultiplayer, moves]);
 
   React.useEffect(() => {
     const handleAdStart = () => {
@@ -482,11 +531,41 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected }) =>
     winner = G.gameStatus.winner !== undefined ? G.gameStatus.winner : 'Draw';
   }
 
+  const isMyTeamA = myID === '0' || myID === '2';
+  const didIWin = G.gameStatus
+    ? (numP === 2
+        ? G.gameStatus.winner === myID
+        : (G.gameStatus.winner === 'TeamA' ? isMyTeamA : G.gameStatus.winner === 'TeamB' ? !isMyTeamA : false))
+    : false;
+
+  const myTeamName = numP === 4
+    ? `${G.players['0']?.name || 'Player 1'} & ${G.players['2']?.name || 'Player 3'}`
+    : (G.players[myID]?.name || t('you'));
+
+  const oppTeamName = numP === 4
+    ? `${G.players['1']?.name || 'Player 2'} & ${G.players['3']?.name || 'Player 4'}`
+    : (G.players[opponentID]?.name || t('opponent'));
+
+  const myTeamScore = numP === 4
+    ? (G.gameStatus ? (isMyTeamA ? G.gameStatus.p0Score : G.gameStatus.p1Score) : 0)
+    : (G.gameStatus ? G.gameStatus[`p${myID}Score`] : 0);
+
+  const oppTeamScore = numP === 4
+    ? (G.gameStatus ? (isMyTeamA ? G.gameStatus.p1Score : G.gameStatus.p0Score) : 0)
+    : (G.gameStatus ? G.gameStatus[`p${opponentID}Score`] : 0);
+
+  const myTeamMatchesWon = numP === 4
+    ? (G.matchesWon ? (isMyTeamA ? G.matchesWon['0'] : G.matchesWon['1']) : 0)
+    : (G.matchesWon ? G.matchesWon[myID] : 0);
+
+  const oppTeamMatchesWon = numP === 4
+    ? (G.matchesWon ? (isMyTeamA ? G.matchesWon['1'] : G.matchesWon['0']) : 0)
+    : (G.matchesWon ? G.matchesWon[opponentID] : 0);
+
   if (G.gameStarted === false) {
     const inviteLink = `${window.location.protocol}//${window.location.host}${window.location.pathname}?room=${matchID || ''}`;
-    const p0Name = G.players['0']?.name || 'Host';
-    const p1Name = G.players['1']?.name || '';
-    const hasGuestJoined = !!p1Name.trim();
+    const numP = ctx.numPlayers || 2;
+    const allPlayersJoined = Array.from({ length: numP }, (_, i) => String(i)).every(pID => !!G.players[pID]?.name?.trim());
 
     const handleShare = async () => {
       playClick();
@@ -509,10 +588,10 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected }) =>
     const handleLeaveLobby = () => {
       playClick();
       isLeavingRef.current = true;
-      if (myID === '1') {
-        moves.setPlayerName('');
-      } else if (myID === '0') {
+      if (myID === '0') {
         moves.hostLeft();
+      } else {
+        moves.setPlayerName('');
       }
       setTimeout(() => {
         window.dispatchEvent(new CustomEvent('ronda-menu'));
@@ -595,65 +674,74 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected }) =>
           </div>
 
           {/* Players Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
-            {/* Player 0 (Host) Slot */}
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col items-center relative overflow-hidden group shadow-lg">
-              <div className="absolute top-3 right-3 bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full">
-                Host
-              </div>
-              <div className="w-16 h-16 rounded-full bg-amber-600/20 border border-amber-500/30 flex items-center justify-center mb-3 text-amber-400">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-              </div>
-              <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1">{language === 'de' ? 'Spieler 1' : 'Player 1'}</span>
+          <div className={`grid grid-cols-1 gap-4 sm:gap-6 mb-8 ${numP === 4 ? 'sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2' : 'sm:grid-cols-2'}`}>
+            {Array.from({ length: numP }, (_, i) => String(i)).map((pID) => {
+              const isHost = pID === '0';
+              const pName = G.players[pID]?.name || '';
+              const hasJoined = isHost || !!pName.trim();
+              const isLocalPlayer = myID === pID;
               
-              {myID === '0' ? (
-                <input
-                  type="text"
-                  maxLength={15}
-                  value={G.players['0']?.name || ''}
-                  onChange={(e) => moves.setPlayerName(e.target.value)}
-                  className="bg-black/50 border border-white/10 rounded-xl px-3 py-1.5 text-center text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 w-full"
-                  placeholder={language === 'de' ? 'Dein Name' : 'Your name'}
-                />
-              ) : (
-                <span className="text-base font-bold text-slate-200">{p0Name || 'Host'}</span>
-              )}
-            </div>
+              // Define styling/roles based on ID and language
+              let role = 'Guest';
+              let badgeColor = 'bg-purple-500/20 text-purple-300 border-purple-500/30';
+              let iconBg = hasJoined ? 'bg-purple-600/20 border-purple-500/30 text-purple-400' : 'bg-white/5 border border-white/5 text-slate-600 animate-pulse';
+              
+              if (pID === '0') {
+                role = 'Host';
+                badgeColor = 'bg-amber-500/20 text-amber-300 border border-amber-500/30';
+                iconBg = 'bg-amber-600/20 border border-amber-500/30 text-amber-400';
+              } else if (pID === '2') {
+                role = language === 'de' ? 'Partner (A)' : language === 'fr' ? 'Partenaire (A)' : language === 'ar' ? 'شريك (أ)' : 'Partner (A)';
+                badgeColor = 'bg-amber-500/20 text-amber-300 border border-amber-500/30';
+                iconBg = hasJoined ? 'bg-amber-600/20 border border-amber-500/30 text-amber-400' : 'bg-white/5 border border-white/5 text-slate-600 animate-pulse';
+              } else if (pID === '1') {
+                role = language === 'de' ? 'Gegner 1 (B)' : language === 'fr' ? 'Adversaire 1 (B)' : language === 'ar' ? 'خصم ١ (ب)' : 'Opponent 1 (B)';
+                badgeColor = 'bg-purple-500/20 text-purple-300 border-purple-500/30';
+                iconBg = hasJoined ? 'bg-purple-600/20 border-purple-500/30 text-purple-400' : 'bg-white/5 border border-white/5 text-slate-600 animate-pulse';
+              } else if (pID === '3') {
+                role = language === 'de' ? 'Gegner 2 (B)' : language === 'fr' ? 'Adversaire 2 (B)' : language === 'ar' ? 'خصم ٢ (ب)' : 'Opponent 2 (B)';
+                badgeColor = 'bg-purple-500/20 text-purple-300 border-purple-500/30';
+                iconBg = hasJoined ? 'bg-purple-600/20 border-purple-500/30 text-purple-400' : 'bg-white/5 border border-white/5 text-slate-600 animate-pulse';
+              }
 
-            {/* Player 1 (Guest) Slot */}
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col items-center relative overflow-hidden group shadow-lg">
-              <div className="absolute top-3 right-3 bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full">
-                {language === 'de' ? 'Gast' : 'Guest'}
-              </div>
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 ${hasGuestJoined ? 'bg-purple-600/20 border border-purple-500/30 text-purple-400' : 'bg-white/5 border border-white/5 text-slate-600 animate-pulse'}`}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-              </div>
-              <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1">{language === 'de' ? 'Spieler 2' : 'Player 2'}</span>
-              
-              {!hasGuestJoined ? (
-                <span className="text-xs font-semibold text-slate-500 animate-pulse uppercase tracking-wider py-1">
-                  {language === 'de' ? 'Warte auf Gegner...' : 'Waiting for guest...'}
-                </span>
-              ) : myID === '1' ? (
-                <input
-                  type="text"
-                  maxLength={15}
-                  value={G.players['1']?.name || ''}
-                  onChange={(e) => moves.setPlayerName(e.target.value)}
-                  className="bg-black/50 border border-white/10 rounded-xl px-3 py-1.5 text-center text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 w-full"
-                  placeholder={language === 'de' ? 'Dein Name' : 'Your name'}
-                />
-              ) : (
-                <span className="text-base font-bold text-slate-200">{p1Name}</span>
-              )}
-            </div>
+              return (
+                <div key={pID} className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col items-center relative overflow-hidden group shadow-lg">
+                  <div className={`absolute top-3 right-3 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full border ${badgeColor}`}>
+                    {role}
+                  </div>
+                  <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 ${iconBg}`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  </div>
+                  <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1">
+                    {language === 'de' ? `Spieler ${parseInt(pID) + 1}` : `Player ${parseInt(pID) + 1}`}
+                  </span>
+                  
+                  {!hasJoined ? (
+                    <span className="text-xs font-semibold text-slate-500 animate-pulse uppercase tracking-wider py-1">
+                      {language === 'de' ? 'Warte...' : 'Waiting...'}
+                    </span>
+                  ) : isLocalPlayer ? (
+                    <input
+                      type="text"
+                      maxLength={15}
+                      value={G.players[pID]?.name || ''}
+                      onChange={(e) => moves.setPlayerName(e.target.value)}
+                      className="bg-black/50 border border-white/10 rounded-xl px-3 py-1.5 text-center text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 w-full animate-fade-in"
+                      placeholder={language === 'de' ? 'Dein Name' : 'Your name'}
+                    />
+                  ) : (
+                    <span className="text-base font-bold text-slate-200">{pName || 'Host'}</span>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           {/* Lobby Controls */}
           <div className="border-t border-white/5 pt-6 flex flex-col gap-4">
             {myID === '0' ? (
               <button
-                disabled={!hasGuestJoined || !G.players['0']?.name?.trim() || !G.players['1']?.name?.trim()}
+                disabled={!allPlayersJoined}
                 onClick={() => { playClick(); moves.startGame(); }}
                 className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 disabled:opacity-30 disabled:pointer-events-none px-6 py-4 rounded-xl font-bold transition-all transform hover:scale-[1.02] active:scale-[0.98] text-lg shadow-xl cursor-pointer"
               >
@@ -672,7 +760,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected }) =>
               onClick={handleLeaveLobby}
               className="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl font-bold transition-all text-sm border border-white/5 text-slate-400 hover:text-slate-300 cursor-pointer"
             >
-              {language === 'de' ? 'Raum verlassen' : 'Leave Lobby'}
+              {language === 'de' ? 'Verlassen' : 'Leave Lobby'}
             </button>
           </div>
         </div>
@@ -698,7 +786,12 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected }) =>
         {/* Back to Menu Button */}
         <div className="absolute top-4 start-4 z-[60]">
           <button 
-            onClick={() => { playClick(); window.dispatchEvent(new CustomEvent('ronda-menu')); }}
+            onClick={() => {
+              playClick();
+              try { moves.playerLeft(); } catch { /* ignore */ }
+              // Delay navigation to give the server time to broadcast G.playerLeft to P2
+              setTimeout(() => window.dispatchEvent(new CustomEvent('ronda-menu')), 500);
+            }}
             className="flex items-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-white/10 transition-all active:scale-95 shadow-lg group cursor-pointer"
           >
             <svg 
@@ -814,7 +907,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected }) =>
               animate={{ opacity: 1 }} 
               className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
             >
-              {winner === myID && (
+              {didIWin && (
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
                   {confettiConfig.map((confetti, i) => {
                     const Symbol = moroccanSymbols[confetti.symbolIndex];
@@ -822,22 +915,22 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected }) =>
                       <motion.div
                         key={i}
                         initial={{ 
-                          top: -80, 
-                          left: confetti.left,
-                          scale: confetti.scale,
-                          rotate: 0,
-                          opacity: 0.85,
+                           top: -80, 
+                           left: confetti.left,
+                           scale: confetti.scale,
+                           rotate: 0,
+                           opacity: 0.85,
                         }}
                         animate={{ 
-                          top: '110vh',
-                          rotate: confetti.rotateTo,
-                          x: confetti.xTo,
+                           top: '110vh',
+                           rotate: confetti.rotateTo,
+                           x: confetti.xTo,
                         }}
                         transition={{ 
-                          duration: confetti.duration, 
-                          repeat: Infinity, 
-                          ease: 'linear',
-                          delay: confetti.delay,
+                           duration: confetti.duration, 
+                           repeat: Infinity, 
+                           ease: 'linear',
+                           delay: confetti.delay,
                         }}
                         className="absolute w-8 h-8 sm:w-10 sm:h-10"
                         style={{ filter: `drop-shadow(0 0 4px ${confetti.color}88)` }}
@@ -849,8 +942,8 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected }) =>
                 </div>
               )}
               <motion.div 
-                initial={winner === myID ? { scale: 0.5, rotate: -5, y: 50 } : { scale: 0.8, y: 50 }}
-                animate={winner === myID ? { scale: [0.5, 1.1, 1], rotate: 0, y: 0 } : { scale: 1, y: 0 }}
+                initial={didIWin ? { scale: 0.5, rotate: -5, y: 50 } : { scale: 0.8, y: 50 }}
+                animate={didIWin ? { scale: [0.5, 1.1, 1], rotate: 0, y: 0 } : { scale: 1, y: 0 }}
                 transition={{ type: "spring", stiffness: 200, damping: 15 }}
                 className="bg-slate-800 pt-8 pb-10 px-12 rounded-3xl border border-slate-700 shadow-2xl text-center relative z-10 max-w-lg w-full mx-4"
               >
@@ -866,7 +959,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected }) =>
                       >
                         <span>🤝 {t('itsADraw')} 🤝</span>
                       </motion.span>
-                    : winner === myID 
+                    : didIWin 
                       ? <span className="text-emerald-400 flex flex-col gap-2 items-center">
                           <span>🎉 {t('youWon')} 🎉</span>
                         </span>
@@ -885,20 +978,20 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected }) =>
                   }
                 </div>
                 <div className="text-lg text-slate-400 mb-8 font-semibold uppercase tracking-widest">
-                  {t('totalGames') || 'Total Games'}: {G.matchesWon ? G.matchesWon[myID] : 0} - {G.matchesWon ? G.matchesWon[opponentID] : 0}
+                  {t('totalGames') || 'Total Games'}: {myTeamMatchesWon} - {oppTeamMatchesWon}
                 </div>
                 <div className="flex gap-8 justify-center text-xl bg-slate-900/50 p-6 rounded-2xl border border-slate-700/50">
                   <div className="flex flex-col items-center">
-                    <span className="text-sm text-slate-400 mb-1">{G.players[myID]?.name || t('you')}</span>
+                    <span className="text-sm text-slate-400 mb-1">{myTeamName}</span>
                     <span className="text-3xl font-bold text-indigo-400">
-                      {G.gameStatus ? G.gameStatus[`p${myID}Score`] : 0}
+                      {myTeamScore}
                     </span>
                   </div>
                   <div className="w-px bg-slate-700"></div>
                   <div className="flex flex-col items-center">
-                    <span className="text-sm text-slate-400 mb-1">{G.players[opponentID]?.name || t('opponent')}</span>
+                    <span className="text-sm text-slate-400 mb-1">{oppTeamName}</span>
                     <span className="text-3xl font-bold text-purple-400">
-                      {G.gameStatus ? G.gameStatus[`p${opponentID}Score`] : 0}
+                      {oppTeamScore}
                     </span>
                   </div>
                 </div>
@@ -940,47 +1033,162 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected }) =>
           )}
         </AnimatePresence>
 
+        {/* Opponent Left Overlay */}
+        <AnimatePresence>
+          {opponentLeft && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[150] flex items-center justify-center bg-black/85 backdrop-blur-sm"
+            >
+              <motion.div 
+                initial={{ scale: 0.8, y: 50 }}
+                animate={{ scale: 1, y: 0 }}
+                transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                className="bg-slate-800 pt-8 pb-10 px-12 rounded-3xl border border-slate-700 shadow-2xl text-center relative z-10 max-w-lg w-full mx-4"
+              >
+                <h2 className="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-rose-400 to-amber-400 bg-clip-text text-transparent leading-tight">
+                  {getOpponentLeftTitle()}
+                </h2>
+                <p className="text-slate-300 text-base sm:text-lg mb-8 font-medium">
+                  {getOpponentLeftMsg()}
+                </p>
+                <div className="flex justify-center mt-6">
+                  <button 
+                    onClick={() => {
+                      playClick();
+                      window.dispatchEvent(new CustomEvent('ronda-menu'));
+                    }}
+                    className="px-8 py-3 bg-gradient-to-r from-rose-600 to-amber-500 hover:from-rose-500 hover:to-amber-400 text-white rounded-full font-bold transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-rose-900/40 border border-rose-400/20 cursor-pointer text-base"
+                  >
+                    {t('mainMenu')}
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
 
-        {/* Opponent Area */}
-        <div className="w-full max-w-4xl relative z-20 shrink-0">
-          <div className="flex justify-between items-center px-4 sm:px-8 mb-0 sm:mb-2">
-            <div className="text-base sm:text-lg font-medium text-slate-400 flex items-center gap-3">
-              {G.players[opponentID]?.name || t('opponent')}
-              {isCurrentPlayer(opponentID) && (
-                <span className="flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-purple-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
-                </span>
-              )}
+
+        {/* Opponent / Partner / Seats Area */}
+        {numP === 2 ? (
+          /* 2-Player Mode: Top Opponent */
+          <div className="w-full max-w-4xl relative z-20 shrink-0">
+            <div className="flex justify-between items-center px-4 sm:px-8 mb-0 sm:mb-2">
+              <div className="text-base sm:text-lg font-medium text-slate-400 flex items-center gap-3">
+                {G.players[opponentID]?.name || t('opponent')}
+                {isCurrentPlayer(opponentID) && (
+                  <span className="flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-purple-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-4 items-center">
+                <div className="relative w-8 h-12">
+                  {G.players[opponentID]?.captured.map((card) => (
+                    <motion.div
+                      key={`cap-opp-${card.id}`}
+                      layoutId={`card-${card.id}`}
+                      transition={{ type: "spring", stiffness: 40, damping: 12, mass: 1.2 }}
+                      className="absolute inset-0 bg-purple-900/50 border border-purple-700/50 rounded-sm shadow-sm"
+                    />
+                  ))}
+                </div>
+                <div className="bg-slate-800 px-4 py-1 rounded-full text-sm border border-slate-700 shadow-inner flex items-center gap-2">
+                  <span className="text-slate-400">{t('cards')}</span> 
+                  <span className="font-bold text-lg text-purple-400">
+                    {((G.players && G.players[opponentID]?.captured?.length) || 0) + ((G.players && G.players[opponentID]?.score) || 0)}
+                  </span>
+                </div>
+              </div>
             </div>
-            <div className="flex gap-4 items-center">
-              <div className="relative w-8 h-12">
-                {G.players[opponentID]?.captured.map((card) => (
-                  <motion.div
-                    key={`cap-opp-${card.id}`}
-                    layoutId={`card-${card.id}`}
-                    transition={{ type: "spring", stiffness: 40, damping: 12, mass: 1.2 }}
-                    className="absolute inset-0 bg-purple-900/50 border border-purple-700/50 rounded-sm shadow-sm"
-                  />
+            <PlayerHand 
+              hand={(G.players && G.players[opponentID]?.hand) || []} 
+              isCurrentPlayer={false} 
+              hidden={true}
+              dealDelay={0.75}
+              playedCardId={playedCardId}
+            />
+          </div>
+        ) : (
+          /* 4-Player Mode: Seats Layout */
+          <>
+            {/* Top Seat: Partner (Team A) */}
+            <div className="w-full max-w-4xl relative z-20 shrink-0">
+              <div className="flex justify-between items-center px-4 sm:px-8 mb-0 sm:mb-2">
+                <div className={`text-base sm:text-lg font-medium flex items-center gap-3 ${isCurrentPlayer(topID) ? 'text-amber-400 font-bold' : 'text-slate-400'}`}>
+                  {G.players[topID]?.name || `${t('partner') || 'Partner'} (A)`}
+                  {isCurrentPlayer(topID) && (
+                    <span className="flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-amber-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+                    </span>
+                  )}
+                </div>
+                <div className="flex gap-4 items-center">
+                  <div className="relative w-8 h-12">
+                    {G.players[topID]?.captured.map((card) => (
+                      <div
+                        key={`cap-partner-${card.id}`}
+                        className="absolute inset-0 bg-amber-900/50 border border-amber-700/50 rounded-sm shadow-sm"
+                      />
+                    ))}
+                  </div>
+                  <div className="bg-slate-800 px-4 py-1 rounded-full text-sm border border-slate-700 shadow-inner flex items-center gap-2">
+                    <span className="text-slate-400">{t('cards')}</span> 
+                    <span className="font-bold text-lg text-amber-400">
+                      {((G.players && G.players[topID]?.captured?.length) || 0) + ((G.players && G.players[topID]?.score) || 0)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <PlayerHand 
+                hand={(G.players && G.players[topID]?.hand) || []} 
+                isCurrentPlayer={false} 
+                hidden={true}
+                dealDelay={0.75}
+                playedCardId={playedCardId}
+              />
+            </div>
+
+            {/* Left Seat: Opponent 2 (Team B) */}
+            <div className={`fixed left-2 sm:left-4 top-[45%] -translate-y-1/2 z-20 flex flex-col items-center gap-2 bg-slate-900/80 p-2 sm:p-3.5 rounded-2xl border ${isCurrentPlayer(leftID) ? 'border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.35)] ring-2 ring-purple-500/20' : 'border-white/5'} backdrop-blur-md max-w-[85px] w-full text-center transition-all animate-fade-in`}>
+              <div className={`text-[10px] font-bold truncate max-w-[75px] ${isCurrentPlayer(leftID) ? 'text-purple-400 animate-pulse' : 'text-slate-300'}`}>
+                {G.players[leftID]?.name || `Gegner B`}
+              </div>
+              <div className="flex -space-x-4 rtl:space-x-reverse h-8 items-center justify-center my-0.5 select-none pointer-events-none">
+                {Array.from({ length: G.players[leftID]?.hand?.length || 0 }).map((_, idx) => (
+                  <div key={idx} className="w-5 h-8 rounded bg-slate-800 border border-slate-700 shadow flex items-center justify-center">
+                    <img src={backCard} alt="Back" className="w-full h-full object-cover rounded opacity-80" />
+                  </div>
                 ))}
               </div>
-              <div className="bg-slate-800 px-4 py-1 rounded-full text-sm border border-slate-700 shadow-inner flex items-center gap-2">
-                <span className="text-slate-400">{t('cards')}</span> 
-                <span className="font-bold text-lg text-purple-400">
-                  {((G.players && G.players[opponentID]?.captured?.length) || 0) + ((G.players && G.players[opponentID]?.score) || 0)}
-                </span>
+              <div className="text-[9px] font-bold px-1.5 py-0.5 bg-purple-500/10 text-purple-300 rounded-full border border-purple-500/20">
+                {((G.players && G.players[leftID]?.captured?.length) || 0) + ((G.players && G.players[leftID]?.score) || 0)} pts
               </div>
             </div>
-          </div>
-          <PlayerHand 
-            hand={(G.players && G.players[opponentID]?.hand) || []} 
-            isCurrentPlayer={false} 
-            hidden={true}
-            dealDelay={0.75}
-            playedCardId={playedCardId}
-          />
-        </div>
+
+            {/* Right Seat: Opponent 1 (Team B) */}
+            <div className={`fixed right-2 sm:right-4 top-[45%] -translate-y-1/2 z-20 flex flex-col items-center gap-2 bg-slate-900/80 p-2 sm:p-3.5 rounded-2xl border ${isCurrentPlayer(rightID) ? 'border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.35)] ring-2 ring-purple-500/20' : 'border-white/5'} backdrop-blur-md max-w-[85px] w-full text-center transition-all animate-fade-in`}>
+              <div className={`text-[10px] font-bold truncate max-w-[75px] ${isCurrentPlayer(rightID) ? 'text-purple-400 animate-pulse' : 'text-slate-300'}`}>
+                {G.players[rightID]?.name || `Gegner B`}
+              </div>
+              <div className="flex -space-x-4 rtl:space-x-reverse h-8 items-center justify-center my-0.5 select-none pointer-events-none">
+                {Array.from({ length: G.players[rightID]?.hand?.length || 0 }).map((_, idx) => (
+                  <div key={idx} className="w-5 h-8 rounded bg-slate-800 border border-slate-700 shadow flex items-center justify-center">
+                    <img src={backCard} alt="Back" className="w-full h-full object-cover rounded opacity-80" />
+                  </div>
+                ))}
+              </div>
+              <div className="text-[9px] font-bold px-1.5 py-0.5 bg-purple-500/10 text-purple-300 rounded-full border border-purple-500/20">
+                {((G.players && G.players[rightID]?.captured?.length) || 0) + ((G.players && G.players[rightID]?.score) || 0)} pts
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Table Area - Min height for exactly 2 rows, grows on 3rd row */}
         <div className="w-full flex items-center justify-center my-0.5 sm:my-2 relative z-10 shrink-0" dir="ltr">

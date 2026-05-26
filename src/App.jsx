@@ -59,10 +59,17 @@ const socketServerUrl = import.meta.env.VITE_SERVER_URL || (
 
 const lobbyClient = new LobbyClient({ server: restServerUrl });
 
-const RondaClientOnline = ReactClient({
+const RondaClientOnline2 = ReactClient({
   game: RondaGame,
   board: RondaBoard,
   numPlayers: 2,
+  multiplayer: SocketIO({ server: socketServerUrl }),
+});
+
+const RondaClientOnline4 = ReactClient({
+  game: RondaGame,
+  board: RondaBoard,
+  numPlayers: 4,
   multiplayer: SocketIO({ server: socketServerUrl }),
 });
 
@@ -81,6 +88,8 @@ const App = () => {
   });
   const [multiplayerAction, setMultiplayerAction] = useState(null); // 'create' | 'join' | null
   const [isPrivate, setIsPrivate] = useState(false);
+  const [maxPlayers, setMaxPlayers] = useState(2);
+  const [matchNumPlayers, setMatchNumPlayers] = useState(2);
   const [joinMode, setJoinMode] = useState('public'); // 'public' | 'private'
   const [joinRoomId, setJoinRoomId] = useState('');
   const [publicRooms, setPublicRooms] = useState([]);
@@ -123,7 +132,7 @@ const App = () => {
     try {
       localStorage.setItem('ronda_nickname', nickname);
       const match = await lobbyClient.createMatch(RondaGame.name, {
-        numPlayers: 2,
+        numPlayers: maxPlayers,
         unlisted: isPrivate,
         setupData: { gameStarted: false, testMode }
       });
@@ -135,6 +144,7 @@ const App = () => {
       setCredentials(joinData.playerCredentials);
       setPlayerID('0');
       setMatchID(realMatchID);
+      setMatchNumPlayers(maxPlayers);
       setMode('online');
       updateUrl(realMatchID);
     } catch (err) {
@@ -161,20 +171,30 @@ const App = () => {
         setIsCheckingRoom(false);
         return;
       }
-      const p1Slot = match.players[1];
-      const isSlotTaken = !!(p1Slot.name || p1Slot.isConnected);
-      if (isSlotTaken) {
+      // Find the first available player slot starting from index 1
+      let availablePlayerID = null;
+      for (let i = 1; i < match.players.length; i++) {
+        const slot = match.players[i];
+        if (!slot.name && !slot.isConnected) {
+          availablePlayerID = String(i);
+          break;
+        }
+      }
+
+      if (availablePlayerID === null) {
         setError(t('roomFullError'));
         setIsCheckingRoom(false);
         return;
       }
+
       const joinData = await lobbyClient.joinMatch(RondaGame.name, targetMatchID, {
-        playerID: '1',
+        playerID: availablePlayerID,
         playerName: nickname
       });
       setCredentials(joinData.playerCredentials);
-      setPlayerID('1');
+      setPlayerID(availablePlayerID);
       setMatchID(targetMatchID);
+      setMatchNumPlayers(match.players.length);
       setMode('online');
       updateUrl(targetMatchID);
     } catch (err) {
@@ -193,8 +213,8 @@ const App = () => {
       if (resp && resp.matches) {
         const openMatches = resp.matches.filter(m => {
           if (m.unlisted) return false;
-          const p1 = m.players[1];
-          const isSlotAvailable = !p1 || !(p1.name || p1.isConnected);
+          // A room is joinable if there is at least one free slot (index >= 1)
+          const isSlotAvailable = m.players.slice(1).some(p => !p.name && !p.isConnected);
           return isSlotAvailable;
         });
         setPublicRooms(openMatches);
@@ -309,6 +329,7 @@ const App = () => {
 
         setMatchID(matchID);
         setPlayerID(pID);
+        setMatchNumPlayers(2);
         setMode('online');
         setTestMode(true);
       } catch (err) {
@@ -490,6 +511,29 @@ const App = () => {
                         </div>
                       </div>
 
+                      {/* Player Count Choice */}
+                      <div className="flex flex-col gap-1.5 mt-1">
+                        <label className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">
+                          {language === 'de' ? 'Spieleranzahl' : language === 'fr' ? 'Nombre de Joueurs' : language === 'ar' ? 'عدد اللاعبين' : 'Player Count'}
+                        </label>
+                        <div className="grid grid-cols-2 gap-2 bg-black/40 p-1 rounded-xl border border-white/5">
+                          <button
+                            type="button"
+                            onClick={() => { playClick(); setMaxPlayers(2); }}
+                            className={`py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${maxPlayers === 2 ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md border border-amber-400/30' : 'text-slate-400 hover:text-white'}`}
+                          >
+                            2 {language === 'de' ? 'Spieler' : language === 'fr' ? 'Joueurs' : language === 'ar' ? 'لاعبين' : 'Players'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { playClick(); setMaxPlayers(4); }}
+                            className={`py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${maxPlayers === 4 ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md border border-amber-400/30' : 'text-slate-400 hover:text-white'}`}
+                          >
+                            4 {language === 'de' ? 'Spieler (Team)' : language === 'fr' ? 'Joueurs (Équipe)' : language === 'ar' ? 'لاعبين (فريق)' : 'Players (Team)'}
+                          </button>
+                        </div>
+                      </div>
+
                       {/* Create and Cancel buttons */}
                       <div className="flex gap-3 mt-4 border-t border-white/5 pt-4">
                         <button
@@ -665,13 +709,23 @@ const App = () => {
         />
       )}
       {mode === 'online' && (credentials || testMode) && (
-        <RondaClientOnline
-          key={`online-${gameKey}`}
-          matchID={matchID}
-          playerID={playerID}
-          credentials={credentials}
-          setupData={{ testMode, gameStarted: false }}
-        />
+        matchNumPlayers === 4 ? (
+          <RondaClientOnline4
+            key={`online-${gameKey}`}
+            matchID={matchID}
+            playerID={playerID}
+            credentials={credentials}
+            setupData={{ testMode, gameStarted: false }}
+          />
+        ) : (
+          <RondaClientOnline2
+            key={`online-${gameKey}`}
+            matchID={matchID}
+            playerID={playerID}
+            credentials={credentials}
+            setupData={{ testMode, gameStarted: false }}
+          />
+        )
       )}
     </div>
   );
