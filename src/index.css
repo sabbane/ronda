@@ -212,8 +212,8 @@ html, body, #root {
   transition: all 0.3s ease-in-out;
 }
 
-/* 2. Constrained Viewport Height: Height <= 1000px (Mobile only) */
-@media (max-height: 1000px) and (max-width: 767px) {
+/* 2. Constrained Viewport Height: Height <= 740px (Mobile only) */
+@media (max-height: 740px) and (max-width: 767px) {
   .menu-container {
     padding-top: 1.5rem !important;
     padding-bottom: 1rem !important;
@@ -273,8 +273,8 @@ html, body, #root {
   }
 }
 
-/* 3. Highly Constrained Viewport Height: Height <= 800px (Mobile only) */
-@media (max-height: 800px) and (max-width: 767px) {
+/* 3. Highly Constrained Viewport Height: Height <= 660px (Mobile only) */
+@media (max-height: 660px) and (max-width: 767px) {
   .menu-container {
     padding-top: 0.75rem !important;
     padding-bottom: 0.5rem !important;
@@ -345,8 +345,8 @@ html, body, #root {
   }
 }
 
-/* 4. Ultra Constrained Viewport Height: Height <= 650px (Mobile only) */
-@media (max-height: 650px) and (max-width: 767px) {
+/* 4. Ultra Constrained Viewport Height: Height <= 580px (Mobile only) */
+@media (max-height: 580px) and (max-width: 767px) {
   .menu-container {
     padding-top: 0.25rem !important;
     padding-bottom: 0.25rem !important;
