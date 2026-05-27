@@ -324,7 +324,46 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
             customIcon = "🧹";
           }
           if (ann.type === 'Derba') {
-            customText = isMe ? t('announcements.derbaMe', { oppName }) : t('announcements.derbaOpponent', { oppName });
+            const numP = ctx.numPlayers || 2;
+            if (numP === 4) {
+              if (language === 'ar') {
+                // Arabic: avoid blending Latin names with RTL Arabic text.
+                // Uses clean terms: "لكم" for player's team and "للخصم" for opponent's team.
+                const isHitterMyTeam = (ann.player === myID) || 
+                  (myID === '0' && ann.player === '2') || (myID === '2' && ann.player === '0') ||
+                  (myID === '1' && ann.player === '3') || (myID === '3' && ann.player === '1');
+                
+                if (isHitterMyTeam) {
+                  if (myID === ann.player) {
+                    customText = "ضربتي الخصم (+1 لكم)";
+                  } else {
+                    customText = "ضربنا الخصم (+1 لكم)";
+                  }
+                } else {
+                  const victimID = ann.opponent !== undefined ? String(ann.opponent) : (G.lastPlayedCard ? String(G.lastPlayedCard.player) : '');
+                  if (myID === victimID) {
+                    customText = "الخصم ضربك (+1 للخصم)";
+                  } else {
+                    customText = "الخصم ضربنا (+1 للخصم)";
+                  }
+                }
+              } else {
+                // English/French/German: use high-fidelity latin names
+                const hitterName = G.players[ann.player]?.name || `Player ${Number(ann.player) + 1}`;
+                const victimID = ann.opponent !== undefined ? String(ann.opponent) : (G.lastPlayedCard ? String(G.lastPlayedCard.player) : '');
+                const victimName = G.players[victimID]?.name || `Player ${Number(victimID) + 1}`;
+
+                if (myID === ann.player) {
+                  customText = t('announcements.derbaMe4', { oppName: victimName });
+                } else if (myID === victimID) {
+                  customText = t('announcements.derbaOpponent4', { oppName: hitterName });
+                } else {
+                  customText = t('announcements.derbaOther4', { hitterName, victimName });
+                }
+              }
+            } else {
+              customText = isMe ? t('announcements.derbaMe', { oppName }) : t('announcements.derbaOpponent', { oppName });
+            }
             customIcon = "🎯";
           }
           if (ann.type === 'Taawida') {

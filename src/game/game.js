@@ -461,7 +461,7 @@ export const RondaGame = {
             if (newStreak === 2) {
               awardedPoints = 1;
               addScore(G, player, awardedPoints);
-              G.announcements.push({ player, type: 'Derba' });
+              G.announcements.push({ player, type: 'Derba', opponent: G.lastPlayedCard.player });
               streakCards = [matchedCard, playedCard];
             } else if (newStreak === 4) {
               awardedPoints = 10;
