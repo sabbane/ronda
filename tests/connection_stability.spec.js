@@ -12,13 +12,21 @@ test('Multiplayer: Should NOT get stuck on Connecting screen', async ({ page }) 
 
   await page.goto('/');
 
-  // 1. Enter Room ID
-  const roomInput = page.locator('input[placeholder*="Room ID" i], input[placeholder*="Room" i], input[placeholder*="غرفة" i]');
-  await roomInput.fill(roomID);
+  // Select Language (English) for consistency
+  const enButton = page.locator('button', { hasText: /^EN$/i });
+  if (await enButton.isVisible().catch(() => false)) await enButton.click();
 
-  // 2. Click Host
-  const hostBtn = page.locator('button', { hasText: /Host|Héberger|استضافة/i });
-  await hostBtn.first().click();
+  // 1. Click Create Room
+  const createBtn = page.locator('button', { hasText: /Create Room/i }).first();
+  await createBtn.click();
+
+  // 2. Fill in Nickname
+  const nicknameInput = page.locator('input[placeholder*="name" i]').first();
+  await nicknameInput.fill('Tester');
+
+  // 3. Click Create
+  const submitCreate = page.locator('button', { hasText: /^Create$/i }).first();
+  await submitCreate.click();
 
   // 3. EXPECT: The Loading Screen should appear briefly but THEN disappear
   // The loading screen has the "Connecting..." text (or localized version)

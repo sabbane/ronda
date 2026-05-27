@@ -53,15 +53,24 @@ test.describe('Multiplayer Play Again Regression Test', () => {
 
     // 3. Guest joins room
     console.log(`Guest: Joining room ${realMatchID}...`);
-    await guestPage.goto(`/?room=${realMatchID}`);
+    await guestPage.goto(`/`);
 
     // Choose English language for guest
     const enButton2 = guestPage.locator('button', { hasText: /^EN$/i });
     if (await enButton2.isVisible().catch(() => false)) await enButton2.click();
 
+    // Click Join Room
+    await guestPage.locator('button', { hasText: /Join Room/i }).first().click();
+
     // Fill in Guest Nickname
-    const guestNicknameInput = guestPage.locator('input[placeholder*="name" i], input[placeholder*="Namen" i]').first();
+    const guestNicknameInput = guestPage.locator('input[placeholder*="name" i]').first();
     await guestNicknameInput.fill(guestNickname);
+
+    // Click Private Room tab
+    await guestPage.locator('button', { hasText: /Private Room/i }).first().click();
+
+    // Fill Room ID
+    await guestPage.locator('input[placeholder*="Room ID" i], input[placeholder*="Enter Room" i]').first().fill(realMatchID);
 
     // Click Join button
     const joinBtn = guestPage.locator('button', { hasText: /^Join$/i }).first();

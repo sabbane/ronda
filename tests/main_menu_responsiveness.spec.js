@@ -84,3 +84,35 @@ test('Main Menu: Root font-size clamping prevents gigantic elements on huge high
   expect(shortFontSize).toBe('11px');
 });
 
+test('Main Menu: Mobile layout has large fonts, comfortable touch targets, and proper spacing', async ({ page }) => {
+  // Set viewport to a typical tall mobile size (iPhone 12 Pro dimensions: 390 x 844)
+  await page.setViewportSize({ width: 390, height: 844 });
+  
+  await page.goto('/');
+  await page.waitForLoadState('networkidle');
+
+  // 1. Verify that the title "RONDA" (logo) is large and prominent on mobile (at least 48px / 3rem)
+  const logo = page.locator('.menu-logo');
+  await expect(logo).toBeVisible();
+  const logoFontSize = await logo.evaluate(el => window.getComputedStyle(el).fontSize);
+  console.log(`[Test] Mobile Logo Font Size: ${logoFontSize}`);
+  const logoPx = parseFloat(logoFontSize);
+  expect(logoPx).toBeGreaterThanOrEqual(48);
+
+  // 2. Verify that the singleplayer button has a tall, comfortable height (excellent touch target, >= 52px)
+  const singleplayerBtn = page.locator('.menu-btn-large');
+  await expect(singleplayerBtn).toBeVisible();
+  
+  const btnBox = await singleplayerBtn.boundingBox();
+  expect(btnBox).not.toBeNull();
+  if (btnBox) {
+    console.log(`[Test] Mobile Button Height: ${btnBox.height}px, Width: ${btnBox.width}px`);
+    // Ensure button is nice and chunky, at least 52px tall
+    expect(btnBox.height).toBeGreaterThanOrEqual(52);
+    
+    // Ensure button width does not stretch excessively flat across the screen (max 90% of screen width)
+    expect(btnBox.width).toBeLessThanOrEqual(360);
+  }
+});
+
+

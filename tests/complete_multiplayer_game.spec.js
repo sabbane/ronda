@@ -15,13 +15,17 @@ test.describe('Functional Test: Complete Multiplayer Game', () => {
     const enButton1 = page1.locator('button', { hasText: /^EN$/i });
     if (await enButton1.isVisible().catch(() => false)) await enButton1.click();
 
-    console.log(`P1: Hosting room ${roomID}...`);
-    const roomInput1 = page1.locator('input[type="text"]');
-    await expect(roomInput1).toBeVisible();
-    await roomInput1.fill(roomID);
-    
-    const hostBtn = page1.locator('button', { hasText: /Host|Créer|Hosten|انشاء/i });
-    await hostBtn.click();
+    console.log(`P1: Hosting room...`);
+    await page1.locator('button', { hasText: /Create Room/i }).first().click();
+    await page1.locator('input[placeholder*="name" i]').first().fill('HostP1');
+    await page1.locator('button', { hasText: /^Private$/i }).first().click();
+    await page1.locator('button', { hasText: /^Create$/i }).first().click();
+
+    // Wait for Lobby to appear on Host Page
+    await expect(page1.locator('h1', { hasText: /Game Lobby/i })).toBeVisible({ timeout: 15000 });
+    const roomIdSpan = page1.locator('span.text-amber-300').first();
+    const realMatchID = (await roomIdSpan.innerText()).trim();
+    console.log(`Room created with ID: ${realMatchID}`);
 
     // 2. Setup Player 2 (Joiner)
     const context2 = await browser.newContext();
@@ -31,12 +35,20 @@ test.describe('Functional Test: Complete Multiplayer Game', () => {
     const enButton2 = page2.locator('button', { hasText: /^EN$/i });
     if (await enButton2.isVisible().catch(() => false)) await enButton2.click();
 
-    console.log(`P2: Joining room ${roomID}...`);
-    const roomInput2 = page2.locator('input[type="text"]');
-    await roomInput2.fill(roomID);
-    
-    const joinBtn = page2.locator('button', { hasText: /Join|Rejoindre|Beitreten|انضمام/i });
-    await joinBtn.first().click();
+    console.log(`P2: Joining room ${realMatchID}...`);
+    await page2.locator('button', { hasText: /Join Room/i }).first().click();
+    await page2.locator('input[placeholder*="name" i]').first().fill('GuestP2');
+    await page2.locator('button', { hasText: /Private Room/i }).first().click();
+    await page2.locator('input[placeholder*="Room ID" i], input[placeholder*="Enter Room" i]').first().fill(realMatchID);
+    await page2.locator('button', { hasText: /^Join$/i }).first().click();
+
+    // Wait for Lobby to appear on Guest Page
+    await expect(page2.locator('h1', { hasText: /Game Lobby/i })).toBeVisible({ timeout: 15000 });
+
+    // Host starts the game
+    const startGameBtn = page1.locator('button', { hasText: /Start Game/i }).first();
+    await expect(startGameBtn).toBeEnabled();
+    await startGameBtn.click();
 
     // 3. Verify Board Loading & Rendering for both
     const tableArea1 = page1.locator('.bg-emerald-900\\/40').first();
