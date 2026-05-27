@@ -948,6 +948,29 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
             <span className="text-sm font-bold uppercase tracking-wider">{t('backToMenu')}</span>
           </button>
         </div>
+
+        {/* Centered Team Score HUD (4-Player Mode) */}
+        {numP === 4 && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-3 sm:gap-4 bg-slate-900/80 px-4 py-1.5 sm:px-5 sm:py-2 rounded-full border border-white/10 shadow-lg shadow-black/35 backdrop-blur-md transition-all">
+            <span className="text-[10px] sm:text-xs font-extrabold text-amber-400 uppercase tracking-wider truncate max-w-[80px] sm:max-w-[120px]">
+              {G.teamNames?.TeamA?.trim() || (language === 'de' ? 'Team A' : 'Team A')}
+            </span>
+            <div className="flex items-center gap-1.5 sm:gap-2 bg-black/45 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-lg border border-white/5 font-mono text-sm sm:text-base font-extrabold">
+              <span className="text-amber-400">
+                {((G.players['0']?.captured?.length) || 0) + ((G.players['0']?.score) || 0) +
+                 ((G.players['2']?.captured?.length) || 0) + ((G.players['2']?.score) || 0)}
+              </span>
+              <span className="text-slate-500 font-bold">:</span>
+              <span className="text-purple-400">
+                {((G.players['1']?.captured?.length) || 0) + ((G.players['1']?.score) || 0) +
+                 ((G.players['3']?.captured?.length) || 0) + ((G.players['3']?.score) || 0)}
+              </span>
+            </div>
+            <span className="text-[10px] sm:text-xs font-extrabold text-purple-400 uppercase tracking-wider truncate max-w-[80px] sm:max-w-[120px]">
+              {G.teamNames?.TeamB?.trim() || (language === 'de' ? 'Team B' : 'Team B')}
+            </span>
+          </div>
+        )}
         
         {/* Central Event Notification Overlay */}
         <AnimatePresence>
@@ -1258,27 +1281,17 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
         ) : (
           /* 4-Player Mode: Seats Layout */
           <>
-            /* 4-Player Top: Partner – show team stack + team name + combined team score */
+            {/* 4-Player Top: Partner – show individual name, score, and cards stack */}
             <div className="w-full max-w-4xl relative z-20 shrink-0">
               {(() => {
-                // topID is partner (same team as myID)
                 const topIsTeamA = topID === '0' || topID === '2';
-                const topCaptainID = topIsTeamA ? '0' : '1';
-                const topMemberID = topIsTeamA ? '2' : '3';
-                const topTeamLabel = topIsTeamA
-                  ? (G.teamNames?.TeamA?.trim() || (language === 'de' ? 'Team A' : 'Team A'))
-                  : (G.teamNames?.TeamB?.trim() || (language === 'de' ? 'Team B' : 'Team B'));
-                const topTeamScore =
-                  ((G.players[topCaptainID]?.captured?.length) || 0) + ((G.players[topCaptainID]?.score) || 0) +
-                  ((G.players[topMemberID]?.captured?.length) || 0) + ((G.players[topMemberID]?.score) || 0);
+                const topName = G.players[topID]?.name || (language === 'de' ? `Spieler ${parseInt(topID) + 1}` : `Player ${parseInt(topID) + 1}`);
+                const topScore = ((G.players[topID]?.captured?.length) || 0) + ((G.players[topID]?.score) || 0);
                 const topColor = topIsTeamA ? 'text-amber-400' : 'text-purple-400';
-                const topBadgeStyle = topIsTeamA
-                  ? 'bg-amber-500/10 text-amber-300 border-amber-500/20'
-                  : 'bg-purple-500/10 text-purple-300 border-purple-500/20';
                 return (
                   <div className="flex justify-between items-center px-4 sm:px-8 mb-0 sm:mb-2">
                     <div className={`text-base sm:text-lg font-bold flex items-center gap-3 ${isCurrentPlayer(topID) ? topColor : 'text-slate-400'}`}>
-                      {topTeamLabel}
+                      {topName}
                       {isCurrentPlayer(topID) && (
                         <span className="flex h-3 w-3">
                           <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-amber-400 opacity-75"></span>
@@ -1288,7 +1301,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
                     </div>
                     <div className="flex gap-4 items-center">
                       <div className="relative w-8 h-12">
-                        {G.players[topCaptainID]?.captured.map((card) => (
+                        {G.players[topID]?.captured.map((card) => (
                           <div
                             key={`cap-partner-${card.id}`}
                             className={`absolute inset-0 ${topIsTeamA ? 'bg-amber-900/50 border border-amber-700/50' : 'bg-purple-900/50 border border-purple-700/50'} rounded-sm shadow-sm`}
@@ -1298,7 +1311,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
                       <div className={`bg-slate-800 px-4 py-1 rounded-full text-sm border border-slate-700 shadow-inner flex items-center gap-2`}>
                         <span className="text-slate-400">{t('cards')}</span>
                         <span className={`font-bold text-lg ${topIsTeamA ? 'text-amber-400' : 'text-purple-400'}`}>
-                          {topTeamScore}
+                          {topScore}
                         </span>
                       </div>
                     </div>
@@ -1314,17 +1327,11 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
               />
             </div>
 
-            {/* Left Seat: show team name + team score */}
+            {/* Left Seat: show individual player name + score */}
             {(() => {
               const leftIsTeamA = leftID === '0' || leftID === '2';
-              const leftCaptainID = leftIsTeamA ? '0' : '1';
-              const leftMemberID = leftIsTeamA ? '2' : '3';
-              const leftTeamLabel = leftIsTeamA
-                ? (G.teamNames?.TeamA?.trim() || 'Team A')
-                : (G.teamNames?.TeamB?.trim() || 'Team B');
-              const leftTeamScore =
-                ((G.players[leftCaptainID]?.captured?.length) || 0) + ((G.players[leftCaptainID]?.score) || 0) +
-                ((G.players[leftMemberID]?.captured?.length) || 0) + ((G.players[leftMemberID]?.score) || 0);
+              const leftName = G.players[leftID]?.name || (language === 'de' ? `Spieler ${parseInt(leftID) + 1}` : `Player ${parseInt(leftID) + 1}`);
+              const leftScore = ((G.players[leftID]?.captured?.length) || 0) + ((G.players[leftID]?.score) || 0);
               const leftScoreBadge = leftIsTeamA
                 ? 'bg-amber-500/10 text-amber-300 border-amber-500/20'
                 : 'bg-purple-500/10 text-purple-300 border-purple-500/20';
@@ -1332,7 +1339,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
               return (
                 <div className={`fixed left-2 sm:left-4 top-[45%] -translate-y-1/2 z-20 flex flex-col items-center gap-2 bg-slate-900/80 p-2 sm:p-3.5 rounded-2xl border ${isCurrentPlayer(leftID) ? (leftIsTeamA ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.35)] ring-2 ring-amber-500/20' : 'border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.35)] ring-2 ring-purple-500/20') : 'border-white/5'} backdrop-blur-md max-w-[90px] w-full text-center transition-all animate-fade-in`}>
                   <div className={`text-[10px] font-bold truncate max-w-[80px] ${leftNameColor}`}>
-                    {leftTeamLabel}
+                    {leftName}
                   </div>
                   <div className="flex -space-x-4 rtl:space-x-reverse h-8 items-center justify-center my-0.5 select-none pointer-events-none">
                     {Array.from({ length: G.players[leftID]?.hand?.length || 0 }).map((_, idx) => (
@@ -1342,23 +1349,17 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
                     ))}
                   </div>
                   <div className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${leftScoreBadge}`}>
-                    {leftTeamScore} pts
+                    {leftScore} pts
                   </div>
                 </div>
               );
             })()}
 
-            {/* Right Seat: show team name + team score */}
+            {/* Right Seat: show individual player name + score */}
             {(() => {
               const rightIsTeamA = rightID === '0' || rightID === '2';
-              const rightCaptainID = rightIsTeamA ? '0' : '1';
-              const rightMemberID = rightIsTeamA ? '2' : '3';
-              const rightTeamLabel = rightIsTeamA
-                ? (G.teamNames?.TeamA?.trim() || 'Team A')
-                : (G.teamNames?.TeamB?.trim() || 'Team B');
-              const rightTeamScore =
-                ((G.players[rightCaptainID]?.captured?.length) || 0) + ((G.players[rightCaptainID]?.score) || 0) +
-                ((G.players[rightMemberID]?.captured?.length) || 0) + ((G.players[rightMemberID]?.score) || 0);
+              const rightName = G.players[rightID]?.name || (language === 'de' ? `Spieler ${parseInt(rightID) + 1}` : `Player ${parseInt(rightID) + 1}`);
+              const rightScore = ((G.players[rightID]?.captured?.length) || 0) + ((G.players[rightID]?.score) || 0);
               const rightScoreBadge = rightIsTeamA
                 ? 'bg-amber-500/10 text-amber-300 border-amber-500/20'
                 : 'bg-purple-500/10 text-purple-300 border-purple-500/20';
@@ -1366,7 +1367,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
               return (
                 <div className={`fixed right-2 sm:right-4 top-[45%] -translate-y-1/2 z-20 flex flex-col items-center gap-2 bg-slate-900/80 p-2 sm:p-3.5 rounded-2xl border ${isCurrentPlayer(rightID) ? (rightIsTeamA ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.35)] ring-2 ring-amber-500/20' : 'border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.35)] ring-2 ring-purple-500/20') : 'border-white/5'} backdrop-blur-md max-w-[90px] w-full text-center transition-all animate-fade-in`}>
                   <div className={`text-[10px] font-bold truncate max-w-[80px] ${rightNameColor}`}>
-                    {rightTeamLabel}
+                    {rightName}
                   </div>
                   <div className="flex -space-x-4 rtl:space-x-reverse h-8 items-center justify-center my-0.5 select-none pointer-events-none">
                     {Array.from({ length: G.players[rightID]?.hand?.length || 0 }).map((_, idx) => (
@@ -1376,7 +1377,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
                     ))}
                   </div>
                   <div className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${rightScoreBadge}`}>
-                    {rightTeamScore} pts
+                    {rightScore} pts
                   </div>
                 </div>
               );
@@ -1491,11 +1492,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
           <div className="flex justify-between items-center px-4 sm:px-8 mt-0 sm:mt-2">
             <div className="flex items-center gap-3">
               <div className={`text-lg font-medium ${isCurrentPlayer(myID) ? 'text-indigo-400' : 'text-slate-400'}`}>
-                {numP === 4
-                  ? (isMyTeamA
-                      ? (G.teamNames?.TeamA?.trim() || 'Team A')
-                      : (G.teamNames?.TeamB?.trim() || 'Team B'))
-                  : (G.players[myID]?.name || t('you'))}
+                {G.players[myID]?.name || t('you')}
                 {' '}{isCurrentPlayer(myID) && t('yourTurn')}
               </div>
               {isCurrentPlayer(myID) && (
@@ -1507,37 +1504,19 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
             </div>
             <div className="flex gap-4 items-center">
               <div className="relative w-8 h-12">
-                {numP === 4
-                  ? G.players[isMyTeamA ? '0' : '1']?.captured.map((card) => (
-                      <motion.div
-                        key={`cap-me-${card.id}`}
-                        layoutId={`card-${card.id}`}
-                        transition={{ type: "spring", stiffness: 40, damping: 12, mass: 1.2 }}
-                        className="absolute inset-0 bg-indigo-900/50 border border-indigo-700/50 rounded-sm shadow-sm"
-                      />
-                    ))
-                  : G.players[myID]?.captured.map((card) => (
-                      <motion.div
-                        key={`cap-me-${card.id}`}
-                        layoutId={`card-${card.id}`}
-                        transition={{ type: "spring", stiffness: 40, damping: 12, mass: 1.2 }}
-                        className="absolute inset-0 bg-indigo-900/50 border border-indigo-700/50 rounded-sm shadow-sm"
-                      />
-                    ))
-                }
+                {G.players[myID]?.captured.map((card) => (
+                  <motion.div
+                    key={`cap-me-${card.id}`}
+                    layoutId={`card-${card.id}`}
+                    transition={{ type: "spring", stiffness: 40, damping: 12, mass: 1.2 }}
+                    className="absolute inset-0 bg-indigo-900/50 border border-indigo-700/50 rounded-sm shadow-sm"
+                  />
+                ))}
               </div>
               <div className="bg-slate-800 px-4 py-1 rounded-full text-sm border border-slate-700 shadow-inner flex items-center gap-2">
                 <span className="text-slate-400">{t('cards')}</span>
                 <span className="font-bold text-lg text-indigo-400">
-                  {numP === 4
-                    ? (() => {
-                        const myCaptainID = isMyTeamA ? '0' : '1';
-                        const myMemberID = isMyTeamA ? '2' : '3';
-                        return ((G.players[myCaptainID]?.captured?.length) || 0) + ((G.players[myCaptainID]?.score) || 0) +
-                               ((G.players[myMemberID]?.captured?.length) || 0) + ((G.players[myMemberID]?.score) || 0);
-                      })()
-                    : ((G.players && G.players[myID]?.captured?.length) || 0) + ((G.players && G.players[myID]?.score) || 0)
-                  }
+                  {((G.players && G.players[myID]?.captured?.length) || 0) + ((G.players && G.players[myID]?.score) || 0)}
                 </span>
               </div>
             </div>
