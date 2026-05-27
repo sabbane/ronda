@@ -125,17 +125,22 @@ html, body, #root {
     height: 7.5rem !important;
   }
   .hand-card-container {
-    width: 4.25rem !important;
-    height: 6.375rem !important;
+    width: 4.75rem !important;
+    height: 7.125rem !important;
   }
   .game-hand {
     padding-top: 0.75rem !important;
     padding-bottom: 0.75rem !important;
     min-height: 8.5rem !important;
+    gap: 1rem !important; /* Beautifully spaced cards */
   }
   .game-table {
     min-height: 16.5rem !important;
     padding: 1rem !important;
+  }
+  .game-table-4player {
+    max-width: 54% !important; /* Restrict table width so side seats are perfectly cleared */
+    width: 100% !important;
   }
 }
 
@@ -146,18 +151,23 @@ html, body, #root {
     height: 6.375rem !important;
   }
   .hand-card-container {
-    width: 3.5rem !important;
-    height: 5.25rem !important;
+    width: 4.25rem !important;
+    height: 6.375rem !important;
   }
   .game-hand {
     padding-top: 0.375rem !important;
     padding-bottom: 0.375rem !important;
     min-height: 7.25rem !important;
+    gap: 0.85rem !important; /* Beautifully spaced cards */
   }
   .game-table {
     min-height: 13.5rem !important;
     padding: 0.5rem !important;
     border-radius: 1rem !important;
+  }
+  .game-table-4player {
+    max-width: 54% !important; /* Restrict table width so side seats are perfectly cleared */
+    width: 100% !important;
   }
 }
 
@@ -168,18 +178,23 @@ html, body, #root {
     height: 5.25rem !important;
   }
   .hand-card-container {
-    width: 3rem !important;
-    height: 4.5rem !important;
+    width: 3.5rem !important;
+    height: 5.25rem !important;
   }
   .game-hand {
     padding-top: 0.125rem !important;
     padding-bottom: 0.125rem !important;
     min-height: 5.75rem !important;
+    gap: 0.75rem !important; /* Beautifully spaced cards */
   }
   .game-table {
     min-height: 11rem !important;
     padding: 0.25rem !important;
     border-width: 2px !important;
+  }
+  .game-table-4player {
+    max-width: 54% !important; /* Restrict table width so side seats are perfectly cleared */
+    width: 100% !important;
   }
 }
 

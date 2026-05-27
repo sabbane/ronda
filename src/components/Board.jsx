@@ -1416,8 +1416,8 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
                 : 'bg-purple-500/10 text-purple-300 border-purple-500/20';
               const leftNameColor = isCurrentPlayer(leftID) ? (leftIsTeamA ? 'text-amber-400 animate-pulse' : 'text-purple-400 animate-pulse') : 'text-slate-300';
               return (
-                <div className={`fixed left-2 sm:left-4 top-[45%] -translate-y-1/2 z-20 flex flex-col items-center gap-2 bg-slate-900/80 p-2 sm:p-3.5 rounded-2xl border ${isCurrentPlayer(leftID) ? (leftIsTeamA ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.35)] ring-2 ring-amber-500/20' : 'border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.35)] ring-2 ring-purple-500/20') : 'border-white/5'} backdrop-blur-md max-w-[90px] w-full text-center transition-all animate-fade-in`}>
-                  <div className={`text-[10px] font-bold truncate max-w-[80px] ${leftNameColor}`}>
+                <div className={`fixed left-1.5 sm:left-4 top-[45%] -translate-y-1/2 z-20 flex flex-col items-center gap-1.5 sm:gap-2 bg-slate-900/80 p-1.5 sm:p-3.5 rounded-xl sm:rounded-2xl border ${isCurrentPlayer(leftID) ? (leftIsTeamA ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.35)] ring-2 ring-amber-500/20' : 'border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.35)] ring-2 ring-purple-500/20') : 'border-white/5'} backdrop-blur-md max-w-[74px] sm:max-w-[90px] w-full text-center transition-all animate-fade-in`}>
+                  <div className={`text-[9px] sm:text-[10px] font-bold truncate max-w-[64px] sm:max-w-[80px] ${leftNameColor}`}>
                     {leftName}
                   </div>
                   <div className="flex -space-x-4 rtl:space-x-reverse h-8 items-center justify-center my-0.5 select-none pointer-events-none">
@@ -1427,7 +1427,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
                       </div>
                     ))}
                   </div>
-                  <div className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${leftScoreBadge}`}>
+                  <div className={`text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${leftScoreBadge}`}>
                     {leftScore} pts
                   </div>
                 </div>
@@ -1444,8 +1444,8 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
                 : 'bg-purple-500/10 text-purple-300 border-purple-500/20';
               const rightNameColor = isCurrentPlayer(rightID) ? (rightIsTeamA ? 'text-amber-400 animate-pulse' : 'text-purple-400 animate-pulse') : 'text-slate-300';
               return (
-                <div className={`fixed right-2 sm:right-4 top-[45%] -translate-y-1/2 z-20 flex flex-col items-center gap-2 bg-slate-900/80 p-2 sm:p-3.5 rounded-2xl border ${isCurrentPlayer(rightID) ? (rightIsTeamA ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.35)] ring-2 ring-amber-500/20' : 'border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.35)] ring-2 ring-purple-500/20') : 'border-white/5'} backdrop-blur-md max-w-[90px] w-full text-center transition-all animate-fade-in`}>
-                  <div className={`text-[10px] font-bold truncate max-w-[80px] ${rightNameColor}`}>
+                <div className={`fixed right-1.5 sm:right-4 top-[45%] -translate-y-1/2 z-20 flex flex-col items-center gap-1.5 sm:gap-2 bg-slate-900/80 p-1.5 sm:p-3.5 rounded-xl sm:rounded-2xl border ${isCurrentPlayer(rightID) ? (rightIsTeamA ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.35)] ring-2 ring-amber-500/20' : 'border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.35)] ring-2 ring-purple-500/20') : 'border-white/5'} backdrop-blur-md max-w-[74px] sm:max-w-[90px] w-full text-center transition-all animate-fade-in`}>
+                  <div className={`text-[9px] sm:text-[10px] font-bold truncate max-w-[64px] sm:max-w-[80px] ${rightNameColor}`}>
                     {rightName}
                   </div>
                   <div className="flex -space-x-4 rtl:space-x-reverse h-8 items-center justify-center my-0.5 select-none pointer-events-none">
@@ -1455,7 +1455,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
                       </div>
                     ))}
                   </div>
-                  <div className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${rightScoreBadge}`}>
+                  <div className={`text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${rightScoreBadge}`}>
                     {rightScore} pts
                   </div>
                 </div>
@@ -1466,7 +1466,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
 
         {/* Table Area - Min height for exactly 2 rows, grows on 3rd row */}
         <div className="w-full flex items-center justify-center my-0.5 sm:my-2 relative z-10 shrink-0" dir="ltr">
-          <div className="game-table bg-emerald-900/40 border-green-700/90 shadow-2xl shadow-green-900/30" data-test-id="game-table">
+          <div className={`game-table bg-emerald-900/40 border-green-700/90 shadow-2xl shadow-green-900/30 ${numP === 4 ? 'game-table-4player' : ''}`} data-test-id="game-table">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/felt.png')] opacity-10 rounded-3xl mix-blend-overlay pointer-events-none"></div>
             
             <AnimatePresence>
