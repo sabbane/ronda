@@ -80,6 +80,42 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
   const [opponentLeft, setOpponentLeft] = React.useState(false);
   const isLeavingRef = React.useRef(false);
 
+  const boardContainerRef = React.useRef(null);
+  const [shouldScroll, setShouldScroll] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkOverflow = () => {
+      const container = boardContainerRef.current;
+      if (container) {
+        // If content height is larger than window viewport height, enable scroll
+        const hasOverflow = container.scrollHeight > window.innerHeight + 10;
+        setShouldScroll(hasOverflow);
+      }
+    };
+
+    checkOverflow();
+    const t1 = setTimeout(checkOverflow, 100);
+    const t2 = setTimeout(checkOverflow, 500);
+
+    window.addEventListener('resize', checkOverflow);
+
+    const observer = new MutationObserver(() => {
+      checkOverflow();
+      setTimeout(checkOverflow, 100);
+    });
+    const container = boardContainerRef.current;
+    if (container) {
+      observer.observe(container, { childList: true, subtree: true, attributes: true });
+    }
+
+    return () => {
+      window.removeEventListener('resize', checkOverflow);
+      observer.disconnect();
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [G, activeEvent]);
+
   const getOpponentLeftTitle = () => {
     if (language === 'de') return 'Spieler hat das Spiel verlassen';
     if (language === 'fr') return 'L\'adversaire a quitté le jeu';
@@ -340,7 +376,8 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
                     customText = "ضربنا الخصم (+1 لكم)";
                   }
                 } else {
-                  const victimID = ann.opponent !== undefined ? String(ann.opponent) : (G.lastPlayedCard ? String(G.lastPlayedCard.player) : '');
+                  // In a sequential 4-player turn order, the victim is always the player who played immediately before the hitter.
+                  const victimID = String((Number(ann.player) + 3) % 4);
                   if (myID === victimID) {
                     customText = "الخصم ضربك (+1 للخصم)";
                   } else {
@@ -350,7 +387,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
               } else {
                 // English/French/German: use high-fidelity latin names
                 const hitterName = G.players[ann.player]?.name || `Player ${Number(ann.player) + 1}`;
-                const victimID = ann.opponent !== undefined ? String(ann.opponent) : (G.lastPlayedCard ? String(G.lastPlayedCard.player) : '');
+                const victimID = String((Number(ann.player) + 3) % 4);
                 const victimName = G.players[victimID]?.name || `Player ${Number(victimID) + 1}`;
 
                 if (myID === ann.player) {
@@ -952,7 +989,10 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
   const playedCardId = G.isAnimating ? (G.pendingCapture?.playedCardId || G.lastPlayedCard?.streakCards?.[0]?.id) : null;
 
   return (
-    <div className="min-h-[100dvh] flex flex-col items-center justify-between md:justify-center py-4 px-2 sm:p-4 font-sans text-slate-100 relative overflow-hidden">
+    <div 
+      ref={boardContainerRef}
+      className={`min-h-[100dvh] custom-scrollbar flex flex-col items-center justify-between md:justify-center py-4 px-2 sm:p-4 font-sans text-slate-100 relative ${shouldScroll ? 'overflow-y-auto' : 'overflow-hidden'}`}
+    >
         <div 
           className="fixed inset-0 pointer-events-none"
           style={{

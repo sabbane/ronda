@@ -35,12 +35,12 @@ test('Gameplay: Gameplay board should never have vertical scrolling on constrain
   expect(bodyOverflow, 'Body overflow should be hidden').toBe('hidden');
   expect(containerOverflowY, 'Gameplay container overflow-y should be hidden').toBe('hidden');
 
-  // 3. Test mobile viewport (e.g. 375x667, typical mobile screen)
+  // 3. Test standard mobile viewport (e.g. 375x667)
   await page.setViewportSize({ width: 375, height: 667 });
   // Give the browser a small timeout to finish CSS calculations and layout rendering
   await page.waitForTimeout(1000);
 
-  // Assert overflow on mobile viewport too
+  // Assert overflow on standard mobile (should fit and stay hidden)
   const bodyOverflowMobile = await page.evaluate(() => {
     return window.getComputedStyle(document.body).overflow;
   });
@@ -52,4 +52,17 @@ test('Gameplay: Gameplay board should never have vertical scrolling on constrain
   console.log('[Test Log] Mobile view overflow styles - body:', bodyOverflowMobile, 'containerY:', containerOverflowYMobile);
   expect(bodyOverflowMobile, 'Mobile body overflow should be hidden').toBe('hidden');
   expect(containerOverflowYMobile, 'Mobile gameplay container overflow-y should be hidden').toBe('hidden');
+
+  // 4. Test extremely short/constrained mobile viewport (e.g. 375x300)
+  await page.setViewportSize({ width: 375, height: 300 });
+  await page.waitForTimeout(1000);
+
+  const containerOverflowYShort = await page.evaluate(() => {
+    const container = document.querySelector('.min-h-\\[100dvh\\]');
+    return container ? window.getComputedStyle(container).overflowY : null;
+  });
+
+  console.log('[Test Log] Ultra-short Mobile view overflow styles - containerY:', containerOverflowYShort);
+  // On highly constrained viewport heights, it must dynamically enable scroll
+  expect(containerOverflowYShort, 'Ultra-short Mobile gameplay container overflow-y should be auto').toBe('auto');
 });
