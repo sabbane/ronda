@@ -35,6 +35,14 @@ export const addScore = (G, player, amount) => {
   G.players[player].score += amount;
 };
 
+// In 4-player mode, captured cards are stored at the team captain (P0 for Team A, P1 for Team B).
+export const getTeamCaptain = (playerID, numPlayers) => {
+  if (numPlayers !== 4) return playerID;
+  // Team A: players 0 & 2 → captain 0
+  // Team B: players 1 & 3 → captain 1
+  return parseInt(playerID) % 2 === 0 ? '0' : '1';
+};
+
 export const getHandRank = (hand) => {
   if (!hand || hand.length === 0) return null;
   const counts = {};
@@ -84,13 +92,14 @@ export const evaluateRondaTringa = (G) => {
       G.announcements.push({ player: '1', type: p1Rank.type });
     }
   } else {
-    // 4 Players: Evaluate each player individually
+    // 4 Players: Award Ronda/Tringa points to team captain
     for (let i = 0; i < numP; i++) {
       const pID = String(i);
       const pRank = getHandRank(G.players[pID].hand);
       if (pRank) {
         const pts = pRank.type === 'Tringa' ? 5 : 1;
-        addScore(G, pID, pts);
+        const captain = getTeamCaptain(pID, numP);
+        addScore(G, captain, pts);
         G.announcements.push({ player: pID, type: pRank.type });
       }
     }
@@ -153,9 +162,10 @@ export const checkRoundEnd = (G) => {
         for (let i = 0; i < numP; i++) G.matchesWon[String(i)] = 0;
       }
 
-      // Give remaining table cards to the last player who captured
+      // Give remaining table cards to the team captain of the last player who captured
       if (G.table.length > 0 && G.lastCapture !== null) {
-        G.players[G.lastCapture].captured.push(...G.table);
+        const captainForRemainder = getTeamCaptain(G.lastCapture, numP);
+        G.players[captainForRemainder].captured.push(...G.table);
         G.table = [];
       }
 
@@ -311,6 +321,14 @@ export const RondaGame = {
       },
       noLimit: true
     },
+    clearPlayerSeat: {
+      move: ({ G }, targetPlayerID) => {
+        if (G.players[targetPlayerID]) {
+          G.players[targetPlayerID].name = '';
+        }
+      },
+      noLimit: true
+    },
     setTeamName: {
       move: ({ G }, { team, name }) => {
         if (G.teamNames) {
@@ -385,10 +403,11 @@ export const RondaGame = {
         // Final Fail Rule: if the last card of the game is played and does not capture
         const allHandsEmpty = Object.keys(G.players).every(pID => G.players[pID].hand.length === 0);
         if (G.deck.length === 0 && allHandsEmpty) {
-          const numP = Object.keys(G.players).length;
-          const opponent = numP === 2 ? (player === '0' ? '1' : '0') : String((parseInt(player) + 1) % numP);
-          addScore(G, opponent, 5);
-          G.announcements.push({ player: opponent, type: 'Final Fail' });
+          const numPFF = Object.keys(G.players).length;
+          const opponentFF = numPFF === 2 ? (player === '0' ? '1' : '0') : String((parseInt(player) + 1) % numPFF);
+          const captainFF = getTeamCaptain(opponentFF, numPFF);
+          addScore(G, captainFF, 5);
+          G.announcements.push({ player: opponentFF, type: 'Final Fail' });
         }
 
         checkRoundEnd(G);
@@ -413,17 +432,20 @@ export const RondaGame = {
           const newStreak = G.lastPlayedCard.streak + 1;
           const scoreToAdd = newStreak === 3 ? 5 : 10;
           const opponent = G.lastPlayedCard.player;
-          G.players[opponent].score -= G.lastPlayedCard.awardedPoints || 0;
+          const numPT = Object.keys(G.players).length;
+          const opponentCaptain = getTeamCaptain(opponent, numPT);
+          const playerCaptain = getTeamCaptain(player, numPT);
+          G.players[opponentCaptain].score -= G.lastPlayedCard.awardedPoints || 0;
           if (G.lastPlayedCard.hadMissa) {
-            G.players[opponent].score -= 1;
-            addScore(G, player, 1);
+            G.players[opponentCaptain].score -= 1;
+            addScore(G, playerCaptain, 1);
             G.announcements.push({ player, type: 'Missa' });
             hadMissa = true;
           }
           const cardsToTransfer = G.lastPlayedCard.capturedCardsInTurn || G.lastPlayedCard.streakCards || [];
-          G.players[opponent].captured = G.players[opponent].captured.filter(c => !cardsToTransfer.some(tc => tc.id === c.id));
+          G.players[opponentCaptain].captured = G.players[opponentCaptain].captured.filter(c => !cardsToTransfer.some(tc => tc.id === c.id));
           capturedCards.push(...cardsToTransfer);
-          addScore(G, player, scoreToAdd);
+          addScore(G, playerCaptain, scoreToAdd);
           G.announcements.push({ player, type: 'Taawida', streak: newStreak });
           G.lastPlayedCard = {
             value: currentVal,
@@ -440,28 +462,32 @@ export const RondaGame = {
           let newStreak = 1;
           let awardedPoints = 0;
           let streakCards = [];
+          const numPD = Object.keys(G.players).length;
           if (G.lastPlayedCard && G.lastPlayedCard.value === currentVal && G.lastPlayedCard.player !== player) {
             newStreak = (G.lastPlayedCard.streak || 1) + 1;
             if (newStreak === 2) {
               awardedPoints = 1;
-              addScore(G, player, awardedPoints);
+              const derbaCaptain = getTeamCaptain(player, numPD);
+              addScore(G, derbaCaptain, awardedPoints);
               G.announcements.push({ player, type: 'Derba' });
               streakCards = [matchedCard, playedCard];
             } else if (newStreak === 4) {
               awardedPoints = 10;
               const opponent = G.lastPlayedCard.player;
-              G.players[opponent].score -= G.lastPlayedCard.awardedPoints || 0;
+              const opponentCaptainD = getTeamCaptain(opponent, numPD);
+              const playerCaptainD = getTeamCaptain(player, numPD);
+              G.players[opponentCaptainD].score -= G.lastPlayedCard.awardedPoints || 0;
               if (G.lastPlayedCard.hadMissa) {
-                G.players[opponent].score -= 1;
-                addScore(G, player, 1);
+                G.players[opponentCaptainD].score -= 1;
+                addScore(G, playerCaptainD, 1);
                 G.announcements.push({ player, type: 'Missa' });
                 hadMissa = true;
               }
               const cardsToTransfer = G.lastPlayedCard.capturedCardsInTurn || G.lastPlayedCard.streakCards || [];
-              G.players[opponent].captured = G.players[opponent].captured.filter(c => !cardsToTransfer.some(tc => tc.id === c.id));
+              G.players[opponentCaptainD].captured = G.players[opponentCaptainD].captured.filter(c => !cardsToTransfer.some(tc => tc.id === c.id));
               capturedCards.push(...cardsToTransfer);
               streakCards = [...(G.lastPlayedCard.streakCards || []), matchedCard, playedCard];
-              addScore(G, player, awardedPoints);
+              addScore(G, playerCaptainD, awardedPoints);
               G.announcements.push({ player, type: 'Taawida', streak: newStreak });
             }
           }
@@ -489,12 +515,16 @@ export const RondaGame = {
             G.lastPlayedCard = null;
           }
         }
-        G.players[player].captured.push(...capturedCards);
+        // In 4-player mode, redirect captured cards to the team captain
+        const numP4 = Object.keys(G.players).length;
+        const captainID = getTeamCaptain(player, numP4);
+        G.players[captainID].captured.push(...capturedCards);
         G.lastCapture = player;
         G.isAnimating = true;
         const anyHandHasCards = Object.keys(G.players).some(pID => G.players[pID].hand.length > 0);
         if (!isTaawidaTransfer && G.table.length === 0 && (G.deck.length > 0 || anyHandHasCards)) {
-          addScore(G, player, 1);
+          const missaCaptain = getTeamCaptain(player, numP4);
+          addScore(G, missaCaptain, 1);
           G.announcements.push({ player, type: 'Missa' });
           hadMissa = true;
           if (G.lastPlayedCard) {
@@ -503,14 +533,15 @@ export const RondaGame = {
         }
         const allHandsAreEmpty = Object.keys(G.players).every(pID => G.players[pID].hand.length === 0);
         if (currentVal === 10 && G.deck.length === 0 && allHandsAreEmpty) { 
-          addScore(G, player, 5); 
+          const kingCaptain = getTeamCaptain(player, numP4);
+          addScore(G, kingCaptain, 5); 
           G.announcements.push({ player, type: 'King Finish' }); 
         }
         if (currentVal === 1 && G.deck.length === 0 && allHandsAreEmpty) { 
-          const numP = Object.keys(G.players).length;
-          const opponent = numP === 2 ? (player === '0' ? '1' : '0') : String((parseInt(player) + 1) % numP);
-          addScore(G, opponent, 5); 
-          G.announcements.push({ player: opponent, type: 'As Finish' }); 
+          const asOpponent = numP4 === 2 ? (player === '0' ? '1' : '0') : String((parseInt(player) + 1) % numP4);
+          const asCaptain = getTeamCaptain(asOpponent, numP4);
+          addScore(G, asCaptain, 5); 
+          G.announcements.push({ player: asOpponent, type: 'As Finish' }); 
         }
       }
       checkRoundEnd(G);
@@ -554,6 +585,14 @@ export const RondaGame = {
               const pID = playerID || '0';
               if (G.players[pID]) {
                 G.players[pID].name = name;
+              }
+            },
+            noLimit: true
+          },
+          clearPlayerSeat: {
+            move: ({ G }, targetPlayerID) => {
+              if (G.players[targetPlayerID]) {
+                G.players[targetPlayerID].name = '';
               }
             },
             noLimit: true
