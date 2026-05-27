@@ -991,7 +991,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
   return (
     <div 
       ref={boardContainerRef}
-      className={`min-h-[100dvh] custom-scrollbar flex flex-col items-center justify-between md:justify-center py-4 px-2 sm:p-4 font-sans text-slate-100 relative ${shouldScroll ? 'overflow-y-auto' : 'overflow-hidden'}`}
+      className={`min-h-[100dvh] custom-scrollbar flex flex-col items-center justify-between md:justify-center pt-20 pb-12 px-2 sm:py-4 sm:px-4 font-sans text-slate-100 relative ${shouldScroll ? 'overflow-y-auto' : 'overflow-hidden'}`}
     >
         <div 
           className="fixed inset-0 pointer-events-none"
