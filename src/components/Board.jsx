@@ -667,7 +667,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
         </div>
 
         {/* Main Lobby Glass Box */}
-        <div className="bg-slate-900/80 backdrop-blur-2xl p-6 sm:p-10 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 text-center max-w-xl w-full relative z-10 my-8">
+        <div className="bg-slate-900/80 backdrop-blur-2xl p-6 sm:p-10 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 text-center max-w-xl w-full relative z-10 my-4 flex flex-col justify-between min-h-[82vh] sm:min-h-0">
           <h1 className="text-4xl sm:text-5xl font-black mb-1 text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-500 tracking-tighter drop-shadow-2xl">
             {language === 'de' ? 'Spiel-Lobby' : 'Game Lobby'}
           </h1>
@@ -913,7 +913,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
   const playedCardId = G.isAnimating ? (G.pendingCapture?.playedCardId || G.lastPlayedCard?.streakCards?.[0]?.id) : null;
 
   return (
-    <div className="min-h-[100dvh] flex flex-col items-center justify-center p-2 sm:p-4 font-sans text-slate-100 relative overflow-hidden">
+    <div className="min-h-[100dvh] flex flex-col items-center justify-between md:justify-center py-4 px-2 sm:p-4 font-sans text-slate-100 relative overflow-hidden">
         <div 
           className="fixed inset-0 pointer-events-none"
           style={{

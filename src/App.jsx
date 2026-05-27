@@ -417,7 +417,7 @@ const App = () => {
         {/* Background removed */}
         {/* Title moved inside card */}
         <div className="flex-1 flex flex-col w-full items-center justify-center p-4 z-30 pt-4 pb-8 menu-container">
-          <div className="p-8 rounded-3xl shadow-[0_0_60px_rgba(30,58,138,0.35)] border-2 border-amber-400/30 text-center max-w-lg w-full relative menu-card" style={{backgroundColor: 'rgba(30, 58, 138, 0.7)'}}>
+          <div className="p-6 sm:p-8 rounded-3xl shadow-[0_0_60px_rgba(30,58,138,0.35)] border-2 border-amber-400/30 text-center max-w-lg w-full relative menu-card flex flex-col justify-between min-h-[82vh] sm:min-h-0" style={{backgroundColor: 'rgba(30, 58, 138, 0.7)'}}>
             <h1 className="text-7xl font-black mb-4 text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-400 to-rose-500 tracking-tighter drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)] menu-logo">{t('logo')}</h1>
 
              {/* Language & Sound Selector in Center */}
