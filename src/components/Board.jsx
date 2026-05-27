@@ -731,7 +731,15 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
             onClick={() => { playClick(); nextTrack(); }}
             className="flex items-center gap-2 px-3 py-1.5 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-white/10 transition-all active:scale-95 shadow-lg cursor-pointer"
           >
-            <Music size={14} className="text-amber-400 animate-pulse" />
+            <div className="relative flex items-center justify-center">
+              <Music 
+                size={14} 
+                className={tracks && tracks[currentTrack]?.name === "No Sound" ? "text-slate-400" : "text-amber-400 animate-pulse"} 
+              />
+              {tracks && tracks[currentTrack]?.name === "No Sound" && (
+                <div className="absolute w-[18px] h-[1.5px] bg-red-400 rotate-45 rounded-sm shadow-sm" />
+              )}
+            </div>
             <span className="text-slate-300 font-medium text-xs hidden sm:inline">{tracks && tracks[currentTrack] ? tracks[currentTrack].name : "Musik"}</span>
           </button>
           <button 
@@ -1030,7 +1038,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
 
         {/* Centered Team Score HUD (4-Player Mode) */}
         {numP === 4 && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-3 sm:gap-4 bg-slate-900/80 px-4 py-1.5 sm:px-5 sm:py-2 rounded-full border border-white/10 shadow-lg shadow-black/35 backdrop-blur-md transition-all">
+          <div className="absolute top-16 sm:top-4 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-3 sm:gap-4 bg-slate-900/80 px-4 py-1.5 sm:px-5 sm:py-2 rounded-full border border-white/10 shadow-lg shadow-black/35 backdrop-blur-md transition-all">
             <span className="text-[10px] sm:text-xs font-extrabold text-amber-400 uppercase tracking-wider truncate max-w-[80px] sm:max-w-[120px]">
               {G.teamNames?.TeamA?.trim() || (language === 'de' ? 'Team A' : 'Team A')}
             </span>
@@ -1624,7 +1632,15 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
                 className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-slate-700 transition-all active:scale-95 shadow-lg cursor-pointer"
                 title={tracks && tracks[currentTrack] ? `Track wechseln: ${tracks[currentTrack].name}` : "Track wechseln"}
               >
-                <Music size={16} className="text-amber-400 animate-pulse" />
+                <div className="relative flex items-center justify-center">
+                  <Music 
+                    size={16} 
+                    className={tracks && tracks[currentTrack]?.name === "No Sound" ? "text-slate-400" : "text-amber-400 animate-pulse"} 
+                  />
+                  {tracks && tracks[currentTrack]?.name === "No Sound" && (
+                    <div className="absolute w-[20px] h-[1.5px] bg-red-400 rotate-45 rounded-sm shadow-sm" />
+                  )}
+                </div>
                 <span className="text-slate-300 font-medium text-xs sm:text-sm">{tracks && tracks[currentTrack] ? tracks[currentTrack].name : "Musik"}</span>
               </button>
 

@@ -451,7 +451,15 @@ const App = () => {
                   className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 bg-white/10 text-slate-300 hover:bg-white/20 backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
                   title={tracks && tracks[currentTrack] ? `Track wechseln: ${tracks[currentTrack].name}` : "Track wechseln"}
                 >
-                  <Music size={14} className="text-amber-400 animate-pulse" />
+                  <div className="relative flex items-center justify-center">
+                    <Music 
+                      size={14} 
+                      className={tracks && tracks[currentTrack]?.name === "No Sound" ? "text-slate-400" : "text-amber-400 animate-pulse"} 
+                    />
+                    {tracks && tracks[currentTrack]?.name === "No Sound" && (
+                      <div className="absolute w-[18px] h-[1.5px] bg-red-400 rotate-45 rounded-sm shadow-sm" />
+                    )}
+                  </div>
                   <span>{tracks && tracks[currentTrack] ? tracks[currentTrack].name : "Musik"}</span>
                 </button>
                 <button

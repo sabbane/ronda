@@ -44,8 +44,59 @@ class SoundService {
       }
     });
 
-    // 2 Procedural compositions
+    // 3 Procedural compositions
     this.tracks = [
+      {
+        name: "Casablanca",
+        bpm: 108,
+        gain: 0.70,
+        instrument: "guitar",
+        percussion: true,
+        chords: [
+          [110.00, 164.81, 220.00, 261.63],
+          [98.00, 146.83, 196.00, 246.94],
+          [87.31, 130.81, 174.61, 220.00],
+          // E Major: E2 (82.41), B2 (123.47), E3 (164.81), G#3 (207.65)
+          [82.41, 123.47, 164.81, 207.65]
+        ],
+        melody: [
+          // Bar 1 (A minor)
+          { step: 0, f: 523.25, d: 1.2 },  // C5
+          { step: 2, f: 493.88, d: 0.6 },  // B4
+          { step: 4, f: 440.00, d: 0.6 },  // A4
+          { step: 6, f: 493.88, d: 0.6 },  // B4
+          { step: 8, f: 523.25, d: 1.2 },  // C5
+          { step: 10, f: 587.33, d: 0.6 }, // D5
+          { step: 12, f: 523.25, d: 1.8 }, // C5
+          
+          // Bar 2 (G Major)
+          { step: 16, f: 493.88, d: 1.2 }, // B4
+          { step: 18, f: 440.00, d: 0.6 }, // A4
+          { step: 20, f: 392.00, d: 0.6 }, // G4
+          { step: 22, f: 440.00, d: 0.6 }, // A4
+          { step: 24, f: 493.88, d: 1.2 }, // B4
+          { step: 26, f: 523.25, d: 0.6 }, // C5
+          { step: 28, f: 493.88, d: 1.8 }, // B4
+          
+          // Bar 3 (F Major)
+          { step: 32, f: 440.00, d: 1.2 }, // A4
+          { step: 34, f: 392.00, d: 0.6 }, // G4
+          { step: 36, f: 349.23, d: 0.6 }, // F4
+          { step: 38, f: 392.00, d: 0.6 }, // G4
+          { step: 40, f: 440.00, d: 1.2 }, // A4
+          { step: 42, f: 493.88, d: 0.6 }, // B4
+          { step: 44, f: 440.00, d: 1.8 }, // A4
+          
+          // Bar 4 (E Major resolution)
+          { step: 48, f: 415.30, d: 1.2 }, // G#4 (exotic major leading tone!)
+          { step: 50, f: 349.23, d: 0.6 }, // F4 (phrygian flat-2 color!)
+          { step: 52, f: 329.63, d: 0.6 }, // E4
+          { step: 54, f: 349.23, d: 0.6 }, // F4
+          { step: 56, f: 415.30, d: 1.2 }, // G#4
+          { step: 58, f: 349.23, d: 0.6 }, // F4
+          { step: 60, f: 329.63, d: 2.8 }  // E4 (passionate resolved root!)
+        ]
+      },
       {
         name: "Desert Night",
         bpm: 80,
@@ -103,55 +154,12 @@ class SoundService {
         ]
       },
       {
-        name: "Casablanca",
-        bpm: 108,
-        gain: 0.70,
-        instrument: "guitar",
-        percussion: true,
-        chords: [
-          [110.00, 164.81, 220.00, 261.63],
-          [98.00, 146.83, 196.00, 246.94],
-          [87.31, 130.81, 174.61, 220.00],
-          // E Major: E2 (82.41), B2 (123.47), E3 (164.81), G#3 (207.65)
-          [82.41, 123.47, 164.81, 207.65]
-        ],
-        melody: [
-          // Bar 1 (A minor)
-          { step: 0, f: 523.25, d: 1.2 },  // C5
-          { step: 2, f: 493.88, d: 0.6 },  // B4
-          { step: 4, f: 440.00, d: 0.6 },  // A4
-          { step: 6, f: 493.88, d: 0.6 },  // B4
-          { step: 8, f: 523.25, d: 1.2 },  // C5
-          { step: 10, f: 587.33, d: 0.6 }, // D5
-          { step: 12, f: 523.25, d: 1.8 }, // C5
-          
-          // Bar 2 (G Major)
-          { step: 16, f: 493.88, d: 1.2 }, // B4
-          { step: 18, f: 440.00, d: 0.6 }, // A4
-          { step: 20, f: 392.00, d: 0.6 }, // G4
-          { step: 22, f: 440.00, d: 0.6 }, // A4
-          { step: 24, f: 493.88, d: 1.2 }, // B4
-          { step: 26, f: 523.25, d: 0.6 }, // C5
-          { step: 28, f: 493.88, d: 1.8 }, // B4
-          
-          // Bar 3 (F Major)
-          { step: 32, f: 440.00, d: 1.2 }, // A4
-          { step: 34, f: 392.00, d: 0.6 }, // G4
-          { step: 36, f: 349.23, d: 0.6 }, // F4
-          { step: 38, f: 392.00, d: 0.6 }, // G4
-          { step: 40, f: 440.00, d: 1.2 }, // A4
-          { step: 42, f: 493.88, d: 0.6 }, // B4
-          { step: 44, f: 440.00, d: 1.8 }, // A4
-          
-          // Bar 4 (E Major resolution)
-          { step: 48, f: 415.30, d: 1.2 }, // G#4 (exotic major leading tone!)
-          { step: 50, f: 349.23, d: 0.6 }, // F4 (phrygian flat-2 color!)
-          { step: 52, f: 329.63, d: 0.6 }, // E4
-          { step: 54, f: 349.23, d: 0.6 }, // F4
-          { step: 56, f: 415.30, d: 1.2 }, // G#4
-          { step: 58, f: 349.23, d: 0.6 }, // F4
-          { step: 60, f: 329.63, d: 2.8 }  // E4 (passionate resolved root!)
-        ]
+        name: "No Sound",
+        bpm: 100,
+        gain: 0,
+        instrument: "none",
+        chords: [],
+        melody: []
       }
     ];
   }
@@ -232,6 +240,12 @@ class SoundService {
     if (this.muted) return;
     if (this.bgmPlaying) return;
 
+    const track = this.tracks[this.currentTrackIndex];
+    if (track && track.name === "No Sound") {
+      this.bgmPlaying = true;
+      return;
+    }
+
     // Ensure audio context is ready
     if (!this.ctx || this.ctx.state === 'suspended') {
       const initSuccess = await this.initContext();
@@ -241,7 +255,6 @@ class SoundService {
     const ctx = this.ctx;
     this.bgmPlaying = true;
 
-    const track = this.tracks[this.currentTrackIndex];
     const bpm = track.bpm;
     const beatDuration = 60 / bpm; // duration of one beat in seconds
     const masterGainValue = track.gain;
