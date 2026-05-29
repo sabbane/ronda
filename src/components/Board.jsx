@@ -236,7 +236,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
     };
   }, []);
 
-  // 1. Play card deal sound for every single card dealt (staggered for realism)
+  // 1. Play card deal sound once when new cards are dealt (total cards in hands increase)
   const totalHandCards = Object.values(G.players || {}).reduce((sum, p) => sum + (p?.hand?.length || 0), 0);
   const prevHandCards = React.useRef(0);
   
@@ -245,13 +245,8 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
       prevHandCards.current = 0;
       return;
     }
-    const diff = totalHandCards - prevHandCards.current;
-    if (diff > 0) {
-      for (let i = 0; i < diff; i++) {
-        setTimeout(() => {
-          playCardDeal();
-        }, i * 150);
-      }
+    if (totalHandCards > prevHandCards.current) {
+      playCardDeal();
     }
     prevHandCards.current = totalHandCards;
   }, [totalHandCards, playCardDeal, G.gameStarted]);

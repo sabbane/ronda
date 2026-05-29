@@ -158,52 +158,52 @@ class SoundService {
 
   // 1. UI Click
   async playClick() {
-    this._playSFX('click.wav', 0.6);
+    this._playSFX('click.mp3', 0.6);
   }
 
   // 2. Card Deal
   async playCardDeal() {
-    this._playSFX('card_deal.wav', 0.7);
+    this._playSFX('card_deal.mp3', 0.7);
   }
 
   // 3. Card Place
   async playCardPlace() {
-    this._playSFX('card_place.wav', 0.75);
+    this._playSFX('card_place.mp3', 0.75);
   }
 
   // 4. Card Sweep
   async playCardSweep() {
-    this._playSFX('card_sweep.wav', 0.8);
+    this._playSFX('card_sweep.mp3', 0.8);
   }
 
   // 5. Missa
   async playMissa(isSuccess = true) {
-    this._playSFX(isSuccess ? 'missa_success.wav' : 'missa_fail.wav', 0.85);
+    this._playSFX(isSuccess ? 'missa_success.mp3' : 'missa_fail.mp3', 0.85);
   }
 
   // 6. Derba
   async playDerba(isSuccess = true) {
-    this._playSFX(isSuccess ? 'derba_success.wav' : 'derba_fail.wav', 0.85);
+    this._playSFX(isSuccess ? 'derba_success.mp3' : 'derba_fail.mp3', 0.85);
   }
 
   // 7. Ronda/Tringa
   async playRondaTringa(isSuccess = true) {
-    this._playSFX(isSuccess ? 'ronda_tringa.wav' : 'ronda_tringa_fail.wav', 0.9);
+    this._playSFX(isSuccess ? 'ronda_tringa.mp3' : 'ronda_tringa_fail.mp3', 0.9);
   }
 
   // 8. Clash
   async playClash(isSuccess = true) {
-    this._playSFX(isSuccess ? 'clash.wav' : 'clash_fail.wav', 0.9);
+    this._playSFX(isSuccess ? 'clash.mp3' : 'clash_fail.mp3', 0.9);
   }
 
   // 9. Victory Fanfare
   async playVictory() {
-    this._playSFX('victory.wav', 0.9);
+    this._playSFX('victory.mp3', 0.9);
   }
 
   // 10. Defeat
   async playDefeat() {
-    this._playSFX('defeat.wav', 0.9);
+    this._playSFX('defeat.mp3', 0.9);
   }
 }
 
