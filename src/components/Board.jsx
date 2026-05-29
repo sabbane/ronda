@@ -236,44 +236,59 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
     };
   }, []);
 
-  // 1. Play card deal sound when new cards are dealt (total cards in hands increase)
-  const p0HandLength = G.players['0']?.hand?.length || 0;
-  const p1HandLength = G.players['1']?.hand?.length || 0;
-  const totalHandCards = p0HandLength + p1HandLength;
-  const prevHandCards = React.useRef(totalHandCards);
+  // 1. Play card deal sound for every single card dealt (staggered for realism)
+  const totalHandCards = Object.values(G.players || {}).reduce((sum, p) => sum + (p?.hand?.length || 0), 0);
+  const prevHandCards = React.useRef(0);
   
   React.useEffect(() => {
-    if (totalHandCards > prevHandCards.current) {
-      playCardDeal();
+    if (!G.gameStarted) {
+      prevHandCards.current = 0;
+      return;
+    }
+    const diff = totalHandCards - prevHandCards.current;
+    if (diff > 0) {
+      for (let i = 0; i < diff; i++) {
+        setTimeout(() => {
+          playCardDeal();
+        }, i * 150);
+      }
     }
     prevHandCards.current = totalHandCards;
-  }, [totalHandCards, playCardDeal]);
+  }, [totalHandCards, playCardDeal, G.gameStarted]);
 
   // 2. Play card place sound when a card is played onto the table (table cards increase by 1)
   const tableLength = G.table?.length || 0;
-  const prevTableLength = React.useRef(tableLength);
+  const prevTableLength = React.useRef(0);
 
   React.useEffect(() => {
+    if (!G.gameStarted) {
+      prevTableLength.current = G.table?.length || 0;
+      return;
+    }
     if (tableLength > prevTableLength.current) {
       if (tableLength - prevTableLength.current === 1) {
         playCardPlace();
       }
     }
     prevTableLength.current = tableLength;
-  }, [tableLength, playCardPlace]);
+  }, [tableLength, playCardPlace, G.gameStarted]);
 
   // 3. Play card sweep sound when cards are captured (total captured cards increase)
   const p0Captured = G.players['0']?.captured?.length || 0;
   const p1Captured = G.players['1']?.captured?.length || 0;
   const totalCaptured = p0Captured + p1Captured;
-  const prevCaptured = React.useRef(totalCaptured);
+  const prevCaptured = React.useRef(0);
 
   React.useEffect(() => {
+    if (!G.gameStarted) {
+      prevCaptured.current = 0;
+      return;
+    }
     if (totalCaptured > prevCaptured.current) {
       playCardSweep();
     }
     prevCaptured.current = totalCaptured;
-  }, [totalCaptured, playCardSweep]);
+  }, [totalCaptured, playCardSweep, G.gameStarted]);
 
   // 4. Play announcement chime sound when activeEvent popups appear
   React.useEffect(() => {
@@ -340,6 +355,11 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
 
   // Watch for new announcements and add them to a queue
   React.useEffect(() => {
+    if (!G.gameStarted) {
+      processedAnnouncements.current.clear();
+      setEventQueue([]);
+      return;
+    }
     if (G.announcements && G.announcements.length > 0) {
       G.announcements.forEach((ann, idx) => {
         const annId = `${ctx.turn}-${idx}-${ann.type}-${ann.player}`;
@@ -407,11 +427,11 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
             if (ann.streak === 3) {
               customTitle = t('announcements.counterAttackTitle');
               customText = isMe ? t('announcements.counterAttackMe', { oppName }) : t('announcements.counterAttackOpponent', { oppName });
-              customIcon = "🥊"; // Punch for counter
+              customIcon = "🥊";
             } else if (ann.streak === 4) {
               customTitle = t('announcements.ultimateCounterTitle');
               customText = isMe ? t('announcements.ultimateCounterMe', { oppName }) : t('announcements.ultimateCounterOpponent', { oppName });
-              customIcon = "☢️"; // Nuclear for ultimate
+              customIcon = "☢️";
             }
           }
           if (ann.type === 'Clash') {
@@ -474,7 +494,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [G.announcements, myID, ctx.turn]);
+  }, [G.announcements, myID, ctx.turn, G.gameStarted]);
 
   // Process the event queue sequentially with a pause between popups
   React.useEffect(() => {
