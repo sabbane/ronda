@@ -2,7 +2,7 @@
 import { Card } from './Card';
 import { motion } from 'framer-motion';
 
-export const PlayerHand = ({ hand, isCurrentPlayer, onPlayCard, hidden = false, dealDelay = 0, playedCardId = null }) => {
+export const PlayerHand = ({ hand, isCurrentPlayer, onPlayCard, hidden = false, dealDelay = 0, dealDelays = null, playedCardId = null }) => {
   return (
     <div className="game-hand" dir="ltr">
         {hand.map((card, index) => (
@@ -14,9 +14,9 @@ export const PlayerHand = ({ hand, isCurrentPlayer, onPlayCard, hidden = false, 
             exit={{}}
             transition={{ 
               type: "spring", 
-              stiffness: 70, 
-              damping: 15,
-              delay: dealDelay + (index * 0.25)
+              stiffness: 55, 
+              damping: 14,
+              delay: (dealDelays && dealDelays[index] !== undefined) ? dealDelays[index] : dealDelay + (index * 0.25)
             }}
             drag={isCurrentPlayer && !hidden ? true : false}
             dragSnapToOrigin

@@ -532,10 +532,10 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
   // Handle animation wait (flying cards and dealing)
   React.useEffect(() => {
     if (G.isAnimating && !G.pendingCapture && ctx.activePlayers && ctx.activePlayers[myID] === 'waitForUI') {
-      // Dealing new cards: last 3 cards settle at 1.25s delay + ~1s spring = ~2.25s.
-      // Use 3.5s to be safe. Normal card flight only needs 1.5s.
+      // Dealing new cards: last card starts at 3.0s delay.
+      // Use 3400ms to align with animation and deal sound completion.
       const isDealPhase = !G.lastPlayedCard;
-      const delay = isDealPhase ? 3000 : 1500;
+      const delay = isDealPhase ? 3400 : 1500;
       const timer = setTimeout(() => {
         moves.endAnimation();
       }, delay);
@@ -1376,7 +1376,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
               hand={(G.players && G.players[opponentID]?.hand) || []} 
               isCurrentPlayer={false} 
               hidden={true}
-              dealDelay={0.75}
+              dealDelays={[0.6, 1.8, 3.0]}
               playedCardId={playedCardId}
             />
           </div>
@@ -1424,7 +1424,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
                 hand={(G.players && G.players[topID]?.hand) || []}
                 isCurrentPlayer={false}
                 hidden={true}
-                dealDelay={0.75}
+                dealDelays={[0.6, 1.8, 3.0]}
                 playedCardId={playedCardId}
               />
             </div>
@@ -1627,6 +1627,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
             hand={(G.players && G.players[myID]?.hand) || []} 
             isCurrentPlayer={isCurrentPlayer(myID) && !isProcessing} 
             onPlayCard={handlePlayCard} 
+            dealDelays={[0.0, 1.2, 2.4]}
             playedCardId={playedCardId}
           />
 
