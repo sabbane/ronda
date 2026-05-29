@@ -416,7 +416,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
             } else {
               customText = isMe ? t('announcements.derbaMe', { oppName }) : t('announcements.derbaOpponent', { oppName });
             }
-            customIcon = "🎯";
+            customIcon = "👊";
           }
           if (ann.type === 'Taawida') {
             if (ann.streak === 3) {
