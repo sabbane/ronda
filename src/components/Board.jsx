@@ -310,21 +310,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
     }
   }, [activeEvent, playMissa, playDerba, playRondaTringa, playClash]);
 
-  // 5. Play Victory / Defeat sound when the game ends
-  const isGameOver = !!(G.gameStatus && ctx.activePlayers?.[myID] === 'gameOver');
-  const prevIsGameOver = React.useRef(isGameOver);
 
-  React.useEffect(() => {
-    if (isGameOver && !prevIsGameOver.current) {
-      const gameWinner = G.gameStatus?.winner !== undefined ? G.gameStatus.winner : 'Draw';
-      if (gameWinner === myID) {
-        playVictory();
-      } else {
-        playDefeat();
-      }
-    }
-    prevIsGameOver.current = isGameOver;
-  }, [isGameOver, G.gameStatus, myID, playVictory, playDefeat]);
 
   const isCurrentPlayer = (id) => {
     const isTurn = ctx.currentPlayer === id;
@@ -347,6 +333,24 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
 
   const [eventQueue, setEventQueue] = React.useState([]);
   const processedAnnouncements = React.useRef(new Set());
+
+  // 5. Play Victory / Defeat sound when the game ends (delayed until all announcements are finished)
+  const hasPendingAnnouncements = eventQueue.length > 0 || !!activeEvent;
+  const isGameOverState = !!(G?.gameStatus && ctx.activePlayers?.[myID] === 'gameOver');
+  const showGameOverOverlay = isGameOverState && !hasPendingAnnouncements;
+  const prevIsGameOver = React.useRef(false);
+
+  React.useEffect(() => {
+    if (showGameOverOverlay && !prevIsGameOver.current) {
+      const gameWinner = G?.gameStatus?.winner !== undefined ? G.gameStatus.winner : 'Draw';
+      if (gameWinner === myID) {
+        playVictory();
+      } else {
+        playDefeat();
+      }
+    }
+    prevIsGameOver.current = showGameOverOverlay;
+  }, [showGameOverOverlay, G?.gameStatus, myID, playVictory, playDefeat]);
 
   // Watch for new announcements and add them to a queue
   React.useEffect(() => {
@@ -1175,7 +1179,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
 
         {/* Game Over / Round Over Overlay */}
         <AnimatePresence>
-          {(G.gameStatus && ctx.activePlayers?.[myID] === 'gameOver') && (
+          {showGameOverOverlay && (
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
