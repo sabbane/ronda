@@ -142,6 +142,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
     playCardSweep,
     playMissa,
     playDerba,
+    playUltimateAttack,
     playRondaTringa,
     playClash,
     playVictory,
@@ -297,17 +298,21 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
       } else if (type === 'Derba') {
         playDerba(isSuccess);
       } else if (type === 'Taawida') {
-        playDerba(isSuccess);
-        setTimeout(() => {
+        if (streak === 4) {
+          playUltimateAttack();
+        } else {
           playDerba(isSuccess);
-        }, 250);
-      } else if (type === 'Clash') {
+          setTimeout(() => {
+            playDerba(isSuccess);
+          }, 250);
+        }
+      } else if (type === 'Clash' || type === 'Clash Draw') {
         playClash(true);
       } else if (['Ronda', 'Tringa', 'TringaWins', 'Clash Won', 'King Finish', 'As Finish', 'Final Fail'].includes(type)) {
         playRondaTringa(isSuccess);
       }
     }
-  }, [activeEvent, playMissa, playDerba, playRondaTringa, playClash]);
+  }, [activeEvent, playMissa, playDerba, playUltimateAttack, playRondaTringa, playClash]);
 
 
 
@@ -680,7 +685,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
         if (isMyCapture || (!isOnline && myID === '0')) {
           timerId = setTimeout(() => {
             if (G.pendingCapture) moves.processCapture();
-          }, 1000);
+          }, 200);
         }
       }
     }

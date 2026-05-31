@@ -186,7 +186,12 @@ class SoundService {
     this._playSFX(isSuccess ? 'derba_success.mp3' : 'derba_fail.mp3', 0.85);
   }
 
-  // 7. Ronda/Tringa
+  // 7. Ultimate Attack
+  async playUltimateAttack() {
+    this._playSFX('ultimate_attack.mp3', 0.9);
+  }
+
+  // 8. Ronda/Tringa
   async playRondaTringa(isSuccess = true) {
     this._playSFX(isSuccess ? 'ronda_tringa.mp3' : 'ronda_tringa_fail.mp3', 0.9);
   }

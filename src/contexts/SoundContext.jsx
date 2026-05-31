@@ -85,6 +85,10 @@ export const SoundProvider = ({ children }) => {
     if (!isMuted) soundService.playRondaTringa(isSuccess);
   };
 
+  const playUltimateAttack = () => {
+    if (!isMuted) soundService.playUltimateAttack();
+  };
+
   const playClash = (isSuccess) => {
     if (!isMuted) soundService.playClash(isSuccess);
   };
@@ -112,6 +116,7 @@ export const SoundProvider = ({ children }) => {
         playCardSweep,
         playMissa,
         playDerba,
+        playUltimateAttack,
         playRondaTringa,
         playClash,
         playVictory,
