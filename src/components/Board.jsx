@@ -493,7 +493,10 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
 
   // Process the event queue sequentially with a pause between popups
   React.useEffect(() => {
-    if (!activeEvent && eventQueue.length > 0) {
+    // Pause showing popups during the dealing animation phase so the player sees the cards first
+    const isDealingAnimating = G.isAnimating && !G.lastPlayedCard;
+    
+    if (!activeEvent && eventQueue.length > 0 && !isDealingAnimating) {
       const timer = setTimeout(() => {
         const next = eventQueue[0];
         setActiveEvent(next);
@@ -501,7 +504,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [eventQueue, activeEvent]);
+  }, [eventQueue, activeEvent, G.isAnimating, G.lastPlayedCard]);
 
   // Automatically clear the active event after 2.5 seconds
   React.useEffect(() => {
@@ -580,6 +583,8 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
 
   React.useEffect(() => {
     let timerId;
+    const isDerbaActive = activeEvent && (activeEvent.type === 'Derba' || activeEvent.type === 'Taawida');
+    
     if (G.pendingCapture) {
       if (captureSequence.length > 0) {
         // Only capture rects once at the start
@@ -592,7 +597,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
           // eslint-disable-next-line react-hooks/set-state-in-effect
           setCaptureRects(rects);
         }
-      } else {
+      } else if (!isDerbaActive) {
         const isOnline = !!ctx.multiplayer;
         const isMyCapture = G.pendingCapture.player === myID;
         if (isMyCapture || (!isOnline && myID === '0')) {
@@ -609,12 +614,14 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
       if (timerId) clearTimeout(timerId);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [G.pendingCapture, captureSequence, captureRects, G.table, ctx.multiplayer, myID, moves]);
+  }, [G.pendingCapture, captureSequence, captureRects, G.table, ctx.multiplayer, myID, moves, activeEvent]);
 
   // Progress the animation sequence
   React.useEffect(() => {
     let timerId;
-    if (G.pendingCapture && captureSequence.length > 0 && Object.keys(captureRects).length > 0) {
+    const isDerbaActive = activeEvent && (activeEvent.type === 'Derba' || activeEvent.type === 'Taawida');
+    
+    if (G.pendingCapture && captureSequence.length > 0 && Object.keys(captureRects).length > 0 && !isDerbaActive) {
       if (captureStep < captureSequence.length) {
         timerId = setTimeout(() => {
           setCaptureStep(prev => prev + 1);
@@ -630,7 +637,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
       }
     }
     return () => clearTimeout(timerId);
-  }, [captureStep, captureSequence.length, captureRects, G.pendingCapture, ctx.multiplayer, moves, myID]);
+  }, [captureStep, captureSequence.length, captureRects, G.pendingCapture, ctx.multiplayer, moves, myID, activeEvent]);
 
   let winner = null;
   if (G.gameStatus) {

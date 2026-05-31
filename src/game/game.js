@@ -379,13 +379,31 @@ export const RondaGame = {
       
       if (matchIndex !== -1 || (G.lastPlayedCard && G.lastPlayedCard.value === currentVal && G.lastPlayedCard.player !== player && G.lastPlayedCard.streak >= 2)) {
         // Mark for capture or Taawida transfer
+        const isTaawidaTransfer = matchIndex === -1;
         G.pendingCapture = {
           player: player,
           playedCardId: playedCard.id,
           currentVal: currentVal,
-          isTaawidaTransfer: matchIndex === -1
+          isTaawidaTransfer: isTaawidaTransfer
         };
         G.isAnimating = true;
+
+        // Push Derba or Taawida announcements early so the client can display the popup 
+        // exactly when the card lands on the table, before subsequent collection starts.
+        if (isTaawidaTransfer) {
+          const newStreak = G.lastPlayedCard.streak + 1;
+          G.announcements.push({ player, type: 'Taawida', streak: newStreak });
+        } else {
+          if (G.lastPlayedCard && G.lastPlayedCard.value === currentVal && G.lastPlayedCard.player !== player) {
+            const newStreak = (G.lastPlayedCard.streak || 1) + 1;
+            if (newStreak === 2) {
+              G.announcements.push({ player, type: 'Derba', opponent: G.lastPlayedCard.player });
+            } else if (newStreak === 4) {
+              G.announcements.push({ player, type: 'Taawida', streak: newStreak });
+            }
+          }
+        }
+
         checkWaitForUI(G, events);
       } else {
         // Normal drop, starts a new potential streak
@@ -440,7 +458,9 @@ export const RondaGame = {
           G.players[opponent].captured = G.players[opponent].captured.filter(c => !cardsToTransfer.some(tc => tc.id === c.id));
           capturedCards.push(...cardsToTransfer);
           addScore(G, player, scoreToAdd);
-          G.announcements.push({ player, type: 'Taawida', streak: newStreak });
+          if (!G.announcements.some(a => a.type === 'Taawida' && a.streak === newStreak)) {
+            G.announcements.push({ player, type: 'Taawida', streak: newStreak });
+          }
           G.lastPlayedCard = {
             value: currentVal,
             player: player,
@@ -461,7 +481,9 @@ export const RondaGame = {
             if (newStreak === 2) {
               awardedPoints = 1;
               addScore(G, player, awardedPoints);
-              G.announcements.push({ player, type: 'Derba', opponent: G.lastPlayedCard.player });
+              if (!G.announcements.some(a => a.type === 'Derba')) {
+                G.announcements.push({ player, type: 'Derba', opponent: G.lastPlayedCard.player });
+              }
               streakCards = [matchedCard, playedCard];
             } else if (newStreak === 4) {
               awardedPoints = 10;
@@ -478,7 +500,9 @@ export const RondaGame = {
               capturedCards.push(...cardsToTransfer);
               streakCards = [...(G.lastPlayedCard.streakCards || []), matchedCard, playedCard];
               addScore(G, player, awardedPoints);
-              G.announcements.push({ player, type: 'Taawida', streak: newStreak });
+              if (!G.announcements.some(a => a.type === 'Taawida' && a.streak === newStreak)) {
+                G.announcements.push({ player, type: 'Taawida', streak: newStreak });
+              }
             }
           }
           let nextVal = getNextValue(currentVal);
