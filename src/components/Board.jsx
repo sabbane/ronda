@@ -343,19 +343,17 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
       if (card && card.value === activeEvent.currentVal) {
         setIsProcessing(true);
         
-        // 1. Process the pending Derba capture immediately
-        if (G.pendingCapture) moves.processCapture();
-        
-        // 2. Clear announcements and activeEvent
+        // Clear active UI popups immediately so they disappear on screen
         setActiveEvent(null);
         setEventQueue([]);
-        moves.clearAnnouncements();
         
-        // 3. Play the counter card immediately after a tiny delay
+        // Trigger the atomic counterDerba move on the server
+        moves.counterDerba(cardIndex);
+        
+        // Turn off processing overlay after a small delay
         setTimeout(() => {
-          moves.playCard(cardIndex);
           setIsProcessing(false);
-        }, 100);
+        }, 200);
         return;
       }
     }
