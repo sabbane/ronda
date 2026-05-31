@@ -302,7 +302,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
           playDerba(isSuccess);
         }, 250);
       } else if (type === 'Clash') {
-        playClash(isSuccess);
+        playClash(true);
       } else if (['Ronda', 'Tringa', 'TringaWins', 'Clash Won', 'King Finish', 'As Finish', 'Final Fail'].includes(type)) {
         playRondaTringa(isSuccess);
       }
@@ -377,15 +377,24 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
 
   React.useEffect(() => {
     if (showGameOverOverlay && !prevIsGameOver.current) {
-      const gameWinner = G?.gameStatus?.winner !== undefined ? G.gameStatus.winner : 'Draw';
-      if (gameWinner === myID) {
-        playVictory();
+      const winner = G?.gameStatus?.winner !== undefined ? G.gameStatus.winner : 'Draw';
+      if (winner === 'Draw') {
+        playClash(true);
       } else {
-        playDefeat();
+        const isMyTeamA = myID === '0' || myID === '2';
+        const didIWin = numP === 2
+          ? winner === myID
+          : (winner === 'TeamA' ? isMyTeamA : winner === 'TeamB' ? !isMyTeamA : false);
+
+        if (didIWin) {
+          playVictory();
+        } else {
+          playDefeat();
+        }
       }
     }
     prevIsGameOver.current = showGameOverOverlay;
-  }, [showGameOverOverlay, G?.gameStatus, myID, playVictory, playDefeat]);
+  }, [showGameOverOverlay, G?.gameStatus, myID, numP, playVictory, playDefeat, playClash]);
 
   // Watch for new announcements and add them to a queue
   React.useEffect(() => {
