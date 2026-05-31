@@ -297,11 +297,10 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
       } else if (type === 'Derba') {
         playDerba(isSuccess);
       } else if (type === 'Taawida') {
-        if (streak >= 3) {
-          playRondaTringa(isSuccess);
-        } else {
+        playDerba(isSuccess);
+        setTimeout(() => {
           playDerba(isSuccess);
-        }
+        }, 250);
       } else if (type === 'Clash') {
         playClash(isSuccess);
       } else if (['Ronda', 'Tringa', 'TringaWins', 'Clash Won', 'King Finish', 'As Finish', 'Final Fail'].includes(type)) {
@@ -319,8 +318,44 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
   };
 
 
+  const canCounterDerba = React.useMemo(() => {
+    if (!activeEvent || (activeEvent.type !== 'Derba' && activeEvent.type !== 'Taawida')) return false;
+    // Am I the victim of this Derba?
+    const isVictim = activeEvent.player !== myID;
+    if (!isVictim) return false;
+    // Do I have the matching card in my hand?
+    const matchVal = activeEvent.currentVal;
+    const hasMatch = G.players?.[myID]?.hand?.some(c => c.value === matchVal);
+    return !!hasMatch;
+  }, [activeEvent, myID, G.players]);
+
   const handlePlayCard = (cardIndex) => {
-    if (isProcessing || G.isAnimating || (G.announcements && G.announcements.length > 0)) return;
+    if (isProcessing) return;
+
+    // Handle instant Counter-Derba play while Derba popup is active
+    if (canCounterDerba) {
+      const card = G.players[myID]?.hand?.[cardIndex];
+      if (card && card.value === activeEvent.currentVal) {
+        setIsProcessing(true);
+        
+        // 1. Process the pending Derba capture immediately
+        if (G.pendingCapture) moves.processCapture();
+        
+        // 2. Clear announcements and activeEvent
+        setActiveEvent(null);
+        setEventQueue([]);
+        moves.clearAnnouncements();
+        
+        // 3. Play the counter card immediately after a tiny delay
+        setTimeout(() => {
+          moves.playCard(cardIndex);
+          setIsProcessing(false);
+        }, 100);
+        return;
+      }
+    }
+    
+    if (G.isAnimating || (G.announcements && G.announcements.length > 0)) return;
     
     setIsProcessing(true);
     // Add a slight delay before playing to let the user see their selection
@@ -1636,10 +1671,11 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
           </div>
           <PlayerHand 
             hand={(G.players && G.players[myID]?.hand) || []} 
-            isCurrentPlayer={isCurrentPlayer(myID) && !isProcessing} 
+            isCurrentPlayer={(isCurrentPlayer(myID) || canCounterDerba) && !isProcessing} 
             onPlayCard={handlePlayCard} 
             dealDelays={[0.0, 1.2, 2.4]}
             playedCardId={playedCardId}
+            counterCardValue={canCounterDerba ? activeEvent.currentVal : null}
           />
 
           {/* Deck Info & Sound Toggle - Moved below player hand to prevent overlap on mobile */}

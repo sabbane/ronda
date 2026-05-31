@@ -392,14 +392,14 @@ export const RondaGame = {
         // exactly when the card lands on the table, before subsequent collection starts.
         if (isTaawidaTransfer) {
           const newStreak = G.lastPlayedCard.streak + 1;
-          G.announcements.push({ player, type: 'Taawida', streak: newStreak });
+          G.announcements.push({ player, type: 'Taawida', streak: newStreak, currentVal: currentVal });
         } else {
           if (G.lastPlayedCard && G.lastPlayedCard.value === currentVal && G.lastPlayedCard.player !== player) {
             const newStreak = (G.lastPlayedCard.streak || 1) + 1;
             if (newStreak === 2) {
-              G.announcements.push({ player, type: 'Derba', opponent: G.lastPlayedCard.player });
+              G.announcements.push({ player, type: 'Derba', opponent: G.lastPlayedCard.player, currentVal: currentVal });
             } else if (newStreak === 4) {
-              G.announcements.push({ player, type: 'Taawida', streak: newStreak });
+              G.announcements.push({ player, type: 'Taawida', streak: newStreak, currentVal: currentVal });
             }
           }
         }
@@ -459,7 +459,7 @@ export const RondaGame = {
           capturedCards.push(...cardsToTransfer);
           addScore(G, player, scoreToAdd);
           if (!G.announcements.some(a => a.type === 'Taawida' && a.streak === newStreak)) {
-            G.announcements.push({ player, type: 'Taawida', streak: newStreak });
+            G.announcements.push({ player, type: 'Taawida', streak: newStreak, currentVal: currentVal });
           }
           G.lastPlayedCard = {
             value: currentVal,
@@ -482,7 +482,7 @@ export const RondaGame = {
               awardedPoints = 1;
               addScore(G, player, awardedPoints);
               if (!G.announcements.some(a => a.type === 'Derba')) {
-                G.announcements.push({ player, type: 'Derba', opponent: G.lastPlayedCard.player });
+                G.announcements.push({ player, type: 'Derba', opponent: G.lastPlayedCard.player, currentVal: currentVal });
               }
               streakCards = [matchedCard, playedCard];
             } else if (newStreak === 4) {
@@ -501,7 +501,7 @@ export const RondaGame = {
               streakCards = [...(G.lastPlayedCard.streakCards || []), matchedCard, playedCard];
               addScore(G, player, awardedPoints);
               if (!G.announcements.some(a => a.type === 'Taawida' && a.streak === newStreak)) {
-                G.announcements.push({ player, type: 'Taawida', streak: newStreak });
+                G.announcements.push({ player, type: 'Taawida', streak: newStreak, currentVal: currentVal });
               }
             }
           }
