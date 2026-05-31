@@ -1,4 +1,5 @@
 import { Client } from 'boardgame.io/dist/esm/client.js';
+import { Local } from 'boardgame.io/dist/esm/multiplayer.js';
 import { RondaGame, evaluateRondaTringa, checkRoundEnd } from './game.js';
 import { expect, test, describe } from 'vitest';
 
@@ -455,5 +456,95 @@ describe('RondaGame - Extended Requirements', () => {
 
     const p1Total = state.G.players['1'].score + state.G.players['1'].captured.length;
     expect(p1Total).toBe(1);
+  });
+
+  test('Counter-Derba: Rapid recursive counters down to empty hands must transition turn correctly without engine crash', async () => {
+    const game = setupCustomGame((G) => {
+      G.deck = [
+        { suit: 'dheb', value: 1, id: 'deck-1' },
+        { suit: 'jben', value: 2, id: 'deck-2' },
+        { suit: 'syouf', value: 3, id: 'deck-3' },
+        { suit: 'zrawet', value: 4, id: 'deck-4' },
+        { suit: 'dheb', value: 6, id: 'deck-5' },
+        { suit: 'jben', value: 7, id: 'deck-6' }
+      ];
+      // Setup two 5s for each player to enable the recursive counter chain
+      G.players['0'].hand = [
+        { suit: 'syouf', value: 5, id: 's5_1' },
+        { suit: 'dheb', value: 5, id: 'c5_1' }
+      ];
+      G.players['1'].hand = [
+        { suit: 'jben', value: 5, id: 'cl5_1' },
+        { suit: 'zrawet', value: 5, id: 'b5_1' }
+      ];
+      return G;
+    });
+
+    // Create two clients connected via local in-memory transport
+    const client0 = Client({ game, numPlayers: 2, playerID: '0', multiplayer: Local() });
+    const client1 = Client({ game, numPlayers: 2, playerID: '1', multiplayer: Local() });
+
+    client0.start();
+    client1.start();
+
+    // Helper to wait a tiny bit to let Local transport sync
+    const sync = () => new Promise(r => setTimeout(r, 50));
+
+    const advanceLocalUI = async (client) => {
+      await sync();
+      let state = client.getState();
+      
+      // 1. If animating in waitForUI stage, end the animation
+      if (state.G.isAnimating && state.ctx.activePlayers?.[state.ctx.currentPlayer] === 'waitForUI') {
+        client.moves.endAnimation();
+        await sync();
+        state = client.getState();
+      }
+      
+      // 2. If announcements are active in waitForUI stage (and no animation is blocking), clear them
+      if (state.G.announcements.length > 0 && !state.G.isAnimating && state.ctx.activePlayers?.[state.ctx.currentPlayer] === 'waitForUI') {
+        client.moves.clearAnnouncements(state.G.announcementId);
+        await sync();
+        state = client.getState();
+      }
+    };
+
+    await sync();
+
+    // 1. P0 plays their first 5
+    client0.moves.playCard(0);
+    await advanceLocalUI(client0);
+    await sync();
+
+    // 2. P1 plays their first 5 (triggers Derba)
+    client1.moves.playCard(0);
+    await sync();
+
+    // 3. P0 counters immediately with second 5
+    client0.moves.counterDerba(0);
+    await sync();
+
+    // 4. P1 counters immediately with second 5 (Ultimate Attack)
+    client1.moves.counterDerba(0);
+    await sync();
+
+    // 5. Ultimate Attack settles: processCapture is called
+    client1.moves.processCapture();
+    await sync();
+    
+    // 6. Clear announcements and animations to allow turn to transition normally
+    await advanceLocalUI(client1);
+    await sync();
+
+    const state = client1.getState();
+    
+    expect(state.ctx.currentPlayer).toBe('0');
+    expect(state.G.pendingCapture).toBeNull();
+    // Verify deterministic gameplay scores (P1 won Ultimate Attack, P0's Taawida 3 was subtracted)
+    expect(state.G.players['1'].score).toBe(11);
+    expect(state.G.players['0'].score).toBe(0);
+
+    client0.stop();
+    client1.stop();
   });
 });

@@ -565,7 +565,6 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
     }
   }, [activeEvent]);
 
-  // Tell the game state we are done displaying events so the bot can resume
   React.useEffect(() => {
     if (
       eventQueue.length === 0 && 
@@ -575,13 +574,14 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
       ctx.activePlayers && 
       ctx.activePlayers[myID] === 'waitForUI'
     ) {
+      const currentId = G.announcementId;
       // Wait 800ms for the popup's exit animation to fully complete before clearing announcements on server
       const timer = setTimeout(() => {
-        moves.clearAnnouncements();
+        moves.clearAnnouncements(currentId);
       }, 800);
       return () => clearTimeout(timer);
     }
-  }, [eventQueue.length, activeEvent, G.announcements, ctx.activePlayers, myID, moves]);
+  }, [eventQueue.length, activeEvent, G.announcements, ctx.activePlayers, myID, moves, G.announcementId]);
 
   // Handle animation wait (flying cards and dealing)
   React.useEffect(() => {

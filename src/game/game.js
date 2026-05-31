@@ -207,6 +207,10 @@ const checkWaitForUI = (G, events) => {
   // If there are announcements OR an animation is running, we MUST go into waitForUI stage
   // to let the frontend finish its visual work before the next turn starts or before the game ends.
   if (G.announcements.length > 0 || G.isAnimating) {
+    if (G.announcements.length > 0 && !G._announcementIdIncremented) {
+      G.announcementId = (G.announcementId || 0) + 1;
+      G._announcementIdIncremented = true;
+    }
     G.endTurnAfterUI = true;
     events.setActivePlayers({ all: 'waitForUI' });
     return true;
@@ -219,6 +223,7 @@ const checkWaitForUI = (G, events) => {
     return true;
   }
 
+  return false;
 };
 
 const executeCapture = (G, events) => {
@@ -491,6 +496,7 @@ export const RondaGame = {
 
       // Clear announcements at the start of a move so they don't loop
       G.announcements = [];
+      G._announcementIdIncremented = false;
 
       hand.splice(cardIndex, 1);
 
@@ -575,6 +581,7 @@ export const RondaGame = {
 
       // 2. Clear previous announcements (since we countered it!)
       G.announcements = [];
+      G._announcementIdIncremented = false;
 
       // 3. Take card out of hand and throw it on table
       hand.splice(cardIndex, 1);
@@ -605,6 +612,12 @@ export const RondaGame = {
     onBegin: ({ G, events }) => {
       if (G.gameStarted === false) {
         events.setActivePlayers({ all: 'lobby' });
+        return;
+      }
+      if (G.pendingCapture) {
+        if ((G.announcements && G.announcements.length > 0) || G.isAnimating) {
+          events.setActivePlayers({ all: 'waitForUI' });
+        }
         return;
       }
       // 1. Auto-deal ONLY if all hands are completely empty and deck has cards
@@ -694,8 +707,12 @@ export const RondaGame = {
             const moves = RondaGame.moves;
             return moves.counterDerba({ G, ctx, events, playerID }, cardIndex);
           },
-          clearAnnouncements: ({ G, events }) => {
+          clearAnnouncements: ({ G, events }, announcementId) => {
+            if (announcementId !== undefined && announcementId !== null && G.announcementId !== announcementId) {
+              return; // Ignore stale clear request
+            }
             G.announcements = [];
+            G._announcementIdIncremented = false;
             if (G.isAnimating) return;
             if (G.gameStatus) {
               events.setActivePlayers({ all: 'gameOver' });

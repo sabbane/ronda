@@ -9,7 +9,7 @@ Offizielle Website: [https://www.playronda.ma](https://www.playronda.ma)
 ## 2. Technologie-Stack
 *   **Frontend:** React.js (Vite)
 *   **State-Management:** [boardgame.io](https://boardgame.io/)
-*   **Styling:** Tailwind CSS (für Layout & Design)
+*   **Styling:** Tailwind CSS v4 (für Layout & Design)
 *   **Animationen:** Framer Motion (für Kartenbewegungen)
 *   **PWA:** vite-plugin-pwa (für Offline-Support und Installation)
 *   **Single-File Bundling:** vite-plugin-singlefile (für die PlayGama-Plattform-Inlining)
@@ -115,27 +115,30 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 *   **Performance-Benchmarks:** Das Tool `latency_benchmark.spec.js` misst die Antwortzeiten des Live-Servers.
 *   **Asset-Preloading:** Karten-Assets werden vorab geladen (Preload im HTML und verstecktes Rendern in den Komponenten), um Latenzen oder Flackern bei der Kartenausgabe zu vermeiden.
 
-### 4.7 Audiosystem (Procedural Sound & Music Synthesis)
-Um das Spielgefühl immersiv zu gestalten und Sondersituationen dramatisch zu untermalen, wurde ein hochauflösendes Audiosystem (`src/services/SoundService.js`) implementiert:
-*   **Procedural Web Audio API:** Anstelle von großen statischen Audio-Dateien (MP3/WAV) werden alle Soundeffekte und die Hintergrundmusik in Echtzeit über Oszillatoren, LFOs, Filter, Delay-Lines und Gain-Nodes vollsynthetisiert. Dadurch beträgt der Speicher-Overhead **0 KB** und die 100%ige Offline-Fähigkeit sowie die Kompatibilität mit dem Single-File-Build für PlayGama bleibt perfekt gewahrt.
-*   **2 Einzigartige Generative Musikstücke (BGM) mit Track-Auswahl:**
-    Der Spieler kann über einen Musik-Wechsler-Button direkt neben der Mute-Taste nahtlos zwischen zwei verschiedenen Stücken wechseln. Die aktive Track-Auswahl wird in `localStorage` (`ronda_bgm_track`) persistiert.
-    1.  *Track 0: "Desert Night" (D-Hijaz, 80 BPM) — Instrument: Oud:* Melancholisches, atmosphärisches Hauptthema über der D-Hijaz-Skala. Warme Oud-Saiten (45ms Arpeggiation) mit tiefen Sinus-Akkorden und einer ausdrucksstarken Ney-Flötenmelodie.
-    2.  *Track 1: "Casablanca" (A-Moll, 108 BPM) — Instrument: Spanische Gitarre:* Leidenschaftliches, lyrisches Stück auf der A-Moll-Progression (Am - G - F - E). Warme, getragen gezupfte Nylonsaiten-Akkorde (38ms Rasgueado-Arpeggiation) mit einer ausdrucksstarken Melodielinie und einer Spanisch-Rumba Cajon-Percussion.
-*   **10 Soundeffekte:**
-    1.  *UI Click:* Kurzer, sauberer Frequenzsweep für Interaktionen.
-    2.  *Card Deal:* Ein Bandpass-gefiltertes Rauschen mit exponentiellem Abklingen, um das Reiben von Papier nachzuahmen.
-    3.  *Card Place:* Eine Kombination aus tiefem Sinus-Thud (Holzklopfen) und kurzem Hochpass-Rauschen (Karten-Snap).
-    4.  *Card Sweep:* Drei aufeinanderfolgende, überlappende Rausch-Bursts und ein abschließendes Platziergeräusch, um das Zusammenziehen von Karten zu vertonen.
-    5.  *Missa-Ankündigung:* Aufsteigendes C-Dur-Arpeggio mit weichem Dreiecks-Oszillator.
-    6.  *Derba-Ankündigung:* Absteigender, druckvoller Arcade-Stinger.
-    7.  *Ronda/Tringa-Ankündigung:* Aufsteigende pentatonische Tonleiter mit glockenspielartigem Charakter.
-    8.  *Clash-Ankündigung:* Metallischer Klirr-Sound (Kombination unharmonischer hoher Frequenzen) gefolgt von einem Bandschwert-Swoosh.
-    9.  *Victory-Melodie:* Triumphaler, fröhlicher C-Dur-Akkordverlauf mit warmen Dreiecks- und Sinustönen.
-    10. *Defeat-Melodie:* Schwermütige, absteigende Moll-Tonfolge.
-*   **Reaktive Sound-Trigger:** In `src/components/Board.jsx` überwachen declarative `useEffect`-Hooks den Spielstatus (Handkartenlänge, Tischkartenanzahl, eroberte Karten, Popups, GameOver-Status) und lösen die Sounds lippensynchron aus. Alle Event-Sounds passen sich tonal an den Spielausgang an (Dur/hell bei Erfolg, Moll/tief bei gegnerischem Punkterfolg).
-*   **Mute-Option & Persistenz:** Ein Sound-Toggle (Speaker-Icon) ist sowohl im Hauptmenü (neben den Flaggen) als auch direkt auf dem Spielfeld (gegenüber der Restkartenanzeige am unteren Rand) platziert. Der Zustand (Muted/Unmuted) wird persistiert in `localStorage` (`ronda_muted`) und steuert das An- und Ausschalten von Soundeffekten und der Hintergrundmusik in Echtzeit.
-*   **Autoplay-Policy & Gesten-Trigger:** Die Initialisierung der Audio-Pipeline erfolgt absolut regelkonform. Neben dem lazy Trigger durch Schaltflächen-Klicks lauscht ein globaler Einmal-Event-Listener (`click`, `pointerdown`, `keydown`) im `SoundProvider` auf die allererste Interaktion des Benutzers auf dem gesamten Bildschirm, um die BGM augenblicklich und geräuschlos zu starten.
+### 4.7 Audiosystem (HTML5 Audio mit echten Sound-Assets)
+Um das Spielgefühl immersiv zu gestalten, wurde das Audiosystem auf echte Audio-Assets umgestellt (`src/services/SoundService.js`):
+*   **HTML5 Audio (MP3):** Anstelle der früheren prozeduralen Web Audio API Synthese werden alle Sounds jetzt über den nativen `<audio>`-Tag des Browsers mit MP3-Dateien aus `public/assets/sounds/` abgespielt. Dieser Ansatz vereinfacht die Konfiguration und ermöglicht hochwertige, maßgeschneiderte Sound-Designs.
+*   **3 BGM-Tracks mit Track-Auswahl:**
+    Der Spieler kann über einen Musik-Wechsler-Button direkt neben der Mute-Taste zwischen drei Optionen wechseln. Die aktive Track-Auswahl wird in `localStorage` (`ronda_bgm_track`) persistiert.
+    1.  *Track 0: "Casablanca"* — `casablanca.mp3`, loop, 50% Lautstärke.
+    2.  *Track 1: "Desert Night"* — `desert_night.mp3`, loop, 65% Lautstärke.
+    3.  *Track 2: "No Sound"* — Kein BGM, nur Soundeffekte (für Spieler, die Stille bevorzugen).
+*   **10+ Soundeffekte (SFX) als MP3-Dateien:**
+    1.  *UI Click:* `click.mp3`
+    2.  *Card Deal:* `card_deal.mp3`
+    3.  *Card Place:* `card_place.mp3`
+    4.  *Card Sweep:* `card_sweep.mp3`
+    5.  *Missa:* `missa_success.mp3` / `missa_fail.mp3` (je nach Ausgang)
+    6.  *Derba:* `derba_success.mp3` / `derba_fail.mp3`
+    7.  *Ultimate Attack (Taawida):* `ultimate_attack.mp3`
+    8.  *Ronda/Tringa:* `ronda_tringa.mp3` / `ronda_tringa_fail.mp3`
+    9.  *Clash:* `clash.mp3` / `clash_fail.mp3`
+    10. *Victory:* `victory.mp3`
+    11. *Defeat:* `defeat.mp3`
+*   **Reaktive Sound-Trigger:** In `src/components/Board.jsx` überwachen declarative `useEffect`-Hooks den Spielstatus und lösen die passenden SFX aus.
+*   **Mute-Option & Persistenz:** Der Mute-Status wird in `localStorage` (`ronda_muted`) gespeichert und steuert sowohl BGM als auch alle SFX.
+*   **Autoplay-Policy:** BGM startet nach der ersten Benutzerinteraktion über `initContext()`.
+*   **Ad-Pausierung (Event-Driven):** Bei Werbeeinblendung (über `ronda-ad-started`/`ronda-ad-completed` Custom Events) wird die BGM automatisch pausiert und danach fortgesetzt.
 
 ## 5. Projektstruktur
 ```text
@@ -158,11 +161,21 @@ Um das Spielgefühl immersiv zu gestalten und Sondersituationen dramatisch zu un
     game.test.js    # Unit-Tests für Spielregeln
   App.jsx           # Einstiegspunkt, Lobby-Logik, URL-Sync & Online-Client
 /tests
-  multiplayer.spec.js         # Playwright E2E-Tests (Kernspiel-Flow)
-  lobby_leave.spec.js         # E2E-Tests für Lobby-Verlassen-Szenarien
-  lobby_navigation.spec.js    # E2E-Tests für Lobby-Navigation
-  public_rooms.spec.js        # E2E-Tests für öffentliche Raumlisten
-  latency_benchmark.spec.js   # Performance Benchmarks
+  multiplayer.spec.js                  # Playwright E2E-Tests (Kernspiel-Flow)
+  complete_multiplayer_game.spec.js    # E2E Vollständige Spielpartie
+  complete_bot_game.spec.js            # E2E Bot-Spiel komplett
+  lobby_leave.spec.js                  # E2E Lobby-Verlassen-Szenarien
+  lobby_navigation.spec.js             # E2E Lobby-Navigation
+  public_rooms.spec.js                 # E2E Öffentliche Raumlisten
+  multiplayer_4_players.spec.js        # E2E 4-Spieler-Lobby
+  multiplayer_play_again.spec.js       # E2E Play Again Flow
+  opponent_leave_during_game.spec.js   # E2E Gegner verlässt Spiel
+  main_menu_responsiveness.spec.js     # E2E Responsivität des Menüs
+  no_scroll.spec.js                    # E2E Scroll-Verhalten
+  player_cards_size.spec.js            # E2E Kartengrößen-Test
+  singleplayer_start.spec.js           # E2E Einzelspieler-Start
+  connection_stability.spec.js         # E2E Verbindungsstabilität
+  latency_benchmark.spec.js            # Performance Benchmarks
 server.js           # Backend-Server für Online-Multiplayer
 Dockerfile.frontend # Docker-Konfiguration für das Frontend
 Dockerfile.backend  # Docker-Konfiguration für das Backend
@@ -226,7 +239,10 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   [x] Lobby-System (Spielernamen, gameStarted-Flag, hostLeft-Erkennung)
 *   [x] Neue E2E-Tests (Lobby Leave, Lobby Navigation, Public Rooms)
 *   [x] Zero-Weight Web Audio API Audiosystem (10 taktile Soundeffekte, Mute-Toggle, LocalStorage Persistenz)
+*   [x] Audiosystem auf echte MP3-Assets umgestellt (HTML5 Audio, kein Web Audio API Overhead mehr)
 *   [x] Vollständige Ad-Pausierung (Game & Sound) via Event-Driven Architecture (`ronda-ad-started` / `ronda-ad-completed`)
-*   [x] 2 prozedurale BGM-Tracks (Desert Night, Casablanca) mit Track-Wechsler-Button & LocalStorage Persistenz
+*   [x] 3 BGM-Tracks (Casablanca, Desert Night, No Sound) mit Track-Wechsler-Button & LocalStorage Persistenz
+*   [x] 11 SFX-Sound-Assets (MP3) für alle Spielereignisse (inkl. Success/Fail-Varianten)
+*   [x] Erweiterter E2E-Test-Suite (19 Spec-Dateien: Lobby, Multiplayer, Bot, Responsiveness, etc.)
 *   [ ] Google Play Store: Bubblewrap TWA-Packaging & Store-Listing
 *   [ ] Erweiterte KI-Heuristik
