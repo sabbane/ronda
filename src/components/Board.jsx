@@ -788,7 +788,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
         <div className="absolute top-4 start-4 z-[60]">
           <button 
             onClick={handleLeaveLobby}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-white/10 transition-all active:scale-95 shadow-lg group cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-white/15 transition-all duration-75 active:translate-y-[2px] shadow-md group cursor-pointer"
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
@@ -799,7 +799,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
             >
               <path d="m15 18-6-6 6-6"/>
             </svg>
-            <span className="text-sm font-bold uppercase tracking-wider">{t('backToMenu')}</span>
+            <span className="text-sm font-bold tracking-wider">{t('backToMenu')}</span>
           </button>
         </div>
 
@@ -807,7 +807,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
         <div className="absolute top-4 end-4 z-[60] flex items-center gap-2">
           <button 
             onClick={() => { playClick(); nextTrack(); }}
-            className="flex items-center gap-2 px-3 py-1.5 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-white/10 transition-all active:scale-95 shadow-lg cursor-pointer"
+            className="flex items-center gap-2 px-3 py-1.5 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-white/15 transition-all duration-75 active:translate-y-[2px] shadow-md cursor-pointer"
           >
             <div className="relative flex items-center justify-center">
               <Music 
@@ -822,7 +822,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
           </button>
           <button 
             onClick={toggleMute}
-            className="flex items-center justify-center p-2 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-white/10 transition-all active:scale-95 shadow-lg cursor-pointer"
+            className="flex items-center justify-center p-2 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-white/15 transition-all duration-75 active:translate-y-[2px] shadow-md cursor-pointer"
           >
             {isMuted ? <VolumeX size={14} className="text-red-400" /> : <Volume2 size={14} className="text-emerald-400" />}
           </button>
@@ -948,7 +948,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
                               playClick();
                               window.dispatchEvent(new CustomEvent('ronda-switch-seat', { detail: { newPlayerID: pID } }));
                             }}
-                            className="mt-1 w-full bg-amber-500/10 hover:bg-amber-500/25 text-amber-300 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border border-amber-500/25 hover:scale-105 active:scale-95 cursor-pointer text-center"
+                            className="mt-1 w-full bg-amber-500/10 hover:bg-amber-500/25 text-amber-300 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border border-amber-500/25 active:translate-y-[1px] cursor-pointer text-center"
                           >
                             {language === 'de' ? 'Team A beitreten' : 'Join Team A'}
                           </button>
@@ -1017,7 +1017,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
                               playClick();
                               window.dispatchEvent(new CustomEvent('ronda-switch-seat', { detail: { newPlayerID: pID } }));
                             }}
-                            className="mt-1 w-full bg-purple-500/10 hover:bg-purple-500/25 text-purple-300 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border border-purple-500/25 hover:scale-105 active:scale-95 cursor-pointer text-center"
+                            className="mt-1 w-full bg-purple-500/10 hover:bg-purple-500/25 text-purple-300 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border border-purple-500/25 active:translate-y-[1px] cursor-pointer text-center"
                           >
                             {language === 'de' ? 'Team B beitreten' : 'Join Team B'}
                           </button>
@@ -1047,7 +1047,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
               <button
                 disabled={!allPlayersJoined}
                 onClick={() => { playClick(); moves.startGame(); }}
-                className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 disabled:opacity-30 disabled:pointer-events-none px-6 py-4 rounded-xl font-bold transition-all transform hover:scale-[1.02] active:scale-[0.98] text-lg shadow-xl cursor-pointer"
+                className="w-full btn-moroccan-green disabled:opacity-60 disabled:pointer-events-none px-6 py-4 rounded-xl font-bold text-lg cursor-pointer"
               >
                 {language === 'de' ? 'Spiel starten' : 'Start Game'}
               </button>
@@ -1099,7 +1099,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
               // Delay navigation to give the server time to broadcast G.playerLeft to P2
               setTimeout(() => window.dispatchEvent(new CustomEvent('ronda-menu')), 500);
             }}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-white/10 transition-all active:scale-95 shadow-lg group cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-white/15 transition-all duration-75 active:translate-y-[2px] shadow-md group cursor-pointer"
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
@@ -1110,7 +1110,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
             >
             <path d="m15 18-6-6 6-6"/>
             </svg>
-            <span className="text-sm font-bold uppercase tracking-wider">{t('backToMenu')}</span>
+            <span className="text-sm font-bold tracking-wider">{t('backToMenu')}</span>
           </button>
         </div>
 
@@ -1337,7 +1337,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
                         }
                       });
                     }}
-                    className="px-8 py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-full font-bold transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-amber-900/40 border border-amber-400/30 cursor-pointer"
+                    className="btn-moroccan-primary px-8 py-3.5 rounded-2xl font-bold text-base cursor-pointer"
                   >
                     {t('playAgain')}
                   </button>
@@ -1352,7 +1352,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
                         }
                       });
                     }}
-                    className="px-8 py-3 bg-slate-700 hover:bg-slate-600 text-slate-100 rounded-full font-bold transition-all transform hover:scale-105 active:scale-95 shadow-lg border border-slate-600 cursor-pointer"
+                    className="btn-moroccan-secondary px-8 py-3.5 rounded-2xl font-bold text-base cursor-pointer"
                   >
                     {t('mainMenu')}
                   </button>
@@ -1390,7 +1390,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
                       playClick();
                       window.dispatchEvent(new CustomEvent('ronda-menu'));
                     }}
-                    className="px-8 py-3 bg-gradient-to-r from-rose-600 to-amber-500 hover:from-rose-500 hover:to-amber-400 text-white rounded-full font-bold transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-rose-900/40 border border-rose-400/20 cursor-pointer text-base"
+                    className="btn-moroccan-primary px-8 py-3.5 rounded-2xl font-bold text-base cursor-pointer"
                   >
                     {t('mainMenu')}
                   </button>
@@ -1709,7 +1709,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
               {/* Music Selector Button */}
               <button 
                 onClick={() => { playClick(); nextTrack(); }}
-                className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-slate-700 transition-all active:scale-95 shadow-lg cursor-pointer"
+                className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-slate-700 transition-all duration-75 active:translate-y-[2px] shadow-md cursor-pointer"
                 title={tracks && tracks[currentTrack] ? `Track wechseln: ${tracks[currentTrack].name}` : "Track wechseln"}
               >
                 <div className="relative flex items-center justify-center">
@@ -1727,7 +1727,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
               {/* Sound Toggle Button */}
               <button 
                 onClick={toggleMute}
-                className="flex items-center justify-center p-2.5 sm:p-3 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-slate-700 transition-all active:scale-95 shadow-lg cursor-pointer"
+                className="flex items-center justify-center p-2.5 sm:p-3 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-slate-700 transition-all duration-75 active:translate-y-[2px] shadow-md cursor-pointer"
                 title={isMuted ? "Unmute Sound" : "Mute Sound"}
               >
                 {isMuted ? <VolumeX size={16} className="text-red-400" /> : <Volume2 size={16} className="text-emerald-400" />}

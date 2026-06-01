@@ -199,7 +199,9 @@
   background: rgba(245, 158, 11, 0.5);
 }
 
-/* Dynamic glow inputs */
+/* Sharp premium focus borders, no fluffy AI glows */
 input:focus {
-  box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
+  outline: 2px solid #f59e0b !important;
+  outline-offset: 2px !important;
+  box-shadow: none !important;
 }

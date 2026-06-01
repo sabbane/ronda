@@ -26,7 +26,7 @@ export const Rules = ({ onBack }) => {
         <div className="flex justify-between items-center mb-8 relative">
           <button 
             onClick={() => { playClick(); onBack(); }}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-white/10 transition-all active:scale-95 shadow-lg group cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-white/15 transition-all duration-75 active:translate-y-[2px] shadow-md group cursor-pointer"
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
@@ -37,38 +37,38 @@ export const Rules = ({ onBack }) => {
             >
               <path d="m15 18-6-6 6-6"/>
             </svg>
-            <span className="text-sm font-bold uppercase tracking-wider hidden sm:inline">{t('backToMenu')}</span>
+            <span className="text-sm font-bold tracking-wider hidden sm:inline">{t('backToMenu')}</span>
           </button>
 
           {/* Language Selector */}
           <div className="flex gap-2" dir="ltr">
             <button
               onClick={() => { playClick(); changeLanguage('en'); }}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'en' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 border transition-all duration-75 cursor-pointer ${language === 'en' ? 'bg-amber-600 border-2 border-amber-300 text-white shadow-inner translate-y-[2px]' : 'bg-white/10 border-white/10 text-slate-300 hover:bg-white/20 active:translate-y-[2px]'}`}
             >
-              <img src="https://flagcdn.com/w40/gb.png" alt="EN" className="w-4 h-3 object-cover rounded-sm" /> EN
+              <img src="/flag-gb.svg" alt="EN" className="w-4 h-3 object-cover rounded-sm" /> EN
             </button>
             <button
               onClick={() => { playClick(); changeLanguage('fr'); }}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'fr' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 border transition-all duration-75 cursor-pointer ${language === 'fr' ? 'bg-amber-600 border-2 border-amber-300 text-white shadow-inner translate-y-[2px]' : 'bg-white/10 border-white/10 text-slate-300 hover:bg-white/20 active:translate-y-[2px]'}`}
             >
-              <img src="https://flagcdn.com/w40/fr.png" alt="FR" className="w-4 h-3 object-cover rounded-sm" /> FR
+              <img src="/flag-fr.svg" alt="FR" className="w-4 h-3 object-cover rounded-sm" /> FR
             </button>
             <button
               onClick={() => { playClick(); changeLanguage('ar'); }}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'ar' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 border transition-all duration-75 cursor-pointer ${language === 'ar' ? 'bg-amber-600 border-2 border-amber-300 text-white shadow-inner translate-y-[2px]' : 'bg-white/10 border-white/10 text-slate-300 hover:bg-white/20 active:translate-y-[2px]'}`}
             >
-              <img src="https://flagcdn.com/w40/ma.png" alt="AR" className="w-4 h-3 object-cover rounded-sm" /> AR
+              <img src="/flag-ma.svg" alt="AR" className="w-4 h-3 object-cover rounded-sm" /> AR
             </button>
           </div>
         </div>
 
         <div className="bg-[#0b0f19] p-6 sm:p-10 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.6)] border border-white/10 text-left w-full flex-1 mb-8">
-          <h1 className="text-4xl sm:text-5xl font-black mb-8 text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-500 tracking-tighter drop-shadow-lg text-center">
+          <h1 className="text-4xl sm:text-5xl font-black mb-12 pb-4 leading-relaxed text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-500 tracking-tighter drop-shadow-lg text-center">
             {t('rulesTitle')}
           </h1>
 
-          <div className="space-y-6 text-slate-200 text-base sm:text-lg leading-relaxed font-medium" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+          <div className="space-y-6 text-slate-200 text-base sm:text-lg leading-relaxed font-medium pt-2" dir={language === 'ar' ? 'rtl' : 'ltr'}>
             <p className="p-4 bg-white/5 rounded-xl border border-white/10">
               {t('rulesIntro')}
             </p>

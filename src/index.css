@@ -417,4 +417,125 @@ html, body, #root {
   background: rgba(245, 158, 11, 0.6) !important;
 }
 
+/* ==========================================
+   PREMIUM CLASSIC HUMAN-CRAFTED BUTTONS
+   ========================================== */
+.btn-moroccan-primary {
+  background-color: #9a3412 !important; /* Deep, rich solid terracotta */
+  border: 1px solid rgba(251, 191, 36, 0.25) !important;
+  border-bottom: 4px solid #7c2d12 !important; /* Solid dark physical bottom bevel */
+  color: #fff !important;
+  font-family: 'Cairo', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important; /* Elegant spacing for Title Case */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2) !important;
+  transition: background-color 0.08s ease, border-color 0.08s ease, transform 0.05s ease !important; /* Ultra-crisp timings */
+  position: relative !important;
+  transform: translateY(0) !important;
+}
+
+.btn-moroccan-primary:hover {
+  background-color: #b45309 !important; /* Elegant shift to a warm amber-terracotta */
+  border-color: rgba(251, 191, 36, 0.65) !important;
+  border-bottom: 4px solid #7c2d12 !important;
+  transform: translateY(0) !important; /* Keep grounded, zero helium lift! */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2) !important;
+}
+
+.btn-moroccan-primary:active {
+  background-color: #78350f !important;
+  border-bottom: 1px solid #7c2d12 !important; /* Bevel squashes flat under pressure */
+  transform: translateY(3px) !important; /* Solid mechanical 3px depression */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15) !important;
+}
+
+.btn-moroccan-secondary {
+  background-color: rgba(15, 23, 42, 0.5) !important; /* Deep solid slate translucent */
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-bottom: 4px solid rgba(15, 23, 42, 0.9) !important; /* Physical dark bevel */
+  color: #cbd5e1 !important;
+  font-family: 'Cairo', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important; /* Elegant spacing for Title Case */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2) !important;
+  transition: background-color 0.08s ease, border-color 0.08s ease, color 0.08s ease, transform 0.05s ease !important;
+  backdrop-filter: blur(8px) !important;
+  transform: translateY(0) !important;
+}
+
+.btn-moroccan-secondary:hover {
+  background-color: rgba(15, 23, 42, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  border-bottom: 4px solid rgba(15, 23, 42, 0.9) !important;
+  color: #fff !important;
+  transform: translateY(0) !important; /* Grounded hover */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2) !important;
+}
+
+.btn-moroccan-secondary:active {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.9) !important; /* Squashes flat */
+  transform: translateY(3px) !important; /* Mechanical press */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15) !important;
+}
+
+.btn-moroccan-green {
+  background-color: #16a34a !important; /* Cheerful, vibrant Moroccan Mint Green */
+  border: 1px solid rgba(74, 222, 128, 0.25) !important;
+  border-bottom: 4px solid #15803d !important; /* Solid physical bottom bevel */
+  color: #fff !important;
+  font-family: 'Cairo', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important; /* Elegant spacing for Title Case */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2) !important;
+  transition: background-color 0.08s ease, border-color 0.08s ease, transform 0.05s ease !important; /* Ultra-crisp timings */
+  position: relative !important;
+  transform: translateY(0) !important;
+}
+
+.btn-moroccan-green:hover {
+  background-color: #22c55e !important; /* Brighter cheerful hover green */
+  border-color: rgba(74, 222, 128, 0.5) !important;
+  border-bottom: 4px solid #15803d !important;
+  transform: translateY(0) !important; /* Keep grounded */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2) !important;
+}
+
+.btn-moroccan-green:active {
+  background-color: #15803d !important;
+  border-bottom: 1px solid #15803d !important; /* Squashes flat */
+  transform: translateY(3px) !important; /* Tactile depression */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15) !important;
+}
+
+.btn-moroccan-blue {
+  background-color: #0284c7 !important; /* Cheerful, vibrant Mediterranean/Sky Blue */
+  border: 1px solid rgba(56, 189, 248, 0.25) !important;
+  border-bottom: 4px solid #0369a1 !important; /* Solid physical bottom bevel */
+  color: #fff !important;
+  font-family: 'Cairo', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important; /* Elegant spacing for Title Case */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2) !important;
+  transition: background-color 0.08s ease, border-color 0.08s ease, transform 0.05s ease !important; /* Ultra-crisp timings */
+  position: relative !important;
+  transform: translateY(0) !important;
+}
+
+.btn-moroccan-blue:hover {
+  background-color: #0ea5e9 !important; /* Brighter cheerful hover blue */
+  border-color: rgba(56, 189, 248, 0.5) !important;
+  border-bottom: 4px solid #0369a1 !important;
+  transform: translateY(0) !important; /* Keep grounded */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2) !important;
+}
+
+.btn-moroccan-blue:active {
+  background-color: #0369a1 !important;
+  border-bottom: 1px solid #0369a1 !important; /* Squashes flat */
+  transform: translateY(3px) !important; /* Tactile depression */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15) !important;
+}
+
+
 
