@@ -1553,7 +1553,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
         {/* Table Area - Min height for exactly 2 rows, grows on 3rd row */}
         <div className="w-full flex items-center justify-center my-0.5 sm:my-2 relative z-10 shrink-0" dir="ltr">
           <div className={`game-table bg-emerald-900/40 border-green-700/90 shadow-2xl shadow-green-900/30 ${numP === 4 ? 'game-table-4player' : ''}`} data-test-id="game-table">
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/felt.png')] opacity-10 rounded-3xl mix-blend-overlay pointer-events-none"></div>
+            <div className="absolute inset-0 bg-[url('/felt.png')] opacity-10 rounded-3xl mix-blend-overlay pointer-events-none"></div>
             
             <AnimatePresence>
               {G.table.map((baseCard) => {

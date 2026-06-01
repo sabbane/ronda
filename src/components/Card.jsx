@@ -62,8 +62,8 @@ export const Card = ({ card, hidden = false, onClick, className = '' }) => {
         className="w-full h-full object-cover"
         onError={(e) => {
           console.error(`Failed to load image: ${imagePath}`);
-          e.target.onerror = null;
-          e.target.src = 'https://via.placeholder.com/150x210?text=Card';
+          e.target.style.display = 'none';
+          e.target.parentElement.innerHTML = `<div class="w-full h-full flex flex-col items-center justify-center p-2 text-center bg-slate-100 border border-slate-300 rounded-xl select-none"><span class="text-xs font-black text-slate-700">${value}</span><span class="text-[9px] font-bold text-slate-500 uppercase">${card.suit}</span></div>`;
         }}
       />
     </motion.div>

@@ -10,7 +10,7 @@ html, body, #root {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -213,6 +213,7 @@ html, body, #root {
   flex-direction: column;
 }
 .menu-logo {
+  font-family: 'Cinzel', serif;
   line-height: 1.1;
   transition: all 0.3s ease-in-out;
 }

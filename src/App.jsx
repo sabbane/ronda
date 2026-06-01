@@ -428,19 +428,19 @@ const App = () => {
                   onClick={() => { playClick(); changeLanguage('en'); }}
                   className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'en' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.5)] border-amber-400/50' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
                 >
-                  <img src="https://flagcdn.com/w40/gb.png" alt="EN" className="w-4 h-3 object-cover rounded-sm" /> EN
+                  <img src="/flag-gb.svg" alt="EN" className="w-4 h-3 object-cover rounded-sm" /> EN
                 </button>
                 <button
                   onClick={() => { playClick(); changeLanguage('fr'); }}
                   className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'fr' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.5)] border-amber-400/50' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
                 >
-                  <img src="https://flagcdn.com/w40/fr.png" alt="FR" className="w-4 h-3 object-cover rounded-sm" /> FR
+                  <img src="/flag-fr.svg" alt="FR" className="w-4 h-3 object-cover rounded-sm" /> FR
                 </button>
                 <button
                   onClick={() => { playClick(); changeLanguage('ar'); }}
                   className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 ${language === 'ar' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.5)] border-amber-400/50' : 'bg-white/10 text-slate-300 hover:bg-white/20'} backdrop-blur-md transition-all border border-white/10 cursor-pointer`}
                 >
-                  <img src="https://flagcdn.com/w40/ma.png" alt="AR" className="w-4 h-3 object-cover rounded-sm" /> AR
+                  <img src="/flag-ma.svg" alt="AR" className="w-4 h-3 object-cover rounded-sm" /> AR
                 </button>
               </div>
 
