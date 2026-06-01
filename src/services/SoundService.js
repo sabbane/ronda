@@ -55,6 +55,36 @@ class SoundService {
         this._wasBGMPlayingBeforeAd = false;
       }
     });
+
+    // High-performance SFX preload cache to eliminate audio latency and garbage collection stutters
+    this.sfxCache = {};
+    this.sfxFiles = [
+      'click.mp3',
+      'card_deal.mp3',
+      'card_place.mp3',
+      'card_sweep.mp3',
+      'missa_success.mp3',
+      'missa_fail.mp3',
+      'derba_success.mp3',
+      'derba_fail.mp3',
+      'ultimate_attack.mp3',
+      'ronda_tringa.mp3',
+      'ronda_tringa_fail.mp3',
+      'clash.mp3',
+      'clash_fail.mp3',
+      'victory.mp3',
+      'defeat.mp3'
+    ];
+    
+    this.sfxFiles.forEach(file => {
+      try {
+        const audio = new Audio(`/assets/sounds/${file}`);
+        audio.preload = 'auto';
+        this.sfxCache[file] = audio;
+      } catch (e) {
+        console.warn(`[SoundService] Failed to preload SFX ${file}:`, e.message);
+      }
+    });
   }
 
   get muted() {
@@ -140,13 +170,14 @@ class SoundService {
 
   /**
    * Helper to play an SFX file from the assets/sounds/ directory.
-   * If the file is not found or fails to play, catches the exception and logs a warning.
+   * Uses preloaded resource cloning for absolute zero-latency playback.
    */
   _playSFX(filename, volume = 0.8) {
     if (this.muted) return;
     
     try {
-      const audio = new Audio(`/assets/sounds/${filename}`);
+      const cached = this.sfxCache[filename];
+      const audio = cached ? cached.cloneNode() : new Audio(`/assets/sounds/${filename}`);
       audio.volume = volume;
       audio.play().catch(err => {
         console.warn(`[SoundService] SFX play failed for ${filename}:`, err.message);
@@ -182,8 +213,13 @@ class SoundService {
   }
 
   // 6. Derba
-  async playDerba(isSuccess = true) {
+  async playDerba(isSuccess = true, double = false) {
     this._playSFX(isSuccess ? 'derba_success.mp3' : 'derba_fail.mp3', 0.85);
+    if (double) {
+      setTimeout(() => {
+        this._playSFX(isSuccess ? 'derba_success.mp3' : 'derba_fail.mp3', 0.85);
+      }, 250);
+    }
   }
 
   // 7. Ultimate Attack

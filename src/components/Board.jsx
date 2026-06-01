@@ -143,6 +143,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
     playCardSweep,
     playMissa,
     playDerba,
+    playDerbaDouble,
     playUltimateAttack,
     playRondaTringa,
     playClash,
@@ -302,10 +303,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
         if (streak === 4) {
           playUltimateAttack();
         } else {
-          playDerba(isSuccess);
-          setTimeout(() => {
-            playDerba(isSuccess);
-          }, 250);
+          playDerbaDouble(isSuccess);
         }
       } else if (type === 'Clash' || type === 'Clash Draw') {
         playClash(true);
@@ -313,7 +311,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
         playRondaTringa(isSuccess);
       }
     }
-  }, [activeEvent, playMissa, playDerba, playUltimateAttack, playRondaTringa, playClash]);
+  }, [activeEvent, playMissa, playDerba, playDerbaDouble, playUltimateAttack, playRondaTringa, playClash]);
 
 
 
