@@ -75,6 +75,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
   const topID = numP === 4 ? String((parseInt(myID) + 2) % 4) : '';
   const rightID = numP === 4 ? String((parseInt(myID) + 1) % 4) : '';
   const [activeEvent, setActiveEvent] = React.useState(null);
+  const lastActiveEventClearedAt = React.useRef(0);
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [isAdPlaying, setIsAdPlaying] = React.useState(false);
   const [opponentLeft, setOpponentLeft] = React.useState(false);
@@ -545,22 +546,28 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
   // Process the event queue sequentially with a pause between popups
   React.useEffect(() => {
     // Pause showing popups during the dealing animation phase so the player sees the cards first
-    const isDealingAnimating = G.isAnimating && !G.lastPlayedCard;
+    const isDealingAnimating = G.isAnimating && G.isDealing;
     
     if (!activeEvent && eventQueue.length > 0 && !isDealingAnimating) {
+      const timeSinceLastClear = Date.now() - lastActiveEventClearedAt.current;
+      const delay = timeSinceLastClear < 500 ? 500 - timeSinceLastClear : 0;
+
       const timer = setTimeout(() => {
         const next = eventQueue[0];
         setActiveEvent(next);
         setEventQueue(prev => prev.slice(1));
-      }, 500);
+      }, delay);
       return () => clearTimeout(timer);
     }
-  }, [eventQueue, activeEvent, G.isAnimating, G.lastPlayedCard]);
+  }, [eventQueue, activeEvent, G.isAnimating, G.isDealing]);
 
   // Automatically clear the active event after 2.5 seconds
   React.useEffect(() => {
     if (activeEvent) {
-      const timer = setTimeout(() => setActiveEvent(null), 2500);
+      const timer = setTimeout(() => {
+        setActiveEvent(null);
+        lastActiveEventClearedAt.current = Date.now();
+      }, 2500);
       return () => clearTimeout(timer);
     }
   }, [activeEvent]);
@@ -588,14 +595,14 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
     if (G.isAnimating && !G.pendingCapture && ctx.activePlayers && ctx.activePlayers[myID] === 'waitForUI') {
       // Dealing new cards: last card starts at 3.0s delay.
       // Use 3400ms to align with animation and deal sound completion.
-      const isDealPhase = !G.lastPlayedCard;
+      const isDealPhase = G.isDealing;
       const delay = isDealPhase ? 3400 : 1500;
       const timer = setTimeout(() => {
         moves.endAnimation();
       }, delay);
       return () => clearTimeout(timer);
     }
-  }, [G.isAnimating, G.pendingCapture, G.lastPlayedCard, ctx.activePlayers, myID, moves]);
+  }, [G.isAnimating, G.pendingCapture, G.isDealing, ctx.activePlayers, myID, moves]);
 
 
 
@@ -683,7 +690,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
         if (isMyCapture || (!isOnline && myID === '0')) {
           timerId = setTimeout(() => {
             if (G.pendingCapture) moves.processCapture();
-          }, 200);
+          }, 0);
         }
       }
     }

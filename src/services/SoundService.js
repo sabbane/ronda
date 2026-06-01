@@ -123,7 +123,7 @@ class SoundService {
       await this.bgmAudio.play();
     } catch (e) {
       console.warn('[SoundService] BGM play failed (audio asset may be missing):', e.message);
-      this.bgmPlaying = true; // keep BGM state active for cycle transitions
+      this.bgmPlaying = false; // Reset to false to allow autoplay gesture retry
     }
   }
 

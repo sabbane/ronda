@@ -416,6 +416,7 @@ export const RondaGame = {
       announcements: [],
       pendingCapture: null,
       isAnimating: true,
+      isDealing: true,
       gameStarted: setupData ? (isTestMode || setupData.gameStarted === true) : true,
       endTurnAfterUI: false,
       gameStatus: null, // Custom game over state
@@ -497,6 +498,7 @@ export const RondaGame = {
       // Clear announcements at the start of a move so they don't loop
       G.announcements = [];
       G._announcementIdIncremented = false;
+      G.isDealing = false;
 
       hand.splice(cardIndex, 1);
 
@@ -630,6 +632,7 @@ export const RondaGame = {
         }
         G.lastPlayedCard = null; // Clear last played card so Derba doesn't carry over to a new round
         G.isAnimating = true;
+        G.isDealing = true;
         evaluateRondaTringa(G);
       }
 
@@ -728,6 +731,7 @@ export const RondaGame = {
             // Guard: only process if still animating (idempotent in multiplayer)
             if (!G.isAnimating) return;
             G.isAnimating = false;
+            G.isDealing = false;
             if (G.gameStatus) {
               // Game is over - transition to gameOver stage for all players
               events.setActivePlayers({ all: 'gameOver' });
