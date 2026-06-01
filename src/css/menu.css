@@ -1,0 +1,218 @@
+/* ==========================================
+   HEIGHT-RESPONSIVE MAIN MENU DESIGN
+   ========================================== */
+
+/* 1. Default (Desktop View) */
+.menu-container {
+  transition: all 0.3s ease-in-out;
+}
+.menu-card {
+  transition: all 0.3s ease-in-out;
+  max-height: 95vh;
+  display: flex;
+  flex-direction: column;
+}
+.menu-logo {
+  font-family: 'Cinzel', serif;
+  line-height: 1.1;
+  transition: all 0.3s ease-in-out;
+}
+.menu-selectors {
+  transition: all 0.3s ease-in-out;
+}
+.menu-sections {
+  transition: all 0.3s ease-in-out;
+}
+.menu-box {
+  transition: all 0.3s ease-in-out;
+}
+
+/* 2. Responsive mobile layout with generous, beautiful spacing and comfortable touch targets */
+@media (max-width: 767px) {
+  .menu-container {
+    padding-top: 24px !important;
+    padding-bottom: 24px !important;
+  }
+  
+  .menu-card {
+    min-height: 82vh !important;
+    padding: 32px 24px !important;
+    border-radius: 32px !important;
+  }
+
+  .menu-logo {
+    font-size: 64px !important;
+    margin-bottom: 24px !important;
+  }
+
+  .menu-selectors {
+    margin-bottom: 32px !important;
+    gap: 12px !important;
+  }
+  
+  .menu-selectors button {
+    padding: 10px 18px !important;
+    font-size: 14px !important;
+  }
+
+  .menu-sections {
+    gap: 24px !important;
+  }
+
+  .menu-box {
+    padding: 24px 20px !important;
+    border-radius: 20px !important;
+    max-width: 90% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    width: 100% !important;
+  }
+
+  .menu-box h2 {
+    font-size: 14px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .menu-btn-large {
+    padding: 16px 24px !important;
+    font-size: 18px !important;
+    border-radius: 16px !important;
+    width: 100% !important;
+  }
+
+  .menu-btn-medium {
+    padding: 14px 20px !important;
+    font-size: 16px !important;
+    border-radius: 16px !important;
+    width: 100% !important;
+  }
+  
+  .menu-subpanel {
+    padding: 28px 20px !important;
+    border-radius: 24px !important;
+    max-width: 90% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    width: 100% !important;
+  }
+  
+  .menu-subpanel h2 {
+    font-size: 22px !important;
+    margin-bottom: 20px !important;
+  }
+  
+  .menu-subpanel input {
+    padding: 14px 16px !important;
+    font-size: 16px !important;
+    border-radius: 16px !important;
+  }
+  
+  .menu-subpanel button {
+    padding: 14px 16px !important;
+    font-size: 16px !important;
+    border-radius: 16px !important;
+  }
+
+  .menu-footer-btn {
+    padding: 16px !important;
+    font-size: 16px !important;
+    border-radius: 20px !important;
+    max-width: 90% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    width: 100% !important;
+  }
+  
+  .menu-version {
+    margin-top: 24px !important;
+  }
+}
+
+/* 4. Ultra Constrained Viewport Height: Height <= 580px (Mobile only) */
+@media (max-height: 580px) and (max-width: 767px) {
+  .menu-container {
+    padding-top: 0.25rem !important;
+    padding-bottom: 0.25rem !important;
+  }
+  .menu-card {
+    padding: 0.75rem !important;
+    border-radius: 1rem !important;
+  }
+  .menu-selectors {
+    margin-bottom: 0.375rem !important;
+    gap: 0.25rem !important;
+  }
+  .menu-logo {
+    font-size: 2rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  .menu-sections {
+    gap: 0.5rem !important;
+  }
+  .menu-box {
+    padding: 0.5rem !important;
+    border-radius: 0.5rem !important;
+  }
+  .menu-box h2 {
+    margin-bottom: 0.25rem !important;
+    font-size: 0.7rem !important;
+  }
+  .menu-btn-large {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    font-size: 0.8125rem !important;
+  }
+  .menu-btn-medium {
+    padding-top: 0.375rem !important;
+    padding-bottom: 0.375rem !important;
+    font-size: 0.75rem !important;
+  }
+  .menu-subpanel {
+    padding: 0.5rem !important;
+    border-radius: 1rem !important;
+  }
+  .menu-subpanel h2 {
+    margin-bottom: 0.5rem !important;
+    font-size: 1rem !important;
+    padding-bottom: 0.25rem !important;
+  }
+  .menu-subpanel input {
+    padding: 0.375rem 0.5rem !important;
+    font-size: 0.75rem !important;
+  }
+  .menu-subpanel button {
+    padding: 0.375rem 0.5rem !important;
+    font-size: 0.75rem !important;
+  }
+  .menu-rooms-list {
+    max-height: 90px !important;
+  }
+  .menu-footer-row {
+    gap: 0.375rem !important;
+  }
+  .menu-footer-btn {
+    padding: 0.5rem !important;
+    font-size: 0.75rem !important;
+    border-radius: 0.5rem !important;
+  }
+  .menu-version {
+    margin-top: 0.25rem !important;
+  }
+}
+
+/* Custom scrollbar track solid styling to hide background under the scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 12px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #070a12 !important; /* Solid dark color to prevent background from being visible behind the scrollbar */
+  border-left: 1px solid rgba(255, 255, 255, 0.05);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(245, 158, 11, 0.3) !important; /* Amber thumb matching theme */
+  border-radius: 6px !important;
+  border: 3px solid #070a12 !important;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 158, 11, 0.6) !important;
+}

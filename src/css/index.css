@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+@import "./global.css";
+@import "./board.css";
+@import "./menu.css";
+@import "./buttons.css";
+@import "./app.css";
