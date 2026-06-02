@@ -147,11 +147,29 @@ export const useBoardEvents = ({
           const isMe = ann.player === myID;
           
           // Dynamically resolve the player's name who actually triggered the announcement
-          const announcerName = G.players[ann.player]?.name || `Player ${Number(ann.player) + 1}`;
+          let announcerName;
+          if (numP === 2) {
+            if (ann.player === myID) {
+              announcerName = G.players[myID]?.name || t('you');
+            } else {
+              announcerName = G.players[opponentID]?.name || t('opponent');
+            }
+          } else {
+            announcerName = G.players[ann.player]?.name || `Player ${Number(ann.player) + 1}`;
+          }
           
           // Helper for victim name or failing player name in Final Fail / As Finish
           const failingPlayerID = G.lastPlayedCard?.player || opponentID;
-          const failingPlayerName = G.players[failingPlayerID]?.name || t('opponent');
+          let failingPlayerName;
+          if (numP === 2) {
+            if (failingPlayerID === myID) {
+              failingPlayerName = G.players[myID]?.name || t('you');
+            } else {
+              failingPlayerName = G.players[opponentID]?.name || t('opponent');
+            }
+          } else {
+            failingPlayerName = G.players[failingPlayerID]?.name || `Player ${Number(failingPlayerID) + 1}`;
+          }
           
           let customText = "";
           let customTitle = ann.type;
@@ -215,7 +233,7 @@ export const useBoardEvents = ({
             }
           }
           if (ann.type === 'Clash') {
-            if (ann.clashingPlayers && ann.clashingPlayers.length > 0) {
+            if (numP === 4 && ann.clashingPlayers && ann.clashingPlayers.length > 0) {
               const names = ann.clashingPlayers.map(pID => G.players[pID]?.name || `Player ${Number(pID) + 1}`);
               let joinedNames = "";
               if (names.length === 2) {

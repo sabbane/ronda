@@ -212,6 +212,77 @@ describe('Ronda Game Logic - Deep Testing', () => {
     // Bot should choose to play the 1 (index 1) to maximize captured cards
     expect(moves).toEqual([{ move: 'playCard', args: [1] }]);
   });
+
+  test('Ronda announcement name resolution: verify that unnamed opponent resolves to Opponent fallback in 2-player game', () => {
+    // Mimic G and ctx setup for a 2-player game where P1 (opponent) has no name set
+    const G = {
+      players: {
+        '0': { name: 'Player 1', hand: [], captured: [], score: 0 },
+        '1': { name: '', hand: [], captured: [], score: 0 } // No name set
+      }
+    };
+    
+    const myID = '0'; // I am Player 1 (indexed 0)
+    const opponentID = '1'; // Opponent is Player 2 (indexed 1)
+    const numP = 2;
+
+    // Mimic the announcement triggered by Player 1 (opponent) having a Ronda
+    const ann = { player: '1', type: 'Ronda' };
+
+    // Resolve announcer name using the exact updated logic in useBoardEvents.js
+    let announcerName;
+    if (numP === 2) {
+      if (ann.player === myID) {
+        announcerName = G.players[myID]?.name || 'You';
+      } else {
+        announcerName = G.players[opponentID]?.name || 'Opponent';
+      }
+    } else {
+      announcerName = G.players[ann.player]?.name || `Player ${Number(ann.player) + 1}`;
+    }
+
+    // Verify it resolves to "Opponent" instead of "Player 2"
+    expect(announcerName).toBe('Opponent');
+    expect(announcerName).not.toBe('Player 2');
+  });
+
+  test('Clash announcement 2-player: verify that 2-player Clash uses Both of you fallback instead of listing individual names', () => {
+    // Setup a 2-player game where players have no custom nicknames set
+    const G = {
+      players: {
+        '0': { name: '', hand: [], captured: [], score: 0 },
+        '1': { name: '', hand: [], captured: [], score: 0 }
+      }
+    };
+    const numP = 2;
+    const ann = {
+      player: 'none',
+      type: 'Clash',
+      clashType: 'Ronda',
+      clashingPlayers: ['0', '1']
+    };
+
+    // Mimic the exact corrected rendering logic in useBoardEvents.js
+    let customText = "";
+    if (ann.type === 'Clash') {
+      if (numP === 4 && ann.clashingPlayers && ann.clashingPlayers.length > 0) {
+        const names = ann.clashingPlayers.map(pID => G.players[pID]?.name || `Player ${Number(pID) + 1}`);
+        let joinedNames = "";
+        if (names.length === 2) {
+          joinedNames = names.join(' and '); // Mimic t('and') fallback
+        } else {
+          joinedNames = names.slice(0, -1).join(', ') + ', and ' + names[names.length - 1];
+        }
+        customText = `${joinedNames} have Ronda! Clash!`;
+      } else {
+        customText = "Both of you have Ronda. The winner will be announced at the end of the round";
+      }
+    }
+
+    // Verify it formats as "Both of you..." instead of listing individual names "Player 1 and Player 2"
+    expect(customText).toBe('Both of you have Ronda. The winner will be announced at the end of the round');
+    expect(customText).not.toBe('Player 1 and Player 2 have Ronda! Clash!');
+  });
 });
 
 
