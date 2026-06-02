@@ -64,43 +64,89 @@ export const getHandRank = (hand) => {
 
 export const evaluateRondaTringa = (G) => {
   const numP = Object.keys(G.players).length;
-  if (numP === 2) {
-    const p0Rank = getHandRank(G.players['0'].hand);
-    const p1Rank = getHandRank(G.players['1'].hand);
-
-    if (p0Rank && p1Rank) {
-      if (p0Rank.type !== p1Rank.type) {
-        // Tringa vs Ronda: Resolve immediately
-        const winner = p0Rank.type === 'Tringa' ? '0' : '1';
-        const pts = 6;
-        addScore(G, winner, pts);
-        G.announcements.push({ 
-          player: winner, 
-          type: 'TringaWins', 
-          pts: pts 
-        });
-        G.activeClash = null;
+  const participants = {};
+  const rondaPlayers = [];
+  const tringaPlayers = [];
+  
+  for (let i = 0; i < numP; i++) {
+    const pID = String(i);
+    const pRank = getHandRank(G.players[pID]?.hand);
+    if (pRank) {
+      participants[pID] = pRank;
+      if (pRank.type === 'Tringa') {
+        tringaPlayers.push(pID);
       } else {
-        G.activeClash = { p0: p0Rank, p1: p1Rank };
-        G.announcements.push({ player: 'none', type: 'Clash', clashType: p0Rank.type });
+        rondaPlayers.push(pID);
       }
-    } else if (p0Rank) {
-      addScore(G, '0', p0Rank.type === 'Tringa' ? 5 : 1);
-      G.announcements.push({ player: '0', type: p0Rank.type });
-    } else if (p1Rank) {
-      addScore(G, '1', p1Rank.type === 'Tringa' ? 5 : 1);
-      G.announcements.push({ player: '1', type: p1Rank.type });
+    }
+  }
+
+  const clashingPlayers = [...tringaPlayers, ...rondaPlayers];
+  if (clashingPlayers.length === 0) {
+    return;
+  }
+
+  // Case A: At least one Tringa is present
+  if (tringaPlayers.length > 0) {
+    if (tringaPlayers.length === 1) {
+      // Single Tringa beats all Rondas immediately!
+      const winner = tringaPlayers[0];
+      const hasBeatRondas = rondaPlayers.length > 0;
+      const pts = 5 + rondaPlayers.length;
+      addScore(G, winner, pts);
+      G.announcements.push({ 
+        player: winner, 
+        type: hasBeatRondas ? 'TringaWins' : 'Tringa', 
+        pts: pts 
+      });
+    } else {
+      // Multiple Tringas clash (Rondas are ignored)
+      const ptsPool = (tringaPlayers.length * 5) + rondaPlayers.length;
+      G.activeClash = {
+        participants,
+        clashingPlayers: tringaPlayers,
+        ptsPool,
+        clashType: 'Tringa'
+      };
+      // Set backward compatibility for 2 players
+      if (numP === 2) {
+        G.activeClash.p0 = participants['0'];
+        G.activeClash.p1 = participants['1'];
+      }
+      G.announcements.push({
+        player: 'none',
+        type: 'Clash',
+        clashType: 'Tringa',
+        clashingPlayers: tringaPlayers
+      });
     }
   } else {
-    // 4 Players: Award Ronda/Tringa points to the individual player
-    for (let i = 0; i < numP; i++) {
-      const pID = String(i);
-      const pRank = getHandRank(G.players[pID].hand);
-      if (pRank) {
-        const pts = pRank.type === 'Tringa' ? 5 : 1;
-        addScore(G, pID, pts);
-        G.announcements.push({ player: pID, type: pRank.type });
+    // Case B: Only Rondas are present
+    if (rondaPlayers.length === 1) {
+      // Only a single Ronda: award immediately
+      const winner = rondaPlayers[0];
+      addScore(G, winner, 1);
+      G.announcements.push({ player: winner, type: 'Ronda' });
+    } else {
+      // Multiple Rondas clash
+      const ptsPool = rondaPlayers.length;
+      G.activeClash = {
+        participants,
+        clashingPlayers: rondaPlayers,
+        ptsPool,
+        clashType: 'Ronda'
+      };
+      // Set backward compatibility for 2 players
+      if (numP === 2) {
+        G.activeClash.p0 = participants['0'];
+        G.activeClash.p1 = participants['1'];
       }
+      G.announcements.push({
+        player: 'none',
+        type: 'Clash',
+        clashType: 'Ronda',
+        clashingPlayers: rondaPlayers
+      });
     }
   }
 };
@@ -108,32 +154,44 @@ export const evaluateRondaTringa = (G) => {
 export const resolveClash = (G) => {
   if (!G.activeClash) return;
   
-  const { p0, p1 } = G.activeClash;
-  let winner;
-  let pts = 2; // Default for Ronda vs Ronda
+  const { participants, clashingPlayers, ptsPool } = G.activeClash;
   
-  if (p0.type === 'Tringa' && p1.type === 'Ronda') {
-    winner = '0';
-    pts = 6;
-  } else if (p1.type === 'Tringa' && p0.type === 'Ronda') {
-    winner = '1';
-    pts = 6;
+  // 1. Filter participants to those who have the highest rank type present (Tringa > Ronda)
+  let highestRankType = 'Ronda';
+  clashingPlayers.forEach(pID => {
+    if (participants[pID].type === 'Tringa') {
+      highestRankType = 'Tringa';
+    }
+  });
+
+  const topPlayers = clashingPlayers.filter(pID => participants[pID].type === highestRankType);
+
+  // 2. Find the highest value among the top players
+  let maxVal = -1;
+  topPlayers.forEach(pID => {
+    const val = participants[pID].value;
+    if (val > maxVal) {
+      maxVal = val;
+    }
+  });
+
+  const winners = topPlayers.filter(pID => participants[pID].value === maxVal);
+
+  let winner = null;
+  if (winners.length === 1) {
+    winner = winners[0];
   } else {
-    if (p0.type === 'Tringa' && p1.type === 'Tringa') pts = 10;
-    
-    if (p0.value > p1.value) winner = '0';
-    else if (p1.value > p0.value) winner = '1';
-    else winner = 'Draw'; 
+    winner = 'Draw';
   }
   
   if (winner && winner !== 'Draw') {
-    addScore(G, winner, pts);
-    const winnerRank = G.activeClash['p' + winner];
+    addScore(G, winner, ptsPool);
+    const winnerRank = participants[winner];
     G.announcements.push({ 
       player: winner, 
       type: 'Clash Won', 
-      text: `Won Clash with ${winnerRank.type}! (+${pts})`,
-      pts: pts,
+      text: `Won Clash with ${winnerRank.type}! (+${ptsPool})`,
+      pts: ptsPool,
       rankType: winnerRank.type
     });
   } else {

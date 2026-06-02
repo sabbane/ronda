@@ -96,6 +96,8 @@ export const ar = {
     ultimateCounterOpponent: "الخصم رد ليك هجوم مضاد نهائي (+10 للخصم)",
     clashRonda: "بجوجكم عندكم روندا. غادي يتعرف الرابح فاللخر د الجولة",
     clashTringa: "بجوجكم عندكم ترينجا. غادي يتعرف الرابح فاللخر د الجولة",
+    clashRondaMulti: "لَدَى {names} روندا! صراع!",
+    clashTringaMulti: "لَدَى {names} ترينغا! صراع!",
     clashWonTitle: "فوز في التصادم",
     clashLostTitle: "خسارة في التصادم",
     clashWonRondaMe: "ربحتي إصطدام الروندات (+{pts} لك)",

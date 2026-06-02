@@ -96,6 +96,8 @@ export const fr = {
     ultimateCounterOpponent: "{oppName} a exécuté un Contre Ultime (+10 {oppName})",
     clashRonda: "Vous avez tous les deux Ronda. Le gagnant sera annoncé à la fin de la manche",
     clashTringa: "Vous avez tous les deux Tringa. Le gagnant sera annoncé à la fin de la manche",
+    clashRondaMulti: "{names} ont une Ronda ! Duel !",
+    clashTringaMulti: "{names} ont une Tringa ! Duel !",
     clashWonTitle: "Clash Gagné",
     clashLostTitle: "Clash Perdu",
     clashWonRondaMe: "Vous avez gagné le Clash des Rondas (+{pts} vous)",

@@ -215,7 +215,20 @@ export const useBoardEvents = ({
             }
           }
           if (ann.type === 'Clash') {
-            customText = ann.clashType === 'Tringa' ? t('announcements.clashTringa') : t('announcements.clashRonda');
+            if (ann.clashingPlayers && ann.clashingPlayers.length > 0) {
+              const names = ann.clashingPlayers.map(pID => G.players[pID]?.name || `Player ${Number(pID) + 1}`);
+              let joinedNames = "";
+              if (names.length === 2) {
+                joinedNames = names.join(` ${t('and') || '&'} `);
+              } else {
+                joinedNames = names.slice(0, -1).join(', ') + `, ${t('and') || '&'} ` + names[names.length - 1];
+              }
+              customText = ann.clashType === 'Tringa'
+                ? (t('announcements.clashTringaMulti', { names: joinedNames }) || `${joinedNames} have Tringa! Clash!`)
+                : (t('announcements.clashRondaMulti', { names: joinedNames }) || `${joinedNames} have Ronda! Clash!`);
+            } else {
+              customText = ann.clashType === 'Tringa' ? t('announcements.clashTringa') : t('announcements.clashRonda');
+            }
             customIcon = "⚔️";
           }
           if (ann.type === 'Clash Won') {
