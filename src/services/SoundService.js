@@ -142,14 +142,36 @@ class SoundService {
     try {
       if (this.bgmAudio) {
         this.bgmAudio.pause();
+        this.bgmAudio.onended = null;
         this.bgmAudio = null;
       }
 
-      this.bgmAudio = new Audio(track.path);
-      this.bgmAudio.loop = true;
-      this.bgmAudio.volume = track.gain;
-      
       this.bgmPlaying = true;
+
+      if (track.name === "Desert Night") {
+        // Play the intro first, loop=false
+        this.bgmAudio = new Audio("/assets/sounds/desert_night_intro.mp3");
+        this.bgmAudio.loop = false;
+        this.bgmAudio.volume = track.gain;
+
+        this.bgmAudio.onended = () => {
+          if (!this.bgmPlaying || this.currentTrackIndex !== 1) return;
+          try {
+            this.bgmAudio = new Audio("/assets/sounds/desert_night.mp3");
+            this.bgmAudio.loop = true;
+            this.bgmAudio.volume = track.gain;
+            this.bgmAudio.play().catch(e => console.warn('Failed to play looped desert night:', e));
+          } catch (e) {
+            console.warn('[SoundService] Failed to loop Desert Night:', e);
+          }
+        };
+      } else {
+        // Standard loop
+        this.bgmAudio = new Audio(track.path);
+        this.bgmAudio.loop = true;
+        this.bgmAudio.volume = track.gain;
+      }
+      
       await this.bgmAudio.play();
     } catch (e) {
       console.warn('[SoundService] BGM play failed (audio asset may be missing):', e.message);
@@ -163,6 +185,7 @@ class SoundService {
 
     if (this.bgmAudio) {
       try {
+        this.bgmAudio.onended = null;
         this.bgmAudio.pause();
       } catch (e) { /* ignore */ }
     }

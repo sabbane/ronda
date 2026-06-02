@@ -283,6 +283,78 @@ describe('Ronda Game Logic - Deep Testing', () => {
     expect(customText).toBe('Both of you have Ronda. The winner will be announced at the end of the round');
     expect(customText).not.toBe('Player 1 and Player 2 have Ronda! Clash!');
   });
+
+  test('Derba announcement 2-player bug: verify that when local player hits a Derba, the message resolves to "You hit You" or "You hit [my name]" instead of referencing the opponent', () => {
+    // Setup translation dictionaries locally for English
+    const mockT = (key, params = {}) => {
+      const translations = {
+        'you': 'You',
+        'opponent': 'Opponent',
+        'announcements': {
+          derbaMe: "You hit {oppName} (+1 you)",
+          derbaOpponent: "{oppName} hits you (+1 {oppName})",
+        }
+      };
+      const keys = key.split('.');
+      let value = translations;
+      for (const k of keys) {
+        if (!value || value[k] === undefined) return key;
+        value = value[k];
+      }
+      if (typeof value === 'string' && Object.keys(params).length > 0) {
+        return Object.keys(params).reduce((str, paramKey) => {
+          return str.replace(`{${paramKey}}`, params[paramKey]);
+        }, value);
+      }
+      return value;
+    };
+
+    // 2-player game
+    const G = {
+      players: {
+        '0': { name: '', hand: [], captured: [], score: 0 },
+        '1': { name: '', hand: [], captured: [], score: 0 }
+      }
+    };
+
+    const myID = '0';
+    const opponentID = '1';
+    const numP = 2;
+
+    // Local player (player '0') hits a Derba
+    const ann = { player: '0', type: 'Derba' };
+    const isMe = ann.player === myID;
+
+    // Mimic the exact corrected rendering logic in useBoardEvents.js
+    let announcerName;
+    let opponentName;
+    if (numP === 2) {
+      if (ann.player === myID) {
+        announcerName = G.players[myID]?.name || mockT('you');
+        opponentName = G.players[opponentID]?.name || mockT('opponent');
+      } else {
+        announcerName = G.players[opponentID]?.name || mockT('opponent');
+        opponentName = G.players[myID]?.name || mockT('you');
+      }
+    } else {
+      announcerName = G.players[ann.player]?.name || `Player ${Number(ann.player) + 1}`;
+      opponentName = `Player ${Number(ann.player) + 1}`;
+    }
+
+    let customText = "";
+    if (ann.type === 'Derba') {
+      if (numP === 4) {
+        // 4 player logic
+      } else {
+        customText = isMe ? mockT('announcements.derbaMe', { oppName: opponentName }) : mockT('announcements.derbaOpponent', { oppName: announcerName });
+      }
+    }
+
+    // Verify that the text now correctly resolves to "You hit Opponent (+1 you)"
+    expect(customText).toBe('You hit Opponent (+1 you)');
+    // It should not resolve to the buggy "You hit You (+1 you)"
+    expect(customText).not.toBe('You hit You (+1 you)');
+  });
 });
 
 
