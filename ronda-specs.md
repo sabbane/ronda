@@ -70,7 +70,7 @@ Die App verwendet reale Bilddateien für die spanischen Spielkarten sowie hochau
 ## 4. Architektur-Features
 ### 4.1 Internationalisierung (i18n)
 Die App unterstützt mehrere Sprachen über einen `LanguageContext`:
-*   **Sprachen:** Englisch (EN), Französisch (FR), Deutsch (DE), Arabisch (AR).
+*   **Sprachen:** Englisch (EN), Französisch (FR), Arabisch (AR). (Das System wurde modularisiert; Übersetzungen befinden sich nun ausgelagert in separaten Dateien unter `src/contexts/translations/` für bessere Wartbarkeit).
 *   **RTL-Support:** Automatische Anpassung der Textrichtung (`dir="rtl"`) für Arabisch.
 *   **Spielerspezifische Ankündigungen:** Dynamische Unterscheidung zwischen Spieler ("You") und Gegner ("Opponent") in allen Event-Popups und Sprachen.
 
@@ -135,6 +135,11 @@ Um das Spielgefühl immersiv zu gestalten, wurde das Audiosystem auf echte Audio
     9.  *Clash:* `clash.mp3` / `clash_fail.mp3`
     10. *Victory:* `victory.mp3`
     11. *Defeat:* `defeat.mp3`
+*   **SFX-Preload-Cache (Performance-Optimierung):** Um Latenzen und Garbage-Collection-Ruckler beim dynamischen Instanziieren von Sounds zu vermeiden, werden alle 15 SFX-Dateien beim App-Start im `sfxCache` über `audio.preload = 'auto'` vorab geladen.
+*   **Zero-Latency Node Cloning:** `_playSFX()` nutzt das Klonen der vorgeladenen HTML5-Audionodes (`cached.cloneNode()`). Dadurch können Soundeffekte überlappungsfrei, zeitgleich und ohne nennenswerte Ladeverzögerungen oder HTTP-Requests abgespielt werden.
+*   **Robustes Autoplay-Verhalten:** Bei einem fehlerhaften BGM-Start (z.B. aufgrund restriktiver Browser-Richtlinien) wird der interne Status `bgmPlaying = false` zurückgesetzt. Dies ermöglicht einen automatischen BGM-Startversuch bei der nächsten Benutzerinteraktion.
+*   **Doppelschlag-Effekt bei Taawida (Derba Double SFX):** Die Methode `playDerba(isSuccess, double)` nimmt nun einen optionalen Parameter entgegen. Wenn `double = true`, wird der Derba-Effekt nach 250ms automatisch ein zweites Mal gestartet. Dies wird über den Context-Helper `playDerbaDouble` z.B. bei einem Taawida Streak von 3 verwendet.
+*   **iOS Safari PWA Audio-Fix (Excluding MP3s):** Um den bekannten Bug in iOS Safari zu umgehen, bei dem PWA-precached Mediendateien aufgrund fehlerhafter Range-Requests nicht abgespielt werden, wurden sämtliche `.mp3`-Dateien in `vite.config.js` via Workbox `globIgnores` vom precaching ausgeschlossen.
 *   **Reaktive Sound-Trigger:** In `src/components/Board.jsx` überwachen declarative `useEffect`-Hooks den Spielstatus und lösen die passenden SFX aus.
 *   **Mute-Option & Persistenz:** Der Mute-Status wird in `localStorage` (`ronda_muted`) gespeichert und steuert sowohl BGM als auch alle SFX.
 *   **Autoplay-Policy:** BGM startet nach der ersten Benutzerinteraktion über `initContext()`.
@@ -148,12 +153,18 @@ Um das Spielgefühl immersiv zu gestalten, wurde das Audiosystem auf echte Audio
   /components
     Board.jsx       # Haupt-Spielfeld & Event-Handling (inkl. Rematch-UI & Ad-Trigger)
     Card.jsx        # Karten-Komponente (mit Glow & Preload-Logik aus src/assets/cards)
+    MainMenu.jsx    # Ausgelagertes Hauptmenü (Navigation, Play-Buttons, Branding)
     AdSlot.jsx      # Banner-Werbe-Integration
     DonateButton.jsx # Spenden-Funktion
     Rules.jsx       # Spielanleitung (Modal)
   /contexts
-    LanguageContext.jsx # i18n & Sprachsteuerung
+    LanguageContext.jsx # i18n & Sprachsteuerung (dünner Wrapper für modulare Übersetzungen)
+    /translations   # Modulare Übersetzungsdateien
+      en.js         # Englische Übersetzungen
+      fr.js         # Französische Übersetzungen
+      ar.js         # Arabische Übersetzungen
   /services
+    SoundService.js # Audiosystem mit preloaded SFX-Cache und Track-Steuerung
     AdService.js    # Plattform-Adapter für Google H5 Ads & PlayGama SDK
   /game
     game.js         # Kern-Spiellogik (inkl. Rematch-Logik & State-Reset)
@@ -204,6 +215,7 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   **Manifest:** Vollständige `manifest.json` für App-Branding und Startbildschirme.
 *   **Service Worker:** `vite-plugin-pwa` mit `autoUpdate`-Strategie für Offline-Support und nahtlose Updates.
 *   **Versionsmanagement:** Die App-Version (aktuell `0.9.4`) wird automatisch aus der `package.json` in den Build-Prozess injiziert.
+*   **Workbox Precaching & iOS Safari Fix:** Um den iOS Safari Bug beim Abspielen gecachter Audiodateien zu umgehen (Range-Requests auf Service-Worker-Ressourcen schlagen fehl), sind alle `.mp3`-Dateien vom PWA-Precaching über `globIgnores` ausgeschlossen.
  
 ## 7. Aktueller Status
 *   [x] Core Game Logic (Stechen, Sequenzen, Missa, Derba)
@@ -243,6 +255,11 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   [x] Vollständige Ad-Pausierung (Game & Sound) via Event-Driven Architecture (`ronda-ad-started` / `ronda-ad-completed`)
 *   [x] 3 BGM-Tracks (Casablanca, Desert Night, No Sound) mit Track-Wechsler-Button & LocalStorage Persistenz
 *   [x] 11 SFX-Sound-Assets (MP3) für alle Spielereignisse (inkl. Success/Fail-Varianten)
-*   [x] Erweiterter E2E-Test-Suite (19 Spec-Dateien: Lobby, Multiplayer, Bot, Responsiveness, etc.)
+*   [x] SFX-Preload-Cache zur Beseitigung von Audiolatenzen und UI-Rucklern (Zero-Latency Node Cloning)
+*   [x] iOS Safari PWA Audio-Fix (MP3-Ausschluss aus Workbox Precaching)
+*   [x] Modulare Internationalisierung mit separaten Übersetzungsdateien (`en.js`, `fr.js`, `ar.js` unter `/translations`)
+*   [x] Hauptmenü in eigenständige Komponente ausgelagert (`MainMenu.jsx`)
+*   [x] SoundService: Doppelschlag-Effekt bei Taawida (Derba Double SFX nach 250ms Delay)
+*   [x] Erweiterte E2E-Test-Suite (19 Spec-Dateien: Lobby, Multiplayer, Bot, Responsiveness, etc.)
 *   [ ] Google Play Store: Bubblewrap TWA-Packaging & Store-Listing
 *   [ ] Erweiterte KI-Heuristik
