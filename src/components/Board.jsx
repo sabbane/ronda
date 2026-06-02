@@ -1047,7 +1047,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
               <button
                 disabled={!allPlayersJoined}
                 onClick={() => { playClick(); moves.startGame(); }}
-                className="w-full btn-moroccan-green disabled:opacity-60 disabled:pointer-events-none px-6 py-4 rounded-xl font-bold text-lg cursor-pointer"
+                className="w-full btn-moroccan-gold disabled:opacity-60 disabled:pointer-events-none px-6 py-4 rounded-xl font-bold text-lg cursor-pointer"
               >
                 {language === 'de' ? 'Spiel starten' : 'Start Game'}
               </button>

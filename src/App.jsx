@@ -420,7 +420,7 @@ const App = () => {
         {/* Title moved inside card */}
         <div className="flex-1 flex flex-col w-full items-center justify-center p-4 z-30 pt-4 pb-8 menu-container">
           <div className="p-6 sm:p-8 rounded-3xl shadow-[0_0_60px_rgba(30,58,138,0.35)] border-2 border-amber-400/30 text-center max-w-lg w-full relative menu-card flex flex-col justify-between min-h-[82vh] sm:min-h-0" style={{backgroundColor: 'rgba(30, 58, 138, 0.7)'}}>
-            <h1 className="text-7xl font-black mb-4 text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-400 to-rose-500 tracking-tighter drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)] menu-logo">{t('logo')}</h1>
+            <h1 className="text-7xl font-black mb-4 text-[#D69E2E] tracking-tighter drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)] menu-logo">{t('logo')}</h1>
 
              {/* Language & Sound Selector in Center */}
             <div className="flex flex-col items-center gap-3 mb-8 menu-selectors" dir="ltr">
@@ -479,23 +479,23 @@ const App = () => {
               {multiplayerAction === null ? (
                 <>
                   {/* Singleplayer Box */}
-                  <div className="bg-black/30 p-6 rounded-2xl border border-emerald-500/10 menu-box backdrop-blur-sm">
+                  <div className="bg-black/30 p-6 rounded-2xl border border-amber-500/10 menu-box backdrop-blur-sm">
                     <h2 className="text-sm font-extrabold mb-4 text-amber-200/90 uppercase tracking-widest">{t('singleplayer')}</h2>
                     <button
                       onClick={() => { playClick(); setMode('bot'); }}
-                      className="w-full btn-moroccan-green px-6 py-4 rounded-xl font-bold text-lg cursor-pointer menu-btn-large"
+                      className="w-full btn-moroccan-gold px-6 py-4 rounded-xl font-bold text-lg cursor-pointer menu-btn-large"
                     >
                       {t('playVsBot')}
                     </button>
                   </div>
 
                   {/* Online Multiplayer Box */}
-                  <div className="bg-black/30 p-6 rounded-2xl border border-emerald-500/10 menu-box backdrop-blur-sm">
+                  <div className="bg-black/30 p-6 rounded-2xl border border-amber-500/10 menu-box backdrop-blur-sm">
                     <h2 className="text-sm font-extrabold mb-4 text-amber-200/90 uppercase tracking-widest">{t('onlineMultiplayer')}</h2>
                     <div className="flex flex-col gap-3">
                       <button
                         onClick={() => { playClick(); setMultiplayerAction('create'); }}
-                        className="w-full btn-moroccan-blue px-5 py-3.5 rounded-xl font-bold text-base cursor-pointer menu-btn-medium"
+                        className="w-full btn-moroccan-primary px-5 py-3.5 rounded-xl font-bold text-base cursor-pointer menu-btn-medium"
                       >
                         {t('createRoom')}
                       </button>
@@ -598,7 +598,7 @@ const App = () => {
                         <button
                           disabled={isCheckingRoom}
                           onClick={() => { playClick(); handleCreateRoom(); }}
-                          className="flex-1 btn-moroccan-blue disabled:opacity-50 px-4 py-3 rounded-xl font-bold text-sm text-center cursor-pointer"
+                          className="flex-1 btn-moroccan-primary disabled:opacity-50 px-4 py-3 rounded-xl font-bold text-sm text-center cursor-pointer"
                         >
                           {isCheckingRoom ? '...' : t('create')}
                         </button>
@@ -729,9 +729,9 @@ const App = () => {
               <div className="flex w-full mt-2.5">
                 <button
                   onClick={() => { playClick(); setMode('rules'); }}
-                  className="w-full py-2 rounded-xl font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 border border-amber-500/10 bg-amber-500/5 text-amber-400/60 hover:bg-amber-500/10 hover:text-yellow-300 transition-all duration-75 active:translate-y-[1px]"
+                  className="w-full py-2 rounded-xl font-bold text-sm cursor-pointer flex items-center justify-center gap-1.5 border border-[#D69E2E]/10 bg-[#D69E2E]/5 text-[#D69E2E]/60 hover:bg-[#D69E2E]/10 hover:text-[#D69E2E] transition-all duration-75 active:translate-y-[1px]"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-60"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-60"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
                   {t('rulesBtn')}
                 </button>
               </div>
