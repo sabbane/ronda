@@ -428,8 +428,6 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
             const numP = ctx.numPlayers || 2;
             if (numP === 4) {
               if (language === 'ar') {
-                // Arabic: avoid blending Latin names with RTL Arabic text.
-                // Uses clean terms: "لكم" for player's team and "للخصم" for opponent's team.
                 const isHitterMyTeam = (ann.player === myID) || 
                   (myID === '0' && ann.player === '2') || (myID === '2' && ann.player === '0') ||
                   (myID === '1' && ann.player === '3') || (myID === '3' && ann.player === '1');
@@ -441,7 +439,6 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
                     customText = "ضربنا الخصم (+1 لكم)";
                   }
                 } else {
-                  // In a sequential 4-player turn order, the victim is always the player who played immediately before the hitter.
                   const victimID = String((Number(ann.player) + 3) % 4);
                   if (myID === victimID) {
                     customText = "الخصم ضربك (+1 للخصم)";
@@ -538,7 +535,6 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
         }
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [G.announcements, myID, ctx.turn, G.gameStarted]);
 
   // Process the event queue sequentially with a pause between popups
@@ -650,7 +646,6 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
             const el = document.getElementById(`table-wrapper-${card.id}`);
             if (el) rects[card.id] = el.getBoundingClientRect();
           });
-          // eslint-disable-next-line react-hooks/set-state-in-effect
           setCaptureRects(rects);
         }
       } else if (!isDerbaActive) {
@@ -669,7 +664,6 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
     return () => {
       if (timerId) clearTimeout(timerId);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [G.pendingCapture, captureSequence, captureRects, G.table, ctx.multiplayer, myID, moves, activeEvent]);
 
   // Progress the animation sequence
