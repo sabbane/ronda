@@ -71,8 +71,8 @@ test.describe('Functional Test: Complete Multiplayer Game', () => {
     console.log('✅ Initial rendering verified for both players.');
 
     // 4. Play Game Automatically
-    const gameOver1 = page1.locator('h2', { hasText: /Game Over|Partie Terminée|Spielende|انتهت اللعبة/i });
-    const gameOver2 = page2.locator('h2', { hasText: /Game Over|Partie Terminée|Spielende|انتهت اللعبة/i });
+    const gameOver1 = page1.locator('h2', { hasText: /Game Over|Partie Terminée|انتهت اللعبة/i });
+    const gameOver2 = page2.locator('h2', { hasText: /Game Over|Partie Terminée|انتهت اللعبة/i });
 
     let attempts = 0;
     const MAX_ATTEMPTS = 500;
@@ -113,7 +113,7 @@ test.describe('Functional Test: Complete Multiplayer Game', () => {
     await expect(gameOver2).toBeVisible({ timeout: 10000 });
     console.log('✅ Success: Both players reached the Game Over screen.');
 
-    const playAgain1 = page1.locator('button', { hasText: /Play Again|Rejouer|Erneut spielen|إعادة اللعب/i });
+    const playAgain1 = page1.locator('button', { hasText: /Play Again|Rejouer|إعادة اللعب/i });
     await expect(playAgain1).toBeVisible();
     console.log('✅ Success: Multiplayer game lifecycle completed successfully.');
   });

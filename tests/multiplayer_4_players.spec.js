@@ -67,7 +67,7 @@ test.describe('4-Player Team Mode E2E', () => {
     console.log(`[Test] 4-Player Room created with ID: ${realMatchID}`);
 
     // Assert P1 (Host) "Start Game" is initially disabled since lobby is not full
-    const p1StartBtn = page1.locator('button', { hasText: /Start Game|Spiel starten/i }).first();
+    const p1StartBtn = page1.locator('button', { hasText: /Start Game/i }).first();
     await expect(p1StartBtn).toBeDisabled({ timeout: 5000 });
     console.log('[Test] Confirmed: Start Game is disabled initially.');
 
@@ -86,7 +86,7 @@ test.describe('4-Player Team Mode E2E', () => {
 
     // ─── P2: Switches Seat to Slot 2 (Team A) ─────────────────────────────────
     // Assert "Join Team A" is visible for Slot 2
-    const joinTeamABtn = page2.locator('button', { hasText: /Join Team A|Team A beitreten/i }).first();
+    const joinTeamABtn = page2.locator('button', { hasText: /Join Team A/i }).first();
     await expect(joinTeamABtn).toBeVisible({ timeout: 10000 });
     await joinTeamABtn.click();
     console.log('[Test] P2 clicked Join Team A.');

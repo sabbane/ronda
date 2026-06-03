@@ -18,7 +18,7 @@ test.describe('Functional Test: Complete Game vs AI', () => {
     }
 
     // 2. Click "Start Game" button
-    const playBtn = page.locator('button', { hasText: /Start Game|Commencer le jeu|Spiel starten|ابدأ اللعبة|Play vs AI Bot/i });
+    const playBtn = page.locator('button', { hasText: /Start Game|Commencer le jeu|ابدأ اللعبة|Play vs AI Bot/i });
     await expect(playBtn.first()).toBeVisible();
     await playBtn.first().click();
 
@@ -64,14 +64,14 @@ test.describe('Functional Test: Complete Game vs AI', () => {
     expect(tableCount, 'Table should have exactly 4 card images').toBe(4);
     expect(handCount, 'Player hand should have exactly 3 interactive cards').toBe(3);
     
-    const tableEmptyMsg = page.locator('text=/TABLE EMPTY|TISCH LEER|TABLE VIDE/i');
+    const tableEmptyMsg = page.locator('text=/TABLE EMPTY|TABLE VIDE/i');
     await expect(tableEmptyMsg).not.toBeVisible();
     console.log('✅ Rendering check passed: 4 table cards and 3 hand cards visible.');
     // ----------------------------------------------
 
 
     // The Game Over overlay contains an h2 with "Game Over" text
-    const gameOverOverlay = page.locator('h2', { hasText: /Game Over|Partie Terminée|Spielende|انتهت اللعبة/i });
+    const gameOverOverlay = page.locator('h2', { hasText: /Game Over|Partie Terminée|انتهت اللعبة/i });
     
     // Playable cards in our hand have the class "cursor-grab" on their motion wrapper.
     const myCards = page.locator('.cursor-grab');
@@ -120,7 +120,7 @@ test.describe('Functional Test: Complete Game vs AI', () => {
     console.log(`✅ Success: Played approximately ${cardsPlayedByUs} cards during the game.`);
 
     // 3. Play Again button is visible
-    const playAgainBtn = page.locator('button', { hasText: /Play Again|Rejouer|Erneut spielen|إعادة اللعب/i });
+    const playAgainBtn = page.locator('button', { hasText: /Play Again|Rejouer|إعادة اللعب/i });
     await expect(playAgainBtn).toBeVisible();
     console.log('✅ Success: "Play Again" button is visible and ready for a new round.');
   });

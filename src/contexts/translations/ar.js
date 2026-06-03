@@ -143,5 +143,12 @@ export const ar = {
   roleOpponent: "خصم",
   rolePartnerA: "شريك (أ)",
   roleOpponent1B: "خصم 1 (ب)",
-  roleOpponent2B: "خصم 2 (ب)"
+  roleOpponent2B: "خصم 2 (ب)",
+  changeTrack: "تغيير الموسيقى",
+  muteSound: "كتم الصوت",
+  unmuteSound: "تشغيل الصوت",
+  music: "موسيقى",
+  sound: "صوت",
+  muted: "مكتوم"
 };
+

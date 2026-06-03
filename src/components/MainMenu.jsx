@@ -68,7 +68,7 @@ export const MainMenu = ({
               <button
                 onClick={() => { playClick(); nextTrack(); }}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 bg-white/10 border border-white/10 text-slate-300 hover:bg-white/20 backdrop-blur-md transition-all duration-75 active:translate-y-[2px] cursor-pointer`}
-                title={tracks && tracks[currentTrack] ? `Track wechseln: ${tracks[currentTrack].name}` : "Track wechseln"}
+                title={tracks && tracks[currentTrack] ? `${t('changeTrack')}: ${tracks[currentTrack].name}` : t('changeTrack')}
               >
                 <div className="relative flex items-center justify-center">
                   <Music 
@@ -79,15 +79,15 @@ export const MainMenu = ({
                     <div className="absolute w-[18px] h-[1.5px] bg-red-400 rotate-45 rounded-sm shadow-sm" />
                   )}
                 </div>
-                <span>{tracks && tracks[currentTrack] ? tracks[currentTrack].name : "Musik"}</span>
+                <span>{tracks && tracks[currentTrack] ? tracks[currentTrack].name : t('music')}</span>
               </button>
               <button
                 onClick={toggleMute}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 bg-white/10 border border-white/10 text-slate-300 hover:bg-white/20 backdrop-blur-md transition-all duration-75 active:translate-y-[2px] cursor-pointer`}
-                title={isMuted ? "Unmute Sound" : "Mute Sound"}
+                title={isMuted ? t('unmuteSound') : t('muteSound')}
               >
                 {isMuted ? <VolumeX size={14} className="text-red-400" /> : <Volume2 size={14} className="text-emerald-400" />}
-                <span>{isMuted ? "Muted" : "Sound"}</span>
+                <span>{isMuted ? t('muted') : t('sound')}</span>
               </button>
             </div>
           </div>

@@ -143,8 +143,10 @@ export const fr = {
   roleOpponent: "Adversaire",
   rolePartnerA: "Partenaire (A)",
   roleOpponent1B: "Adversaire 1 (B)",
-  roleOpponent2B: "Adversaire 2 (B)",
   changeTrack: "Changer de piste",
   muteSound: "Couper le son",
-  unmuteSound: "Activer le son"
+  unmuteSound: "Activer le son",
+  music: "Musique",
+  sound: "Son",
+  muted: "Muet"
 };

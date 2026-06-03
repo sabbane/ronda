@@ -35,7 +35,7 @@ test('Play Again: Clicking Play Again after game over starts a new round', async
   }
 
   // Click "Start Game" button
-  const playBtn = page.locator('button', { hasText: /Start Game|Commencer le jeu|Spiel starten|ابدأ اللعبة|Play vs AI Bot/i });
+  const playBtn = page.locator('button', { hasText: /Start Game|Commencer le jeu|ابدأ اللعبة|Play vs AI Bot/i });
   await playBtn.first().click();
 
   // Wait for the game board to render

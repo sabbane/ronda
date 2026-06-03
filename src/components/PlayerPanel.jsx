@@ -84,7 +84,7 @@ export const PlayerPanel = ({
           <button 
             onClick={() => { playClick(); nextTrack(); }}
             className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-slate-700 transition-all duration-75 active:translate-y-[2px] shadow-md cursor-pointer"
-            title={tracks && tracks[currentTrack] ? `Track wechseln: ${tracks[currentTrack].name}` : "Track wechseln"}
+            title={tracks && tracks[currentTrack] ? `${t('changeTrack')}: ${tracks[currentTrack].name}` : t('changeTrack')}
           >
             <div className="relative flex items-center justify-center">
               <Music 
@@ -95,14 +95,14 @@ export const PlayerPanel = ({
                 <div className="absolute w-[20px] h-[1.5px] bg-red-400 rotate-45 rounded-sm shadow-sm" />
               )}
             </div>
-            <span className="text-slate-300 font-medium text-xs sm:text-sm">{tracks && tracks[currentTrack] ? tracks[currentTrack].name : "Musik"}</span>
+            <span className="text-slate-300 font-medium text-xs sm:text-sm">{tracks && tracks[currentTrack] ? tracks[currentTrack].name : t('music')}</span>
           </button>
 
           {/* Sound Toggle Button */}
           <button 
             onClick={toggleMute}
             className="flex items-center justify-center p-2.5 sm:p-3 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-slate-700 transition-all duration-75 active:translate-y-[2px] shadow-md cursor-pointer"
-            title={isMuted ? "Unmute Sound" : "Mute Sound"}
+            title={isMuted ? t('unmuteSound') : t('muteSound')}
           >
             {isMuted ? <VolumeX size={16} className="text-red-400" /> : <Volume2 size={16} className="text-emerald-400" />}
           </button>

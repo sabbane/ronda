@@ -77,6 +77,7 @@ export const WaitingLobby = ({
         <button 
           onClick={() => { playClick(); nextTrack(); }}
           className="flex items-center gap-2 px-3 py-1.5 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-white/15 transition-all duration-75 active:translate-y-[2px] shadow-md cursor-pointer"
+          title={tracks && tracks[currentTrack] ? `${t('changeTrack')}: ${tracks[currentTrack].name}` : t('changeTrack')}
         >
           <div className="relative flex items-center justify-center">
             <Music 
@@ -87,11 +88,12 @@ export const WaitingLobby = ({
               <div className="absolute w-[18px] h-[1.5px] bg-red-400 rotate-45 rounded-sm shadow-sm" />
             )}
           </div>
-          <span className="text-slate-300 font-medium text-xs hidden sm:inline">{tracks && tracks[currentTrack] ? tracks[currentTrack].name : "Musik"}</span>
+          <span className="text-slate-300 font-medium text-xs hidden sm:inline">{tracks && tracks[currentTrack] ? tracks[currentTrack].name : t('music')}</span>
         </button>
         <button 
           onClick={toggleMute}
           className="flex items-center justify-center p-2 bg-slate-800/80 hover:bg-slate-700 backdrop-blur-md text-slate-200 rounded-full border border-white/15 transition-all duration-75 active:translate-y-[2px] shadow-md cursor-pointer"
+          title={isMuted ? t('unmuteSound') : t('muteSound')}
         >
           {isMuted ? <VolumeX size={14} className="text-red-400" /> : <Volume2 size={14} className="text-emerald-400" />}
         </button>
