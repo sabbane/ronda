@@ -188,34 +188,29 @@ export const useBoardEvents = ({
           if (ann.type === 'Derba') {
             const numP = ctx.numPlayers || 2;
             if (numP === 4) {
-              if (language === 'ar') {
-                const isHitterMyTeam = (ann.player === myID) || 
-                  (myID === '0' && ann.player === '2') || (myID === '2' && ann.player === '0') ||
-                  (myID === '1' && ann.player === '3') || (myID === '3' && ann.player === '1');
-                
-                if (isHitterMyTeam) {
-                  if (myID === ann.player) {
-                    customText = "ضربتي الخصم (+1 لكم)";
-                  } else {
-                    customText = "ضربنا الخصم (+1 لكم)";
-                  }
-                } else {
-                  const victimID = String((Number(ann.player) + 3) % 4);
-                  if (myID === victimID) {
-                    customText = "الخصم ضربك (+1 للخصم)";
-                  } else {
-                    customText = "الخصم ضربنا (+1 للخصم)";
-                  }
-                }
-              } else {
-                const hitterName = G.players[ann.player]?.name || `Player ${Number(ann.player) + 1}`;
-                const victimID = String((Number(ann.player) + 3) % 4);
-                const victimName = G.players[victimID]?.name || `Player ${Number(victimID) + 1}`;
+              const isHitterMyTeam = (ann.player === myID) || 
+                (myID === '0' && ann.player === '2') || (myID === '2' && ann.player === '0') ||
+                (myID === '1' && ann.player === '3') || (myID === '3' && ann.player === '1');
+              
+              const victimID = String((Number(ann.player) + 3) % 4);
+              const isVictimMyTeam = (victimID === myID) ||
+                (myID === '0' && victimID === '2') || (myID === '2' && victimID === '0') ||
+                (myID === '1' && victimID === '3') || (myID === '3' && victimID === '1');
 
+              const hitterName = G.players[ann.player]?.name || `Player ${Number(ann.player) + 1}`;
+              const victimName = G.players[victimID]?.name || `Player ${Number(victimID) + 1}`;
+
+              if (isHitterMyTeam) {
                 if (myID === ann.player) {
                   customText = t('announcements.derbaMe4', { oppName: victimName });
-                } else if (myID === victimID) {
+                } else {
+                  customText = t('announcements.derbaTeammate4', { hitterName, oppName: victimName });
+                }
+              } else {
+                if (myID === victimID) {
                   customText = t('announcements.derbaOpponent4', { oppName: hitterName });
+                } else if (isVictimMyTeam) {
+                  customText = t('announcements.derbaTeammateOpponent4', { hitterName, victimName });
                 } else {
                   customText = t('announcements.derbaOther4', { hitterName, victimName });
                 }

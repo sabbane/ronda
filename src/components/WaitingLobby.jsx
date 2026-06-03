@@ -100,22 +100,22 @@ export const WaitingLobby = ({
       {/* Main Lobby Glass Box */}
       <div className="bg-slate-900/80 backdrop-blur-2xl p-6 sm:p-10 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 text-center max-w-xl w-full relative z-10 my-4 flex flex-col justify-between min-h-[82vh] sm:min-h-0">
         <h1 className="text-4xl sm:text-5xl font-black mb-1 text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-500 tracking-tighter drop-shadow-2xl">
-          {language === 'de' ? 'Spiel-Lobby' : 'Game Lobby'}
+          {t('gameLobby')}
         </h1>
         <p className="text-slate-400 text-xs sm:text-sm mb-6 sm:mb-8 font-medium tracking-wide uppercase">
-          {language === 'de' ? 'Warten auf Spieler...' : 'Waiting for players...'}
+          {t('waitingForPlayers')}
         </p>
 
         {/* Invitation / Room ID Card */}
         <div className="bg-black/40 border border-white/5 rounded-2xl p-4 mb-6 sm:mb-8 flex flex-col gap-3">
           <div className="flex justify-between items-center">
-            <span className="text-xs text-slate-400 uppercase tracking-widest font-bold">{language === 'de' ? 'Raum-ID' : 'Room ID'}</span>
+            <span className="text-xs text-slate-400 uppercase tracking-widest font-bold">{t('roomID')}</span>
             <span className="text-sm font-mono font-bold text-amber-300 bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20 flex items-center gap-2">
               {matchID}
               <button
                 onClick={() => navigator.clipboard.writeText(matchID)}
                 className="p-1 hover:bg-amber-500/20 rounded-full transition-colors"
-                title={language === 'de' ? 'Kopieren' : 'Copy'}
+                title={t('copy')}
               >
                 <Copy size={14} className="text-amber-300" />
               </button>
@@ -131,7 +131,7 @@ export const WaitingLobby = ({
               const pName = G.players[pID]?.name || '';
               const hasJoined = isHost || !!pName.trim();
               const isLocalPlayer = myID === pID;
-              const role = isHost ? 'Host' : (language === 'de' ? 'Gegner' : language === 'fr' ? 'Adversaire' : language === 'ar' ? 'خصم' : 'Opponent');
+              const role = isHost ? 'Host' : t('roleOpponent');
               const badgeColor = isHost ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' : 'bg-purple-500/20 text-purple-300 border-purple-500/30';
               const iconBg = hasJoined ? (isHost ? 'bg-amber-600/20 border-amber-500/30 text-amber-400' : 'bg-purple-600/20 border-purple-500/30 text-purple-400') : 'bg-white/5 border border-white/5 text-slate-600 animate-pulse';
 
@@ -144,11 +144,11 @@ export const WaitingLobby = ({
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                   </div>
                   <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1">
-                    {language === 'de' ? `Spieler ${parseInt(pID) + 1}` : `Player ${parseInt(pID) + 1}`}
+                    {t('playerSeatName', { num: parseInt(pID) + 1 })}
                   </span>
                   {!hasJoined ? (
                     <span className="text-xs font-semibold text-slate-500 animate-pulse uppercase tracking-wider py-1">
-                      {language === 'de' ? 'Warte...' : 'Waiting...'}
+                      {t('waiting')}
                     </span>
                   ) : isLocalPlayer ? (
                     <input
@@ -157,7 +157,7 @@ export const WaitingLobby = ({
                       value={G.players[pID]?.name || ''}
                       onChange={(e) => moves.setPlayerName(e.target.value)}
                       className="bg-black/50 border border-white/10 rounded-xl px-3 py-1.5 text-center text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 w-full animate-fade-in"
-                      placeholder={language === 'de' ? 'Dein Name' : 'Your name'}
+                      placeholder={t('yourName')}
                     />
                   ) : (
                     <span className="text-base font-bold text-slate-200">{pName || 'Host'}</span>
@@ -174,17 +174,17 @@ export const WaitingLobby = ({
               {/* Team A Header / Name Input */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 pb-3 border-b border-white/5">
                 <span className="text-sm font-extrabold text-amber-300 uppercase tracking-widest flex items-center gap-2">
-                  🛡️ {language === 'de' ? 'Team A' : 'Team A'}
+                  🛡️ {t('teamA')}
                 </span>
                 <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <span className="text-xs text-slate-400 whitespace-nowrap">{language === 'de' ? 'Team Name:' : 'Team Name:'}</span>
+                  <span className="text-xs text-slate-400 whitespace-nowrap">{t('teamName')}</span>
                   <input
                     type="text"
                     maxLength={20}
                     value={G.teamNames?.TeamA || ''}
                     readOnly={myID !== '0' && myID !== '2'}
                     onChange={(e) => moves.setTeamName({ team: 'TeamA', name: e.target.value })}
-                    placeholder={language === 'de' ? 'Team A Name...' : 'Enter Team A Name...'}
+                    placeholder={t('enterTeamAName')}
                     className={`bg-black/35 border ${myID === '0' || myID === '2' ? 'border-amber-500/30 focus:border-amber-500/60 focus:outline-none' : 'border-white/5 pointer-events-none'} rounded-lg px-2.5 py-1 text-white text-xs font-bold w-full sm:w-48`}
                   />
                 </div>
@@ -196,7 +196,7 @@ export const WaitingLobby = ({
                   const pName = G.players[pID]?.name || '';
                   const hasJoined = isHost || !!pName.trim();
                   const isLocalPlayer = myID === pID;
-                  const role = isHost ? 'Host' : (language === 'de' ? 'Partner (A)' : 'Partner (A)');
+                  const role = isHost ? 'Host' : t('rolePartnerA');
                   const badgeColor = 'bg-amber-500/20 text-amber-300 border border-amber-500/30';
                   const iconBg = hasJoined ? 'bg-amber-600/20 border border-amber-500/30 text-amber-400' : 'bg-white/5 border border-white/5 text-slate-600 animate-pulse';
 
@@ -209,7 +209,7 @@ export const WaitingLobby = ({
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                       </div>
                       <span className="text-[9px] text-slate-400 uppercase tracking-widest font-bold mb-1">
-                        {language === 'de' ? `Spieler ${parseInt(pID) + 1}` : `Player ${parseInt(pID) + 1}`}
+                        {t('playerSeatName', { num: parseInt(pID) + 1 })}
                       </span>
                       {!hasJoined ? (
                         <button
@@ -219,7 +219,7 @@ export const WaitingLobby = ({
                           }}
                           className="mt-1 w-full bg-amber-500/10 hover:bg-amber-500/25 text-amber-300 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border border-amber-500/25 active:translate-y-[1px] cursor-pointer text-center"
                         >
-                          {language === 'de' ? 'Team A beitreten' : 'Join Team A'}
+                          {t('joinTeamA')}
                         </button>
                       ) : isLocalPlayer ? (
                         <input
@@ -228,7 +228,7 @@ export const WaitingLobby = ({
                           value={G.players[pID]?.name || ''}
                           onChange={(e) => moves.setPlayerName(e.target.value)}
                           className="bg-black/50 border border-white/10 rounded-xl px-3 py-1.5 text-center text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 w-full animate-fade-in"
-                          placeholder={language === 'de' ? 'Dein Name' : 'Your name'}
+                          placeholder={t('yourName')}
                         />
                       ) : (
                         <span className="text-base font-bold text-slate-200">{pName || 'Host'}</span>
@@ -244,17 +244,17 @@ export const WaitingLobby = ({
               {/* Team B Header / Name Input */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 pb-3 border-b border-white/5">
                 <span className="text-sm font-extrabold text-purple-300 uppercase tracking-widest flex items-center gap-2">
-                  ⚔️ {language === 'de' ? 'Team B' : 'Team B'}
+                  ⚔️ {t('teamB')}
                 </span>
                 <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <span className="text-xs text-slate-400 whitespace-nowrap">{language === 'de' ? 'Team Name:' : 'Team Name:'}</span>
+                  <span className="text-xs text-slate-400 whitespace-nowrap">{t('teamName')}</span>
                   <input
                     type="text"
                     maxLength={20}
                     value={G.teamNames?.TeamB || ''}
                     readOnly={myID !== '1' && myID !== '3'}
                     onChange={(e) => moves.setTeamName({ team: 'TeamB', name: e.target.value })}
-                    placeholder={language === 'de' ? 'Team B Name...' : 'Enter Team B Name...'}
+                    placeholder={t('enterTeamBName')}
                     className={`bg-black/35 border ${myID === '1' || myID === '3' ? 'border-purple-500/30 focus:border-purple-500/60 focus:outline-none' : 'border-white/5 pointer-events-none'} rounded-lg px-2.5 py-1 text-white text-xs font-bold w-full sm:w-48`}
                   />
                 </div>
@@ -265,7 +265,7 @@ export const WaitingLobby = ({
                   const pName = G.players[pID]?.name || '';
                   const hasJoined = !!pName.trim();
                   const isLocalPlayer = myID === pID;
-                  const role = pID === '1' ? (language === 'de' ? 'Gegner 1 (B)' : 'Opponent 1 (B)') : (language === 'de' ? 'Gegner 2 (B)' : 'Opponent 2 (B)');
+                  const role = pID === '1' ? t('roleOpponent1B') : t('roleOpponent2B');
                   const badgeColor = 'bg-purple-500/20 text-purple-300 border-purple-500/30';
                   const iconBg = hasJoined ? 'bg-purple-600/20 border-purple-500/30 text-purple-400' : 'bg-white/5 border border-white/5 text-slate-600 animate-pulse';
 
@@ -278,7 +278,7 @@ export const WaitingLobby = ({
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                       </div>
                       <span className="text-[9px] text-slate-400 uppercase tracking-widest font-bold mb-1">
-                        {language === 'de' ? `Spieler ${parseInt(pID) + 1}` : `Player ${parseInt(pID) + 1}`}
+                        {t('playerSeatName', { num: parseInt(pID) + 1 })}
                       </span>
                       {!hasJoined ? (
                         <button
@@ -288,7 +288,7 @@ export const WaitingLobby = ({
                           }}
                           className="mt-1 w-full bg-purple-500/10 hover:bg-purple-500/25 text-purple-300 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border border-purple-500/25 active:translate-y-[1px] cursor-pointer text-center"
                         >
-                          {language === 'de' ? 'Team B beitreten' : 'Join Team B'}
+                          {t('joinTeamB')}
                         </button>
                       ) : isLocalPlayer ? (
                         <input
@@ -297,7 +297,7 @@ export const WaitingLobby = ({
                           value={G.players[pID]?.name || ''}
                           onChange={(e) => moves.setPlayerName(e.target.value)}
                           className="bg-black/50 border border-white/10 rounded-xl px-3 py-1.5 text-center text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 w-full animate-fade-in"
-                          placeholder={language === 'de' ? 'Dein Name' : 'Your name'}
+                          placeholder={t('yourName')}
                         />
                       ) : (
                         <span className="text-base font-bold text-slate-200">{pName}</span>
@@ -318,13 +318,13 @@ export const WaitingLobby = ({
               onClick={() => { playClick(); moves.startGame(); }}
               className="w-full btn-moroccan-gold disabled:opacity-60 disabled:pointer-events-none px-6 py-4 rounded-xl font-bold text-lg cursor-pointer"
             >
-              {language === 'de' ? 'Spiel starten' : 'Start Game'}
+              {t('startGame')}
             </button>
           ) : (
             <div className="bg-black/20 border border-white/5 rounded-xl py-3 px-4 flex items-center justify-center gap-2.5">
               <span className="w-3.5 h-3.5 rounded-full border-2 border-t-purple-400 border-white/10 animate-spin"></span>
               <span className="text-xs font-semibold text-purple-300 uppercase tracking-wider">
-                {language === 'de' ? 'Warte auf Spielstart durch Host...' : 'Waiting for host to start...'}
+                {t('waitingForHost')}
               </span>
             </div>
           )}
@@ -333,7 +333,7 @@ export const WaitingLobby = ({
             onClick={onLeave}
             className="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl font-bold transition-all text-sm border border-white/5 text-slate-400 hover:text-slate-300 cursor-pointer"
           >
-            {language === 'de' ? 'Verlassen' : 'Leave Lobby'}
+            {t('leaveLobby')}
           </button>
         </div>
       </div>

@@ -40,7 +40,7 @@ export const Scoreboard = ({
       {numP === 4 && (
         <div className="absolute top-16 sm:top-4 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-3 sm:gap-4 bg-slate-900/80 px-4 py-1.5 sm:px-5 sm:py-2 rounded-full border border-white/10 shadow-lg shadow-black/35 backdrop-blur-md transition-all">
           <span className="text-[10px] sm:text-xs font-extrabold text-amber-400 uppercase tracking-wider truncate max-w-[80px] sm:max-w-[120px]">
-            {G.teamNames?.TeamA?.trim() || (language === 'de' ? 'Team A' : 'Team A')}
+            {G.teamNames?.TeamA?.trim() || t('teamA')}
           </span>
           <div className="flex items-center gap-1.5 sm:gap-2 bg-black/45 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-lg border border-white/5 font-mono text-sm sm:text-base font-extrabold">
             <span className="text-amber-400">
@@ -54,7 +54,7 @@ export const Scoreboard = ({
             </span>
           </div>
           <span className="text-[10px] sm:text-xs font-extrabold text-purple-400 uppercase tracking-wider truncate max-w-[80px] sm:max-w-[120px]">
-            {G.teamNames?.TeamB?.trim() || (language === 'de' ? 'Team B' : 'Team B')}
+            {G.teamNames?.TeamB?.trim() || t('teamB')}
           </span>
         </div>
       )}

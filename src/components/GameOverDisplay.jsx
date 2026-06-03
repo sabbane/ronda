@@ -77,19 +77,8 @@ export const GameOverDisplay = ({
     }));
   });
 
-  const getOpponentLeftTitle = () => {
-    if (language === 'de') return 'Spieler hat das Spiel verlassen';
-    if (language === 'fr') return 'L\'adversaire a quitté le jeu';
-    if (language === 'ar') return 'غادر الخصم اللعبة';
-    return 'Opponent has left the game';
-  };
-
-  const getOpponentLeftMsg = () => {
-    if (language === 'de') return 'Das Spiel wurde beendet, da dein Mitspieler das Spiel verlassen hat.';
-    if (language === 'fr') return 'Le jeu est terminé car l\'autre joueur a quitté la partie.';
-    if (language === 'ar') return 'انتهت اللعبة لأن اللاعب الآخر غادر المباراة.';
-    return 'The game has ended because the other player left the game.';
-  };
+  const getOpponentLeftTitle = () => t('opponentLeftTitle');
+  const getOpponentLeftMsg = () => t('opponentLeftMsg');
 
   return (
     <>

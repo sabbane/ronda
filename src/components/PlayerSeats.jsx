@@ -65,7 +65,7 @@ export const PlayerSeats = ({
           <div className="w-full max-w-4xl relative z-20 shrink-0">
             {(() => {
               const topIsTeamA = topID === '0' || topID === '2';
-              const topName = G.players[topID]?.name || (language === 'de' ? `Spieler ${parseInt(topID) + 1}` : `Player ${parseInt(topID) + 1}`);
+              const topName = G.players[topID]?.name || t('playerSeatName', { num: parseInt(topID) + 1 });
               const topScore = ((G.players[topID]?.captured?.length) || 0) + ((G.players[topID]?.score) || 0);
               const topColor = topIsTeamA ? 'text-amber-400' : 'text-purple-400';
               return (
@@ -110,7 +110,7 @@ export const PlayerSeats = ({
           {/* Left Seat */}
           {(() => {
             const leftIsTeamA = leftID === '0' || leftID === '2';
-            const leftName = G.players[leftID]?.name || (language === 'de' ? `Spieler ${parseInt(leftID) + 1}` : `Player ${parseInt(leftID) + 1}`);
+            const leftName = G.players[leftID]?.name || t('playerSeatName', { num: parseInt(leftID) + 1 });
             const leftScore = ((G.players[leftID]?.captured?.length) || 0) + ((G.players[leftID]?.score) || 0);
             const leftScoreBadge = leftIsTeamA
               ? 'bg-amber-500/10 text-amber-300 border-amber-500/20'
@@ -138,7 +138,7 @@ export const PlayerSeats = ({
           {/* Right Seat */}
           {(() => {
             const rightIsTeamA = rightID === '0' || rightID === '2';
-            const rightName = G.players[rightID]?.name || (language === 'de' ? `Spieler ${parseInt(rightID) + 1}` : `Player ${parseInt(rightID) + 1}`);
+            const rightName = G.players[rightID]?.name || t('playerSeatName', { num: parseInt(rightID) + 1 });
             const rightScore = ((G.players[rightID]?.captured?.length) || 0) + ((G.players[rightID]?.score) || 0);
             const rightScoreBadge = rightIsTeamA
               ? 'bg-amber-500/10 text-amber-300 border-amber-500/20'

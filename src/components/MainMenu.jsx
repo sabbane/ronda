@@ -183,7 +183,7 @@ export const MainMenu = ({
                     {/* Player Count Choice */}
                     <div className="flex flex-col gap-1.5 mt-1">
                       <label className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">
-                        {language === 'de' ? 'Spieleranzahl' : language === 'fr' ? 'Nombre de Joueurs' : language === 'ar' ? 'عدد اللاعبين' : 'Player Count'}
+                        {t('playerCount')}
                       </label>
                       <div className="grid grid-cols-2 gap-2 bg-black/40 p-1 rounded-xl border border-white/5">
                         <button
@@ -191,14 +191,14 @@ export const MainMenu = ({
                           onClick={() => { playClick(); setMaxPlayers(2); }}
                           className={`py-2 px-3 rounded-lg text-xs font-bold transition-all duration-75 cursor-pointer border ${maxPlayers === 2 ? 'bg-amber-600 border-amber-400 text-white shadow-inner translate-y-[1.5px]' : 'bg-transparent border-transparent text-slate-400 hover:text-white hover:bg-white/5 active:translate-y-[1.5px]'}`}
                         >
-                          2 {language === 'de' ? 'Spieler' : language === 'fr' ? 'Joueurs' : language === 'ar' ? 'لاعبين' : 'Players'}
+                          {t('playersCount2')}
                         </button>
                         <button
                           type="button"
                           onClick={() => { playClick(); setMaxPlayers(4); }}
                           className={`py-2 px-3 rounded-lg text-xs font-bold transition-all duration-75 cursor-pointer border ${maxPlayers === 4 ? 'bg-amber-600 border-amber-400 text-white shadow-inner translate-y-[1.5px]' : 'bg-transparent border-transparent text-slate-400 hover:text-white hover:bg-white/5 active:translate-y-[1.5px]'}`}
                         >
-                          4 {language === 'de' ? 'Spieler (Team)' : language === 'fr' ? 'Joueurs (Équipe)' : language === 'ar' ? 'لاعبين (فريق)' : 'Players (Team)'}
+                          {t('playersCount4')}
                         </button>
                       </div>
                     </div>
