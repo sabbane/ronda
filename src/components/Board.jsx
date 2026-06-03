@@ -99,7 +99,7 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
 
   React.useEffect(() => {
     if (isLeavingRef.current) return;
-    const savedNickname = localStorage.getItem('ronda_nickname') || 'Spieler';
+    const savedNickname = localStorage.getItem('ronda_nickname') || 'Player';
     const isInLobbyStage = G.gameStarted === false || ctx.activePlayers?.[myID] === 'lobby';
     if (isConnected && isInLobbyStage && G.players && G.players[myID] && G.players[myID].name !== savedNickname) {
       moves.setPlayerName(savedNickname);

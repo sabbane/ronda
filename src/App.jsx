@@ -298,7 +298,7 @@ const App = () => {
       const currentMatchID = matchIDRef.current;
       const currentPlayerID = playerIDRef.current;
       const currentCredentials = credentialsRef.current;
-      const currentNickname = nicknameRef.current || 'Spieler';
+      const currentNickname = nicknameRef.current || 'Player';
 
       console.log('[App] handleSwitchSeat requested:', currentPlayerID, '->', newPlayerID);
 
@@ -324,7 +324,7 @@ const App = () => {
         console.log('[App] handleSwitchSeat completed successfully. Switched to slot:', newPlayerID);
       } catch (err) {
         console.error('[App] Failed to switch seat:', err);
-        setError(t('joinError') || 'Fehler beim Sitzplatzwechsel');
+        setError(t('joinError') || 'Failed to switch seat');
       }
     };
 

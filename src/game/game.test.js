@@ -393,14 +393,14 @@ describe('RondaGame - Extended Requirements', () => {
       G.players['0'].score = 1;
       G.players['1'].score = 1;
       
-      // Spieler 1 (Player 0): 10, 10, 5
+      // Player 1 (Player 0): 10, 10, 5
       G.players['0'].hand = [
         { suit: 'dheb', value: 8, id: 'p0-10-1' }, // displayValue 10
         { suit: 'jben', value: 8, id: 'p0-10-2' }, // displayValue 10
         { suit: 'dheb', value: 5, id: 'p0-5' }
       ];
       
-      // Spieler 2 (Player 1): 6, 10, 2
+      // Player 2 (Player 1): 6, 10, 2
       G.players['1'].hand = [
         { suit: 'dheb', value: 6, id: 'p1-6' },
         { suit: 'syouf', value: 8, id: 'p1-10' }, // displayValue 10
@@ -424,27 +424,27 @@ describe('RondaGame - Extended Requirements', () => {
 
     const client = Client({ game });
 
-    // 1. Spieler 1 plays 10
+    // 1. Player 1 plays 10
     client.moves.playCard(0); // Plays p0-10-1
     advanceUI(client);
 
-    // 2. Spieler 2 plays 10 (Derba + Missa on the table cards 10, 11, 12)
+    // 2. Player 2 plays 10 (Derba + Missa on the table cards 10, 11, 12)
     client.moves.playCard(1); // Plays p1-10 (which is at index 1 of [6, 10, 2])
     client.moves.processCapture();
     advanceUI(client);
 
-    // 3. Spieler 1 counters immediately with their second 10 (Taawida)
+    // 3. Player 1 counters immediately with their second 10 (Taawida)
     client.moves.playCard(0); // Plays p0-10-2 (which is at index 0 of [10, 5])
     client.moves.processCapture();
     advanceUI(client);
 
     const state = client.getState();
 
-    // Spieler 2's points and cards should be completely reset/cancelled to initial state (1 point, 0 captured cards)
+    // Player 2's points and cards should be completely reset/cancelled to initial state (1 point, 0 captured cards)
     expect(state.G.players['1'].score).toBe(1);
     expect(state.G.players['1'].captured.length).toBe(0);
 
-    // Spieler 1 should win all points and cards:
+    // Player 1 should win all points and cards:
     // Score: 1 (start) + 5 (Taawida) + 1 (Missa) = 7 points
     // Captured cards: 5 cards (the three 10s, 11, and 12)
     // Total points (Score + Captured Cards) = 7 + 5 = 12 points
