@@ -1,10 +1,7 @@
 import { RandomBot } from 'boardgame.io/dist/esm/ai.js';
 import { getNextValue, getHandRank } from './game.js';
 
-/**
- * Evaluates the greedy tactical score for playing a specific card from the bot's hand.
- * Higher scores represent better tactical moves.
- */
+// Greedy evaluation score for playing a card
 export const evaluateCardMove = (G, player, cardIndex) => {
   const hand = G.players[player]?.hand || [];
   if (cardIndex < 0 || cardIndex >= hand.length) return -999;
@@ -15,11 +12,10 @@ export const evaluateCardMove = (G, player, cardIndex) => {
   const currentVal = playedCard.value;
   let score = 0;
 
-  // 1. Check table matches and Taawida opportunities
   const tableMatches = G.table.filter(c => c.value === currentVal);
   const hasTableMatch = tableMatches.length > 0;
 
-  // Taawida transfer occurs if the opponent just did a Derba/Taawida on the same value (streak >= 2)
+  // Taawida check: opponent did a Derba/Taawida on this value
   const isTaawidaTransfer = !!(
     G.lastPlayedCard &&
     G.lastPlayedCard.value === currentVal &&
@@ -33,14 +29,12 @@ export const evaluateCardMove = (G, player, cardIndex) => {
     let capturedCount;
 
     if (isTaawidaTransfer) {
-      // Taawida capture: Played card + transferring all cards in the opponent's streak
       const streakCardsCount = G.lastPlayedCard.streakCards ? G.lastPlayedCard.streakCards.length : 0;
       capturedCount = 1 + streakCardsCount;
     } else {
-      // Normal capture: Played card + matched card from table
       capturedCount = 2;
 
-      // Plus sequential captures on the table
+      // Sequential captures (e.g. 7 catches 7, then 8, 9...)
       let tempTable = G.table.filter(c => c.value !== currentVal);
       let nextVal = getNextValue(currentVal);
       while (nextVal !== null) {
@@ -55,16 +49,13 @@ export const evaluateCardMove = (G, player, cardIndex) => {
       }
     }
 
-    // A: Capture score: 1 point per card captured (since each card counts as 1 point at round end)
     score += capturedCount * 1.0;
 
-    // B: Direct rules points
     if (isTaawidaTransfer) {
       const newStreak = G.lastPlayedCard.streak + 1;
       const points = newStreak === 3 ? 5 : 10;
-      score += points; // Add +5 or +10 points directly
+      score += points;
     } else {
-      // Is it a Derba? (opponent just played this card, streak is 1)
       const isDerba = !!(
         G.lastPlayedCard &&
         G.lastPlayedCard.value === currentVal &&
@@ -73,65 +64,60 @@ export const evaluateCardMove = (G, player, cardIndex) => {
       );
 
       if (isDerba) {
-        score += 1.0; // Derba itself awards +1 point
+        score += 1.0;
 
-        // Scenario 1: Risk assessment. If opponent doesn't have a Ronda/Tringa, this is a safe Derba!
+        // Check if opponent can counter-attack
         const opponent = player === '0' ? '1' : '0';
         const opponentHand = G.players[opponent]?.hand || [];
         const opponentHandRank = getHandRank(opponentHand);
         const opponentHasRonda = opponentHandRank && (opponentHandRank.type === 'Ronda' || opponentHandRank.type === 'Tringa');
 
         if (!opponentHasRonda) {
-          // Zero risk of counter! Prioritize safe Derbas heavily.
-          score += 15.0;
+          score += 15.0; // Safe Derba
         } else {
-          // Opponent has a Ronda, so there is some risk of Taawida, but Derba is still excellent.
-          score += 8.0;
+          score += 8.0; // Risky Derba
         }
       }
     }
 
-    // C: Missa (clearing the table)
+    // Missa bonus
     const tableCardsCaptured = isTaawidaTransfer ? 0 : (capturedCount - 1);
     const isMissa = !isTaawidaTransfer &&
                      (tableCardsCaptured === G.table.length) &&
                      (G.deck.length > 0 || G.players['0'].hand.length > 0);
     if (isMissa) {
-      score += 4.0; // Missa (+1 point) + table clear bonus
+      score += 4.0;
     }
 
-    // D: Special end-of-game rules
+    // King / Ace finish rules
     const isLastCardOfGame = G.deck.length === 0 &&
                              G.players['0'].hand.length === 0 &&
                              G.players[player].hand.length === 1;
     if (isLastCardOfGame) {
       if (currentVal === 10) {
-        score += 10.0; // King Finish (+5 pts) + high priority weight
+        score += 10.0;
       } else if (currentVal === 1) {
-        score -= 10.0; // As Finish penalty (+5 to opponent, must avoid)
+        score -= 10.0;
       }
     }
   } else {
-    // No capture. The card must be dropped.
-    // Check if the bot has a Ronda of this card. If so, dropping it is a great bait!
     const sameValueCardsInHand = hand.filter(c => c.value === currentVal).length;
     const hasSelfRonda = sameValueCardsInHand >= 2;
 
     if (hasSelfRonda) {
-      score += 4.0; // Ronda bait bonus (safe, can counter or capture next turn)
+      score += 4.0; // Ronda baiting (safe to drop)
     } else {
-      // Penalize dropping a card that directly sets up a sequence on the table
       const nextVal = getNextValue(currentVal);
       if (nextVal !== null && G.table.some(c => c.value === nextVal)) {
-        score -= 1.0; // Minor penalty
+        score -= 1.0; // Avoid setting up table sequence
       }
 
-      // Penalize dropping the last card of the game without capturing (Final Fail, +5 to opponent)
+      // Avoid Final Fail penalty
       const isLastCardOfGame = G.deck.length === 0 &&
                                G.players['0'].hand.length === 0 &&
                                G.players[player].hand.length === 1;
       if (isLastCardOfGame) {
-        score -= 10.0; // Heavy penalty
+        score -= 10.0;
       }
     }
   }
@@ -144,7 +130,6 @@ export const enumerateMoves = (G, ctx, playerID) => {
   let gameCtx = ctx;
   let player = playerID;
 
-  // Handle both standard boardgame.io and simulation formats
   if (G && G.G) {
     gameG = G.G;
     gameCtx = G.ctx;
@@ -155,30 +140,25 @@ export const enumerateMoves = (G, ctx, playerID) => {
 
   if (!gameG || !gameCtx || !player) return [];
 
-  // STRICT GUARD: The bot must ONLY play for Player 1.
-  // This prevents the bot from accidentally playing the human's first card.
+  // Bot only plays for Player 1
   if (player !== '1') return [];
 
-  // Do not play if the UI is busy with animations or announcements
+  // Wait if UI is busy
   if (gameG.isAnimating || (gameG.announcements && gameG.announcements.length > 0) || (gameCtx.activePlayers && gameCtx.activePlayers[player] === 'waitForUI')) {
     return [];
   }
 
-  // If a capture is pending, the only valid move is processCapture
   if (gameG.pendingCapture) {
-    // Only the player who made the move can process it
     if (gameG.pendingCapture.player === player) {
       return [{ move: 'processCapture', args: [] }];
     }
     return [];
   }
 
-  // Auto-deal if hands are empty and deck is not
   if (gameG.players['0'].hand.length === 0 && gameG.players['1'].hand.length === 0 && gameG.deck.length > 0) {
     return [{ move: 'dealCards', args: [] }];
   }
 
-  // Normal turn: calculate the best moves using our smart tactical heuristic
   const hand = gameG.players[player]?.hand || [];
   if (hand.length === 0) return [];
 

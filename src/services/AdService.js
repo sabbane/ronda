@@ -3,11 +3,9 @@ class AdService {
     this.platform = import.meta.env.VITE_PLATFORM || 'web';
     this.isOffline = !navigator.onLine;
 
-    // Listen to online/offline events
     window.addEventListener('online', () => { this.isOffline = false; });
     window.addEventListener('offline', () => { this.isOffline = true; });
 
-    // PlayGama persistent listeners
     this._playGamaOnBeforeAd = null;
     this._playGamaOnComplete = null;
     if (this.platform === 'playgama') {
@@ -31,7 +29,7 @@ class AdService {
             window.dispatchEvent(new CustomEvent('ronda-ad-completed'));
             if (typeof this._playGamaOnComplete === 'function') {
               const cb = this._playGamaOnComplete;
-              this._playGamaOnComplete = null; // Clear to prevent double calls
+              this._playGamaOnComplete = null;
               this._playGamaOnBeforeAd = null;
               cb();
             }
@@ -40,16 +38,11 @@ class AdService {
       }
     }, 100);
 
-    // Stop checking after 10 seconds
+    // Safety cleanup
     setTimeout(() => clearInterval(checkBridge), 10000);
   }
 
-  /**
-   * Triggers an interstitial ad.
-   * @param {Object} callbacks
-   * @param {Function} callbacks.onBeforeAd - Called when the ad is about to start playing (shows spinner/overlay).
-   * @param {Function} callbacks.onComplete - Called when the ad finishes, fails, is skipped, or times out.
-   */
+  // Trigger interstitial ad
   showInterstitial(callbacks = {}) {
     const defaultCallbacks = {
       onBeforeAd: () => {},
@@ -59,14 +52,13 @@ class AdService {
 
     console.log(`[AdService] Requesting interstitial for platform: ${this.platform}`);
 
-    // Rule 1: Offline protection
     if (this.isOffline || !navigator.onLine) {
       console.log('[AdService] Client is offline. Bypassing ad.');
       defaultCallbacks.onComplete();
       return;
     }
 
-    // Safety Timeout: 45 seconds to prevent hanging
+    // Safety timeout to prevent hanging
     let resolved = false;
     const safetyTimeout = setTimeout(() => {
       if (!resolved) {
@@ -80,22 +72,16 @@ class AdService {
       if (!resolved) {
         resolved = true;
         clearTimeout(safetyTimeout);
-
-        // Dispatch general ad completed event
         window.dispatchEvent(new CustomEvent('ronda-ad-completed'));
-
         defaultCallbacks.onComplete();
       }
     };
 
     const beforeWrapper = () => {
-      // Dispatch general ad started event
       window.dispatchEvent(new CustomEvent('ronda-ad-started'));
-
       defaultCallbacks.onBeforeAd();
     };
 
-    // Platform Routing
     if (this.platform === 'playgama') {
       this._showPlayGamaAd(beforeWrapper, completeWrapper);
     } else {
@@ -128,11 +114,10 @@ class AdService {
       console.log('[AdService] Google H5 Games Ads (adBreak) detected. Triggering break.');
       let adStarted = false;
 
-      // Fallback Timeout: If beforeAd is not called within 1.5 seconds,
-      // assume Google H5 Ads failed to load or got blocked, and continue the game.
+      // Fallback timeout in case ad block or failure occurs
       const fallbackTimeout = setTimeout(() => {
         if (!adStarted) {
-          console.warn('[AdService] Google H5 Ad did not start within 1.5s (pending account or adblock). Bypassing.');
+          console.warn('[AdService] Google H5 Ad did not start within 1.5s. Bypassing.');
           onComplete();
         }
       }, 1500);
@@ -155,8 +140,6 @@ class AdService {
           adBreakDone: (placementInfo) => {
             console.log('[AdService] Google H5 adBreakDone. Info:', placementInfo);
             clearTimeout(fallbackTimeout);
-            // If beforeAd was never triggered, it means no ad was shown.
-            // In that case, we need to complete now since afterAd won't run.
             if (!adStarted) {
               onComplete();
             }
@@ -173,9 +156,7 @@ class AdService {
     }
   }
 
-  /**
-   * Sends game ready signal (specifically for PlayGama or similar platforms).
-   */
+  // Signal game ready to PlayGama
   sendGameReady() {
     if (this.platform === 'playgama') {
       if (window.bridge && window.bridge.platform && typeof window.bridge.platform.sendMessage === 'function') {

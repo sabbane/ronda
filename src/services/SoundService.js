@@ -1,18 +1,9 @@
-/**
- * SoundService.js
- * Manages background music and gameplay sound effects using standard HTML5 Audio.
- * Easily customized by placing MP3/OGG files in the assets directory.
- */
-
 class SoundService {
   constructor() {
     this._muted = localStorage.getItem('ronda_muted') === 'true';
-    
-    // BGM State
     this.bgmPlaying = false;
     this.bgmAudio = null;
     
-    // Load BGM tracks
     this.tracks = [
       {
         name: "Casablanca",
@@ -39,7 +30,7 @@ class SoundService {
     this.adPlaying = false;
     this._wasBGMPlayingBeforeAd = false;
 
-    // Listen for global ad events to auto-pause/resume BGM
+    // Pause/resume BGM on ad events
     window.addEventListener('ronda-ad-started', () => {
       if (this.adPlaying) return;
       this.adPlaying = true;
@@ -58,7 +49,7 @@ class SoundService {
       }
     });
 
-    // High-performance SFX preload cache to eliminate audio latency and garbage collection stutters
+    // Preload SFX to avoid latency
     this.sfxCache = {};
     this.sfxFiles = [
       'click.mp3',
@@ -120,11 +111,7 @@ class SoundService {
     return await this.changeTrack(nextIdx);
   }
 
-  /**
-   * Fallback for autoplay policies / initialization compatibility.
-   */
   async initContext() {
-    // Automatically trigger BGM on first successful user interaction
     if (!this.bgmPlaying && !this.muted && !this.adPlaying) {
       this.startBGM().catch(e => console.warn('Failed to auto-start BGM:', e));
     }
@@ -137,7 +124,7 @@ class SoundService {
 
     const track = this.tracks[this.currentTrackIndex];
     if (!track || track.name === "No Sound" || !track.path) {
-      this.bgmPlaying = true; // logically playing, but silent
+      this.bgmPlaying = true;
       return;
     }
 
@@ -151,7 +138,7 @@ class SoundService {
       this.bgmPlaying = true;
 
       if (track.introPath) {
-        // Play the intro first, loop=false
+        // Play intro track first
         this.bgmAudio = new Audio(track.introPath);
         this.bgmAudio.loop = false;
         this.bgmAudio.volume = track.gain;
@@ -168,7 +155,6 @@ class SoundService {
           }
         };
       } else {
-        // Standard loop
         this.bgmAudio = new Audio(track.path);
         this.bgmAudio.loop = true;
         this.bgmAudio.volume = track.gain;
@@ -176,8 +162,8 @@ class SoundService {
       
       await this.bgmAudio.play();
     } catch (e) {
-      console.warn('[SoundService] BGM play failed (audio asset may be missing):', e.message);
-      this.bgmPlaying = false; // Reset to false to allow autoplay gesture retry
+      console.warn('[SoundService] BGM play failed:', e.message);
+      this.bgmPlaying = false;
     }
   }
 
@@ -193,10 +179,6 @@ class SoundService {
     }
   }
 
-  /**
-   * Helper to play an SFX file from the assets/sounds/ directory.
-   * Uses preloaded resource cloning for absolute zero-latency playback.
-   */
   _playSFX(filename, volume = 0.8) {
     if (this.muted) return;
     
@@ -212,32 +194,26 @@ class SoundService {
     }
   }
 
-  // 1. UI Click
   async playClick() {
     this._playSFX('click.mp3', 0.6);
   }
 
-  // 2. Card Deal
   async playCardDeal() {
     this._playSFX('card_deal.mp3', 0.7);
   }
 
-  // 3. Card Place
   async playCardPlace() {
     this._playSFX('card_place.mp3', 0.75);
   }
 
-  // 4. Card Sweep
   async playCardSweep() {
     this._playSFX('card_sweep.mp3', 0.8);
   }
 
-  // 5. Missa
   async playMissa(isSuccess = true) {
     this._playSFX(isSuccess ? 'missa_success.mp3' : 'missa_fail.mp3', 0.85);
   }
 
-  // 6. Derba
   async playDerba(isSuccess = true, double = false) {
     this._playSFX(isSuccess ? 'derba_success.mp3' : 'derba_fail.mp3', 0.85);
     if (double) {
@@ -247,27 +223,22 @@ class SoundService {
     }
   }
 
-  // 7. Ultimate Attack
   async playUltimateAttack() {
     this._playSFX('ultimate_attack.mp3', 0.9);
   }
 
-  // 8. Ronda/Tringa
   async playRondaTringa(isSuccess = true) {
     this._playSFX(isSuccess ? 'ronda_tringa.mp3' : 'ronda_tringa_fail.mp3', 0.9);
   }
 
-  // 8. Clash
   async playClash(isSuccess = true) {
     this._playSFX(isSuccess ? 'clash.mp3' : 'clash_fail.mp3', 0.9);
   }
 
-  // 9. Victory Fanfare
   async playVictory() {
     this._playSFX('victory.mp3', 0.9);
   }
 
-  // 10. Defeat
   async playDefeat() {
     this._playSFX('defeat.mp3', 0.9);
   }

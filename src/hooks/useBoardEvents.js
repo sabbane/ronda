@@ -30,7 +30,7 @@ export const useBoardEvents = ({
     playDefeat
   } = useSound();
 
-  // 1. Play card deal sound once when new cards are dealt
+  // Play deal sound
   const totalHandCards = Object.values(G.players || {}).reduce((sum, p) => sum + (p?.hand?.length || 0), 0);
   const prevHandCards = React.useRef(0);
 
@@ -45,7 +45,7 @@ export const useBoardEvents = ({
     prevHandCards.current = totalHandCards;
   }, [totalHandCards, playCardDeal, G.gameStarted]);
 
-  // 2. Play card place sound when a card is played onto the table
+  // Play placement sound
   const tableLength = G.table?.length || 0;
   const prevTableLength = React.useRef(0);
 
@@ -62,7 +62,7 @@ export const useBoardEvents = ({
     prevTableLength.current = tableLength;
   }, [tableLength, playCardPlace, G.gameStarted]);
 
-  // 3. Play card sweep sound when cards are captured
+  // Play sweep sound
   const p0Captured = G.players['0']?.captured?.length || 0;
   const p1Captured = G.players['1']?.captured?.length || 0;
   const totalCaptured = p0Captured + p1Captured;
@@ -79,7 +79,7 @@ export const useBoardEvents = ({
     prevCaptured.current = totalCaptured;
   }, [totalCaptured, playCardSweep, G.gameStarted]);
 
-  // 4. Play announcement chime sound when activeEvent popups appear
+  // Play sound for event popups
   React.useEffect(() => {
     if (activeEvent) {
       const type = activeEvent.type;
@@ -104,7 +104,7 @@ export const useBoardEvents = ({
     }
   }, [activeEvent, playMissa, playDerba, playDerbaDouble, playUltimateAttack, playRondaTringa, playClash]);
 
-  // 5. Play Victory / Defeat sound when the game ends
+  // Play victory or defeat sound at game end
   const hasPendingAnnouncements = eventQueue.length > 0 || !!activeEvent;
   const isGameOverState = !!(G?.gameStatus && ctx.activePlayers?.[myID] === 'gameOver');
   const showGameOverOverlay = isGameOverState && !hasPendingAnnouncements;
@@ -131,7 +131,7 @@ export const useBoardEvents = ({
     prevIsGameOver.current = showGameOverOverlay;
   }, [showGameOverOverlay, G?.gameStatus, myID, numP, playVictory, playDefeat, playClash]);
 
-  // Watch for new announcements and add them to a queue
+  // Queue new announcements
   React.useEffect(() => {
     if (!G.gameStarted) {
       processedAnnouncements.current.clear();
@@ -146,7 +146,7 @@ export const useBoardEvents = ({
           
           const isMe = ann.player === myID;
           
-          // Dynamically resolve the player's name who actually triggered the announcement
+          // Resolve announcer name
           let announcerName;
           let opponentName;
           if (numP === 2) {
@@ -162,7 +162,7 @@ export const useBoardEvents = ({
             opponentName = `Player ${Number(ann.player) + 1}`;
           }
           
-          // Helper for victim name or failing player name in Final Fail / As Finish
+          // Resolve victim or failing player name
           const failingPlayerID = G.lastPlayedCard?.player || opponentID;
           let failingPlayerName;
           if (numP === 2) {
@@ -304,7 +304,7 @@ export const useBoardEvents = ({
     }
   }, [G.announcements, myID, ctx.turn, G.gameStarted]);
 
-  // Process the event queue sequentially with a pause between popups
+  // Process event queue sequentially
   React.useEffect(() => {
     const isDealingAnimating = G.isAnimating && G.isDealing;
     
@@ -321,7 +321,7 @@ export const useBoardEvents = ({
     }
   }, [eventQueue, activeEvent, G.isAnimating, G.isDealing]);
 
-  // Automatically clear the active event after 2.5 seconds
+  // Auto-clear active event
   React.useEffect(() => {
     if (activeEvent) {
       const timer = setTimeout(() => {
@@ -349,7 +349,7 @@ export const useBoardEvents = ({
     }
   }, [eventQueue.length, activeEvent, G.announcements, ctx.activePlayers, myID, moves, G.announcementId]);
 
-  // Handle animation wait (flying cards and dealing)
+  // End animation stage after delay
   React.useEffect(() => {
     if (G.isAnimating && !G.pendingCapture && ctx.activePlayers && ctx.activePlayers[myID] === 'waitForUI') {
       const isDealPhase = G.isDealing;
@@ -361,7 +361,7 @@ export const useBoardEvents = ({
     }
   }, [G.isAnimating, G.pendingCapture, G.isDealing, ctx.activePlayers, myID, moves]);
 
-  // Capture animations sequence logic
+  // Compute capture animation sequence
   const captureSequence = React.useMemo(() => {
     if (!G.pendingCapture) return [];
     let sequence = [];
@@ -422,7 +422,7 @@ export const useBoardEvents = ({
     };
   }, [G.pendingCapture, captureSequence, captureRects, G.table, ctx.multiplayer, myID, moves, activeEvent]);
 
-  // Progress the animation sequence
+  // Progress animation sequence
   React.useEffect(() => {
     let timerId;
     const isDerbaActive = activeEvent && (activeEvent.type === 'Derba' || activeEvent.type === 'Taawida');

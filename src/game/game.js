@@ -39,8 +39,7 @@ export const addScore = (G, player, amount) => {
 // In 4-player mode, captured cards are stored at the team captain (P0 for Team A, P1 for Team B).
 export const getTeamCaptain = (playerID, numPlayers) => {
   if (numPlayers !== 4) return playerID;
-  // Team A: players 0 & 2 → captain 0
-  // Team B: players 1 & 3 → captain 1
+  // Team A (0/2) -> 0; Team B (1/3) -> 1
   return parseInt(playerID) % 2 === 0 ? '0' : '1';
 };
 
@@ -91,10 +90,9 @@ export const evaluateRondaTringa = (G) => {
     return;
   }
 
-  // Case A: At least one Tringa is present
   if (tringaPlayers.length > 0) {
     if (tringaPlayers.length === 1) {
-      // Single Tringa beats all Rondas immediately!
+      // Single Tringa beats all Rondas
       const winner = tringaPlayers[0];
       const hasBeatRondas = rondaPlayers.length > 0;
       const pts = 5 + rondaPlayers.length;
@@ -105,7 +103,7 @@ export const evaluateRondaTringa = (G) => {
         pts: pts 
       });
     } else {
-      // Multiple Tringas clash (Rondas are ignored)
+      // Clash between multiple Tringas
       const ptsPool = (tringaPlayers.length * 5) + rondaPlayers.length;
       G.activeClash = {
         participants,
@@ -113,7 +111,7 @@ export const evaluateRondaTringa = (G) => {
         ptsPool,
         clashType: 'Tringa'
       };
-      // Set backward compatibility for 2 players
+      // 2p backward compatibility
       if (numP === 2) {
         G.activeClash.p0 = participants['0'];
         G.activeClash.p1 = participants['1'];
@@ -126,14 +124,12 @@ export const evaluateRondaTringa = (G) => {
       });
     }
   } else {
-    // Case B: Only Rondas are present
     if (rondaPlayers.length === 1) {
-      // Only a single Ronda: award immediately
       const winner = rondaPlayers[0];
       addScore(G, winner, 1);
       G.announcements.push({ player: winner, type: 'Ronda' });
     } else {
-      // Multiple Rondas clash
+      // Clash between multiple Rondas
       const ptsPool = rondaPlayers.length;
       G.activeClash = {
         participants,
@@ -141,7 +137,7 @@ export const evaluateRondaTringa = (G) => {
         ptsPool,
         clashType: 'Ronda'
       };
-      // Set backward compatibility for 2 players
+      // 2p backward compatibility
       if (numP === 2) {
         G.activeClash.p0 = participants['0'];
         G.activeClash.p1 = participants['1'];
@@ -161,13 +157,13 @@ export const resolveClash = (G) => {
   
   const { participants, clashingPlayers, ptsPool } = G.activeClash;
   
-  // 1. Determine highest rank type present (Tringa beats Ronda)
+  // Tringa beats Ronda
   const hasTringa = clashingPlayers.some(pID => participants[pID].type === 'Tringa');
   const highestRankType = hasTringa ? 'Tringa' : 'Ronda';
 
   const topPlayers = clashingPlayers.filter(pID => participants[pID].type === highestRankType);
 
-  // 2. Find max card value among top players
+  // Max value among tied players wins
   const maxVal = Math.max(...topPlayers.map(pID => participants[pID].value));
   const winners = topPlayers.filter(pID => participants[pID].value === maxVal);
 
@@ -201,14 +197,14 @@ export const checkRoundEnd = (G) => {
   if (allEmpty) {
     resolveClash(G);
     
-    // If deck is also empty, the game (round) is totally over
+    // Total game round end if deck is empty
     if (G.deck.length === 0 && !G.gameStatus) {
       if (!G.matchesWon) {
         G.matchesWon = Array.from({ length: numP }, (_, i) => String(i))
           .reduce((acc, pID) => ({ ...acc, [pID]: 0 }), {});
       }
 
-      // Give remaining table cards to the last player who captured
+      // Remaining table cards go to the last capturer
       if (G.table.length > 0 && G.lastCapture !== null) {
         G.players[G.lastCapture].captured.push(...G.table);
         G.table = [];
@@ -228,7 +224,7 @@ export const checkRoundEnd = (G) => {
         }
         G.gameStatus = { winner, p0Score: p0Total, p1Score: p1Total };
       } else {
-        // 4 Players: Team A (0 & 2) vs Team B (1 & 3)
+        // Team A (0/2) vs Team B (1/3)
         const teamATotal = (G.players['0'].score + G.players['0'].captured.length) + 
                            (G.players['2'].score + G.players['2'].captured.length);
         const teamBTotal = (G.players['1'].score + G.players['1'].captured.length) + 
@@ -251,8 +247,7 @@ export const checkRoundEnd = (G) => {
 };
 
 const checkWaitForUI = (G, events) => {
-  // If there are announcements OR an animation is running, we MUST go into waitForUI stage
-  // to let the frontend finish its visual work before the next turn starts or before the game ends.
+  // Let UI handle animations/announcements before turn/game transitions
   if (G.announcements.length > 0 || G.isAnimating) {
     if (G.announcements.length > 0 && !G._announcementIdIncremented) {
       G.announcementId = (G.announcementId || 0) + 1;
@@ -263,8 +258,7 @@ const checkWaitForUI = (G, events) => {
     return true;
   }
 
-  // If the game ended and there are no more animations/announcements, go directly to gameOver stage.
-  // This ensures the Play Again button works immediately when the overlay appears.
+  // Go to gameOver directly if there are no pending UI events
   if (G.gameStatus) {
     events.setActivePlayers({ all: 'gameOver' });
     return true;
@@ -407,13 +401,10 @@ export const RondaGame = {
     let deck;
     const matchID = ctx?.matchID;
     
-    // Test mode is activated when:
-    //   1. setupData.testMode = true  (set by POST /test/reset in server.js → lobbyClient.createMatch)
-    //   2. matchID contains "test"    (fallback for direct URL access during development)
     const isTestMode = setupData?.testMode === true || (matchID && /test/i.test(matchID));
 
     if (isTestMode) {
-      // RIGGED DECK FOR TEST SCENARIOS
+      // Rigged deck for tests
       deck = [
         { value: 1, suit: 'dheb' }, { value: 2, suit: 'dheb' }, { value: 3, suit: 'dheb' }, { value: 4, suit: 'dheb' }, // Table
         { value: 5, suit: 'dheb' }, { value: 5, suit: 'jben' }, { value: 6, suit: 'dheb' }, // P0 R1
@@ -441,7 +432,6 @@ export const RondaGame = {
         };
       });
     } else {
-      // NORMAL SHUFFLED DECK
       deck = shuffle(generateDeck());
     }
 
@@ -533,8 +523,7 @@ export const RondaGame = {
     playCard: ({ G, ctx, events, playerID }, cardIndex) => {
       if (G.pendingCapture) return INVALID_MOVE;
 
-      // Ensure the move is executed by the player whose turn it actually is.
-      // In tests where playerID might be undefined/null, we fall back to currentPlayer.
+      // Verify player matches active turn
       const player = (playerID !== undefined && playerID !== null) ? playerID : ctx.currentPlayer;
       if (player !== ctx.currentPlayer) return INVALID_MOVE;
 
@@ -546,7 +535,6 @@ export const RondaGame = {
       if (!playedCard) return INVALID_MOVE;
 
 
-      // Clear announcements at the start of a move so they don't loop
       G.announcements = [];
       G._announcementIdIncremented = false;
       G.isDealing = false;
@@ -555,13 +543,12 @@ export const RondaGame = {
 
       let currentVal = playedCard.value;
       
-      // Always put card on table first to animate it flying to table
+      // Place card on table first for UI animation
       G.table.push(playedCard);
       
       let matchIndex = G.table.findIndex(c => c.value === currentVal && c.id !== playedCard.id);
       
       if (matchIndex !== -1 || (G.lastPlayedCard && G.lastPlayedCard.value === currentVal && G.lastPlayedCard.player !== player && G.lastPlayedCard.streak >= 2)) {
-        // Mark for capture or Taawida transfer
         const isTaawidaTransfer = matchIndex === -1;
         G.pendingCapture = {
           player: player,
@@ -571,8 +558,7 @@ export const RondaGame = {
         };
         G.isAnimating = true;
 
-        // Push Derba or Taawida announcements early so the client can display the popup 
-        // exactly when the card lands on the table, before subsequent collection starts.
+        // Push early announcements so the client popup can display immediately on landing
         if (isTaawidaTransfer) {
           const newStreak = G.lastPlayedCard.streak + 1;
           G.announcements.push({ player, type: 'Taawida', streak: newStreak, currentVal: currentVal });
@@ -589,7 +575,6 @@ export const RondaGame = {
 
         checkWaitForUI(G, events);
       } else {
-        // Normal drop, starts a new potential streak
         G.lastPlayedCard = { 
           value: currentVal, 
           player: player, 
@@ -599,7 +584,7 @@ export const RondaGame = {
         };
         G.isAnimating = true;
         
-        // Final Fail Rule: if the last card of the game is played and does not capture
+        // Final card of game played without capturing (Final Fail)
         const allHandsEmpty = Object.keys(G.players).every(pID => G.players[pID].hand.length === 0);
         if (G.deck.length === 0 && allHandsEmpty) {
           const numPFF = Object.keys(G.players).length;
@@ -628,22 +613,19 @@ export const RondaGame = {
       const playedCard = hand[cardIndex];
       if (!playedCard || playedCard.value !== currentVal) return INVALID_MOVE;
 
-      // 1. Process the pending capture first
+      // Resolve current capture, clear its announcements, then place counter card
       const captureRes = executeCapture(G, events);
       if (captureRes === INVALID_MOVE) return INVALID_MOVE;
 
-      // 2. Clear previous announcements (since we countered it!)
       G.announcements = [];
       G._announcementIdIncremented = false;
 
-      // 3. Take card out of hand and throw it on table
       hand.splice(cardIndex, 1);
       G.table.push(playedCard);
 
-      // 4. Force turn transition to the victim
       events.endTurn();
 
-      // 5. Establish new pending capture for this Taawida counter
+      // Queue new pending capture and Taawida streak increment
       G.pendingCapture = {
         player: victim,
         playedCardId: playedCard.id,
@@ -652,7 +634,6 @@ export const RondaGame = {
       };
       G.isAnimating = true;
 
-      // 6. Push the new Taawida announcement
       const newStreak = G.lastPlayedCard.streak + 1;
       G.announcements.push({ player: victim, type: 'Taawida', streak: newStreak, currentVal: currentVal });
 
@@ -673,7 +654,8 @@ export const RondaGame = {
         }
         return;
       }
-      // 1. Auto-deal ONLY if all hands are completely empty and deck has cards
+      
+      // Auto-deal if all hands are empty and deck contains cards
       const numP = Object.keys(G.players).length;
       const allHandsEmpty = Object.keys(G.players).every(pID => !G.players[pID].hand || G.players[pID].hand.length === 0);
       
@@ -681,15 +663,13 @@ export const RondaGame = {
         Array.from({ length: numP }, (_, i) => String(i)).forEach(pID => {
           G.players[pID].hand = G.deck.splice(0, 3);
         });
-        G.lastPlayedCard = null; // Clear last played card so Derba doesn't carry over to a new round
+        G.lastPlayedCard = null;
         G.isAnimating = true;
         G.isDealing = true;
         evaluateRondaTringa(G);
       }
 
-      // 2. If there are announcements or animations, wait for UI
-      // This also handles the case where setup() added announcements (Ronda/Tringa)
-      // but couldn't set the active players itself.
+      // Let UI display setup/ronda/tringa announcements
       if ((G.announcements && G.announcements.length > 0) || G.isAnimating) {
         G.endTurnAfterUI = false;
         events.setActivePlayers({ all: 'waitForUI' });
@@ -753,7 +733,6 @@ export const RondaGame = {
       waitForUI: {
         moves: {
           processCapture: ({ G, ctx, events }) => {
-            // Reference the global processCapture logic
             const moves = RondaGame.moves;
             return moves.processCapture({ G, ctx, events });
           },
@@ -779,23 +758,18 @@ export const RondaGame = {
             }
           },
           endAnimation: ({ G, events }) => {
-            // Guard: only process if still animating (idempotent in multiplayer)
             if (!G.isAnimating) return;
             G.isAnimating = false;
             G.isDealing = false;
             if (G.gameStatus) {
-              // Game is over - transition to gameOver stage for all players
               events.setActivePlayers({ all: 'gameOver' });
             } else if (G.announcements.length === 0) {
               events.setActivePlayers({ all: null });
-              // Guard: only endTurn once
               if (G.endTurnAfterUI) {
                 G.endTurnAfterUI = false;
                 events.endTurn();
               }
             }
-            // If there are still announcements, do nothing:
-            // clearAnnouncements will handle the transition when they are cleared.
           },
           playerLeft: {
             move: ({ G, playerID }) => {
@@ -810,7 +784,7 @@ export const RondaGame = {
       gameOver: {
         moves: {
           restartGame: ({ G, ctx, events }) => {
-            // Preserve overall match wins, player nicknames, and custom team names dynamically
+            // Preserve scores, nicknames, and team names
             const numP = Object.keys(G.players).length;
             const preservedTeamNames = G.teamNames ? { ...G.teamNames } : { TeamA: '', TeamB: '' };
             
@@ -828,12 +802,11 @@ export const RondaGame = {
 
             const fresh = RondaGame.setup({ ctx });
 
-            // Wipe all existing keys from G, then copy fresh state in.
-            // This ensures no stale properties survive the reset.
+            // Clear existing state keys
             Object.keys(G).forEach(key => delete G[key]);
             Object.assign(G, fresh);
 
-            // Restore overall match wins, nicknames, team names, and ensure the game starts directly
+            // Restore metadata and start game
             G.matchesWon = matches;
             G.teamNames = preservedTeamNames;
             G.gameStarted = true;
@@ -844,11 +817,8 @@ export const RondaGame = {
               }
             });
 
-            // Clear any stages so players can play cards
             events.setActivePlayers({ all: null });
 
-            // If the new round starts with announcements (Ronda/Tringa), 
-            // we must enter waitForUI stage so players can clear them.
             if (G.announcements.length > 0 || G.isAnimating) {
               events.setActivePlayers({ all: 'waitForUI' });
             }
@@ -867,9 +837,7 @@ export const RondaGame = {
   },
 
   endIf: () => {
-    // We do NOT return a value here, because returning a value tells boardgame.io
-    // to permanently lock the match, preventing any rematches in the same room.
-    // Instead, we manage the game over state via G.gameStatus.
+    // Avoid returning state to prevent boardgame.io permanently locking the room (managed via G.gameStatus)
   },
 
   ai: {
