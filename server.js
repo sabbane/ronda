@@ -32,11 +32,7 @@ server.app.middleware.unshift(async (ctx, next) => {
   ctx.set('Access-Control-Allow-Origin', origin);
 });
 
-// ─── Custom REST endpoint: reset the test scenario match ─────────────────────
-// POST /test/reset  →  deletes any existing test match and creates a fresh one
-//                      with matchID "test-scenario-room", which makes the
-//                      rigged deck active (matchID contains "test").
-// Both /test/p1 and /test/p2 then join this exact, known match ID.
+// Custom REST endpoint to reset the test scenario match
 
 
 server.router.post('/test/reset', async (ctx) => {

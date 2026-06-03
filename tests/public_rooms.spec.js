@@ -15,25 +15,25 @@ test('Multiplayer: Created public room should be listed in Public Rooms with cor
   // ─── PLAYER 1 (HOST) CREATES A PUBLIC ROOM ───
   await hostPage.goto('/');
 
-  // Click "Create Room" / "Raum erstellen"
-  const createRoomBtn = hostPage.locator('button', { hasText: /Create Room|Raum erstellen/i }).first();
+  // Click "Create Room"
+  const createRoomBtn = hostPage.locator('button', { hasText: /Create Room/i }).first();
   await expect(createRoomBtn).toBeVisible();
   await createRoomBtn.click();
 
   // Fill in Host Nickname
-  const hostNicknameInput = hostPage.locator('input[placeholder*="name" i], input[placeholder*="Namen" i]').first();
+  const hostNicknameInput = hostPage.locator('input[placeholder*="name" i]').first();
   await hostNicknameInput.fill(hostNickname);
 
-  // Set privacy to Public (Öffentlich)
-  const publicBtn = hostPage.locator('button', { hasText: /Public|Öffentlich/i }).first();
+  // Set privacy to Public
+  const publicBtn = hostPage.locator('button', { hasText: /Public/i }).first();
   await publicBtn.click();
 
-  // Click "Create" / "Erstellen"
-  const createSubmitBtn = hostPage.locator('button', { hasText: /^Create$|^Erstellen$/i }).first();
+  // Click "Create"
+  const createSubmitBtn = hostPage.locator('button', { hasText: /^Create$/i }).first();
   await createSubmitBtn.click();
 
   // Wait until Host is in the Lobby
-  const lobbyHeader = hostPage.locator('h1', { hasText: /Game Lobby|Spiel-Lobby/i });
+  const lobbyHeader = hostPage.locator('h1', { hasText: /Game Lobby/i });
   await expect(lobbyHeader).toBeVisible({ timeout: 10000 });
 
   // Extract the dynamically generated match ID from the host's Lobby screen
@@ -45,17 +45,17 @@ test('Multiplayer: Created public room should be listed in Public Rooms with cor
   // ─── PLAYER 2 (GUEST) TRIES TO FIND THE ROOM ───
   await guestPage.goto('/');
 
-  // Click "Join Room" / "Raum beitreten"
-  const joinRoomBtn = guestPage.locator('button', { hasText: /Join Room|Raum beitreten/i }).first();
+  // Click "Join Room"
+  const joinRoomBtn = guestPage.locator('button', { hasText: /Join Room/i }).first();
   await expect(joinRoomBtn).toBeVisible();
   await joinRoomBtn.click();
 
   // Fill in Guest Nickname
-  const guestNicknameInput = guestPage.locator('input[placeholder*="name" i], input[placeholder*="Namen" i]').first();
+  const guestNicknameInput = guestPage.locator('input[placeholder*="name" i]').first();
   await guestNicknameInput.fill(guestNickname);
 
-  // Select "Public Rooms" / "Öffentlicher Raum" tab
-  const publicRoomsTab = guestPage.locator('button', { hasText: /Public Rooms|Öffentlicher Raum/i }).first();
+  // Select "Public Rooms" tab
+  const publicRoomsTab = guestPage.locator('button', { hasText: /Public Rooms/i }).first();
   await publicRoomsTab.click();
 
   // Wait for loading indicator to disappear, or wait for open rooms list to update

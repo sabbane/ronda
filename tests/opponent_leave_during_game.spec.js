@@ -99,7 +99,6 @@ test.describe('Opponent leaves during game', () => {
     // The modal title should be visible in any supported language
     const opponentLeftModal = page2.locator([
       'h2:has-text("Opponent has left the game")',
-      'h2:has-text("Spieler hat das Spiel verlassen")',
       'h2:has-text("adversaire a quitté")',
       'h2:has-text("غادر")',
     ].join(', '));
@@ -112,7 +111,7 @@ test.describe('Opponent leaves during game', () => {
     console.log('✅ Opponent-left modal appeared correctly on P2 screen.');
 
     // ─── P2: Click "Main Menu" from the modal ─────────────────────────────────
-    const mainMenuBtn = page2.locator('button', { hasText: /Main Menu|Hauptmenü/i }).first();
+    const mainMenuBtn = page2.locator('button', { hasText: /Main Menu/i }).first();
     await expect(mainMenuBtn).toBeVisible({ timeout: 5000 });
     await mainMenuBtn.click();
 
@@ -179,9 +178,8 @@ test.describe('Opponent leaves during game', () => {
     // ─── P2: Should see the "opponent left" modal ─────────────────────────────
     const opponentLeftModal = page2.locator([
       'h2:has-text("Opponent has left the game")',
-      'h2:has-text("Spieler hat das Spiel verlassen")',
-      'h2:has-text("adversaire a quitt\u00e9")',
-      'h2:has-text("\u063a\u0627\u062f\u0631")',
+      'h2:has-text("adversaire a quitté")',
+      'h2:has-text("غادر")',
     ].join(', '));
 
     await expect(opponentLeftModal).toBeVisible({

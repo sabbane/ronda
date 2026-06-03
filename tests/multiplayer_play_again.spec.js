@@ -26,24 +26,24 @@ test.describe('Multiplayer Play Again Regression Test', () => {
     if (await enButton1.isVisible().catch(() => false)) await enButton1.click();
 
     // Click "Create Room"
-    const createRoomBtn = hostPage.locator('button', { hasText: /Create Room|Raum erstellen/i }).first();
+    const createRoomBtn = hostPage.locator('button', { hasText: /Create Room/i }).first();
     await expect(createRoomBtn).toBeVisible();
     await createRoomBtn.click();
 
     // Fill in Host Nickname
-    const hostNicknameInput = hostPage.locator('input[placeholder*="name" i], input[placeholder*="Namen" i]').first();
+    const hostNicknameInput = hostPage.locator('input[placeholder*="name" i]').first();
     await hostNicknameInput.fill(hostNickname);
 
     // Set privacy to Public
-    const publicBtn = hostPage.locator('button', { hasText: /Public|Öffentlich/i }).first();
+    const publicBtn = hostPage.locator('button', { hasText: /Public/i }).first();
     await publicBtn.click();
 
     // Click "Create"
-    const createSubmitBtn = hostPage.locator('button', { hasText: /^Create$|^Erstellen$/i }).first();
+    const createSubmitBtn = hostPage.locator('button', { hasText: /^Create$/i }).first();
     await createSubmitBtn.click();
 
     // Wait until Host is in the Lobby
-    const hostLobbyHeader = hostPage.locator('h1', { hasText: /Game Lobby|Spiel-Lobby/i });
+    const hostLobbyHeader = hostPage.locator('h1', { hasText: /Game Lobby/i });
     await expect(hostLobbyHeader).toBeVisible({ timeout: 10000 });
 
     // Extract generated Room ID from Lobby URL
@@ -77,7 +77,7 @@ test.describe('Multiplayer Play Again Regression Test', () => {
     await joinBtn.click();
 
     // Wait until Guest is in the Lobby
-    const guestLobbyHeader = guestPage.locator('h1', { hasText: /Game Lobby|Spiel-Lobby/i });
+    const guestLobbyHeader = guestPage.locator('h1', { hasText: /Game Lobby/i });
     await expect(guestLobbyHeader).toBeVisible({ timeout: 10000 });
     console.log('Guest joined the lobby successfully.');
 
@@ -99,8 +99,8 @@ test.describe('Multiplayer Play Again Regression Test', () => {
     console.log('Game board loaded on both screens.');
 
     // 5. Play game automatically until Game Over is reached
-    const gameOver1 = hostPage.locator('h2', { hasText: /Game Over|Partie Terminée|Spielende|انتهت اللعبة/i });
-    const gameOver2 = guestPage.locator('h2', { hasText: /Game Over|Partie Terminée|Spielende|انتهت اللعبة/i });
+    const gameOver1 = hostPage.locator('h2', { hasText: /Game Over|Partie Terminée|انتهت اللعبة/i });
+    const gameOver2 = guestPage.locator('h2', { hasText: /Game Over|Partie Terminée|انتهت اللعبة/i });
 
     let attempts = 0;
     const MAX_ATTEMPTS = 500;
