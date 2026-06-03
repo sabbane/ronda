@@ -7,8 +7,16 @@ import { registerSW } from 'virtual:pwa-register'
 import { LanguageProvider } from './contexts/LanguageContext'
 import { SoundProvider } from './contexts/SoundContext'
 
-// Register service worker with automatic updates
-registerSW({ immediate: true })
+// Register service worker with automatic updates & registration feedback loggers
+registerSW({ 
+  immediate: true,
+  onRegisteredSW(swScriptUrl, registration) {
+    console.log('[PWA] Service Worker registered successfully at:', swScriptUrl);
+  },
+  onRegisterError(error) {
+    console.error('[PWA] Service Worker registration failed:', error);
+  }
+})
 
 const initApp = () => {
   createRoot(document.getElementById('root')).render(
