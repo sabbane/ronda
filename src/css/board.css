@@ -100,22 +100,22 @@
 /* 2. Constrained Viewport Height: Height <= 1000px (Mobile only) */
 @media (max-height: 1000px) and (max-width: 767px) {
   .game-card-container {
-    width: 5rem !important;
-    height: 7.5rem !important;
+    width: 5.5rem !important;
+    height: 8.25rem !important;
   }
   .hand-card-container {
-    width: 4.75rem !important;
-    height: 7.125rem !important;
+    width: 5.25rem !important;
+    height: 7.875rem !important;
   }
   .game-hand {
     padding-top: 0.75rem !important;
     padding-bottom: 0.75rem !important;
     min-height: 8.5rem !important;
-    gap: 1rem !important; /* Beautifully spaced cards */
+    gap: 1.15rem !important; /* Spaced cards */
   }
   .game-table {
-    min-height: 16.5rem !important;
-    padding: 1rem !important;
+    min-height: 17.5rem !important;
+    padding: 1.25rem !important;
   }
   .game-table-4player {
     max-width: 54% !important; /* Restrict table width so side seats are perfectly cleared */
@@ -126,23 +126,23 @@
 /* 3. Highly Constrained Viewport Height: Height <= 800px (Mobile only) */
 @media (max-height: 800px) and (max-width: 767px) {
   .game-card-container {
-    width: 4.25rem !important;
-    height: 6.375rem !important;
+    width: 5rem !important;
+    height: 7.5rem !important;
   }
   .hand-card-container {
-    width: 4.25rem !important;
-    height: 6.375rem !important;
+    width: 5rem !important;
+    height: 7.5rem !important;
   }
   .game-hand {
-    padding-top: 0.375rem !important;
-    padding-bottom: 0.375rem !important;
-    min-height: 7.25rem !important;
-    gap: 0.85rem !important; /* Beautifully spaced cards */
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    min-height: 8.1rem !important;
+    gap: 0.85rem !important;
   }
   .game-table {
-    min-height: 13.5rem !important;
-    padding: 0.5rem !important;
-    border-radius: 1rem !important;
+    min-height: 15.5rem !important;
+    padding: 0.85rem !important;
+    border-radius: 1.25rem !important;
   }
   .game-table-4player {
     max-width: 54% !important; /* Restrict table width so side seats are perfectly cleared */
@@ -153,26 +153,109 @@
 /* 4. Ultra Constrained Viewport Height: Height <= 650px (Mobile only) */
 @media (max-height: 650px) and (max-width: 767px) {
   .game-card-container {
-    width: 3.5rem !important;
-    height: 5.25rem !important;
+    width: 4.25rem !important;
+    height: 6.375rem !important;
   }
   .hand-card-container {
-    width: 3.5rem !important;
-    height: 5.25rem !important;
+    width: 4.25rem !important;
+    height: 6.375rem !important;
   }
   .game-hand {
-    padding-top: 0.125rem !important;
-    padding-bottom: 0.125rem !important;
-    min-height: 5.75rem !important;
-    gap: 0.75rem !important; /* Beautifully spaced cards */
+    padding-top: 0.25rem !important;
+    padding-bottom: 0.25rem !important;
+    min-height: 7.0rem !important;
+    gap: 0.75rem !important;
   }
   .game-table {
-    min-height: 11rem !important;
-    padding: 0.25rem !important;
-    border-width: 2px !important;
+    min-height: 13.0rem !important;
+    padding: 0.5rem !important;
+    border-width: 3px !important;
   }
   .game-table-4player {
     max-width: 54% !important; /* Restrict table width so side seats are perfectly cleared */
     width: 100% !important;
+  }
+}
+
+/* 5. General Mobile Scaling for HUD, Text, and Buttons */
+@media (max-width: 767px) {
+  /* Default mobile card dimensions when height is large (height > 1000px) */
+  .game-card-container {
+    width: 5.5rem !important;
+    height: 8.25rem !important;
+  }
+  .hand-card-container {
+    width: 5.25rem !important;
+    height: 7.875rem !important;
+  }
+
+  /* Player and Opponent Name sizing */
+  .game-board-container .text-base,
+  .game-board-container .text-lg {
+    font-size: 1.15rem !important;
+    font-weight: 600 !important;
+  }
+
+  /* Team score HUD text & badges in 4-Player mode */
+  .game-board-container .absolute.top-16 {
+    padding: 0.45rem 1rem !important;
+    border-width: 1.5px !important;
+  }
+  .game-board-container .absolute.top-16 span {
+    font-size: 0.85rem !important;
+    max-width: 90px !important;
+  }
+  .game-board-container .absolute.top-16 div {
+    font-size: 0.95rem !important;
+    padding: 0.2rem 0.5rem !important;
+  }
+
+  /* Score and Point badges */
+  .game-board-container .bg-slate-800 {
+    padding: 0.35rem 0.85rem !important;
+    border-width: 1px !important;
+  }
+  .game-board-container .bg-slate-800 span {
+    font-size: 0.95rem !important;
+  }
+  .game-board-container .bg-slate-800 span.font-bold {
+    font-size: 1.2rem !important;
+  }
+
+  /* Deck Remaining count container */
+  .game-board-container .bg-slate-800\/80 {
+    padding: 0.45rem 0.9rem !important;
+    border-width: 1px !important;
+  }
+  .game-board-container .bg-slate-800\/80 span {
+    font-size: 0.9rem !important;
+  }
+  /* Scale up Deck card back thumbnail */
+  .game-board-container .bg-slate-800\/80 div {
+    width: 1.35rem !important;
+    height: 1.9rem !important;
+  }
+
+  /* Sound & Music Controls */
+  .game-board-container button:has(svg) {
+    padding: 0.45rem 0.8rem !important;
+  }
+  .game-board-container button span {
+    font-size: 0.9rem !important;
+  }
+  .game-board-container button:has(svg):not(:has(span)) {
+    padding: 0.55rem !important;
+  }
+
+  /* Back to Menu Button */
+  .game-board-container .absolute.top-4.start-4 button {
+    padding: 0.5rem 0.95rem !important;
+  }
+  .game-board-container .absolute.top-4.start-4 button span {
+    font-size: 0.9rem !important;
+  }
+  .game-board-container .absolute.top-4.start-4 button svg {
+    width: 18px !important;
+    height: 18px !important;
   }
 }
