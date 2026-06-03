@@ -17,11 +17,13 @@ class SoundService {
       {
         name: "Casablanca",
         path: "/assets/sounds/casablanca.mp3",
+        introPath: "/assets/sounds/casablanca_intro.mp3",
         gain: 0.50
       },
       {
         name: "Desert Night",
         path: "/assets/sounds/desert_night.mp3",
+        introPath: "/assets/sounds/desert_night_intro.mp3",
         gain: 0.65
       },
       {
@@ -148,21 +150,21 @@ class SoundService {
 
       this.bgmPlaying = true;
 
-      if (track.name === "Desert Night") {
+      if (track.introPath) {
         // Play the intro first, loop=false
-        this.bgmAudio = new Audio("/assets/sounds/desert_night_intro.mp3");
+        this.bgmAudio = new Audio(track.introPath);
         this.bgmAudio.loop = false;
         this.bgmAudio.volume = track.gain;
 
         this.bgmAudio.onended = () => {
-          if (!this.bgmPlaying || this.currentTrackIndex !== 1) return;
+          if (!this.bgmPlaying || this.tracks[this.currentTrackIndex]?.name !== track.name) return;
           try {
-            this.bgmAudio = new Audio("/assets/sounds/desert_night.mp3");
+            this.bgmAudio = new Audio(track.path);
             this.bgmAudio.loop = true;
             this.bgmAudio.volume = track.gain;
-            this.bgmAudio.play().catch(e => console.warn('Failed to play looped desert night:', e));
+            this.bgmAudio.play().catch(e => console.warn(`Failed to play looped ${track.name}:`, e));
           } catch (e) {
-            console.warn('[SoundService] Failed to loop Desert Night:', e);
+            console.warn(`[SoundService] Failed to loop ${track.name}:`, e);
           }
         };
       } else {
