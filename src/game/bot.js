@@ -97,8 +97,7 @@ export const evaluateCardMove = (G, player, cardIndex) => {
                      (tableCardsCaptured === G.table.length) &&
                      (G.deck.length > 0 || G.players['0'].hand.length > 0);
     if (isMissa) {
-      score += 1.0; // Missa awards +1 point
-      score += 3.0; // Extra heuristic preference for clearing the table
+      score += 4.0; // Missa (+1 point) + table clear bonus
     }
 
     // D: Special end-of-game rules
@@ -107,13 +106,9 @@ export const evaluateCardMove = (G, player, cardIndex) => {
                              G.players[player].hand.length === 1;
     if (isLastCardOfGame) {
       if (currentVal === 10) {
-        // King Finish: +5 points
-        score += 5.0;
-        score += 5.0; // High priority
+        score += 10.0; // King Finish (+5 pts) + high priority weight
       } else if (currentVal === 1) {
-        // As Finish: +5 points to opponent! Avoid!
-        score -= 5.0;
-        score -= 5.0; // Heavy penalty
+        score -= 10.0; // As Finish penalty (+5 to opponent, must avoid)
       }
     }
   } else {
@@ -123,11 +118,8 @@ export const evaluateCardMove = (G, player, cardIndex) => {
     const hasSelfRonda = sameValueCardsInHand >= 2;
 
     if (hasSelfRonda) {
-      score += 4.0; // Ronda bait bonus (highly safe, can counter if matched, or capture next turn)
+      score += 4.0; // Ronda bait bonus (safe, can counter or capture next turn)
     } else {
-      // Regular drop.
-      score += 0.0;
-
       // Penalize dropping a card that directly sets up a sequence on the table
       const nextVal = getNextValue(currentVal);
       if (nextVal !== null && G.table.some(c => c.value === nextVal)) {
