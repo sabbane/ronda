@@ -100,21 +100,21 @@
 /* 2. Constrained Viewport Height: Height <= 1000px (Mobile only) */
 @media (max-height: 1000px) and (max-width: 767px) {
   .game-card-container {
-    width: 5.5rem !important;
-    height: 8.25rem !important;
+    width: 6.25rem !important;
+    height: 9.375rem !important;
   }
   .hand-card-container {
-    width: 5.25rem !important;
-    height: 7.875rem !important;
+    width: 6rem !important;
+    height: 9rem !important;
   }
   .game-hand {
     padding-top: 0.75rem !important;
     padding-bottom: 0.75rem !important;
-    min-height: 8.5rem !important;
+    min-height: 10rem !important;
     gap: 1.15rem !important; /* Spaced cards */
   }
   .game-table {
-    min-height: 17.5rem !important;
+    min-height: 20rem !important;
     padding: 1.25rem !important;
   }
   .game-table-4player {
@@ -126,21 +126,21 @@
 /* 3. Highly Constrained Viewport Height: Height <= 800px (Mobile only) */
 @media (max-height: 800px) and (max-width: 767px) {
   .game-card-container {
-    width: 5rem !important;
-    height: 7.5rem !important;
+    width: 5.75rem !important;
+    height: 8.625rem !important;
   }
   .hand-card-container {
-    width: 5rem !important;
-    height: 7.5rem !important;
+    width: 5.75rem !important;
+    height: 8.625rem !important;
   }
   .game-hand {
     padding-top: 0.5rem !important;
     padding-bottom: 0.5rem !important;
-    min-height: 8.1rem !important;
+    min-height: 9.4rem !important;
     gap: 0.85rem !important;
   }
   .game-table {
-    min-height: 15.5rem !important;
+    min-height: 18rem !important;
     padding: 0.85rem !important;
     border-radius: 1.25rem !important;
   }
@@ -153,21 +153,21 @@
 /* 4. Ultra Constrained Viewport Height: Height <= 650px (Mobile only) */
 @media (max-height: 650px) and (max-width: 767px) {
   .game-card-container {
-    width: 4.25rem !important;
-    height: 6.375rem !important;
+    width: 4.75rem !important;
+    height: 7.125rem !important;
   }
   .hand-card-container {
-    width: 4.25rem !important;
-    height: 6.375rem !important;
+    width: 4.75rem !important;
+    height: 7.125rem !important;
   }
   .game-hand {
     padding-top: 0.25rem !important;
     padding-bottom: 0.25rem !important;
-    min-height: 7.0rem !important;
+    min-height: 7.8rem !important;
     gap: 0.75rem !important;
   }
   .game-table {
-    min-height: 13.0rem !important;
+    min-height: 15rem !important;
     padding: 0.5rem !important;
     border-width: 3px !important;
   }
@@ -181,12 +181,12 @@
 @media (max-width: 767px) {
   /* Default mobile card dimensions when height is large (height > 1000px) */
   .game-card-container {
-    width: 5.5rem !important;
-    height: 8.25rem !important;
+    width: 6.25rem !important;
+    height: 9.375rem !important;
   }
   .hand-card-container {
-    width: 5.25rem !important;
-    height: 7.875rem !important;
+    width: 6rem !important;
+    height: 9rem !important;
   }
 
   /* Player and Opponent Name sizing */
