@@ -43,11 +43,12 @@ export const LanguageProvider = ({ children }) => {
 
   const t = (key, params = {}) => {
     const keys = key.split('.');
-    let value = translations[language] || translations['en'];
-    for (const k of keys) {
-      if (!value || value[k] === undefined) return key;
-      value = value[k];
-    }
+    const value = keys.reduce((acc, k) => {
+      if (acc === undefined || acc === null) return undefined;
+      return acc[k];
+    }, translations[language] || translations['en']);
+
+    if (value === undefined) return key;
 
     if (typeof value === 'string' && Object.keys(params).length > 0) {
       return Object.keys(params).reduce((str, paramKey) => {

@@ -182,25 +182,16 @@ export const enumerateMoves = (G, ctx, playerID) => {
   const hand = gameG.players[player]?.hand || [];
   if (hand.length === 0) return [];
 
-  const evaluatedMoves = [];
-  let maxScore = -Infinity;
+  const evaluatedMoves = hand.map((_, i) => ({
+    move: { move: 'playCard', args: [i] },
+    score: evaluateCardMove(gameG, player, i)
+  }));
 
-  for (let i = 0; i < hand.length; i++) {
-    const score = evaluateCardMove(gameG, player, i);
-    const move = { move: 'playCard', args: [i] };
-    evaluatedMoves.push({ move, score });
-    if (score > maxScore) {
-      maxScore = score;
-    }
-  }
+  const maxScore = Math.max(...evaluatedMoves.map(item => item.score));
 
-  // Filter moves to only include those that achieve the maximum score
-  // This allows the bot to choose randomly between equally-best moves.
-  const bestMoves = evaluatedMoves
+  return evaluatedMoves
     .filter(item => item.score === maxScore)
     .map(item => item.move);
-
-  return bestMoves;
 };
 
 export function rondaBot(opts) {

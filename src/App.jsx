@@ -173,14 +173,8 @@ const App = () => {
         return;
       }
       // Find the first available player slot starting from index 1
-      let availablePlayerID = null;
-      for (let i = 1; i < match.players.length; i++) {
-        const slot = match.players[i];
-        if (!slot.name || !slot.isConnected) {
-          availablePlayerID = String(i);
-          break;
-        }
-      }
+      const availablePlayerIndex = match.players.slice(1).findIndex(slot => !slot.name || !slot.isConnected);
+      const availablePlayerID = availablePlayerIndex !== -1 ? String(availablePlayerIndex + 1) : null;
 
       if (availablePlayerID === null) {
         setError(t('roomFullError'));

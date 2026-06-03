@@ -9,17 +9,18 @@ export const getNextValue = (val) => {
 
 const generateDeck = () => {
   const suits = ['dheb', 'jben', 'syouf', 'zrawet'];
-  const deck = [];
-  suits.forEach((suit) => {
-    for (let i = 1; i <= 10; i++) {
-      let displayValue = i;
-      if (i === 8) displayValue = 10;
-      if (i === 9) displayValue = 11;
-      if (i === 10) displayValue = 12;
-      deck.push({ suit, value: i, displayValue, id: `${suit}-${i}` });
-    }
-  });
-  return deck;
+  const displayMap = { 8: 10, 9: 11, 10: 12 };
+  return suits.flatMap(suit => 
+    Array.from({ length: 10 }, (_, i) => {
+      const value = i + 1;
+      return {
+        suit,
+        value,
+        displayValue: displayMap[value] || value,
+        id: `${suit}-${value}`
+      };
+    })
+  );
 };
 
 const shuffle = (array) => {
@@ -44,42 +45,46 @@ export const getTeamCaptain = (playerID, numPlayers) => {
 };
 
 export const getHandRank = (hand) => {
-  if (!hand || hand.length === 0) return null;
-  const counts = {};
-  hand.forEach(c => counts[c.value] = (counts[c.value] || 0) + 1);
-  let type = null;
-  let value = 0;
-  for (const [valStr, count] of Object.entries(counts)) {
-    const val = parseInt(valStr);
-    if (count === 3) {
-      type = 'Tringa';
-      value = val;
-    } else if (count === 2 && (!type || type === 'Ronda')) {
-      type = 'Ronda';
-      value = Math.max(value, val); // Higher Ronda wins if multiple
-    }
+  if (!hand?.length) return null;
+
+  const counts = hand.reduce((acc, card) => {
+    acc[card.value] = (acc[card.value] || 0) + 1;
+    return acc;
+  }, {});
+
+  const entries = Object.entries(counts).map(([val, count]) => ({
+    value: parseInt(val, 10),
+    count
+  }));
+
+  const tringa = entries.find(e => e.count === 3);
+  if (tringa) return { type: 'Tringa', value: tringa.value };
+
+  const rondas = entries.filter(e => e.count === 2);
+  if (rondas.length > 0) {
+    const maxValue = Math.max(...rondas.map(r => r.value));
+    return { type: 'Ronda', value: maxValue };
   }
-  return type ? { type, value } : null;
+
+  return null;
 };
 
 export const evaluateRondaTringa = (G) => {
   const numP = Object.keys(G.players).length;
-  const participants = {};
-  const rondaPlayers = [];
-  const tringaPlayers = [];
   
-  for (let i = 0; i < numP; i++) {
-    const pID = String(i);
-    const pRank = getHandRank(G.players[pID]?.hand);
-    if (pRank) {
-      participants[pID] = pRank;
-      if (pRank.type === 'Tringa') {
-        tringaPlayers.push(pID);
-      } else {
-        rondaPlayers.push(pID);
+  const { participants, tringaPlayers, rondaPlayers } = Array.from({ length: numP }, (_, i) => String(i))
+    .reduce((acc, pID) => {
+      const pRank = getHandRank(G.players[pID]?.hand);
+      if (pRank) {
+        acc.participants[pID] = pRank;
+        if (pRank.type === 'Tringa') {
+          acc.tringaPlayers.push(pID);
+        } else {
+          acc.rondaPlayers.push(pID);
+        }
       }
-    }
-  }
+      return acc;
+    }, { participants: {}, tringaPlayers: [], rondaPlayers: [] });
 
   const clashingPlayers = [...tringaPlayers, ...rondaPlayers];
   if (clashingPlayers.length === 0) {
@@ -156,35 +161,19 @@ export const resolveClash = (G) => {
   
   const { participants, clashingPlayers, ptsPool } = G.activeClash;
   
-  // 1. Filter participants to those who have the highest rank type present (Tringa > Ronda)
-  let highestRankType = 'Ronda';
-  clashingPlayers.forEach(pID => {
-    if (participants[pID].type === 'Tringa') {
-      highestRankType = 'Tringa';
-    }
-  });
+  // 1. Determine highest rank type present (Tringa beats Ronda)
+  const hasTringa = clashingPlayers.some(pID => participants[pID].type === 'Tringa');
+  const highestRankType = hasTringa ? 'Tringa' : 'Ronda';
 
   const topPlayers = clashingPlayers.filter(pID => participants[pID].type === highestRankType);
 
-  // 2. Find the highest value among the top players
-  let maxVal = -1;
-  topPlayers.forEach(pID => {
-    const val = participants[pID].value;
-    if (val > maxVal) {
-      maxVal = val;
-    }
-  });
-
+  // 2. Find max card value among top players
+  const maxVal = Math.max(...topPlayers.map(pID => participants[pID].value));
   const winners = topPlayers.filter(pID => participants[pID].value === maxVal);
 
-  let winner = null;
-  if (winners.length === 1) {
-    winner = winners[0];
-  } else {
-    winner = 'Draw';
-  }
+  const winner = winners.length === 1 ? winners[0] : 'Draw';
   
-  if (winner && winner !== 'Draw') {
+  if (winner !== 'Draw') {
     addScore(G, winner, ptsPool);
     const winnerRank = participants[winner];
     G.announcements.push({ 
@@ -215,8 +204,8 @@ export const checkRoundEnd = (G) => {
     // If deck is also empty, the game (round) is totally over
     if (G.deck.length === 0 && !G.gameStatus) {
       if (!G.matchesWon) {
-        G.matchesWon = {};
-        for (let i = 0; i < numP; i++) G.matchesWon[String(i)] = 0;
+        G.matchesWon = Array.from({ length: numP }, (_, i) => String(i))
+          .reduce((acc, pID) => ({ ...acc, [pID]: 0 }), {});
       }
 
       // Give remaining table cards to the last player who captured
@@ -444,11 +433,12 @@ export const RondaGame = {
         // P1: 12 (10j), 1 (1s), 5 (5s)
         { value: 10, suit: 'jben' }, { value: 1, suit: 'syouf' }, { value: 5, suit: 'syouf' }
       ].map(card => {
-        let displayValue = card.value;
-        if (card.value === 8) displayValue = 10;
-        if (card.value === 9) displayValue = 11;
-        if (card.value === 10) displayValue = 12;
-        return { ...card, displayValue, id: `${card.suit}-${card.value}` };
+        const displayMap = { 8: 10, 9: 11, 10: 12 };
+        return { 
+          ...card, 
+          displayValue: displayMap[card.value] || card.value, 
+          id: `${card.suit}-${card.value}` 
+        };
       });
     } else {
       // NORMAL SHUFFLED DECK
@@ -458,12 +448,15 @@ export const RondaGame = {
 
     const table = deck.splice(0, 4);
     const numP = ctx.numPlayers || 2;
-    const players = {};
-    const matchesWon = {};
-    for (let i = 0; i < numP; i++) {
-      players[String(i)] = { hand: deck.splice(0, 3), captured: [], score: 0, name: '' };
-      matchesWon[String(i)] = 0;
-    }
+    const playerIds = Array.from({ length: numP }, (_, i) => String(i));
+    const players = playerIds.reduce((acc, pID) => {
+      acc[pID] = { hand: deck.splice(0, 3), captured: [], score: 0, name: '' };
+      return acc;
+    }, {});
+    const matchesWon = playerIds.reduce((acc, pID) => {
+      acc[pID] = 0;
+      return acc;
+    }, {});
     
     let G = {
       deck,
@@ -685,9 +678,9 @@ export const RondaGame = {
       const allHandsEmpty = Object.keys(G.players).every(pID => !G.players[pID].hand || G.players[pID].hand.length === 0);
       
       if (allHandsEmpty && G.deck.length > 0) {
-        for (let i = 0; i < numP; i++) {
-          G.players[String(i)].hand = G.deck.splice(0, 3);
-        }
+        Array.from({ length: numP }, (_, i) => String(i)).forEach(pID => {
+          G.players[pID].hand = G.deck.splice(0, 3);
+        });
         G.lastPlayedCard = null; // Clear last played card so Derba doesn't carry over to a new round
         G.isAnimating = true;
         G.isDealing = true;
@@ -819,35 +812,37 @@ export const RondaGame = {
           restartGame: ({ G, ctx, events }) => {
             // Preserve overall match wins, player nicknames, and custom team names dynamically
             const numP = Object.keys(G.players).length;
-            const matches = {};
-            const names = {};
             const preservedTeamNames = G.teamNames ? { ...G.teamNames } : { TeamA: '', TeamB: '' };
             
-            for (let i = 0; i < numP; i++) {
-              const pID = String(i);
-              matches[pID] = G.matchesWon ? (G.matchesWon[pID] || 0) : 0;
-              names[pID] = G.players && G.players[pID] ? G.players[pID].name : '';
-            }
+            const playerIds = Array.from({ length: numP }, (_, i) => String(i));
+            
+            const matches = playerIds.reduce((acc, pID) => {
+              acc[pID] = G.matchesWon ? (G.matchesWon[pID] || 0) : 0;
+              return acc;
+            }, {});
+
+            const names = playerIds.reduce((acc, pID) => {
+              acc[pID] = G.players && G.players[pID] ? G.players[pID].name : '';
+              return acc;
+            }, {});
 
             const fresh = RondaGame.setup({ ctx });
 
             // Wipe all existing keys from G, then copy fresh state in.
             // This ensures no stale properties survive the reset.
-            for (const key of Object.keys(G)) {
-              delete G[key];
-            }
+            Object.keys(G).forEach(key => delete G[key]);
             Object.assign(G, fresh);
 
             // Restore overall match wins, nicknames, team names, and ensure the game starts directly
             G.matchesWon = matches;
             G.teamNames = preservedTeamNames;
             G.gameStarted = true;
-            for (let i = 0; i < numP; i++) {
-              const pID = String(i);
+            
+            playerIds.forEach(pID => {
               if (G.players && G.players[pID]) {
                 G.players[pID].name = names[pID];
               }
-            }
+            });
 
             // Clear any stages so players can play cards
             events.setActivePlayers({ all: null });
