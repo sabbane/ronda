@@ -179,10 +179,10 @@ export const useBoardEvents = ({
           let customTitle = ann.type;
           let customIcon = "✨";
 
-          if (ann.type === 'Ronda') customText = isMe ? t('announcements.rondaMe', { oppName: announcerName }) : t('announcements.rondaOpponent', { oppName: announcerName });
-          if (ann.type === 'Tringa') customText = isMe ? t('announcements.tringaMe', { oppName: announcerName }) : t('announcements.tringaOpponent', { oppName: announcerName });
+          if (ann.type === 'Ronda') customText = isMe ? t('announcements.rondaMe') : t('announcements.rondaOpponent', { oppName: announcerName });
+          if (ann.type === 'Tringa') customText = isMe ? t('announcements.tringaMe') : t('announcements.tringaOpponent', { oppName: announcerName });
           if (ann.type === 'Missa') {
-            customText = isMe ? t('announcements.missaMe', { oppName: announcerName }) : t('announcements.missaOpponent', { oppName: announcerName });
+            customText = isMe ? t('announcements.missaMe') : t('announcements.missaOpponent', { oppName: announcerName });
             customIcon = "🧹";
           }
           if (ann.type === 'Derba') {
@@ -232,7 +232,7 @@ export const useBoardEvents = ({
               customIcon = "🥊";
             } else if (ann.streak === 4) {
               customTitle = t('announcements.ultimateCounterTitle');
-              customText = isMe ? t('announcements.ultimateCounterMe', { oppName: opponentName }) : t('announcements.ultimateCounterOpponent', { oppName: announcerName });
+              customText = isMe ? t('announcements.ultimateCounterMe') : t('announcements.ultimateCounterOpponent', { oppName: announcerName });
               customIcon = "☢️";
             }
           }
@@ -258,7 +258,7 @@ export const useBoardEvents = ({
             const pts = ann.pts || (type === 'Tringa' ? 10 : 2);
             if (isMe) {
               customTitle = t('announcements.clashWonTitle');
-              customText = type === 'Tringa' ? t('announcements.clashWonTringaMe', { pts, oppName: announcerName }) : t('announcements.clashWonRondaMe', { pts, oppName: announcerName });
+              customText = type === 'Tringa' ? t('announcements.clashWonTringaMe', { pts }) : t('announcements.clashWonRondaMe', { pts });
             } else {
               customTitle = t('announcements.clashLostTitle');
               customText = type === 'Tringa' ? t('announcements.clashWonTringaOpp', { pts, oppName: announcerName }) : t('announcements.clashWonRondaOpp', { pts, oppName: announcerName });
@@ -270,7 +270,7 @@ export const useBoardEvents = ({
             customIcon = "🤝";
           }
           if (ann.type === 'King Finish') {
-            customText = isMe ? t('announcements.kingFinishMe', { oppName: announcerName }) : t('announcements.kingFinishOpponent', { oppName: announcerName });
+            customText = isMe ? t('announcements.kingFinishMe') : t('announcements.kingFinishOpponent', { oppName: announcerName });
             customIcon = "👑";
           }
           if (ann.type === 'TringaWins') {
