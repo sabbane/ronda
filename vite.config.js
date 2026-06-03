@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { viteSingleFile } from 'vite-plugin-singlefile'
 import pkg from './package.json'
+import obfuscator from 'rollup-plugin-obfuscator'
 
 // Custom plugin to inject platform SDKs into index.html
 const injectPlatformSdk = (mode, env) => {
@@ -114,6 +115,20 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: mode === 'playgama' ? 'dist-playgama' : 'dist-web',
+      rollupOptions: {
+        plugins: [
+          obfuscator({
+            global: true,
+            options: {
+              compact: true,
+              stringArray: true,
+              stringArrayThreshold: 0.75,
+              unicodeEscapeSequence: false
+            },
+            exclude: ['node_modules/**']
+          })
+        ]
+      }
     },
     plugins: [
       tailwindcss(),
