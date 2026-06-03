@@ -2,7 +2,10 @@ class SoundService {
   constructor() {
     this._muted = localStorage.getItem('ronda_muted') === 'true';
     this.bgmPlaying = false;
-    this.bgmAudio = null;
+    this.audioCtx = null;
+    this.gainNode = null;
+    this.activeSources = [];
+    this.decodedBuffers = {};
     
     this.tracks = [
       {
@@ -28,26 +31,26 @@ class SoundService {
     this.currentTrackIndex = storedTrack !== null ? parseInt(storedTrack, 10) : 0;
 
     this.adPlaying = false;
-    this._wasBGMPlayingBeforeAd = false;
 
-    // Pause/resume BGM on ad events
+    // Suspend BGM context during ads to pause seamlessly from current playback position
     window.addEventListener('ronda-ad-started', () => {
       if (this.adPlaying) return;
       this.adPlaying = true;
-      this._wasBGMPlayingBeforeAd = this.bgmPlaying;
-      if (this._wasBGMPlayingBeforeAd) {
-        this.stopBGM();
+      if (this.audioCtx && this.bgmPlaying) {
+        this.audioCtx.suspend().catch(e => console.warn('Failed to suspend BGM:', e));
       }
     });
 
     window.addEventListener('ronda-ad-completed', () => {
       if (!this.adPlaying) return;
       this.adPlaying = false;
-      if (this._wasBGMPlayingBeforeAd) {
-        this.startBGM();
-        this._wasBGMPlayingBeforeAd = false;
+      if (this.audioCtx && this.bgmPlaying && !this.muted) {
+        this.audioCtx.resume().catch(e => console.warn('Failed to resume BGM:', e));
       }
     });
+
+    // Start preloading the selected track immediately
+    this._preloadTrack(this.currentTrackIndex);
 
     // Preload SFX to avoid latency
     this.sfxCache = {};
@@ -99,6 +102,8 @@ class SoundService {
     this.currentTrackIndex = finalIdx;
     localStorage.setItem('ronda_bgm_track', String(finalIdx));
     
+    this._preloadTrack(finalIdx);
+
     if (this.bgmPlaying) {
       await this.stopBGM();
       await this.startBGM();
@@ -111,7 +116,50 @@ class SoundService {
     return await this.changeTrack(nextIdx);
   }
 
+  async _preloadTrack(index) {
+    const track = this.tracks[index];
+    if (!track || track.name === "No Sound" || !track.path) return;
+    
+    try {
+      if (!this.audioCtx) {
+        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      
+      const promises = [this._loadBuffer(track.path)];
+      if (track.introPath) {
+        promises.push(this._loadBuffer(track.introPath));
+      }
+      await Promise.all(promises);
+      console.log(`[SoundService] Preloaded track: ${track.name}`);
+    } catch (e) {
+      console.warn(`[SoundService] Preload failed for ${track.name}:`, e.message);
+    }
+  }
+
+  async _loadBuffer(url) {
+    if (this.decodedBuffers[url]) {
+      return this.decodedBuffers[url];
+    }
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    const audioBuffer = await new Promise((resolve, reject) => {
+      this.audioCtx.decodeAudioData(
+        arrayBuffer,
+        (buffer) => resolve(buffer),
+        (err) => reject(err)
+      );
+    });
+    this.decodedBuffers[url] = audioBuffer;
+    return audioBuffer;
+  }
+
   async initContext() {
+    if (!this.audioCtx) {
+      this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (this.audioCtx.state === 'suspended') {
+      await this.audioCtx.resume();
+    }
     if (!this.bgmPlaying && !this.muted && !this.adPlaying) {
       this.startBGM().catch(e => console.warn('Failed to auto-start BGM:', e));
     }
@@ -122,45 +170,72 @@ class SoundService {
     if (this.muted || this.adPlaying) return;
     if (this.bgmPlaying) return;
 
-    const track = this.tracks[this.currentTrackIndex];
+    const trackIndex = this.currentTrackIndex;
+    const track = this.tracks[trackIndex];
     if (!track || track.name === "No Sound" || !track.path) {
       this.bgmPlaying = true;
       return;
     }
 
+    if (!this.audioCtx) {
+      this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (this.audioCtx.state === 'suspended') {
+      try {
+        await this.audioCtx.resume();
+      } catch (e) {
+        console.warn('Failed to resume context:', e);
+      }
+    }
+
+    if (!this.gainNode) {
+      this.gainNode = this.audioCtx.createGain();
+      this.gainNode.connect(this.audioCtx.destination);
+    }
+    this.gainNode.gain.setValueAtTime(this.muted ? 0 : track.gain, this.audioCtx.currentTime);
+
+    this.bgmPlaying = true;
+
     try {
-      if (this.bgmAudio) {
-        this.bgmAudio.pause();
-        this.bgmAudio.onended = null;
-        this.bgmAudio = null;
-      }
+      this.stopActiveSources();
 
-      this.bgmPlaying = true;
-
+      const promises = [this._loadBuffer(track.path)];
       if (track.introPath) {
-        // Play intro track first
-        this.bgmAudio = new Audio(track.introPath);
-        this.bgmAudio.loop = false;
-        this.bgmAudio.volume = track.gain;
-
-        this.bgmAudio.onended = () => {
-          if (!this.bgmPlaying || this.tracks[this.currentTrackIndex]?.name !== track.name) return;
-          try {
-            this.bgmAudio = new Audio(track.path);
-            this.bgmAudio.loop = true;
-            this.bgmAudio.volume = track.gain;
-            this.bgmAudio.play().catch(e => console.warn(`Failed to play looped ${track.name}:`, e));
-          } catch (e) {
-            console.warn(`[SoundService] Failed to loop ${track.name}:`, e);
-          }
-        };
-      } else {
-        this.bgmAudio = new Audio(track.path);
-        this.bgmAudio.loop = true;
-        this.bgmAudio.volume = track.gain;
+        promises.push(this._loadBuffer(track.introPath));
       }
-      
-      await this.bgmAudio.play();
+
+      const [loopBuffer, introBuffer] = await Promise.all(promises);
+
+      // Guard: cancel if state changed during load
+      if (!this.bgmPlaying || this.currentTrackIndex !== trackIndex || this.adPlaying) {
+        return;
+      }
+
+      const startTime = this.audioCtx.currentTime;
+
+      if (introBuffer) {
+        const introSource = this.audioCtx.createBufferSource();
+        introSource.buffer = introBuffer;
+        introSource.connect(this.gainNode);
+
+        const loopSource = this.audioCtx.createBufferSource();
+        loopSource.buffer = loopBuffer;
+        loopSource.loop = true;
+        loopSource.connect(this.gainNode);
+
+        introSource.start(startTime);
+        loopSource.start(startTime + introBuffer.duration);
+
+        this.activeSources.push(introSource, loopSource);
+      } else {
+        const loopSource = this.audioCtx.createBufferSource();
+        loopSource.buffer = loopBuffer;
+        loopSource.loop = true;
+        loopSource.connect(this.gainNode);
+
+        loopSource.start(startTime);
+        this.activeSources.push(loopSource);
+      }
     } catch (e) {
       console.warn('[SoundService] BGM play failed:', e.message);
       this.bgmPlaying = false;
@@ -170,13 +245,16 @@ class SoundService {
   async stopBGM() {
     if (!this.bgmPlaying) return;
     this.bgmPlaying = false;
+    this.stopActiveSources();
+  }
 
-    if (this.bgmAudio) {
+  stopActiveSources() {
+    this.activeSources.forEach(source => {
       try {
-        this.bgmAudio.onended = null;
-        this.bgmAudio.pause();
+        source.stop();
       } catch (e) { /* ignore */ }
-    }
+    });
+    this.activeSources = [];
   }
 
   _playSFX(filename, volume = 0.8) {
