@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 import { LobbyClient } from 'boardgame.io/dist/esm/client.js';
 import { Client as ReactClient } from 'boardgame.io/dist/esm/react.js';
@@ -11,18 +11,6 @@ import { useLanguage } from './contexts/LanguageContext';
 import { Rules } from './components/Rules';
 import { useSound } from './contexts/SoundContext';
 import { MainMenu } from './components/MainMenu';
-
-const MOROCCAN_NAMES = [
-  'Casablanca', 'Marrakech', 'Fes', 'Tangier', 'Rabat', 'Agadir', 'Chefchaouen',
-  'Essaouira', 'Merzouga', 'Ouarzazate', 'Meknes', 'Tetouan', 'Atlas', 'Sahara',
-  'Rif', 'Maghreb', 'Medina', 'Kasbah', 'MintTea', 'Tajine', 'Couscous', 'Zellij', 'JemaaElFna'
-];
-
-const getRandomMoroccanName = () => {
-  const name = MOROCCAN_NAMES[Math.floor(Math.random() * MOROCCAN_NAMES.length)];
-  const num = Math.floor(Math.random() * 90) + 10;
-  return `${name}-${num}`;
-};
 
 const RondaClientBot = ReactClient({
   game: RondaGame,
@@ -77,7 +65,7 @@ const App = () => {
   const [playerID, setPlayerID] = useState('0');
   const [matchID, setMatchID] = useState(() => {
     const params = new URLSearchParams(window.location.search);
-    return params.get('room') || getRandomMoroccanName();
+    return params.get('room') || '';
   });
   const [nickname, setNickname] = useState(() => {
     return localStorage.getItem('ronda_nickname') || '';
@@ -97,23 +85,6 @@ const App = () => {
   
   const { language, changeLanguage, t } = useLanguage();
   const { isMuted, toggleMute, playClick, currentTrack, tracks, nextTrack } = useSound();
-
-  const modeRef = useRef(mode);
-  const matchIDRef = useRef(matchID);
-  const playerIDRef = useRef(playerID);
-  const credentialsRef = useRef(credentials);
-  const languageRef = useRef(language);
-  const nicknameRef = useRef(nickname);
-
-  useEffect(() => {
-    modeRef.current = mode;
-    matchIDRef.current = matchID;
-    playerIDRef.current = playerID;
-    credentialsRef.current = credentials;
-    languageRef.current = language;
-    nicknameRef.current = nickname;
-  }, [mode, matchID, playerID, credentials, language, nickname]);
-
   const updateUrl = (id) => {
     try {
       const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}?room=${id}`;
@@ -172,7 +143,6 @@ const App = () => {
         setIsCheckingRoom(false);
         return;
       }
-      // Find the first available player slot starting from index 1
       const availablePlayerIndex = match.players.slice(1).findIndex(slot => !slot.name || !slot.isConnected);
       const availablePlayerID = availablePlayerIndex !== -1 ? String(availablePlayerIndex + 1) : null;
 
@@ -208,7 +178,6 @@ const App = () => {
       if (resp && resp.matches) {
         const openMatches = resp.matches.filter(m => {
           if (m.unlisted) return false;
-          // A room is joinable if there is at least one free slot (index >= 1)
           const isSlotAvailable = m.players.slice(1).some(p => !p.name || !p.isConnected);
           return isSlotAvailable;
         });
@@ -230,11 +199,16 @@ const App = () => {
 
   useEffect(() => {
     const handleReset = () => setGameKey(prev => prev + 1);
+    window.addEventListener('ronda-reset', handleReset);
+    return () => window.removeEventListener('ronda-reset', handleReset);
+  }, []);
+
+  useEffect(() => {
     const handleMenu = () => {
-      const mode = modeRef.current;
-      const matchID = matchIDRef.current;
-      const playerID = playerIDRef.current;
-      const credentials = credentialsRef.current;
+      const activeMode = mode;
+      const activeMatchID = matchID;
+      const activePlayerID = playerID;
+      const activeCredentials = credentials;
 
       setMode(null);
       setError(null);
@@ -243,10 +217,10 @@ const App = () => {
       setGameKey(prev => prev + 1);
 
       setTimeout(() => {
-        if (mode === 'online' && matchID && playerID) {
-          lobbyClient.leaveMatch(RondaGame.name, matchID, {
-            playerID,
-            credentials
+        if (activeMode === 'online' && activeMatchID && activePlayerID) {
+          lobbyClient.leaveMatch(RondaGame.name, activeMatchID, {
+            playerID: activePlayerID,
+            credentials: activeCredentials
           }).catch(err => console.error('Failed to leave match via lobbyClient:', err));
         }
         setCredentials(null);
@@ -258,11 +232,16 @@ const App = () => {
       } catch { /* ignore */ }
     };
 
+    window.addEventListener('ronda-menu', handleMenu);
+    return () => window.removeEventListener('ronda-menu', handleMenu);
+  }, [mode, matchID, playerID, credentials]);
+
+  useEffect(() => {
     const handleHostLeft = () => {
-      const mode = modeRef.current;
-      const matchID = matchIDRef.current;
-      const playerID = playerIDRef.current;
-      const credentials = credentialsRef.current;
+      const activeMode = mode;
+      const activeMatchID = matchID;
+      const activePlayerID = playerID;
+      const activeCredentials = credentials;
 
       setMode(null);
       setTestMode(false);
@@ -271,10 +250,10 @@ const App = () => {
       setError(t('hostLeftError'));
 
       setTimeout(() => {
-        if (mode === 'online' && matchID && playerID) {
-          lobbyClient.leaveMatch(RondaGame.name, matchID, {
-            playerID,
-            credentials
+        if (activeMode === 'online' && activeMatchID && activePlayerID) {
+          lobbyClient.leaveMatch(RondaGame.name, activeMatchID, {
+            playerID: activePlayerID,
+            credentials: activeCredentials
           }).catch(err => console.error('Failed to leave match as guest:', err));
         }
         setCredentials(null);
@@ -286,41 +265,33 @@ const App = () => {
       } catch { /* ignore */ }
     };
 
-    window.addEventListener('ronda-reset', handleReset);
-    window.addEventListener('ronda-menu', handleMenu);
     window.addEventListener('ronda-host-left', handleHostLeft);
+    return () => window.removeEventListener('ronda-host-left', handleHostLeft);
+  }, [mode, matchID, playerID, credentials, t]);
 
+  useEffect(() => {
     const handleSwitchSeat = async (event) => {
       const newPlayerID = event.detail?.newPlayerID;
       if (!newPlayerID) return;
 
-      const currentMode = modeRef.current;
-      const currentMatchID = matchIDRef.current;
-      const currentPlayerID = playerIDRef.current;
-      const currentCredentials = credentialsRef.current;
-      const currentNickname = nicknameRef.current || 'Player';
-
-      console.log('[App] handleSwitchSeat requested:', currentPlayerID, '->', newPlayerID);
+      console.log('[App] handleSwitchSeat requested:', playerID, '->', newPlayerID);
 
       try {
-        // 1. Leave the old slot if we have one
-        if (currentMode === 'online' && currentMatchID && currentPlayerID) {
-          await lobbyClient.leaveMatch(RondaGame.name, currentMatchID, {
-            playerID: currentPlayerID,
-            credentials: currentCredentials
+        if (mode === 'online' && matchID && playerID) {
+          await lobbyClient.leaveMatch(RondaGame.name, matchID, {
+            playerID,
+            credentials
           }).catch(err => console.error('Failed to leave old seat during switch:', err));
         }
 
-        // 2. Join the new slot
-        const joinData = await lobbyClient.joinMatch(RondaGame.name, currentMatchID, {
+        const joinData = await lobbyClient.joinMatch(RondaGame.name, matchID, {
           playerID: newPlayerID,
-          playerName: currentNickname
+          playerName: nickname || 'Player'
         });
 
-        // 3. Update state
         setCredentials(joinData.playerCredentials);
         setPlayerID(newPlayerID);
-        setGameKey(prev => prev + 1); // Clean remount of the board client
+        setGameKey(prev => prev + 1);
         console.log('[App] handleSwitchSeat completed successfully. Switched to slot:', newPlayerID);
       } catch (err) {
         console.error('[App] Failed to switch seat:', err);
@@ -329,40 +300,40 @@ const App = () => {
     };
 
     window.addEventListener('ronda-switch-seat', handleSwitchSeat);
+    return () => window.removeEventListener('ronda-switch-seat', handleSwitchSeat);
+  }, [mode, matchID, playerID, credentials, nickname, t]);
 
+  useEffect(() => {
     const isAppInTestMode = import.meta.env.VITE_TEST_MODE === 'true';
     const path = window.location.pathname;
-    console.log('[App] mount: pathname:', path, 'isAppInTestMode:', isAppInTestMode);
-    const BACKEND = restServerUrl;
 
     const setupTestMatch = async (pID) => {
       try {
-        let matchID;
-
+        let testMatchID;
         if (pID === '0') {
-          const resp = await fetch(`${BACKEND}/test/reset`, { method: 'POST' });
+          const resp = await fetch(`${restServerUrl}/test/reset`, { method: 'POST' });
           const data = await resp.json();
           if (!data.ok || !data.matchID) throw new Error('Server could not create test match');
-          matchID = data.matchID;
-          console.log('[TestMode] P1: fresh test match created:', matchID);
+          testMatchID = data.matchID;
+          console.log('[TestMode] P1: fresh test match created:', testMatchID);
         } else {
           let attempts = 0;
           while (attempts < 20) {
             try {
-              const resp = await fetch(`${BACKEND}/test/match-id`);
+              const resp = await fetch(`${restServerUrl}/test/match-id`);
               if (resp.ok) {
                 const data = await resp.json();
-                if (data.ok && data.matchID) { matchID = data.matchID; break; }
+                if (data.ok && data.matchID) { testMatchID = data.matchID; break; }
               }
             } catch { /* ignore */ }
             await new Promise(r => setTimeout(r, 500));
             attempts++;
           }
-          if (!matchID) throw new Error('P2 could not find a test match. Open /test/p1 first.');
-          console.log('[TestMode] P2: joining existing match:', matchID);
+          if (!testMatchID) throw new Error('P2 could not find a test match. Open /test/p1 first.');
+          console.log('[TestMode] P2: joining existing match:', testMatchID);
         }
 
-        setMatchID(matchID);
+        setMatchID(testMatchID);
         setPlayerID(pID);
         setMatchNumPlayers(2);
         setMode('online');
@@ -378,22 +349,15 @@ const App = () => {
       } else if (path === '/test/p2') {
         setupTestMatch('1');
       }
+    } else {
+      const params = new URLSearchParams(window.location.search);
+      const roomParam = params.get('room');
+      if (roomParam) {
+        setMatchID(roomParam);
+        setMultiplayerAction('join');
+        setJoinMode('private');
+      }
     }
-
-    const params = new URLSearchParams(window.location.search);
-    const roomParam = params.get('room');
-    if (roomParam && !isAppInTestMode) {
-      setMatchID(roomParam);
-      setMultiplayerAction('join');
-      setJoinMode('private');
-    }
-
-    return () => {
-      window.removeEventListener('ronda-reset', handleReset);
-      window.removeEventListener('ronda-menu', handleMenu);
-      window.removeEventListener('ronda-host-left', handleHostLeft);
-      window.removeEventListener('ronda-switch-seat', handleSwitchSeat);
-    };
   }, []);
 
   if (mode === 'rules') {
