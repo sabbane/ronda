@@ -1,5 +1,6 @@
 import { RandomBot } from 'boardgame.io/dist/esm/ai.js';
-import { getNextValue, getHandRank } from './game.js';
+import { getNextValue } from './deck.js';
+import { getHandRank } from './rules.js';
 
 // Greedy evaluation score for playing a card
 export const evaluateCardMove = (G, player, cardIndex) => {

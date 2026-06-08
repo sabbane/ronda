@@ -1,4 +1,6 @@
-import { RondaGame, getNextValue, evaluateRondaTringa } from './game.js';
+import { RondaGame } from './game.js';
+import { getNextValue } from './deck.js';
+import { evaluateRondaTringa } from './rules.js';
 import { Client } from 'boardgame.io/dist/esm/client.js';
 import { expect, test, describe } from 'vitest';
 

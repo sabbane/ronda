@@ -1,6 +1,7 @@
 import { Client } from 'boardgame.io/dist/esm/client.js';
 import { Local } from 'boardgame.io/dist/esm/multiplayer.js';
-import { RondaGame, evaluateRondaTringa, checkRoundEnd } from './game.js';
+import { RondaGame } from './game.js';
+import { evaluateRondaTringa, checkRoundEnd } from './rules.js';
 import { expect, test, describe } from 'vitest';
 
 describe('RondaGame - Extended Requirements', () => {
