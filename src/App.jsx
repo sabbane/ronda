@@ -195,6 +195,7 @@ const App = () => {
     if (multiplayerAction === 'join' && joinMode === 'public') {
       fetchPublicRooms();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [multiplayerAction, joinMode]);
 
   useEffect(() => {

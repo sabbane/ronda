@@ -5,6 +5,7 @@ test-results
 test-results/**
 .gemini
 .gemini/**
+server.js
 
 # Exclude build distributions
 dist

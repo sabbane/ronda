@@ -142,22 +142,23 @@ export const MainMenu = ({
                   </div>
                 )}
 
+                {/* Name input */}
+                <div className="flex flex-col gap-1.5 mb-4">
+                  <label className="text-xs text-slate-400 font-bold uppercase tracking-wider">{t('yourNickname')}</label>
+                  <input
+                    type="text"
+                    value={nickname}
+                    maxLength={15}
+                    onChange={e => setNickname(e.target.value)}
+                    className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-medium focus:outline-none focus:border-amber-500/50 transition-colors"
+                    placeholder={t('enterNickname')}
+                    aria-label={t('yourNickname') || 'Your Nickname'}
+                  />
+                </div>
+
                 {multiplayerAction === 'create' ? (
                   /* CREATE ROOM VIEW */
                   <div className="flex flex-col gap-4">
-                    {/* Name input */}
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs text-slate-400 font-bold uppercase tracking-wider">{t('yourNickname')}</label>
-                      <input
-                        type="text"
-                        value={nickname}
-                        maxLength={15}
-                        onChange={e => setNickname(e.target.value)}
-                        className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-medium focus:outline-none focus:border-amber-500/50 transition-colors"
-                        placeholder={t('enterNickname')}
-                      />
-                    </div>
-
                     {/* Room Privacy Choice */}
                     <div className="flex flex-col gap-1.5 mt-1">
                       <label className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">{t('roomPrivacy')}</label>
@@ -222,19 +223,6 @@ export const MainMenu = ({
                 ) : (
                   /* JOIN ROOM VIEW */
                   <div className="flex flex-col gap-4">
-                    {/* Name input */}
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs text-slate-400 font-bold uppercase tracking-wider">{t('yourNickname')}</label>
-                      <input
-                        type="text"
-                        value={nickname}
-                        maxLength={15}
-                        onChange={e => setNickname(e.target.value)}
-                        className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-medium focus:outline-none focus:border-amber-500/50 transition-colors"
-                        placeholder={t('enterNickname')}
-                      />
-                    </div>
-
                     {/* Join mode tabs */}
                     <div className="grid grid-cols-2 gap-2 bg-black/40 p-1 rounded-xl border border-white/5 mt-1">
                       <button
@@ -313,6 +301,7 @@ export const MainMenu = ({
                             className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-mono focus:outline-none focus:border-amber-500/50 transition-colors"
                             placeholder={t('enterRoomId')}
                             required
+                            aria-label={t('matchId') || 'Match ID'}
                           />
                           <button
                             disabled={isCheckingRoom || !joinRoomId.trim()}

@@ -168,6 +168,7 @@ export const WaitingLobby = ({
                       onChange={(e) => moves.setPlayerName(e.target.value)}
                       className="bg-black/50 border border-white/10 rounded-xl px-3 py-1.5 text-center text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 w-full animate-fade-in"
                       placeholder={t('yourName')}
+                      aria-label={t('yourName') || 'Your Name'}
                     />
                   ) : (
                     <span className="text-base font-bold text-slate-200">{pName || 'Host'}</span>
@@ -196,6 +197,7 @@ export const WaitingLobby = ({
                     onChange={(e) => moves.setTeamName({ team: 'TeamA', name: e.target.value })}
                     placeholder={t('enterTeamAName')}
                     className={`bg-black/35 border ${myID === '0' || myID === '2' ? 'border-amber-500/30 focus:border-amber-500/60 focus:outline-none' : 'border-white/5 pointer-events-none'} rounded-lg px-2.5 py-1 text-white text-xs font-bold w-full sm:w-48`}
+                    aria-label={t('teamName') || 'Team Name'}
                   />
                 </div>
               </div>
@@ -239,6 +241,7 @@ export const WaitingLobby = ({
                           onChange={(e) => moves.setPlayerName(e.target.value)}
                           className="bg-black/50 border border-white/10 rounded-xl px-3 py-1.5 text-center text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 w-full animate-fade-in"
                           placeholder={t('yourName')}
+                          aria-label={t('yourName') || 'Your Name'}
                         />
                       ) : (
                         <span className="text-base font-bold text-slate-200">{pName || 'Host'}</span>
@@ -266,6 +269,7 @@ export const WaitingLobby = ({
                     onChange={(e) => moves.setTeamName({ team: 'TeamB', name: e.target.value })}
                     placeholder={t('enterTeamBName')}
                     className={`bg-black/35 border ${myID === '1' || myID === '3' ? 'border-purple-500/30 focus:border-purple-500/60 focus:outline-none' : 'border-white/5 pointer-events-none'} rounded-lg px-2.5 py-1 text-white text-xs font-bold w-full sm:w-48`}
+                    aria-label={t('teamName') || 'Team Name'}
                   />
                 </div>
               </div>
@@ -308,6 +312,7 @@ export const WaitingLobby = ({
                           onChange={(e) => moves.setPlayerName(e.target.value)}
                           className="bg-black/50 border border-white/10 rounded-xl px-3 py-1.5 text-center text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 w-full animate-fade-in"
                           placeholder={t('yourName')}
+                          aria-label={t('yourName') || 'Your Name'}
                         />
                       ) : (
                         <span className="text-base font-bold text-slate-200">{pName}</span>

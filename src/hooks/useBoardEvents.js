@@ -60,6 +60,7 @@ export const useBoardEvents = ({
       }
     }
     prevTableLength.current = tableLength;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tableLength, playCardPlace, G.gameStarted]);
 
   // Play sweep sound
@@ -301,6 +302,7 @@ export const useBoardEvents = ({
         }
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [G.announcements, myID, ctx.turn, G.gameStarted]);
 
   React.useEffect(() => {
@@ -418,7 +420,7 @@ export const useBoardEvents = ({
     return () => {
       if (timerId) clearTimeout(timerId);
     };
-  }, [G.pendingCapture, captureSequence, captureRects, G.table, ctx.multiplayer, myID, moves, activeEvent]);
+  }, [G.pendingCapture, captureSequence, captureRects, G.table, ctx.multiplayer, myID, moves, activeEvent, captureStep]);
 
   // Progress animation sequence
   React.useEffect(() => {
