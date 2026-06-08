@@ -1,4 +1,3 @@
-import React from 'react';
 import { Copy, Music, Volume2, VolumeX } from 'lucide-react';
 
 export const WaitingLobby = ({
@@ -6,9 +5,9 @@ export const WaitingLobby = ({
   ctx,
   moves,
   myID,
-  opponentID,
+  _opponentID,
   matchID,
-  language,
+  _language,
   t,
   playClick,
   onLeave,
@@ -110,18 +109,27 @@ export const WaitingLobby = ({
 
         {/* Invitation / Room ID Card */}
         <div className="bg-black/40 border border-white/5 rounded-2xl p-4 mb-6 sm:mb-8 flex flex-col gap-3">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center gap-4">
             <span className="text-xs text-slate-400 uppercase tracking-widest font-bold">{t('roomID')}</span>
-            <span className="text-sm font-mono font-bold text-amber-300 bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20 flex items-center gap-2">
-              {matchID}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-mono font-bold text-amber-300 bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20 flex items-center gap-2">
+                {matchID}
+                <button
+                  onClick={() => navigator.clipboard.writeText(matchID)}
+                  className="p-1 hover:bg-amber-500/20 rounded-full transition-colors cursor-pointer"
+                  title={t('copy')}
+                >
+                  <Copy size={14} className="text-amber-300" />
+                </button>
+              </span>
               <button
-                onClick={() => navigator.clipboard.writeText(matchID)}
-                className="p-1 hover:bg-amber-500/20 rounded-full transition-colors"
-                title={t('copy')}
+                onClick={handleShare}
+                className="bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 active:translate-y-[1px]"
+                title={t('shareLink') || 'Share Link'}
               >
-                <Copy size={14} className="text-amber-300" />
+                <span>{t('shareLink') || 'Share'}</span>
               </button>
-            </span>
+            </div>
           </div>
         </div>
 

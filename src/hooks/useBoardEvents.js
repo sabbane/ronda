@@ -9,7 +9,7 @@ export const useBoardEvents = ({
   opponentID,
   numP,
   t,
-  language,
+  _language,
 }) => {
   const [activeEvent, setActiveEvent] = React.useState(null);
   const lastActiveEventClearedAt = React.useRef(0);
@@ -131,7 +131,6 @@ export const useBoardEvents = ({
     prevIsGameOver.current = showGameOverOverlay;
   }, [showGameOverOverlay, G?.gameStatus, myID, numP, playVictory, playDefeat, playClash]);
 
-  // Queue new announcements
   React.useEffect(() => {
     if (!G.gameStarted) {
       processedAnnouncements.current.clear();
@@ -304,7 +303,6 @@ export const useBoardEvents = ({
     }
   }, [G.announcements, myID, ctx.turn, G.gameStarted]);
 
-  // Process event queue sequentially
   React.useEffect(() => {
     const isDealingAnimating = G.isAnimating && G.isDealing;
     

@@ -1,5 +1,5 @@
 // Trace the complete scoring chain
-import { checkRoundEnd, addScore } from '../src/game/game.js';
+import { checkRoundEnd } from "../src/game/game.js";
 
 const testCases = [
   {
@@ -37,20 +37,12 @@ const testCases = [
 ];
 
 for (const { label, G } of testCases) {
-  console.log(`\n--- ${label} ---`);
-  console.log(`P0 before: score=${G.players['0'].score}, captured=${G.players['0'].captured.length}, total=${G.players['0'].score + G.players['0'].captured.length}`);
-  console.log(`P1 before: score=${G.players['1'].score}, captured=${G.players['1'].captured.length}, total=${G.players['1'].score + G.players['1'].captured.length}`);
   
   checkRoundEnd(G);
-  
-  console.log(`gameStatus:`, G.gameStatus);
   
   if (G.gameStatus) {
     const { p0Score, p1Score, winner } = G.gameStatus;
     const myID = '1'; // Simulate being player 1 (guest)
     const opponentID = '0';
-    console.log(`As Player 1 (You): p${myID}Score = ${G.gameStatus[`p${myID}Score`]}`);
-    console.log(`As Player 1 (Opponent): p${opponentID}Score = ${G.gameStatus[`p${opponentID}Score`]}`);
-    console.log(`Winner: ${winner}`);
   }
 }

@@ -1,0 +1,23 @@
+# Exclude development scratch files and logs
+scratch
+scratch/**
+test-results
+test-results/**
+.gemini
+.gemini/**
+
+# Exclude build distributions
+dist
+dist/**
+dist-web
+dist-web/**
+dist-playgama
+dist-playgama/**
+playgama-releases
+playgama-releases/**
+dev-dist
+dev-dist/**
+
+# Exclude node modules
+node_modules
+node_modules/**

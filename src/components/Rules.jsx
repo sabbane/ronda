@@ -1,6 +1,5 @@
 
 import { useLanguage } from '../contexts/LanguageContext';
-import moroccanBg from '../assets/moroccan_background.png';
 import { useSound } from '../contexts/SoundContext';
 
 export const Rules = ({ onBack }) => {

@@ -1,4 +1,4 @@
-
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 
 const cardImages = import.meta.glob('../assets/cards/*.{svg,png}', { eager: true, query: '?url', import: 'default' });
@@ -8,6 +8,9 @@ const getCardImage = (filename) => {
 };
 
 export const Card = ({ card, hidden = false, onClick, className = '' }) => {
+  const [backError, setBackError] = useState(false);
+  const [faceError, setFaceError] = useState(false);
+
   if (hidden) {
     const value = (card.displayValue !== undefined ? card.displayValue : card.value).toString();
     const suit = `${card.suit}-vector`;
@@ -19,15 +22,16 @@ export const Card = ({ card, hidden = false, onClick, className = '' }) => {
         className={`game-card-container game-card bg-white border-2 border-slate-200 shadow-xl overflow-hidden ${className}`}
       >
         <div className="w-full h-full p-1 bg-slate-50 flex items-center justify-center">
-          <img 
-            src={getCardImage('back.png')} 
-            alt="Card Back" 
-            className="w-full h-full object-contain"
-            onError={(e) => {
-              e.target.style.display = 'none';
-              e.target.parentElement.innerHTML = '<div class="text-xs font-bold text-slate-300 transform -rotate-45">RONDA</div>';
-            }}
-          />
+          {backError ? (
+            <div className="text-xs font-bold text-slate-300 transform -rotate-45 select-none">RONDA</div>
+          ) : (
+            <img 
+              src={getCardImage('back.png')} 
+              alt="Card Back" 
+              className="w-full h-full object-contain"
+              onError={() => setBackError(true)}
+            />
+          )}
           {/* Preload the actual card face to prevent flashing on slow networks */}
           <img 
             src={imagePath} 
@@ -40,7 +44,6 @@ export const Card = ({ card, hidden = false, onClick, className = '' }) => {
     );
   }
 
-  // card.suit is now one of: dheb, jben, syouf, zrawet
   const suit = `${card.suit}-vector`;
   const value = (card.displayValue !== undefined ? card.displayValue : card.value).toString();
   
@@ -56,17 +59,22 @@ export const Card = ({ card, hidden = false, onClick, className = '' }) => {
       onClick={onClick}
       className={`game-card-container game-card bg-white border-2 border-slate-200 shadow-lg overflow-hidden cursor-pointer ${className}`}
     >
-      <img 
-        src={imagePath} 
-        alt={`${card.suit} ${card.displayValue}`} 
-        className="w-full h-full object-cover"
-        onError={(e) => {
-          console.error(`Failed to load image: ${imagePath}`);
-          e.target.style.display = 'none';
-          e.target.parentElement.innerHTML = `<div class="w-full h-full flex flex-col items-center justify-center p-2 text-center bg-slate-100 border border-slate-300 rounded-xl select-none"><span class="text-xs font-black text-slate-700">${value}</span><span class="text-[9px] font-bold text-slate-500 uppercase">${card.suit}</span></div>`;
-        }}
-      />
+      {faceError ? (
+        <div className="w-full h-full flex flex-col items-center justify-center p-2 text-center bg-slate-100 border border-slate-300 rounded-xl select-none">
+          <span className="text-xs font-black text-slate-700">{value}</span>
+          <span className="text-[9px] font-bold text-slate-500 uppercase">{card.suit}</span>
+        </div>
+      ) : (
+        <img 
+          src={imagePath} 
+          alt={`${card.suit} ${card.displayValue}`} 
+          className="w-full h-full object-cover"
+          onError={() => {
+            console.error(`Failed to load image: ${imagePath}`);
+            setFaceError(true);
+          }}
+        />
+      )}
     </motion.div>
   );
 };
-

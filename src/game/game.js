@@ -1,7 +1,6 @@
 import { INVALID_MOVE } from 'boardgame.io/dist/esm/core.js';
 import { enumerateMoves } from './bot.js';
 
-
 export const getNextValue = (val) => {
   if (val < 10) return val + 1;
   return null;
@@ -267,7 +266,7 @@ const checkWaitForUI = (G, events) => {
   return false;
 };
 
-const executeCapture = (G, events) => {
+const executeCapture = (G, _events) => {
   if (!G.pendingCapture) return INVALID_MOVE;
   const player = G.pendingCapture.player;
   const { playedCardId, currentVal, isTaawidaTransfer } = G.pendingCapture;
@@ -392,7 +391,6 @@ const executeCapture = (G, events) => {
   checkRoundEnd(G);
 };
 
-
 export const RondaGame = {
   name: 'ronda',
   minPlayers: 2,
@@ -434,7 +432,6 @@ export const RondaGame = {
     } else {
       deck = shuffle(generateDeck());
     }
-
 
     const table = deck.splice(0, 4);
     const numP = ctx.numPlayers || 2;
@@ -527,13 +524,11 @@ export const RondaGame = {
       const player = (playerID !== undefined && playerID !== null) ? playerID : ctx.currentPlayer;
       if (player !== ctx.currentPlayer) return INVALID_MOVE;
 
-
       const hand = G.players[player].hand;
       if (cardIndex < 0 || cardIndex >= hand.length) return INVALID_MOVE;
       const playedCard = hand[cardIndex];
 
       if (!playedCard) return INVALID_MOVE;
-
 
       G.announcements = [];
       G._announcementIdIncremented = false;
@@ -625,7 +620,6 @@ export const RondaGame = {
 
       events.endTurn();
 
-      // Queue new pending capture and Taawida streak increment
       G.pendingCapture = {
         player: victim,
         playedCardId: playedCard.id,
@@ -640,7 +634,6 @@ export const RondaGame = {
       checkWaitForUI(G, events);
     },
   },
-
 
   turn: {
     onBegin: ({ G, events }) => {

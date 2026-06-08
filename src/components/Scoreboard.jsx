@@ -1,12 +1,11 @@
-import React from 'react';
 
 export const Scoreboard = ({
   t,
   numP,
-  language,
+  _language,
   G,
-  myID,
-  isMyTeamA,
+  _myID,
+  _isMyTeamA,
   playClick,
   moves,
 }) => {

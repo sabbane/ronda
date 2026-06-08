@@ -7,4 +7,3 @@ const fs = require('fs');
            .replace(/'clubs'/g, "'zrawet'");
   fs.writeFileSync(f, txt);
 });
-console.log('Done renaming suits.');

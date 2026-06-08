@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { PlayerHand } from './PlayerHand';
 import backCard from '../assets/cards/back.png';
@@ -6,13 +5,13 @@ import backCard from '../assets/cards/back.png';
 export const PlayerSeats = ({
   numP,
   G,
-  myID,
+  _myID,
   opponentID,
   leftID,
   topID,
   rightID,
   t,
-  language,
+  _language,
   isCurrentPlayer,
   playedCardId,
 }) => {

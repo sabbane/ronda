@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { PlayerHand } from './PlayerHand';
 import { Volume2, VolumeX, Music } from 'lucide-react';

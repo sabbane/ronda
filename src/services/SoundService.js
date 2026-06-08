@@ -49,7 +49,6 @@ class SoundService {
       }
     });
 
-    // Start preloading the selected track immediately
     this._preloadTrack(this.currentTrackIndex);
 
     // Preload SFX to avoid latency
@@ -252,7 +251,7 @@ class SoundService {
     this.activeSources.forEach(source => {
       try {
         source.stop();
-      } catch (e) { /* ignore */ }
+      } catch { /* ignore */ }
     });
     this.activeSources = [];
   }

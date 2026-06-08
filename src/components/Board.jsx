@@ -128,7 +128,6 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
 
   const isMultiplayer = isConnected !== undefined;
 
-  // Handle opponent disconnection and exit cleanups
   React.useEffect(() => {
     if (!G.gameStarted || !isMultiplayer || opponentLeft) return;
     if (G.playerLeft && G.playerLeft[opponentID] === true) {

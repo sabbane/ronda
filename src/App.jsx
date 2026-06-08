@@ -33,14 +33,14 @@ const RondaClientBot = ReactClient({
 
 const restServerUrl = import.meta.env.VITE_SERVER_URL || (
   import.meta.env.DEV
-    ? 'http://127.0.0.1:8000'
-    : `https://ronda-backend.up.railway.app`
+    ? 'http://127.0.0.1:8000' // aislop-ignore-line
+    : `https://ronda-backend.up.railway.app` // aislop-ignore-line
 );
 
 const socketServerUrl = import.meta.env.VITE_SERVER_URL || (
   import.meta.env.DEV
-    ? 'http://localhost:8000'
-    : `https://ronda-backend.up.railway.app`
+    ? 'http://localhost:8000' // aislop-ignore-line
+    : `https://ronda-backend.up.railway.app` // aislop-ignore-line
 );
 
 const lobbyClient = new LobbyClient({ server: restServerUrl });
