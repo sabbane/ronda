@@ -10,7 +10,7 @@ import { SoundProvider } from './contexts/SoundContext'
 // Register service worker with automatic updates & registration feedback loggers
 registerSW({ 
   immediate: true,
-  onRegisteredSW(swScriptUrl, _registration) {
+  onRegisteredSW(swScriptUrl) {
     console.log('[PWA] Service Worker registered successfully at:', swScriptUrl);
   },
   onRegisterError(error) {

@@ -8,8 +8,6 @@ import { test, expect } from '@playwright/test';
  * the RondaClientOnline and the Board.
  */
 test('Multiplayer: Should NOT get stuck on Connecting screen', async ({ page }) => {
-  const roomID = `stability-test-${Math.floor(Math.random() * 1000)}`;
-
   await page.goto('/');
 
   // Select Language (English) for consistency

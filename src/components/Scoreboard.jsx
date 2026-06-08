@@ -2,10 +2,7 @@
 export const Scoreboard = ({
   t,
   numP,
-  _language,
   G,
-  _myID,
-  _isMyTeamA,
   playClick,
   moves,
 }) => {

@@ -506,7 +506,6 @@ describe('RondaGame - Extended Requirements', () => {
       if (state.G.announcements.length > 0 && !state.G.isAnimating && state.ctx.activePlayers?.[state.ctx.currentPlayer] === 'waitForUI') {
         client.moves.clearAnnouncements(state.G.announcementId);
         await sync();
-        state = client.getState();
       }
     };
 

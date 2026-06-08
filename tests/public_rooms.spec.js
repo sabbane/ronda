@@ -8,7 +8,6 @@ test('Multiplayer: Created public room should be listed in Public Rooms with cor
   const hostPage = await hostContext.newPage();
   const guestPage = await guestContext.newPage();
 
-  const uniqueRoomId = `public-room-${Date.now()}`;
   const hostNickname = 'RondaLegend';
   const guestNickname = 'CardMaster';
 

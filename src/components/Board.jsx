@@ -1,8 +1,4 @@
-import React from 'react';
-import { useLanguage } from '../contexts/LanguageContext';
-import { adService } from '../services/AdService';
-import { useSound } from '../contexts/SoundContext';
-import { useBoardEvents } from '../hooks/useBoardEvents';
+import { useBoardState } from '../hooks/useBoardState';
 
 import { WaitingLobby } from './WaitingLobby';
 import { Scoreboard } from './Scoreboard';
@@ -13,25 +9,24 @@ import { PlayerSeats } from './PlayerSeats';
 import { PlayerPanel } from './PlayerPanel';
 import { AdOverlay } from './AdOverlay';
 
-export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matchData }) => {
-  const { language, t } = useLanguage();
-  const myID = playerID || '0';
-  const opponentID = myID === '0' ? '1' : '0';
-  const numP = G.players ? Object.keys(G.players).length : 2;
-  const leftID = numP === 4 ? String((parseInt(myID) + 3) % 4) : '';
-  const topID = numP === 4 ? String((parseInt(myID) + 2) % 4) : '';
-  const rightID = numP === 4 ? String((parseInt(myID) + 1) % 4) : '';
-
-  const [isProcessing, setIsProcessing] = React.useState(false);
-  const [isAdPlaying, setIsAdPlaying] = React.useState(false);
-  const [opponentLeft, setOpponentLeft] = React.useState(false);
-  const isLeavingRef = React.useRef(false);
-
-  const boardContainerRef = React.useRef(null);
-  const [shouldScroll, setShouldScroll] = React.useState(false);
-
-  // Invoke the modular game events & side effects coordinator hook
+export const RondaBoard = (props) => {
+  const { G, ctx, moves, matchID } = props;
+  
   const {
+    language,
+    t,
+    myID,
+    opponentID,
+    numP,
+    leftID,
+    topID,
+    rightID,
+    isProcessing,
+    isAdPlaying,
+    setIsAdPlaying,
+    opponentLeft,
+    boardContainerRef,
+    shouldScroll,
     activeEvent,
     canCounterDerba,
     showGameOverOverlay,
@@ -39,218 +34,28 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
     captureStep,
     captureRects,
     getWrapperForCard,
-  } = useBoardEvents({
-    G,
-    ctx,
-    moves,
-    myID,
-    opponentID,
-    numP,
-    t,
-    language,
-  });
-
-  const {
     isMuted,
     toggleMute,
     currentTrack,
     tracks,
     nextTrack,
-    playClick
-  } = useSound();
-
-  // Scroll and overflow adjustments
-  React.useEffect(() => {
-    const checkOverflow = () => {
-      const container = boardContainerRef.current;
-      if (container) {
-        const hasOverflow = container.scrollHeight > window.innerHeight + 10;
-        setShouldScroll(hasOverflow);
-      }
-    };
-
-    checkOverflow();
-    const t1 = setTimeout(checkOverflow, 100);
-    const t2 = setTimeout(checkOverflow, 500);
-
-    window.addEventListener('resize', checkOverflow);
-
-    const observer = new MutationObserver(() => {
-      checkOverflow();
-      setTimeout(checkOverflow, 100);
-    });
-    const container = boardContainerRef.current;
-    if (container) {
-      observer.observe(container, { childList: true, subtree: true, attributes: true });
-    }
-
-    return () => {
-      window.removeEventListener('resize', checkOverflow);
-      observer.disconnect();
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
-  }, [G, activeEvent]);
-
-  // Sync player lobby data & setup
-  React.useEffect(() => {
-    adService.sendGameReady();
-  }, []);
-
-  React.useEffect(() => {
-    if (isLeavingRef.current) return;
-    const savedNickname = localStorage.getItem('ronda_nickname') || 'Player';
-    const isInLobbyStage = G.gameStarted === false || ctx.activePlayers?.[myID] === 'lobby';
-    if (isConnected && isInLobbyStage && G.players && G.players[myID] && G.players[myID].name !== savedNickname) {
-      moves.setPlayerName(savedNickname);
-    }
-  }, [myID, G.players, moves, isConnected, ctx.activePlayers, G.gameStarted]);
-
-  React.useEffect(() => {
-    if (!isConnected || !matchData || !G.players || G.gameStarted) return;
-
-    matchData.forEach((player) => {
-      const pID = String(player.id);
-      const isOccupiedInLobby = !!player.name;
-      const nameInGame = G.players[pID]?.name || '';
-
-      if (!isOccupiedInLobby && nameInGame !== '') {
-        moves.clearPlayerSeat(pID);
-      }
-    });
-  }, [isConnected, matchData, G.players, G.gameStarted, moves]);
-
-  React.useEffect(() => {
-    if (G.hostLeft === true && myID === '1' && G.gameStarted === false) {
-      window.dispatchEvent(new CustomEvent('ronda-host-left'));
-    }
-  }, [G.hostLeft, myID, G.gameStarted]);
-
-  const isMultiplayer = isConnected !== undefined;
-
-  React.useEffect(() => {
-    if (!G.gameStarted || !isMultiplayer || opponentLeft) return;
-    if (G.playerLeft && G.playerLeft[opponentID] === true) {
-      setOpponentLeft(true);
-    }
-  }, [G.playerLeft, opponentID, G.gameStarted, isMultiplayer, opponentLeft]);
-
-  React.useEffect(() => {
-    if (!G.gameStarted || !isMultiplayer || opponentLeft || !matchData) return;
-    const opponentData = matchData.find(p => String(p.id) === String(opponentID));
-    if (opponentData && opponentData.isConnected === false) {
-      setOpponentLeft(true);
-    }
-  }, [matchData, opponentID, G.gameStarted, isMultiplayer, opponentLeft]);
-
-  React.useEffect(() => {
-    if (!G.gameStarted || !isMultiplayer) return;
-    const handleBeforeUnload = () => {
-      try { moves.playerLeft(); } catch { /* ignore */ }
-    };
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [G.gameStarted, isMultiplayer, moves]);
-
-  // Third party ad events
-  React.useEffect(() => {
-    const handleAdStart = () => setIsAdPlaying(true);
-    const handleAdComplete = () => setIsAdPlaying(false);
-
-    window.addEventListener('ronda-ad-started', handleAdStart);
-    window.addEventListener('ronda-ad-completed', handleAdComplete);
-
-    return () => {
-      window.removeEventListener('ronda-ad-started', handleAdStart);
-      window.removeEventListener('ronda-ad-completed', handleAdComplete);
-    };
-  }, []);
-
-  const isCurrentPlayer = (id) => {
-    const isTurn = ctx.currentPlayer === id;
-    const inStage = ctx.activePlayers && ctx.activePlayers[id];
-    return isTurn && !inStage && !G.isAnimating && !G.announcements?.length;
-  };
-
-  const handlePlayCard = (cardIndex) => {
-    if (isProcessing) return;
-
-    if (canCounterDerba) {
-      const card = G.players[myID]?.hand?.[cardIndex];
-      if (card && card.value === activeEvent.currentVal) {
-        setIsProcessing(true);
-        moves.counterDerba(cardIndex);
-        setTimeout(() => {
-          setIsProcessing(false);
-        }, 200);
-        return;
-      }
-    }
-    
-    if (G.isAnimating || (G.announcements && G.announcements.length > 0)) return;
-    
-    setIsProcessing(true);
-    setTimeout(() => {
-      moves.playCard(cardIndex);
-      setIsProcessing(false);
-    }, 400);
-  };
-
-  // Precompute game-over scores and team details for display
-  let winner = null;
-  if (G.gameStatus) {
-    winner = G.gameStatus.winner !== undefined ? G.gameStatus.winner : 'Draw';
-  }
-
-  const isMyTeamA = myID === '0' || myID === '2';
-  const didIWin = G.gameStatus
-    ? (numP === 2
-        ? G.gameStatus.winner === myID
-        : (G.gameStatus.winner === 'TeamA' ? isMyTeamA : G.gameStatus.winner === 'TeamB' ? !isMyTeamA : false))
-    : false;
-
-  const myTeamName = numP === 4
-    ? (isMyTeamA
-        ? (G.teamNames?.TeamA?.trim() || `${G.players['0']?.name || 'Player 1'} & ${G.players['2']?.name || 'Player 3'}`)
-        : (G.teamNames?.TeamB?.trim() || `${G.players['1']?.name || 'Player 2'} & ${G.players['3']?.name || 'Player 4'}`))
-    : (G.players[myID]?.name || t('you'));
-
-  const oppTeamName = numP === 4
-    ? (isMyTeamA
-        ? (G.teamNames?.TeamB?.trim() || `${G.players['1']?.name || 'Player 2'} & ${G.players['3']?.name || 'Player 4'}`)
-        : (G.teamNames?.TeamA?.trim() || `${G.players['0']?.name || 'Player 1'} & ${G.players['2']?.name || 'Player 3'}`))
-    : (G.players[opponentID]?.name || t('opponent'));
-
-  const myTeamScore = numP === 4
-    ? (G.gameStatus ? (isMyTeamA ? G.gameStatus.p0Score : G.gameStatus.p1Score) : 0)
-    : (G.gameStatus ? G.gameStatus[`p${myID}Score`] : 0);
-
-  const oppTeamScore = numP === 4
-    ? (G.gameStatus ? (isMyTeamA ? G.gameStatus.p1Score : G.gameStatus.p0Score) : 0)
-    : (G.gameStatus ? G.gameStatus[`p${opponentID}Score`] : 0);
-
-  const myTeamMatchesWon = numP === 4
-    ? (G.matchesWon ? (isMyTeamA ? G.matchesWon['0'] : G.matchesWon['1']) : 0)
-    : (G.matchesWon ? G.matchesWon[myID] : 0);
-
-  const oppTeamMatchesWon = numP === 4
-    ? (G.matchesWon ? (isMyTeamA ? G.matchesWon['1'] : G.matchesWon['0']) : 0)
-    : (G.matchesWon ? G.matchesWon[opponentID] : 0);
+    playClick,
+    isCurrentPlayer,
+    handlePlayCard,
+    winner,
+    isMyTeamA,
+    didIWin,
+    myTeamName,
+    oppTeamName,
+    myTeamScore,
+    oppTeamScore,
+    myTeamMatchesWon,
+    oppTeamMatchesWon,
+    handleLeaveLobby,
+    playedCardId
+  } = useBoardState(props);
 
   if (G.gameStarted === false) {
-    const handleLeaveLobby = () => {
-      playClick();
-      isLeavingRef.current = true;
-      if (myID === '0') {
-        moves.hostLeft();
-      } else {
-        moves.setPlayerName('');
-      }
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('ronda-menu'));
-      }, 100);
-    };
-
     return (
       <WaitingLobby
         G={G}
@@ -271,8 +76,6 @@ export const RondaBoard = ({ G, ctx, moves, playerID, matchID, isConnected, matc
       />
     );
   }
-
-  const playedCardId = G.isAnimating ? (G.pendingCapture?.playedCardId || G.lastPlayedCard?.streakCards?.[0]?.id) : null;
 
   return (
     <div 

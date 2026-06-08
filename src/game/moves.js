@@ -141,8 +141,8 @@ export const playCard = ({ G, ctx, events, playerID }, cardIndex) => {
   }
 };
 
-export const processCapture = ({ G, events }) => {
-  return executeCapture(G, events);
+export const processCapture = ({ G }) => {
+  return executeCapture(G);
 };
 
 export const counterDerba = ({ G, ctx, events, playerID }, cardIndex) => {
@@ -156,7 +156,7 @@ export const counterDerba = ({ G, ctx, events, playerID }, cardIndex) => {
   const playedCard = hand[cardIndex];
   if (!playedCard || playedCard.value !== currentVal) return INVALID_MOVE;
 
-  const captureRes = executeCapture(G, events);
+  const captureRes = executeCapture(G);
   if (captureRes === INVALID_MOVE) return INVALID_MOVE;
 
   G.announcements = [];

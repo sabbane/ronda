@@ -15,8 +15,6 @@ test.describe('Opponent leaves during game', () => {
   test.setTimeout(120_000);
 
   test('Remaining player sees "opponent left" notification when other player leaves during active game', async ({ browser }) => {
-    const roomID = `leave-test-${Date.now()}`;
-
     // ─── Setup two browser contexts ───────────────────────────────────────────
     const context1 = await browser.newContext();
     const context2 = await browser.newContext();

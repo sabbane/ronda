@@ -48,7 +48,9 @@ export const useCaptureAnimation = ({
             const el = document.getElementById(`table-wrapper-${card.id}`);
             if (el) rects[card.id] = el.getBoundingClientRect();
           });
-          setCaptureRects(rects);
+          setTimeout(() => {
+            setCaptureRects(rects);
+          }, 0);
         }
       } else if (!isDerbaActive) {
         const isOnline = !!ctx.multiplayer;
@@ -60,8 +62,10 @@ export const useCaptureAnimation = ({
         }
       }
     } else {
-      if (captureStep !== 0) setCaptureStep(0);
-      if (Object.keys(captureRects).length !== 0) setCaptureRects({});
+      setTimeout(() => {
+        setCaptureStep(0);
+        setCaptureRects({});
+      }, 0);
     }
     return () => {
       if (timerId) clearTimeout(timerId);

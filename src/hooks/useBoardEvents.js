@@ -10,7 +10,6 @@ export const useBoardEvents = ({
   opponentID,
   numP,
   t,
-  _language,
 }) => {
   const {
     activeEvent,

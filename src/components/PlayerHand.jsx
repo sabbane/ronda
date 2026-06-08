@@ -1,7 +1,8 @@
 import { Card } from './Card';
 import { motion } from 'framer-motion';
 
-export const PlayerHand = ({ hand, isCurrentPlayer, onPlayCard, hidden = false, dealDelay = 0, dealDelays = null, playedCardId = null, counterCardValue = null }) => {
+export const PlayerHand = (props) => {
+  const { hand, isCurrentPlayer, onPlayCard, hidden = false, dealDelay = 0, dealDelays = null, playedCardId = null, counterCardValue = null } = props;
   return (
     <div className="game-hand" dir="ltr">
         {hand.map((card, index) => {

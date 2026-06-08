@@ -1,7 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { LobbyClient } from 'boardgame.io/dist/esm/client.js';
 import { RondaGame } from '../game/game';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useLobbyListeners } from './useLobbyListeners';
+import { useTestMatchSetup } from './useTestMatchSetup';
 
 const restServerUrl = import.meta.env.VITE_SERVER_URL || (
   import.meta.env.DEV
@@ -11,44 +13,123 @@ const restServerUrl = import.meta.env.VITE_SERVER_URL || (
 
 const lobbyClient = new LobbyClient({ server: restServerUrl });
 
-// Helper function extracted to file scope to keep nesting levels flat
-const fetchTestMatchID = async (pID) => {
-  if (pID === '0') {
-    const resp = await fetch(`${restServerUrl}/test/reset`, { method: 'POST' });
-    const data = await resp.json();
-    if (!data.ok || !data.matchID) {
-      throw new Error('Server could not create test match');
-    }
-    return data.matchID;
+// Helper function to update URL query param
+const updateUrl = (id) => {
+  try {
+    const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}?room=${id}`;
+    window.history.replaceState({ path: newUrl }, '', newUrl);
+  } catch {
+    // Ignore errors in sandboxed iframes (like PlayGama)
+  }
+};
+
+// Helper function to handle lobby match creation APIs
+const createRoomMatch = async (maxPlayers, isPrivate, testMode, nickname) => {
+  localStorage.setItem('ronda_nickname', nickname);
+  const match = await lobbyClient.createMatch(RondaGame.name, {
+    numPlayers: maxPlayers,
+    unlisted: isPrivate,
+    setupData: { gameStarted: false, testMode }
+  });
+  const realMatchID = match.matchID;
+  const joinData = await lobbyClient.joinMatch(RondaGame.name, realMatchID, {
+    playerID: '0',
+    playerName: nickname
+  });
+  return { realMatchID, joinData };
+};
+
+// Helper function to handle lobby match joining APIs
+const joinRoomMatch = async (targetMatchID, nickname) => {
+  localStorage.setItem('ronda_nickname', nickname);
+  const match = await lobbyClient.getMatch(RondaGame.name, targetMatchID);
+  if (!match) {
+    throw new Error('roomNotFound');
+  }
+  const availablePlayerIndex = match.players.slice(1).findIndex(slot => !slot.name || !slot.isConnected);
+  const availablePlayerID = availablePlayerIndex !== -1 ? String(availablePlayerIndex + 1) : null;
+
+  if (availablePlayerID === null) {
+    throw new Error('roomFull');
   }
 
-  // P2 attempts to fetch the match ID via polling loop
-  for (let attempts = 0; attempts < 20; attempts++) {
-    try {
-      const resp = await fetch(`${restServerUrl}/test/match-id`);
-      if (resp.ok) {
-        const data = await resp.json();
-        if (data.ok && data.matchID) {
-          return data.matchID;
-        }
-      }
-    } catch { /* ignore */ }
-    await new Promise(r => setTimeout(r, 500));
+  const joinData = await lobbyClient.joinMatch(RondaGame.name, targetMatchID, {
+    playerID: availablePlayerID,
+    playerName: nickname
+  });
+  return { joinData, availablePlayerID, playersCount: match.players.length };
+};
+
+// Helper to list open public rooms
+const getPublicRoomsMatches = async () => {
+  const resp = await lobbyClient.listMatches(RondaGame.name);
+  if (resp && resp.matches) {
+    return resp.matches.filter(m => {
+      if (m.unlisted) return false;
+      return m.players.slice(1).some(p => !p.name || !p.isConnected);
+    });
   }
-  throw new Error('P2 could not find a test match. Open /test/p1 first.');
+  return [];
+};
+
+const executeCreateRoom = async (opts) => {
+  const { maxPlayers, isPrivate, testMode, nickname, setCredentials, setPlayerID, setMatchID, setMatchNumPlayers, setMode, setError, setIsCheckingRoom, t } = opts;
+  if (!nickname.trim()) return setError(t('enterNameError'));
+  setIsCheckingRoom(true);
+  setError(null);
+  try {
+    const { realMatchID, joinData } = await createRoomMatch(maxPlayers, isPrivate, testMode, nickname);
+    setCredentials(joinData.playerCredentials);
+    setPlayerID('0');
+    setMatchID(realMatchID);
+    setMatchNumPlayers(maxPlayers);
+    setMode('online');
+    updateUrl(realMatchID);
+  } catch {
+    setError(t('createRoomError'));
+  } finally {
+    setIsCheckingRoom(false);
+  }
+};
+
+const executeJoinRoom = async (opts) => {
+  const { targetMatchID, nickname, setCredentials, setPlayerID, setMatchID, setMatchNumPlayers, setMode, setError, setIsCheckingRoom, t } = opts;
+  if (!nickname.trim()) return setError(t('enterNameError'));
+  setIsCheckingRoom(true);
+  setError(null);
+  try {
+    const { joinData, availablePlayerID, playersCount } = await joinRoomMatch(targetMatchID, nickname);
+    setCredentials(joinData.playerCredentials);
+    setPlayerID(availablePlayerID);
+    setMatchID(targetMatchID);
+    setMatchNumPlayers(playersCount);
+    setMode('online');
+    updateUrl(targetMatchID);
+  } catch (err) {
+    setError(err.message === 'roomNotFound' ? t('roomNotFoundError') : (err.message === 'roomFull' ? t('roomFullError') : t('joinError')));
+  } finally {
+    setIsCheckingRoom(false);
+  }
+};
+
+const executeFetchPublicRooms = async ({ setPublicRooms, setIsLoadingRooms, setError, t }) => {
+  setIsLoadingRooms(true);
+  setError(null);
+  try {
+    setPublicRooms(await getPublicRoomsMatches());
+  } catch {
+    setError(t('fetchRoomsError'));
+  } finally {
+    setIsLoadingRooms(false);
+  }
 };
 
 export const useLobby = () => {
   const [mode, setMode] = useState(null); // 'bot', 'online', 'rules' or null
   const [testMode, setTestMode] = useState(false);
   const [playerID, setPlayerID] = useState('0');
-  const [matchID, setMatchID] = useState(() => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('room') || '';
-  });
-  const [nickname, setNickname] = useState(() => {
-    return localStorage.getItem('ronda_nickname') || '';
-  });
+  const [matchID, setMatchID] = useState(() => new URLSearchParams(window.location.search).get('room') || '');
+  const [nickname, setNickname] = useState(() => localStorage.getItem('ronda_nickname') || '');
   const [multiplayerAction, setMultiplayerAction] = useState(null); // 'create' | 'join' | null
   const [isPrivate, setIsPrivate] = useState(false);
   const [maxPlayers, setMaxPlayers] = useState(2);
@@ -64,200 +145,22 @@ export const useLobby = () => {
   
   const { t } = useLanguage();
 
-  const updateUrl = (id) => {
-    try {
-      const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}?room=${id}`;
-      window.history.replaceState({ path: newUrl }, '', newUrl);
-    } catch {
-      // Ignore errors in sandboxed iframes (like PlayGama)
-    }
-  };
+  const handleCreateRoom = () => executeCreateRoom({
+    maxPlayers, isPrivate, testMode, nickname, setCredentials, setPlayerID, setMatchID, setMatchNumPlayers, setMode, setError, setIsCheckingRoom, t
+  });
 
-  const handleCreateRoom = async () => {
-    if (!nickname.trim()) {
-      setError(t('enterNameError'));
-      return;
-    }
-    setIsCheckingRoom(true);
-    setError(null);
-    try {
-      localStorage.setItem('ronda_nickname', nickname);
-      const match = await lobbyClient.createMatch(RondaGame.name, {
-        numPlayers: maxPlayers,
-        unlisted: isPrivate,
-        setupData: { gameStarted: false, testMode }
-      });
-      const realMatchID = match.matchID;
-      const joinData = await lobbyClient.joinMatch(RondaGame.name, realMatchID, {
-        playerID: '0',
-        playerName: nickname
-      });
-      setCredentials(joinData.playerCredentials);
-      setPlayerID('0');
-      setMatchID(realMatchID);
-      setMatchNumPlayers(maxPlayers);
-      setMode('online');
-      updateUrl(realMatchID);
-    } catch (err) {
-      console.error('Failed to create match:', err);
-      setError(t('createRoomError'));
-    } finally {
-      setIsCheckingRoom(false);
-    }
-  };
+  const handleJoinRoom = (targetMatchID) => executeJoinRoom({
+    targetMatchID, nickname, setCredentials, setPlayerID, setMatchID, setMatchNumPlayers, setMode, setError, setIsCheckingRoom, t
+  });
 
-  const handleJoinRoom = async (targetMatchID) => {
-    console.log('[App] handleJoinRoom called: targetMatchID:', targetMatchID, 'nickname:', nickname);
-    if (!nickname.trim()) {
-      setError(t('enterNameError'));
-      return;
-    }
-    setIsCheckingRoom(true);
-    setError(null);
-    try {
-      localStorage.setItem('ronda_nickname', nickname);
-      const match = await lobbyClient.getMatch(RondaGame.name, targetMatchID);
-      if (!match) {
-        setError(t('roomNotFoundError'));
-        setIsCheckingRoom(false);
-        return;
-      }
-      const availablePlayerIndex = match.players.slice(1).findIndex(slot => !slot.name || !slot.isConnected);
-      const availablePlayerID = availablePlayerIndex !== -1 ? String(availablePlayerIndex + 1) : null;
+  const fetchPublicRooms = () => executeFetchPublicRooms({
+    setPublicRooms, setIsLoadingRooms, setError, t
+  });
 
-      if (availablePlayerID === null) {
-        setError(t('roomFullError'));
-        setIsCheckingRoom(false);
-        return;
-      }
-
-      const joinData = await lobbyClient.joinMatch(RondaGame.name, targetMatchID, {
-        playerID: availablePlayerID,
-        playerName: nickname
-      });
-      setCredentials(joinData.playerCredentials);
-      setPlayerID(availablePlayerID);
-      setMatchID(targetMatchID);
-      setMatchNumPlayers(match.players.length);
-      setMode('online');
-      updateUrl(targetMatchID);
-    } catch (err) {
-      console.error('Failed to join match:', err);
-      setError(t('joinError'));
-    } finally {
-      setIsCheckingRoom(false);
-    }
-  };
-
-  const fetchPublicRooms = async () => {
-    setIsLoadingRooms(true);
-    setError(null);
-    try {
-      const resp = await lobbyClient.listMatches(RondaGame.name);
-      if (resp && resp.matches) {
-        const openMatches = resp.matches.filter(m => {
-          if (m.unlisted) return false;
-          const isSlotAvailable = m.players.slice(1).some(p => !p.name || !p.isConnected);
-          return isSlotAvailable;
-        });
-        setPublicRooms(openMatches);
-      }
-    } catch (err) {
-      console.error('Failed to list matches:', err);
-      setError(t('fetchRoomsError'));
-    } finally {
-      setIsLoadingRooms(false);
-    }
-  };
-
-  const handleReset = useCallback(() => {
-    setGameKey(prev => prev + 1);
-  }, []);
-
-  const handleMenu = useCallback(() => {
-    const activeMode = mode;
-    const activeMatchID = matchID;
-    const activePlayerID = playerID;
-    const activeCredentials = credentials;
-
-    setMode(null);
-    setError(null);
-    setTestMode(false);
-    setMultiplayerAction(null);
-    setGameKey(prev => prev + 1);
-
-    setTimeout(() => {
-      if (activeMode === 'online' && activeMatchID && activePlayerID) {
-        lobbyClient.leaveMatch(RondaGame.name, activeMatchID, {
-          playerID: activePlayerID,
-          credentials: activeCredentials
-        }).catch(err => console.error('Failed to leave match via lobbyClient:', err));
-      }
-      setCredentials(null);
-    }, 100);
-
-    try {
-      const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
-      window.history.replaceState({ path: newUrl }, '', newUrl);
-    } catch { /* ignore */ }
-  }, [mode, matchID, playerID, credentials]);
-
-  const handleHostLeft = useCallback(() => {
-    const activeMode = mode;
-    const activeMatchID = matchID;
-    const activePlayerID = playerID;
-    const activeCredentials = credentials;
-
-    setMode(null);
-    setTestMode(false);
-    setMultiplayerAction(null);
-    setGameKey(prev => prev + 1);
-    setError(t('hostLeftError'));
-
-    setTimeout(() => {
-      if (activeMode === 'online' && activeMatchID && activePlayerID) {
-        lobbyClient.leaveMatch(RondaGame.name, activeMatchID, {
-          playerID: activePlayerID,
-          credentials: activeCredentials
-        }).catch(err => console.error('Failed to leave match as guest:', err));
-      }
-      setCredentials(null);
-    }, 100);
-
-    try {
-      const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
-      window.history.replaceState({ path: newUrl }, '', newUrl);
-    } catch { /* ignore */ }
-  }, [mode, matchID, playerID, credentials, t]);
-
-  const handleSwitchSeat = useCallback(async (event) => {
-    const newPlayerID = event.detail?.newPlayerID;
-    if (!newPlayerID) return;
-
-    console.log('[App] handleSwitchSeat requested:', playerID, '->', newPlayerID);
-
-    try {
-      if (mode === 'online' && matchID && playerID) {
-        await lobbyClient.leaveMatch(RondaGame.name, matchID, {
-          playerID,
-          credentials
-        }).catch(err => console.error('Failed to leave old seat during switch:', err));
-      }
-
-      const joinData = await lobbyClient.joinMatch(RondaGame.name, matchID, {
-        playerID: newPlayerID,
-        playerName: nickname || 'Player'
-      });
-
-      setCredentials(joinData.playerCredentials);
-      setPlayerID(newPlayerID);
-      setGameKey(prev => prev + 1);
-      console.log('[App] handleSwitchSeat completed successfully. Switched to slot:', newPlayerID);
-    } catch (err) {
-      console.error('[App] Failed to switch seat:', err);
-      setError(t('joinError') || 'Failed to switch seat');
-    }
-  }, [mode, matchID, playerID, credentials, nickname, t]);
+  useLobbyListeners({
+    mode, matchID, playerID, credentials, nickname,
+    setCredentials, setPlayerID, setGameKey, setMode, setError, setTestMode, setMultiplayerAction, t
+  });
 
   useEffect(() => {
     if (multiplayerAction === 'join' && joinMode === 'public') {
@@ -266,81 +169,14 @@ export const useLobby = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [multiplayerAction, joinMode]);
 
-  useEffect(() => {
-    window.addEventListener('ronda-reset', handleReset);
-    return () => window.removeEventListener('ronda-reset', handleReset);
-  }, [handleReset]);
-
-  useEffect(() => {
-    window.addEventListener('ronda-menu', handleMenu);
-    return () => window.removeEventListener('ronda-menu', handleMenu);
-  }, [handleMenu]);
-
-  useEffect(() => {
-    window.addEventListener('ronda-host-left', handleHostLeft);
-    return () => window.removeEventListener('ronda-host-left', handleHostLeft);
-  }, [handleHostLeft]);
-
-  useEffect(() => {
-    window.addEventListener('ronda-switch-seat', handleSwitchSeat);
-    return () => window.removeEventListener('ronda-switch-seat', handleSwitchSeat);
-  }, [handleSwitchSeat]);
-
-  useEffect(() => {
-    const isAppInTestMode = import.meta.env.VITE_TEST_MODE === 'true';
-    const path = window.location.pathname;
-
-    const setupTestMatch = async (pID) => {
-      try {
-        const testMatchID = await fetchTestMatchID(pID);
-        console.log(`[TestMode] P${pID === '0' ? '1' : '2'}: test match resolved:`, testMatchID);
-        setMatchID(testMatchID);
-        setPlayerID(pID);
-        setMatchNumPlayers(2);
-        setMode('online');
-        setTestMode(true);
-      } catch (err) {
-        console.error('[TestMode] Setup error:', err);
-      }
-    };
-
-    if (isAppInTestMode) {
-      if (path === '/test/p1') {
-        setupTestMatch('0');
-      } else if (path === '/test/p2') {
-        setupTestMatch('1');
-      }
-    } else {
-      const params = new URLSearchParams(window.location.search);
-      const roomParam = params.get('room');
-      if (roomParam) {
-        setMatchID(roomParam);
-        setMultiplayerAction('join');
-        setJoinMode('private');
-      }
-    }
-  }, []);
+  useTestMatchSetup({ setMatchID, setPlayerID, setMatchNumPlayers, setMode, setTestMode, setMultiplayerAction, setJoinMode });
 
   return {
-    mode, setMode,
-    testMode, setTestMode,
-    playerID, setPlayerID,
-    matchID, setMatchID,
-    nickname, setNickname,
-    multiplayerAction, setMultiplayerAction,
-    isPrivate, setIsPrivate,
-    maxPlayers, setMaxPlayers,
-    matchNumPlayers, setMatchNumPlayers,
-    joinMode, setJoinMode,
-    joinRoomId, setJoinRoomId,
-    publicRooms, setPublicRooms,
-    isLoadingRooms, setIsLoadingRooms,
-    gameKey, setGameKey,
-    error, setError,
-    credentials, setCredentials,
-    isCheckingRoom, setIsCheckingRoom,
-    handleCreateRoom,
-    handleJoinRoom,
-    fetchPublicRooms
+    mode, setMode, testMode, setTestMode, playerID, setPlayerID, matchID, setMatchID,
+    nickname, setNickname, multiplayerAction, setMultiplayerAction, isPrivate, setIsPrivate,
+    maxPlayers, setMaxPlayers, matchNumPlayers, setMatchNumPlayers, joinMode, setJoinMode,
+    joinRoomId, setJoinRoomId, publicRooms, setPublicRooms, isLoadingRooms, setIsLoadingRooms,
+    gameKey, setGameKey, error, setError, credentials, setCredentials, isCheckingRoom, setIsCheckingRoom,
+    handleCreateRoom, handleJoinRoom, fetchPublicRooms
   };
 };

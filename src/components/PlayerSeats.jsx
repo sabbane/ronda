@@ -5,13 +5,11 @@ import backCard from '../assets/cards/back.png';
 export const PlayerSeats = ({
   numP,
   G,
-  _myID,
   opponentID,
   leftID,
   topID,
   rightID,
   t,
-  _language,
   isCurrentPlayer,
   playedCardId,
 }) => {

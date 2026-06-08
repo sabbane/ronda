@@ -269,7 +269,7 @@ describe('Ronda Game Logic - Deep Testing', () => {
     if (ann.type === 'Clash') {
       if (numP === 4 && ann.clashingPlayers && ann.clashingPlayers.length > 0) {
         const names = ann.clashingPlayers.map(pID => G.players[pID]?.name || `Player ${Number(pID) + 1}`);
-        let joinedNames = "";
+        let joinedNames;
         if (names.length === 2) {
           joinedNames = names.join(' and '); // Mimic t('and') fallback
         } else {

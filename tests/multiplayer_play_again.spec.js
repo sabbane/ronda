@@ -4,7 +4,6 @@ test.describe('Multiplayer Play Again Regression Test', () => {
   test.setTimeout(420_000); // 7 minutes - game animations and turns can take a few minutes
 
   test('Clicking Play Again in multiplayer should directly start a new game instead of going back to the lobby', async ({ browser }) => {
-    const roomID = `mp-playagain-${Date.now()}`;
     const hostNickname = 'RondaHost';
     const guestNickname = 'CardGuest';
 

@@ -4,8 +4,6 @@ test.describe('Functional Test: Complete Multiplayer Game', () => {
   test.setTimeout(420_000); // 7 minutes - animations are now much longer
 
   test('Two human players can complete a full game', async ({ browser }) => {
-    const roomID = `mp-test-${Date.now()}`;
-    
     // 1. Setup Player 1 (Host)
     const context1 = await browser.newContext();
     const page1 = await context1.newPage();

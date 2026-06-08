@@ -17,7 +17,6 @@ export const GameOverDisplay = ({
   playClick,
   setIsAdPlaying,
   moves,
-  _language,
 }) => {
   const moroccanSymbols = [
     // Khamsa (Hand of Fatima)

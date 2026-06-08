@@ -17,7 +17,9 @@ export const useAnnouncements = ({
   React.useEffect(() => {
     if (!G.gameStarted) {
       processedAnnouncements.current.clear();
-      setEventQueue([]);
+      setTimeout(() => {
+        setEventQueue([]);
+      }, 0);
       return;
     }
     if (G.announcements && G.announcements.length > 0) {
@@ -116,7 +118,7 @@ export const useAnnouncements = ({
           if (ann.type === 'Clash') {
             if (numP === 4 && ann.clashingPlayers && ann.clashingPlayers.length > 0) {
               const names = ann.clashingPlayers.map(pID => G.players[pID]?.name || `Player ${Number(pID) + 1}`);
-              let joinedNames = "";
+              let joinedNames;
               if (names.length === 2) {
                 joinedNames = names.join(` ${t('and') || '&'} `);
               } else {
