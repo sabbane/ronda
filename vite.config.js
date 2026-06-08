@@ -6,15 +6,7 @@ import { viteSingleFile } from 'vite-plugin-singlefile'
 import pkg from './package.json'
 import obfuscator from 'rollup-plugin-obfuscator'
 
-// Custom plugin to inject platform SDKs into index.html
-const injectPlatformSdk = (mode, env) => {
-  return {
-    name: 'inject-platform-sdk',
-    transformIndexHtml(html) {
-      if (mode === 'playgama') {
-        return html.replace(
-          '<head>',
-          `<head>
+const PLAYGAMA_SDK_HTML = `<head>
   <script src="https://bridge.playgama.com/v1/stable/playgama-bridge.js" onerror="window.playgamaLoadError = true;"></script>
   <script>
     (function() {
@@ -87,23 +79,26 @@ const injectPlatformSdk = (mode, env) => {
         }, 100);
       });
     })();
-  </script>`
-        );
-      } else {
-        // web mode / default
-        const pubId = env.VITE_ADS_PUBLISHER_ID || 'ca-pub-XXXXXXXXX';
-        return html.replace(
-          '</head>',
-          `  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${pubId}" crossorigin="anonymous"></script>
+  </script>`;
+
+// Web Mode / Default AdSense HTML template
+const getWebSdkHtml = (pubId) => `  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${pubId}" crossorigin="anonymous"></script>
   <script>
     window.adsbygoogle = window.adsbygoogle || [];
     var adBreak = adConfig = function(o) { adsbygoogle.push(o); }
-  </script>\n</head>`
-        );
-      }
+  </script>\n</head>`;
+
+// Custom plugin to inject platform SDKs into index.html (nesting level: 3 max)
+const injectPlatformSdk = (mode, env) => ({
+  name: 'inject-platform-sdk',
+  transformIndexHtml(html) {
+    if (mode === 'playgama') {
+      return html.replace('<head>', PLAYGAMA_SDK_HTML);
     }
+    const pubId = env.VITE_ADS_PUBLISHER_ID || 'ca-pub-XXXXXXXXX';
+    return html.replace('</head>', getWebSdkHtml(pubId));
   }
-}
+});
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {

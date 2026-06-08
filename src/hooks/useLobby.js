@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { LobbyClient } from 'boardgame.io/dist/esm/client.js';
 import { RondaGame } from '../game/game';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -10,6 +10,33 @@ const restServerUrl = import.meta.env.VITE_SERVER_URL || (
 );
 
 const lobbyClient = new LobbyClient({ server: restServerUrl });
+
+// Helper function extracted to file scope to keep nesting levels flat
+const fetchTestMatchID = async (pID) => {
+  if (pID === '0') {
+    const resp = await fetch(`${restServerUrl}/test/reset`, { method: 'POST' });
+    const data = await resp.json();
+    if (!data.ok || !data.matchID) {
+      throw new Error('Server could not create test match');
+    }
+    return data.matchID;
+  }
+
+  // P2 attempts to fetch the match ID via polling loop
+  for (let attempts = 0; attempts < 20; attempts++) {
+    try {
+      const resp = await fetch(`${restServerUrl}/test/match-id`);
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.ok && data.matchID) {
+          return data.matchID;
+        }
+      }
+    } catch { /* ignore */ }
+    await new Promise(r => setTimeout(r, 500));
+  }
+  throw new Error('P2 could not find a test match. Open /test/p1 first.');
+};
 
 export const useLobby = () => {
   const [mode, setMode] = useState(null); // 'bot', 'online', 'rules' or null
@@ -143,6 +170,95 @@ export const useLobby = () => {
     }
   };
 
+  const handleReset = useCallback(() => {
+    setGameKey(prev => prev + 1);
+  }, []);
+
+  const handleMenu = useCallback(() => {
+    const activeMode = mode;
+    const activeMatchID = matchID;
+    const activePlayerID = playerID;
+    const activeCredentials = credentials;
+
+    setMode(null);
+    setError(null);
+    setTestMode(false);
+    setMultiplayerAction(null);
+    setGameKey(prev => prev + 1);
+
+    setTimeout(() => {
+      if (activeMode === 'online' && activeMatchID && activePlayerID) {
+        lobbyClient.leaveMatch(RondaGame.name, activeMatchID, {
+          playerID: activePlayerID,
+          credentials: activeCredentials
+        }).catch(err => console.error('Failed to leave match via lobbyClient:', err));
+      }
+      setCredentials(null);
+    }, 100);
+
+    try {
+      const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
+      window.history.replaceState({ path: newUrl }, '', newUrl);
+    } catch { /* ignore */ }
+  }, [mode, matchID, playerID, credentials]);
+
+  const handleHostLeft = useCallback(() => {
+    const activeMode = mode;
+    const activeMatchID = matchID;
+    const activePlayerID = playerID;
+    const activeCredentials = credentials;
+
+    setMode(null);
+    setTestMode(false);
+    setMultiplayerAction(null);
+    setGameKey(prev => prev + 1);
+    setError(t('hostLeftError'));
+
+    setTimeout(() => {
+      if (activeMode === 'online' && activeMatchID && activePlayerID) {
+        lobbyClient.leaveMatch(RondaGame.name, activeMatchID, {
+          playerID: activePlayerID,
+          credentials: activeCredentials
+        }).catch(err => console.error('Failed to leave match as guest:', err));
+      }
+      setCredentials(null);
+    }, 100);
+
+    try {
+      const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
+      window.history.replaceState({ path: newUrl }, '', newUrl);
+    } catch { /* ignore */ }
+  }, [mode, matchID, playerID, credentials, t]);
+
+  const handleSwitchSeat = useCallback(async (event) => {
+    const newPlayerID = event.detail?.newPlayerID;
+    if (!newPlayerID) return;
+
+    console.log('[App] handleSwitchSeat requested:', playerID, '->', newPlayerID);
+
+    try {
+      if (mode === 'online' && matchID && playerID) {
+        await lobbyClient.leaveMatch(RondaGame.name, matchID, {
+          playerID,
+          credentials
+        }).catch(err => console.error('Failed to leave old seat during switch:', err));
+      }
+
+      const joinData = await lobbyClient.joinMatch(RondaGame.name, matchID, {
+        playerID: newPlayerID,
+        playerName: nickname || 'Player'
+      });
+
+      setCredentials(joinData.playerCredentials);
+      setPlayerID(newPlayerID);
+      setGameKey(prev => prev + 1);
+      console.log('[App] handleSwitchSeat completed successfully. Switched to slot:', newPlayerID);
+    } catch (err) {
+      console.error('[App] Failed to switch seat:', err);
+      setError(t('joinError') || 'Failed to switch seat');
+    }
+  }, [mode, matchID, playerID, credentials, nickname, t]);
+
   useEffect(() => {
     if (multiplayerAction === 'join' && joinMode === 'public') {
       fetchPublicRooms();
@@ -151,110 +267,24 @@ export const useLobby = () => {
   }, [multiplayerAction, joinMode]);
 
   useEffect(() => {
-    const handleReset = () => setGameKey(prev => prev + 1);
     window.addEventListener('ronda-reset', handleReset);
     return () => window.removeEventListener('ronda-reset', handleReset);
-  }, []);
+  }, [handleReset]);
 
   useEffect(() => {
-    const handleMenu = () => {
-      const activeMode = mode;
-      const activeMatchID = matchID;
-      const activePlayerID = playerID;
-      const activeCredentials = credentials;
-
-      setMode(null);
-      setError(null);
-      setTestMode(false);
-      setMultiplayerAction(null);
-      setGameKey(prev => prev + 1);
-
-      setTimeout(() => {
-        if (activeMode === 'online' && activeMatchID && activePlayerID) {
-          lobbyClient.leaveMatch(RondaGame.name, activeMatchID, {
-            playerID: activePlayerID,
-            credentials: activeCredentials
-          }).catch(err => console.error('Failed to leave match via lobbyClient:', err));
-        }
-        setCredentials(null);
-      }, 100);
-
-      try {
-        const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
-        window.history.replaceState({ path: newUrl }, '', newUrl);
-      } catch { /* ignore */ }
-    };
-
     window.addEventListener('ronda-menu', handleMenu);
     return () => window.removeEventListener('ronda-menu', handleMenu);
-  }, [mode, matchID, playerID, credentials]);
+  }, [handleMenu]);
 
   useEffect(() => {
-    const handleHostLeft = () => {
-      const activeMode = mode;
-      const activeMatchID = matchID;
-      const activePlayerID = playerID;
-      const activeCredentials = credentials;
-
-      setMode(null);
-      setTestMode(false);
-      setMultiplayerAction(null);
-      setGameKey(prev => prev + 1);
-      setError(t('hostLeftError'));
-
-      setTimeout(() => {
-        if (activeMode === 'online' && activeMatchID && activePlayerID) {
-          lobbyClient.leaveMatch(RondaGame.name, activeMatchID, {
-            playerID: activePlayerID,
-            credentials: activeCredentials
-          }).catch(err => console.error('Failed to leave match as guest:', err));
-        }
-        setCredentials(null);
-      }, 100);
-
-      try {
-        const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
-        window.history.replaceState({ path: newUrl }, '', newUrl);
-      } catch { /* ignore */ }
-    };
-
     window.addEventListener('ronda-host-left', handleHostLeft);
     return () => window.removeEventListener('ronda-host-left', handleHostLeft);
-  }, [mode, matchID, playerID, credentials, t]);
+  }, [handleHostLeft]);
 
   useEffect(() => {
-    const handleSwitchSeat = async (event) => {
-      const newPlayerID = event.detail?.newPlayerID;
-      if (!newPlayerID) return;
-
-      console.log('[App] handleSwitchSeat requested:', playerID, '->', newPlayerID);
-
-      try {
-        if (mode === 'online' && matchID && playerID) {
-          await lobbyClient.leaveMatch(RondaGame.name, matchID, {
-            playerID,
-            credentials
-          }).catch(err => console.error('Failed to leave old seat during switch:', err));
-        }
-
-        const joinData = await lobbyClient.joinMatch(RondaGame.name, matchID, {
-          playerID: newPlayerID,
-          playerName: nickname || 'Player'
-        });
-
-        setCredentials(joinData.playerCredentials);
-        setPlayerID(newPlayerID);
-        setGameKey(prev => prev + 1);
-        console.log('[App] handleSwitchSeat completed successfully. Switched to slot:', newPlayerID);
-      } catch (err) {
-        console.error('[App] Failed to switch seat:', err);
-        setError(t('joinError') || 'Failed to switch seat');
-      }
-    };
-
     window.addEventListener('ronda-switch-seat', handleSwitchSeat);
     return () => window.removeEventListener('ronda-switch-seat', handleSwitchSeat);
-  }, [mode, matchID, playerID, credentials, nickname, t]);
+  }, [handleSwitchSeat]);
 
   useEffect(() => {
     const isAppInTestMode = import.meta.env.VITE_TEST_MODE === 'true';
@@ -262,30 +292,8 @@ export const useLobby = () => {
 
     const setupTestMatch = async (pID) => {
       try {
-        let testMatchID;
-        if (pID === '0') {
-          const resp = await fetch(`${restServerUrl}/test/reset`, { method: 'POST' });
-          const data = await resp.json();
-          if (!data.ok || !data.matchID) throw new Error('Server could not create test match');
-          testMatchID = data.matchID;
-          console.log('[TestMode] P1: fresh test match created:', testMatchID);
-        } else {
-          let attempts = 0;
-          while (attempts < 20) {
-            try {
-              const resp = await fetch(`${restServerUrl}/test/match-id`);
-              if (resp.ok) {
-                const data = await resp.json();
-                if (data.ok && data.matchID) { testMatchID = data.matchID; break; }
-              }
-            } catch { /* ignore */ }
-            await new Promise(r => setTimeout(r, 500));
-            attempts++;
-          }
-          if (!testMatchID) throw new Error('P2 could not find a test match. Open /test/p1 first.');
-          console.log('[TestMode] P2: joining existing match:', testMatchID);
-        }
-
+        const testMatchID = await fetchTestMatchID(pID);
+        console.log(`[TestMode] P${pID === '0' ? '1' : '2'}: test match resolved:`, testMatchID);
         setMatchID(testMatchID);
         setPlayerID(pID);
         setMatchNumPlayers(2);
