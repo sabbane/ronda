@@ -1,5 +1,95 @@
 import { Copy, Music, Volume2, VolumeX } from 'lucide-react';
 
+const PlayerSeatCard = ({
+  pID,
+  myID,
+  numP,
+  G,
+  moves,
+  playClick,
+  t
+}) => {
+  const isHost = pID === '0';
+  const pName = G.players[pID]?.name || '';
+  const hasJoined = isHost || !!pName.trim();
+  const isLocalPlayer = myID === pID;
+
+  let role = '';
+  if (numP === 2) {
+    role = isHost ? 'Host' : t('roleOpponent');
+  } else {
+    if (pID === '0') role = 'Host';
+    else if (pID === '2') role = t('rolePartnerA');
+    else if (pID === '1') role = t('roleOpponent1B');
+    else if (pID === '3') role = t('roleOpponent2B');
+  }
+
+  const isAmberTeam = numP === 2 ? pID === '0' : (pID === '0' || pID === '2');
+  const badgeColor = isAmberTeam ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' : 'bg-purple-500/20 text-purple-300 border-purple-500/30';
+  const iconBg = hasJoined
+    ? (isAmberTeam ? 'bg-amber-600/20 border-amber-500/30 text-amber-400' : 'bg-purple-600/20 border-purple-500/30 text-purple-400')
+    : 'bg-white/5 border border-white/5 text-slate-600 animate-pulse';
+
+  const joinTeamTextKey = isAmberTeam ? 'joinTeamA' : 'joinTeamB';
+  const teamBtnColor = isAmberTeam
+    ? 'bg-amber-500/10 hover:bg-amber-500/25 text-amber-300 border border-amber-500/25'
+    : 'bg-purple-500/10 hover:bg-purple-500/25 text-purple-300 border border-purple-500/25';
+
+  const is2Player = numP === 2;
+  const cardPadding = is2Player ? "p-5" : "p-4";
+  const iconSize = is2Player ? "w-16 h-16 mb-3" : "w-12 h-12 mb-2.5";
+  const svgSize = is2Player ? 32 : 24;
+  const labelSize = is2Player ? "text-[10px] mb-1" : "text-[9px] mb-1";
+
+  return (
+    <div className={`bg-white/5 border border-white/10 rounded-2xl ${cardPadding} flex flex-col items-center relative overflow-hidden group shadow-lg`}>
+      <div className={`absolute top-3 right-3 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full border ${badgeColor}`}>
+        {role}
+      </div>
+      <div className={`rounded-full flex items-center justify-center ${iconSize} ${iconBg}`}>
+        <svg xmlns="http://www.w3.org/2000/svg" width={svgSize} height={svgSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+      </div>
+      <span className={`${labelSize} text-slate-400 uppercase tracking-widest font-bold`}>
+        {t('playerSeatName', { num: parseInt(pID) + 1 })}
+      </span>
+      {!hasJoined ? (
+        is2Player ? (
+          <span className="text-xs font-semibold text-slate-500 animate-pulse uppercase tracking-wider py-1">
+            {t('waiting')}
+          </span>
+        ) : (
+          <button
+            onClick={() => {
+              playClick();
+              window.dispatchEvent(new CustomEvent('ronda-switch-seat', { detail: { newPlayerID: pID } }));
+            }}
+            className={`mt-1 w-full ${teamBtnColor} px-3 py-1.5 rounded-lg text-xs font-bold transition-all border active:translate-y-[1px] cursor-pointer text-center`}
+          >
+            {t(joinTeamTextKey)}
+          </button>
+        )
+      ) : isLocalPlayer ? (
+        <input
+          type="text"
+          maxLength={15}
+          value={G.players[pID]?.name || ''}
+          onChange={(e) => moves.setPlayerName(e.target.value)}
+          className="bg-black/50 border border-white/10 rounded-xl px-3 py-1.5 text-center text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 w-full animate-fade-in"
+          placeholder={t('yourName')}
+          aria-label={t('yourName') || 'Your Name'}
+        />
+      ) : (
+        <span className="text-base font-bold text-slate-200">
+          {pName || (isHost ? 'Host' : '')}
+        </span>
+      )}
+    </div>
+  );
+};
+
 export const WaitingLobby = ({
   G,
   ctx,
@@ -18,6 +108,23 @@ export const WaitingLobby = ({
   const inviteLink = `${window.location.protocol}//${window.location.host}${window.location.pathname}?room=${matchID || ''}`;
   const numP = ctx.numPlayers || 2;
   const allPlayersJoined = Array.from({ length: numP }, (_, i) => String(i)).every(pID => !!G.players[pID]?.name?.trim());
+
+  const renderSeatCards = (playerIds, className = "grid grid-cols-1 sm:grid-cols-2 gap-4") => (
+    <div className={className}>
+      {playerIds.map((pID) => (
+        <PlayerSeatCard
+          key={pID}
+          pID={pID}
+          myID={myID}
+          numP={numP}
+          G={G}
+          moves={moves}
+          playClick={playClick}
+          t={t}
+        />
+      ))}
+    </div>
+  );
 
   const handleShare = async () => {
     playClick();
@@ -133,48 +240,7 @@ export const WaitingLobby = ({
 
         {/* Players Grid */}
         {numP === 2 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
-            {['0', '1'].map((pID) => {
-              const isHost = pID === '0';
-              const pName = G.players[pID]?.name || '';
-              const hasJoined = isHost || !!pName.trim();
-              const isLocalPlayer = myID === pID;
-              const role = isHost ? 'Host' : t('roleOpponent');
-              const badgeColor = isHost ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' : 'bg-purple-500/20 text-purple-300 border-purple-500/30';
-              const iconBg = hasJoined ? (isHost ? 'bg-amber-600/20 border-amber-500/30 text-amber-400' : 'bg-purple-600/20 border-purple-500/30 text-purple-400') : 'bg-white/5 border border-white/5 text-slate-600 animate-pulse';
-
-              return (
-                <div key={pID} className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col items-center relative overflow-hidden group shadow-lg">
-                  <div className={`absolute top-3 right-3 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full border ${badgeColor}`}>
-                    {role}
-                  </div>
-                  <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 ${iconBg}`}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                  </div>
-                  <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1">
-                    {t('playerSeatName', { num: parseInt(pID) + 1 })}
-                  </span>
-                  {!hasJoined ? (
-                    <span className="text-xs font-semibold text-slate-500 animate-pulse uppercase tracking-wider py-1">
-                      {t('waiting')}
-                    </span>
-                  ) : isLocalPlayer ? (
-                    <input
-                      type="text"
-                      maxLength={15}
-                      value={G.players[pID]?.name || ''}
-                      onChange={(e) => moves.setPlayerName(e.target.value)}
-                      className="bg-black/50 border border-white/10 rounded-xl px-3 py-1.5 text-center text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 w-full animate-fade-in"
-                      placeholder={t('yourName')}
-                      aria-label={t('yourName') || 'Your Name'}
-                    />
-                  ) : (
-                    <span className="text-base font-bold text-slate-200">{pName || 'Host'}</span>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+          renderSeatCards(['0', '1'], "grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8")
         ) : (
           /* 4 Players layout divided into Team A vs Team B */
           <div className="flex flex-col gap-8 mb-8 text-start select-none">
@@ -200,54 +266,7 @@ export const WaitingLobby = ({
                 </div>
               </div>
               {/* Team A Player cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {['0', '2'].map((pID) => {
-                  const isHost = pID === '0';
-                  const pName = G.players[pID]?.name || '';
-                  const hasJoined = isHost || !!pName.trim();
-                  const isLocalPlayer = myID === pID;
-                  const role = isHost ? 'Host' : t('rolePartnerA');
-                  const badgeColor = 'bg-amber-500/20 text-amber-300 border border-amber-500/30';
-                  const iconBg = hasJoined ? 'bg-amber-600/20 border border-amber-500/30 text-amber-400' : 'bg-white/5 border border-white/5 text-slate-600 animate-pulse';
-
-                  return (
-                    <div key={pID} className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center relative overflow-hidden group shadow-lg">
-                      <div className={`absolute top-3 right-3 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full border ${badgeColor}`}>
-                        {role}
-                      </div>
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2.5 ${iconBg}`}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                      </div>
-                      <span className="text-[9px] text-slate-400 uppercase tracking-widest font-bold mb-1">
-                        {t('playerSeatName', { num: parseInt(pID) + 1 })}
-                      </span>
-                      {!hasJoined ? (
-                        <button
-                          onClick={() => {
-                            playClick();
-                            window.dispatchEvent(new CustomEvent('ronda-switch-seat', { detail: { newPlayerID: pID } }));
-                          }}
-                          className="mt-1 w-full bg-amber-500/10 hover:bg-amber-500/25 text-amber-300 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border border-amber-500/25 active:translate-y-[1px] cursor-pointer text-center"
-                        >
-                          {t('joinTeamA')}
-                        </button>
-                      ) : isLocalPlayer ? (
-                        <input
-                          type="text"
-                          maxLength={15}
-                          value={G.players[pID]?.name || ''}
-                          onChange={(e) => moves.setPlayerName(e.target.value)}
-                          className="bg-black/50 border border-white/10 rounded-xl px-3 py-1.5 text-center text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 w-full animate-fade-in"
-                          placeholder={t('yourName')}
-                          aria-label={t('yourName') || 'Your Name'}
-                        />
-                      ) : (
-                        <span className="text-base font-bold text-slate-200">{pName || 'Host'}</span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+              {renderSeatCards(['0', '2'])}
             </div>
 
             {/* TEAM B Column */}
@@ -272,53 +291,7 @@ export const WaitingLobby = ({
                 </div>
               </div>
               {/* Team B Player cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {['1', '3'].map((pID) => {
-                  const pName = G.players[pID]?.name || '';
-                  const hasJoined = !!pName.trim();
-                  const isLocalPlayer = myID === pID;
-                  const role = pID === '1' ? t('roleOpponent1B') : t('roleOpponent2B');
-                  const badgeColor = 'bg-purple-500/20 text-purple-300 border-purple-500/30';
-                  const iconBg = hasJoined ? 'bg-purple-600/20 border-purple-500/30 text-purple-400' : 'bg-white/5 border border-white/5 text-slate-600 animate-pulse';
-
-                  return (
-                    <div key={pID} className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center relative overflow-hidden group shadow-lg">
-                      <div className={`absolute top-3 right-3 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full border ${badgeColor}`}>
-                        {role}
-                      </div>
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2.5 ${iconBg}`}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                      </div>
-                      <span className="text-[9px] text-slate-400 uppercase tracking-widest font-bold mb-1">
-                        {t('playerSeatName', { num: parseInt(pID) + 1 })}
-                      </span>
-                      {!hasJoined ? (
-                        <button
-                          onClick={() => {
-                            playClick();
-                            window.dispatchEvent(new CustomEvent('ronda-switch-seat', { detail: { newPlayerID: pID } }));
-                          }}
-                          className="mt-1 w-full bg-purple-500/10 hover:bg-purple-500/25 text-purple-300 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border border-purple-500/25 active:translate-y-[1px] cursor-pointer text-center"
-                        >
-                          {t('joinTeamB')}
-                        </button>
-                      ) : isLocalPlayer ? (
-                        <input
-                          type="text"
-                          maxLength={15}
-                          value={G.players[pID]?.name || ''}
-                          onChange={(e) => moves.setPlayerName(e.target.value)}
-                          className="bg-black/50 border border-white/10 rounded-xl px-3 py-1.5 text-center text-white text-sm font-bold focus:outline-none focus:border-amber-500/50 w-full animate-fade-in"
-                          placeholder={t('yourName')}
-                          aria-label={t('yourName') || 'Your Name'}
-                        />
-                      ) : (
-                        <span className="text-base font-bold text-slate-200">{pName}</span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+              {renderSeatCards(['1', '3'])}
             </div>
           </div>
         )}
