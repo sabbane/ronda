@@ -70,6 +70,15 @@ export const evaluateRondaTringa = (G) => {
     return;
   }
 
+  // Helper to check if players belong to different teams.
+  // Team A: 0, 2 (even)
+  // Team B: 1, 3 (odd)
+  const hasOpposingTeams = (playersList) => {
+    const teamA = playersList.some(pID => parseInt(pID, 10) % 2 === 0);
+    const teamB = playersList.some(pID => parseInt(pID, 10) % 2 !== 0);
+    return teamA && teamB;
+  };
+
   if (tringaPlayers.length > 0) {
     if (tringaPlayers.length === 1) {
       // Single Tringa beats all Rondas
@@ -83,15 +92,30 @@ export const evaluateRondaTringa = (G) => {
         pts: pts 
       });
     } else {
-      // Clash between multiple Tringas
-      const ptsPool = (tringaPlayers.length * 5) + rondaPlayers.length;
-      setupActiveClash(G, numP, participants, tringaPlayers, ptsPool, 'Tringa');
-      G.announcements.push({
-        player: 'none',
-        type: 'Clash',
-        clashType: 'Tringa',
-        clashingPlayers: tringaPlayers
-      });
+      // Multiple Tringas
+      if (hasOpposingTeams(tringaPlayers)) {
+        // Clash between opposing teams
+        const ptsPool = (tringaPlayers.length * 5) + rondaPlayers.length;
+        setupActiveClash(G, numP, participants, tringaPlayers, ptsPool, 'Tringa');
+        G.announcements.push({
+          player: 'none',
+          type: 'Clash',
+          clashType: 'Tringa',
+          clashingPlayers: tringaPlayers
+        });
+      } else {
+        // All Tringas are on the same team (teammates) -> No Clash, direct points
+        tringaPlayers.forEach((pID, index) => {
+          const extraPts = index === 0 ? rondaPlayers.length : 0;
+          const pts = 5 + extraPts;
+          addScore(G, pID, pts);
+          G.announcements.push({
+            player: pID,
+            type: extraPts > 0 ? 'TringaWins' : 'Tringa',
+            pts: pts
+          });
+        });
+      }
     }
   } else {
     if (rondaPlayers.length === 1) {
@@ -99,15 +123,24 @@ export const evaluateRondaTringa = (G) => {
       addScore(G, winner, 1);
       G.announcements.push({ player: winner, type: 'Ronda' });
     } else {
-      // Clash between multiple Rondas
-      const ptsPool = rondaPlayers.length;
-      setupActiveClash(G, numP, participants, rondaPlayers, ptsPool, 'Ronda');
-      G.announcements.push({
-        player: 'none',
-        type: 'Clash',
-        clashType: 'Ronda',
-        clashingPlayers: rondaPlayers
-      });
+      // Multiple Rondas
+      if (hasOpposingTeams(rondaPlayers)) {
+        // Clash between opposing teams
+        const ptsPool = rondaPlayers.length;
+        setupActiveClash(G, numP, participants, rondaPlayers, ptsPool, 'Ronda');
+        G.announcements.push({
+          player: 'none',
+          type: 'Clash',
+          clashType: 'Ronda',
+          clashingPlayers: rondaPlayers
+        });
+      } else {
+        // All Rondas are on the same team (teammates) -> No Clash, direct points
+        rondaPlayers.forEach(pID => {
+          addScore(G, pID, 1);
+          G.announcements.push({ player: pID, type: 'Ronda' });
+        });
+      }
     }
   }
 };

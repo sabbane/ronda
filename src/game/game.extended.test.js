@@ -357,6 +357,50 @@ describe('Ronda Game Logic - Deep Testing', () => {
     // It should not resolve to the buggy "You hit You (+1 you)"
     expect(customText).not.toBe('You hit You (+1 you)');
   });
+
+  test('Teammates Ronda/Tringa should not clash but directly award team points', () => {
+    // Setup a 4-player game state where players 0 and 2 (Team A) both have a Ronda
+    const G = {
+      players: {
+        '0': { name: 'P1', hand: [{ value: 5, suit: 'dheb' }, { value: 5, suit: 'jben' }], captured: [], score: 0 },
+        '1': { name: 'P2', hand: [], captured: [], score: 0 },
+        '2': { name: 'P3', hand: [{ value: 7, suit: 'dheb' }, { value: 7, suit: 'jben' }], captured: [], score: 0 },
+        '3': { name: 'P4', hand: [], captured: [], score: 0 }
+      },
+      announcements: [],
+      activeClash: null
+    };
+
+    evaluateRondaTringa(G);
+
+    // Teammates should not trigger a clash
+    expect(G.activeClash).toBeNull();
+
+    // Combined score for Team A should increase by 2 (1 point for each player's Ronda)
+    const teamAScore = G.players['0'].score + G.players['2'].score;
+    expect(teamAScore).toBe(2);
+
+    // Setup a 4-player game state where players 0 and 2 (Team A) both have a Tringa
+    const G2 = {
+      players: {
+        '0': { name: 'P1', hand: [{ value: 5, suit: 'dheb' }, { value: 5, suit: 'jben' }, { value: 5, suit: 'syouf' }], captured: [], score: 0 },
+        '1': { name: 'P2', hand: [], captured: [], score: 0 },
+        '2': { name: 'P3', hand: [{ value: 7, suit: 'dheb' }, { value: 7, suit: 'jben' }, { value: 7, suit: 'syouf' }], captured: [], score: 0 },
+        '3': { name: 'P4', hand: [], captured: [], score: 0 }
+      },
+      announcements: [],
+      activeClash: null
+    };
+
+    evaluateRondaTringa(G2);
+
+    // Teammates should not trigger a clash
+    expect(G2.activeClash).toBeNull();
+
+    // Combined score for Team A should increase by 10 (5 points for each player's Tringa)
+    const teamAScore2 = G2.players['0'].score + G2.players['2'].score;
+    expect(teamAScore2).toBe(10);
+  });
 });
 
 

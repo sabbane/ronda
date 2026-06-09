@@ -203,7 +203,7 @@ export const WaitingLobby = ({
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(matchID);
-                    playClick && playClick();
+                    if (playClick) playClick();
                   }}
                   className="p-1 hover:bg-amber-500/20 rounded-full transition-colors cursor-pointer"
                   title={t('copy')}
