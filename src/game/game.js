@@ -22,6 +22,21 @@ export { getNextValue } from './deck.js';
 export { addScore, getTeamCaptain, getHandRank, evaluateRondaTringa, checkRoundEnd } from './rules.js';
 export { executeCapture } from './capture.js';
 
+const lobbyMoves = {
+  setPlayerName: {
+    move: setPlayerName,
+    noLimit: true
+  },
+  clearPlayerSeat: {
+    move: clearPlayerSeat,
+    noLimit: true
+  },
+  setTeamName: {
+    move: setTeamName,
+    noLimit: true
+  }
+};
+
 export const RondaGame = {
   name: 'ronda',
   minPlayers: 2,
@@ -33,18 +48,7 @@ export const RondaGame = {
       move: startGameTop,
       noLimit: true
     },
-    setPlayerName: {
-      move: setPlayerName,
-      noLimit: true
-    },
-    clearPlayerSeat: {
-      move: clearPlayerSeat,
-      noLimit: true
-    },
-    setTeamName: {
-      move: setTeamName,
-      noLimit: true
-    },
+    ...lobbyMoves,
     hostLeft: {
       move: hostLeft,
       noLimit: true
@@ -92,18 +96,7 @@ export const RondaGame = {
     stages: {
       lobby: {
         moves: {
-          setPlayerName: {
-            move: setPlayerName,
-            noLimit: true
-          },
-          clearPlayerSeat: {
-            move: clearPlayerSeat,
-            noLimit: true
-          },
-          setTeamName: {
-            move: setTeamName,
-            noLimit: true
-          },
+          ...lobbyMoves,
           startGame: {
             move: startGameLobby,
             noLimit: true
