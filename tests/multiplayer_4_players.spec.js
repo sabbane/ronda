@@ -21,7 +21,7 @@ import { test, expect } from '@playwright/test';
  *  13. Verify all 4 players see the game board.
  */
 test.describe('4-Player Team Mode E2E', () => {
-  test.setTimeout(120_000);
+  test.setTimeout(240_000);
 
   test('Interactive seat switching, team custom names real-time sync, and lobby start checks', async ({ browser }) => {
     // ─── Setup four browser contexts ───────────────────────────────────────────

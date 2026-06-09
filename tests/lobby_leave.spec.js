@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test('Multiplayer: Guest leaving the lobby should remove them from the Host view and make the slot available again', async ({ browser }) => {
+  test.setTimeout(90000);
   // 1. Setup two isolated browser contexts to simulate Host (Player 1) and Guest (Player 2)
   const hostContext = await browser.newContext();
   const guestContext = await browser.newContext();

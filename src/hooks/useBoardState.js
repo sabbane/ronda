@@ -82,7 +82,7 @@ const leaveLobbyRoom = (myID, moves, playClick, isLeavingRef) => {
   }
   setTimeout(() => {
     window.dispatchEvent(new CustomEvent('ronda-menu'));
-  }, 100);
+  }, 600);
 };
 
 export const useBoardState = (props) => {
@@ -116,7 +116,7 @@ export const useBoardState = (props) => {
     adService.sendGameReady();
   }, []);
 
-  useLobbySync(isConnected, G, ctx, myID, moves, matchData);
+  useLobbySync(isConnected, G, ctx, myID, moves, matchData, isLeavingRef.current);
 
   React.useEffect(() => {
     if (G.hostLeft === true && myID === '1' && G.gameStarted === false) {
