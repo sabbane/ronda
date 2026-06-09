@@ -87,7 +87,14 @@ Das Spiel setzt auf eine dedizierte `AdService`-Schicht (`src/services/AdService
 *   **Lade-Overlay:** Während die Werbung lädt, zeigt der Game Over Screen einen Lade-Indikator an, um die Buttons zu sperren und einen sauberen UX-Flow zu gewährleisten.
 *   **Banner-Werbung:** Zusätzliche Werbeflächen über die dedizierte `AdSlot`-Komponente.
 
-### 4.3 Bot- & Spiel-Logik
+### 4.3 Spiel- & Bot-Logik
+*   **Modularisierung der Spiellogik:** Um die Wartbarkeit und Testbarkeit zu verbessern, wurde die Kern-Spiellogik aus dem monolithischen `game.js` in eigenständige Submodule unter `/src/game/` aufgeteilt:
+    *   `deck.js`: Initialisierung des 40 spanischen Kartendecks sowie marokkanisches Suit-Mapping.
+    *   `capture.js`: Logik für Stechen, Sequenzberechnungen und Transferregeln.
+    *   `rules.js`: Auswertung von Sondersituationen (Missa, Ronda, Tringa, Clash, King/As Finish, Endabrechnung).
+    *   `moves.js`: boardgame.io Aktionen (`playCard`, `processCapture`, `counterDerba`, Lobby-Verwaltung, Rematch, etc.).
+    *   `setup.js`: Initialer State-Entwurf.
+    *   `game.js`: Haupt-Einstiegspunkt für boardgame.io, der die Submodule orchestriert.
 *   **RandomBot:** Agiert nur für Spieler 1, wartet auf UI-Animationen und priorisiert Captures.
 *   **Stages & Timing:** Nutzung von `waitForUI` und angepassten Bot-Verzögerungen (`botDelay`) zur exakten Synchronisation zwischen Game-Engine, Popups und Frontend-Animationen.
 
@@ -145,6 +152,16 @@ Um das Spielgefühl immersiv zu gestalten, wurde das Audiosystem auf echte Audio
 *   **Autoplay-Policy:** BGM startet nach der ersten Benutzerinteraktion über `initContext()`.
 *   **Ad-Pausierung (Event-Driven):** Bei Werbeeinblendung (über `ronda-ad-started`/`ronda-ad-completed` Custom Events) wird die BGM automatisch pausiert und danach fortgesetzt.
 
+### 4.8 React Hooks & UI-Architektur
+Die Benutzeroberfläche und die Event-Synchronisierung wurden vollständig entkoppelt. Alle React-Seiteneffekte, UI-Timings und Zustandssynchronisationen wurden aus den Komponenten in modulare Hooks (`/src/hooks/`) ausgelagert:
+*   **`useAnnouncements`**: Verwaltet die Warteschlange und Anzeigedauer von Event-Popups (Missa, Clash, Ronda etc.) in Abstimmung mit boardgame.io.
+*   **`useBoardSounds`**: Löst reaktiv Soundeffekte aus (Karten ausgeben, stechen, Match-Ende), basierend auf Zustandsänderungen.
+*   **`useCaptureAnimation`**: Steuert die visuellen Karten-Fluganimationen.
+*   **`useBoardState`**: Kapselt den UI-Zustand des Spieltisches (Kartenauswahl, Interaktions-Locking).
+*   **`useLobby`**, **`useLobbyListeners`**, **`useLobbySync`**, **`useMultiplayerCleanup`**: Steuern das Multiplayer-Socket-Handling, Lobby-Synchronisationen und die Speicherbereinigung.
+*   **`useScrollAdjustments`**: Verhindert Scroll-Bounces auf iOS-Browsern/PWAs.
+*   **`useTestMatchSetup`**: Richtet Testräume für Playwright-E2E-Tests ein.
+
 ## 5. Projektstruktur
 ```text
 /src
@@ -163,12 +180,28 @@ Um das Spielgefühl immersiv zu gestalten, wurde das Audiosystem auf echte Audio
       en.js         # Englische Übersetzungen
       fr.js         # Französische Übersetzungen
       ar.js         # Arabische Übersetzungen
+  /hooks            # Custom Hooks zur Entkopplung von UI, State & Events
+    useAnnouncements.js     # Warteschlange & Steuerung der Popups (Ronda, Missa etc.)
+    useBoardSounds.js       # Reaktive Soundeffekte-Auslösung
+    useCaptureAnimation.js  # Steuerung visueller Stech-Animationen
+    useBoardState.js        # Lokaler UI-Zustand des Spieltisches
+    useLobby.js             # Lobby-Operationen und Statusverwaltung
+    useLobbyListeners.js    # Multiplayer-Socket-Verbindungen & Listener
+    useLobbySync.js         # Lobby-Synchronisation zum Server
+    useMultiplayerCleanup.js # Sichere Socket- & Listener-Bereinigung bei Unmount
+    useScrollAdjustments.js  # Beseitigung von Scroll-Bounces auf Mobilgeräten
+    useTestMatchSetup.js    # Vorbereitung von Match-Räumen für E2E-Testing
   /services
     SoundService.js # Audiosystem mit preloaded SFX-Cache und Track-Steuerung
     AdService.js    # Plattform-Adapter für Google H5 Ads & PlayGama SDK
   /game
-    game.js         # Kern-Spiellogik (inkl. Rematch-Logik & State-Reset)
+    game.js         # Haupt-Einstiegspunkt und Orchestrierung für boardgame.io
     bot.js          # KI-Verhalten
+    setup.js        # Initialisierung des Spielzustands (State Blueprint)
+    deck.js         # Kartendeck & marokkanische Suit-Mappings
+    capture.js      # Logik für Stechen & Sequenzen
+    rules.js        # Spielregeln, Scoring & Sondersituationen
+    moves.js        # boardgame.io Züge und Lobby-Aktionen
     game.test.js    # Unit-Tests für Spielregeln
   App.jsx           # Einstiegspunkt, Lobby-Logik, URL-Sync & Online-Client
 /tests
@@ -260,6 +293,8 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   [x] Modulare Internationalisierung mit separaten Übersetzungsdateien (`en.js`, `fr.js`, `ar.js` unter `/translations`)
 *   [x] Hauptmenü in eigenständige Komponente ausgelagert (`MainMenu.jsx`)
 *   [x] SoundService: Doppelschlag-Effekt bei Taawida (Derba Double SFX nach 250ms Delay)
+*   [x] Modularisierung der Spiellogik in Submodule (deck, capture, rules, moves, setup)
+*   [x] Entkopplung von UI-Zuständen und Event-Handlern über Custom Hooks (/src/hooks/)
 *   [x] Erweiterte E2E-Test-Suite (19 Spec-Dateien: Lobby, Multiplayer, Bot, Responsiveness, etc.)
 *   [ ] Google Play Store: Bubblewrap TWA-Packaging & Store-Listing
 *   [ ] Erweiterte KI-Heuristik
