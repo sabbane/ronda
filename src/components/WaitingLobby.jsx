@@ -1,4 +1,4 @@
-import { Music, Volume2, VolumeX } from 'lucide-react';
+import { Copy, Music, Volume2, VolumeX } from 'lucide-react';
 
 const PlayerSeatCard = ({
   pID,
@@ -198,16 +198,19 @@ export const WaitingLobby = ({
           <div className="flex justify-between items-center gap-4">
             <span className="text-xs text-slate-400 uppercase tracking-widest font-bold">{t('roomID')}</span>
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(matchID);
-                  playClick && playClick();
-                }}
-                className="text-sm font-mono font-bold text-amber-300 bg-amber-500/10 hover:bg-amber-500/25 px-3 py-1 rounded-lg border border-amber-500/20 flex items-center transition-all cursor-pointer active:translate-y-[1px]"
-                title={t('copy')}
-              >
+              <span className="text-sm font-mono font-bold text-amber-300 bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20 flex items-center gap-2">
                 {matchID}
-              </button>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(matchID);
+                    playClick && playClick();
+                  }}
+                  className="p-1 hover:bg-amber-500/20 rounded-full transition-colors cursor-pointer"
+                  title={t('copy')}
+                >
+                  <Copy size={14} className="text-amber-300" />
+                </button>
+              </span>
             </div>
           </div>
         </div>
