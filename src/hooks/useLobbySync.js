@@ -1,14 +1,15 @@
 import React from 'react';
 
-export const useLobbySync = (isConnected, G, ctx, myID, moves, matchData, isLeaving) => {
+export const useLobbySync = (opts) => {
+  const { isConnected, G, ctx, myID, moves, matchData, isLeavingRef } = opts;
   React.useEffect(() => {
-    if (isLeaving) return;
+    if (isLeavingRef && isLeavingRef.current) return;
     const savedNickname = localStorage.getItem('ronda_nickname') || 'Player';
     const isInLobbyStage = G.gameStarted === false || ctx.activePlayers?.[myID] === 'lobby';
     if (isConnected && isInLobbyStage && G.players && G.players[myID] && G.players[myID].name !== savedNickname) {
       moves.setPlayerName(savedNickname);
     }
-  }, [myID, G.players, moves, isConnected, ctx.activePlayers, G.gameStarted, isLeaving]);
+  }, [myID, G.players, moves, isConnected, ctx.activePlayers, G.gameStarted, isLeavingRef]);
 
   React.useEffect(() => {
     if (!isConnected || !matchData || !G.players || G.gameStarted) return;

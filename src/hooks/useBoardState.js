@@ -116,7 +116,7 @@ export const useBoardState = (props) => {
     adService.sendGameReady();
   }, []);
 
-  useLobbySync(isConnected, G, ctx, myID, moves, matchData, isLeavingRef.current);
+  useLobbySync({ isConnected, G, ctx, myID, moves, matchData, isLeavingRef });
 
   React.useEffect(() => {
     if (G.hostLeft === true && myID === '1' && G.gameStarted === false) {

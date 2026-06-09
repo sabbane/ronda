@@ -1,4 +1,4 @@
-import { Copy, Music, Volume2, VolumeX } from 'lucide-react';
+import { Music, Volume2, VolumeX } from 'lucide-react';
 
 const PlayerSeatCard = ({
   pID,
@@ -105,7 +105,6 @@ export const WaitingLobby = ({
   currentTrack,
   tracks
 }) => {
-  const inviteLink = `${window.location.protocol}//${window.location.host}${window.location.pathname}?room=${matchID || ''}`;
   const numP = ctx.numPlayers || 2;
   const allPlayersJoined = Array.from({ length: numP }, (_, i) => String(i)).every(pID => !!G.players[pID]?.name?.trim());
 
@@ -125,24 +124,6 @@ export const WaitingLobby = ({
       ))}
     </div>
   );
-
-  const handleShare = async () => {
-    playClick();
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'Ronda',
-          text: t('shareText') || 'Join my Ronda game!',
-          url: inviteLink
-        });
-      } catch (err) {
-        console.error('Share failed:', err);
-      }
-    } else {
-      navigator.clipboard.writeText(inviteLink);
-      alert(t('linkCopied') || 'Link copied to clipboard!');
-    }
-  };
 
   return (
     <div className="min-h-[100dvh] flex flex-col items-center justify-center p-4 font-sans text-slate-100 relative overflow-y-auto overflow-x-hidden">
@@ -217,22 +198,15 @@ export const WaitingLobby = ({
           <div className="flex justify-between items-center gap-4">
             <span className="text-xs text-slate-400 uppercase tracking-widest font-bold">{t('roomID')}</span>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-mono font-bold text-amber-300 bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20 flex items-center gap-2">
-                {matchID}
-                <button
-                  onClick={() => navigator.clipboard.writeText(matchID)}
-                  className="p-1 hover:bg-amber-500/20 rounded-full transition-colors cursor-pointer"
-                  title={t('copy')}
-                >
-                  <Copy size={14} className="text-amber-300" />
-                </button>
-              </span>
               <button
-                onClick={handleShare}
-                className="bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 active:translate-y-[1px]"
-                title={t('shareLink') || 'Share Link'}
+                onClick={() => {
+                  navigator.clipboard.writeText(matchID);
+                  playClick && playClick();
+                }}
+                className="text-sm font-mono font-bold text-amber-300 bg-amber-500/10 hover:bg-amber-500/25 px-3 py-1 rounded-lg border border-amber-500/20 flex items-center transition-all cursor-pointer active:translate-y-[1px]"
+                title={t('copy')}
               >
-                <span>{t('shareLink') || 'Share'}</span>
+                {matchID}
               </button>
             </div>
           </div>

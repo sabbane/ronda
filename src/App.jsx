@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Client as ReactClient } from 'boardgame.io/dist/esm/react.js';
 import { Local, SocketIO } from 'boardgame.io/dist/esm/multiplayer.js';
 import { RondaGame } from './game/game';
@@ -9,6 +10,7 @@ import { Rules } from './components/Rules';
 import { useSound } from './contexts/SoundContext';
 import { MainMenu } from './components/MainMenu';
 import { useLobby } from './hooks/useLobby';
+import { Splashscreen } from './components/Splashscreen';
 
 const RondaClientBot = ReactClient({
   game: RondaGame,
@@ -75,6 +77,12 @@ const App = () => {
     handleJoinRoom,
     fetchPublicRooms
   } = useLobby();
+
+  const [showSplash, setShowSplash] = useState(true);
+
+  if (showSplash) {
+    return <Splashscreen onComplete={() => setShowSplash(false)} />;
+  }
 
   if (mode === 'rules') {
     return <Rules onBack={() => {
