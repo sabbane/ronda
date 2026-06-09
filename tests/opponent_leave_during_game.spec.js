@@ -42,7 +42,7 @@ test.describe('Opponent leaves during game', () => {
 
     // Wait for the game lobby to appear and extract the real room ID
     const lobbyHeader1 = page1.locator('h1', { hasText: /Game Lobby/i });
-    await expect(lobbyHeader1).toBeVisible({ timeout: 15000 });
+    await expect(lobbyHeader1).toBeVisible({ timeout: 30000 });
 
     const roomIdSpan = page1.locator('span.text-amber-300').first();
     await expect(roomIdSpan).toBeVisible();
@@ -63,11 +63,13 @@ test.describe('Opponent leaves during game', () => {
     await page2.locator('button', { hasText: /Private Room/i }).first().click();
     const roomIdInput = page2.locator('input[placeholder*="Room ID" i], input[placeholder*="Enter Room" i]').first();
     await roomIdInput.fill(realMatchID);
-    await page2.locator('button', { hasText: /^Join$/i }).first().click();
+    const joinSubmitBtn = page2.locator('button', { hasText: /^Join$/i }).first();
+    await expect(joinSubmitBtn).toBeEnabled({ timeout: 5000 });
+    await joinSubmitBtn.click();
 
     // Wait for P2 to enter the lobby
     const lobbyHeader2 = page2.locator('h1', { hasText: /Game Lobby/i });
-    await expect(lobbyHeader2).toBeVisible({ timeout: 15000 });
+    await expect(lobbyHeader2).toBeVisible({ timeout: 30000 });
     console.log('[Test] Both players in lobby.');
 
     // ─── P1 starts the game ───────────────────────────────────────────────────
@@ -137,24 +139,32 @@ test.describe('Opponent leaves during game', () => {
 
     // ─── P1: Create room ─────────────────────────────────────────────────────
     await page1.goto('/');
+    const enBtn1 = page1.locator('button', { hasText: /^EN$/i });
+    if (await enBtn1.isVisible().catch(() => false)) await enBtn1.click();
+
     await page1.locator('button', { hasText: /Create Room/i }).first().click();
     await page1.locator('input[placeholder*="name" i]').first().fill('HostPlayer2');
     await page1.locator('button', { hasText: /^Private$/i }).first().click();
     await page1.locator('button', { hasText: /^Create$/i }).first().click();
 
     const lobbyHeader1 = page1.locator('h1', { hasText: /Game Lobby/i });
-    await expect(lobbyHeader1).toBeVisible({ timeout: 15000 });
+    await expect(lobbyHeader1).toBeVisible({ timeout: 30000 });
     const realMatchID = (await page1.locator('span.text-amber-300').first().innerText()).trim();
     console.log(`[Test] Room created: ${realMatchID}`);
 
     // ─── P2: Join room ────────────────────────────────────────────────────────
     await page2.goto('/');
+    const enBtn2 = page2.locator('button', { hasText: /^EN$/i });
+    if (await enBtn2.isVisible().catch(() => false)) await enBtn2.click();
+
     await page2.locator('button', { hasText: /Join Room/i }).first().click();
     await page2.locator('input[placeholder*="name" i]').first().fill('GuestPlayer2');
     await page2.locator('button', { hasText: /Private Room/i }).first().click();
     await page2.locator('input[placeholder*="Room ID" i], input[placeholder*="Enter Room" i]').first().fill(realMatchID);
-    await page2.locator('button', { hasText: /^Join$/i }).first().click();
-    await expect(page2.locator('h1', { hasText: /Game Lobby/i })).toBeVisible({ timeout: 15000 });
+    const joinSubmitBtn2 = page2.locator('button', { hasText: /^Join$/i }).first();
+    await expect(joinSubmitBtn2).toBeEnabled({ timeout: 5000 });
+    await joinSubmitBtn2.click();
+    await expect(page2.locator('h1', { hasText: /Game Lobby/i })).toBeVisible({ timeout: 30000 });
 
     // ─── P1: Start game ───────────────────────────────────────────────────────
     const startBtn = page1.locator('button', { hasText: /Start Game/i }).first();

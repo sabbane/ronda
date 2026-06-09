@@ -151,6 +151,9 @@ test.describe('4-Player Team Mode E2E', () => {
     await p2TeamAInput.fill('Al-Mourabitoun');
     await p2TeamAInput.press('Enter'); // Ensure focus loss / blur if needed
 
+    // Wait for Team A update to sync and state ID to increment before Team B update
+    await page2.waitForTimeout(1500);
+
     await p3TeamBInput.fill('Zellij FC');
     await p3TeamBInput.press('Enter');
 

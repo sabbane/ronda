@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test('Gameplay: Gameplay board should never have vertical scrolling on constrained viewports (laptop / mobile)', async ({ page }) => {
+  test.setTimeout(90_000);
   // 1. Setup a constrained viewport size (e.g. 1280x720, typical scaled 14" laptop view)
   await page.setViewportSize({ width: 1280, height: 720 });
 

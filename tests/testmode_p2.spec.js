@@ -38,6 +38,9 @@ test.describe('Reproduction: Test Route Bugs', () => {
     await expect(board).toBeVisible({ 
       message: 'Bug: /test/p2 should directly show the game board but it is hidden.' 
     });
+
+    await contextP1.close();
+    await contextP2.close();
   });
 
   test('P2 sees board and can play cards after P1 plays', async ({ browser }) => {
@@ -45,6 +48,7 @@ test.describe('Reproduction: Test Route Bugs', () => {
     // Start P1 via the correct test route
     const contextP1 = await browser.newContext();
     const pageP1 = await contextP1.newPage();
+    pageP1.on('console', msg => console.log(`[P1 Console] ${msg.type()}: ${msg.text()}`));
     await pageP1.goto('/test/p1');
     await expect(pageP1.locator('div.min-h-screen.bg-black')).toBeVisible({ timeout: 10000 });
 
@@ -92,5 +96,8 @@ test.describe('Reproduction: Test Route Bugs', () => {
       timeout: 5000, 
       message: `Card '${p2FirstCardId}' remains in hand after P1 played. /test/p2 puts P2 in wrong game state.` 
     });
+
+    await contextP1.close();
+    await contextP2.close();
   });
 });

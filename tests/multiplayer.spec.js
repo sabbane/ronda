@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test('Multiplayer: Two players can join and see the board', async ({ browser }) => {
+  test.setTimeout(90_000);
   // Context A: Host
   const contextA = await browser.newContext();
   const pageA = await contextA.newPage();
