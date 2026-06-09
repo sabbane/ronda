@@ -172,7 +172,12 @@ export const useAnnouncements = ({
           const allPointEvents = ['Ronda', 'Tringa', 'Missa', 'Derba', 'Taawida', 'Clash Won', 'King Finish', 'TringaWins', 'Final Fail', 'As Finish'];
 
           if (allPointEvents.includes(ann.type)) {
-            variant = isMe ? "success" : "danger";
+            const isTeamEvent = (ann.player === myID) || 
+              (numP === 4 && (
+                (myID === '0' && ann.player === '2') || (myID === '2' && ann.player === '0') ||
+                (myID === '1' && ann.player === '3') || (myID === '3' && ann.player === '1')
+              ));
+            variant = isTeamEvent ? "success" : "danger";
           }
 
           setEventQueue(prev => [...prev, { 

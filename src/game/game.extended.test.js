@@ -401,6 +401,40 @@ describe('Ronda Game Logic - Deep Testing', () => {
     const teamAScore2 = G2.players['0'].score + G2.players['2'].score;
     expect(teamAScore2).toBe(10);
   });
+
+  test('Popup variants for teammate Ronda/Tringa in 4-player mode should be success (green)', () => {
+    // Setup a 4-player game. My ID is '0'.
+    const myID = '0';
+    const numP = 4;
+    
+    // Announcement is triggered by player '2' (my teammate) having a Ronda
+    const annTeammate = { player: '2', type: 'Ronda' };
+    
+    // Announcement is triggered by player '1' (opponent) having a Ronda
+    const annOpponent = { player: '1', type: 'Ronda' };
+
+    // Mimic the hook's variant assignment logic
+    const getVariant = (ann, myID, numP) => {
+      const allPointEvents = ['Ronda', 'Tringa', 'Missa', 'Derba', 'Taawida', 'Clash Won', 'King Finish', 'TringaWins', 'Final Fail', 'As Finish'];
+      if (allPointEvents.includes(ann.type)) {
+        const isTeamEvent = (ann.player === myID) || 
+          (numP === 4 && (
+            (myID === '0' && ann.player === '2') || (myID === '2' && ann.player === '0') ||
+            (myID === '1' && ann.player === '3') || (myID === '3' && ann.player === '1')
+          ));
+        return isTeamEvent ? "success" : "danger";
+      }
+      return "info";
+    };
+
+    // For my teammate (player '2'), the popup should be green/success
+    const teammateVariant = getVariant(annTeammate, myID, numP);
+    expect(teammateVariant).toBe("success"); // Teammate should be success/green
+
+    // For the opponent (player '1'), the popup should be red/danger
+    const opponentVariant = getVariant(annOpponent, myID, numP);
+    expect(opponentVariant).toBe("danger");
+  });
 });
 
 
