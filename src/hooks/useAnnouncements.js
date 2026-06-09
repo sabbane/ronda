@@ -133,10 +133,15 @@ export const useAnnouncements = ({
             }
             customIcon = "⚔️";
           }
-          if (ann.type === 'Clash Won') {
+           if (ann.type === 'Clash Won') {
             const type = ann.rankType || (ann.text && typeof ann.text === 'string' ? (ann.text.match(/with (.*)!/) || [])[1] : '');
             const pts = ann.pts || (type === 'Tringa' ? 10 : 2);
-            if (isMe) {
+            const isWinnerMyTeam = (ann.player === myID) || 
+              (numP === 4 && (
+                (myID === '0' && ann.player === '2') || (myID === '2' && ann.player === '0') ||
+                (myID === '1' && ann.player === '3') || (myID === '3' && ann.player === '1')
+              ));
+            if (isWinnerMyTeam) {
               customTitle = t('announcements.clashWonTitle');
               customText = type === 'Tringa' ? t('announcements.clashWonTringaMe', { pts }) : t('announcements.clashWonRondaMe', { pts });
             } else {

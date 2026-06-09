@@ -494,6 +494,74 @@ describe('Ronda Game Logic - Deep Testing', () => {
     // Verify it resolves to "You countered James's attack (+5 you)"
     expect(customText).toBe("You countered James's attack (+5 you)");
   });
+
+  test('Teammate Clash Won title and text resolution in 4-player mode', () => {
+    const mockT = (key, params = {}) => {
+      const translations = {
+        'announcements': {
+          clashWonTitle: "Clash Won",
+          clashLostTitle: "Clash Lost",
+          clashWonRondaMe: "You won the Clash of the Rondas (+{pts} you)",
+          clashWonRondaOpp: "You lost the Clash of the Rondas (+{pts} {oppName})"
+        }
+      };
+      const keys = key.split('.');
+      let value = translations;
+      for (const k of keys) {
+        if (!value || value[k] === undefined) return key;
+        value = value[k];
+      }
+      if (typeof value === 'string' && Object.keys(params).length > 0) {
+        return Object.keys(params).reduce((str, paramKey) => {
+          return str.replace(`{${paramKey}}`, params[paramKey]);
+        }, value);
+      }
+      return value;
+    };
+
+    // 4-player game setup
+    const G = {
+      players: {
+        '0': { name: 'Alice', hand: [], captured: [], score: 0 },
+        '1': { name: 'Bob', hand: [], captured: [], score: 0 },
+        '2': { name: 'James', hand: [], captured: [], score: 0 },
+        '3': { name: 'Sarah', hand: [], captured: [], score: 0 }
+      }
+    };
+
+    const myID = '2'; // I am James (Team A with Alice '0')
+    const numP = 4;
+
+    // Player 0 (Alice, teammate) wins the clash
+    const ann = { player: '0', type: 'Clash Won', rankType: 'Ronda', pts: 2 };
+
+    const announcerName = G.players[ann.player]?.name || `Player ${Number(ann.player) + 1}`;
+
+    // Mimic the current corrected title/text resolution inside useAnnouncements.js
+    let customTitle = "";
+    let customText = "";
+
+    if (ann.type === 'Clash Won') {
+      const type = ann.rankType || 'Ronda';
+      const pts = ann.pts || 2;
+      const isWinnerMyTeam = (ann.player === myID) || 
+        (numP === 4 && (
+          (myID === '0' && ann.player === '2') || (myID === '2' && ann.player === '0') ||
+          (myID === '1' && ann.player === '3') || (myID === '3' && ann.player === '1')
+        ));
+      if (isWinnerMyTeam) {
+        customTitle = mockT('announcements.clashWonTitle');
+        customText = type === 'Tringa' ? mockT('announcements.clashWonTringaMe', { pts }) : mockT('announcements.clashWonRondaMe', { pts });
+      } else {
+        customTitle = mockT('announcements.clashLostTitle');
+        customText = type === 'Tringa' ? mockT('announcements.clashWonTringaOpp', { pts, oppName: announcerName }) : mockT('announcements.clashWonRondaOpp', { pts, oppName: announcerName });
+      }
+    }
+
+    // Teammate won, so for James it should be a "Clash Won"
+    expect(customTitle).toBe("Clash Won");
+    expect(customText).toBe("You won the Clash of the Rondas (+2 you)");
+  });
 });
 
 
