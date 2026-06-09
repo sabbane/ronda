@@ -43,7 +43,8 @@ export const useAnnouncements = ({
             }
           } else {
             announcerName = G.players[ann.player]?.name || `Player ${Number(ann.player) + 1}`;
-            opponentName = `Player ${Number(ann.player) + 1}`;
+            const prevPlayerID = String((Number(ann.player) + 3) % 4);
+            opponentName = G.players[prevPlayerID]?.name || `Player ${Number(prevPlayerID) + 1}`;
           }
           
           // Resolve victim or failing player name

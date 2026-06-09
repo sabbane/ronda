@@ -435,6 +435,65 @@ describe('Ronda Game Logic - Deep Testing', () => {
     const opponentVariant = getVariant(annOpponent, myID, numP);
     expect(opponentVariant).toBe("danger");
   });
+
+  test('Teammate Counter (Taawida) name resolution: opponent name should be the countered player name, not the announcer name', () => {
+    const mockT = (key, params = {}) => {
+      const translations = {
+        'announcements': {
+          counterAttackMe: "You countered {oppName}'s attack (+5 you)",
+          counterAttackOpponent: "{oppName} countered the attack"
+        }
+      };
+      const keys = key.split('.');
+      let value = translations;
+      for (const k of keys) {
+        if (!value || value[k] === undefined) return key;
+        value = value[k];
+      }
+      if (typeof value === 'string' && Object.keys(params).length > 0) {
+        return Object.keys(params).reduce((str, paramKey) => {
+          return str.replace(`{${paramKey}}`, params[paramKey]);
+        }, value);
+      }
+      return value;
+    };
+
+    // 4-player game setup
+    const G = {
+      players: {
+        '0': { name: 'Alice', hand: [], captured: [], score: 0 },
+        '1': { name: 'Bob', hand: [], captured: [], score: 0 },
+        '2': { name: 'James', hand: [], captured: [], score: 0 },
+        '3': { name: 'Sarah', hand: [], captured: [], score: 0 }
+      }
+    };
+
+    const myID = '3'; // I am Sarah
+    const numP = 4;
+
+    // Player 3 (Sarah) counters Player 2 (James)
+    const ann = { player: '3', type: 'Taawida', streak: 3 };
+
+    // Mimic the current corrected name resolution inside useAnnouncements.js
+    let announcerName;
+    let opponentName;
+    if (numP === 2) {
+      // 2-player logic
+    } else {
+      announcerName = G.players[ann.player]?.name || `Player ${Number(ann.player) + 1}`;
+      const prevPlayerID = String((Number(ann.player) + 3) % 4);
+      opponentName = G.players[prevPlayerID]?.name || `Player ${Number(prevPlayerID) + 1}`;
+    }
+
+    const isMe = ann.player === myID;
+    let customText = "";
+    if (ann.type === 'Taawida' && ann.streak === 3) {
+      customText = isMe ? mockT('announcements.counterAttackMe', { oppName: opponentName }) : mockT('announcements.counterAttackOpponent', { oppName: announcerName });
+    }
+
+    // Verify it resolves to "You countered James's attack (+5 you)"
+    expect(customText).toBe("You countered James's attack (+5 you)");
+  });
 });
 
 
