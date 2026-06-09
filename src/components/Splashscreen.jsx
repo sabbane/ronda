@@ -8,7 +8,6 @@ const ASSETS_TO_LOAD = [
   ...Object.values(cardImages),
   '/assets/background-zellig.svg',
   '/felt.png',
-  '/logo.png',
   '/favicon.png',
   '/favicon.svg',
   '/flag-fr.svg',
@@ -157,14 +156,6 @@ export const Splashscreen = ({ onComplete }) => {
               }}
               className="mb-8"
             >
-              <img
-                src="/logo.png"
-                alt="Ronda Logo"
-                className="w-40 h-40 object-contain drop-shadow-[0_0_35px_rgba(245,158,11,0.35)]"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                }}
-              />
               <h1 className="text-4xl sm:text-5xl font-black mt-2 text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-500 tracking-tighter drop-shadow-2xl">
                 RONDA
               </h1>
