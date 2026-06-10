@@ -32,6 +32,8 @@ const fetchTestMatchID = async (pID) => {
   throw new Error('P2 could not find a test match. Open /test/p1 first.');
 };
 
+let lastSetupPath = null;
+
 export const useTestMatchSetup = ({
   setMatchID,
   setPlayerID,
@@ -60,10 +62,12 @@ export const useTestMatchSetup = ({
     };
 
     if (isAppInTestMode) {
-      if (path === '/test/p1') {
-        setupTestMatch('0');
-      } else if (path === '/test/p2') {
-        setupTestMatch('1');
+      if (path === '/test/p1' || path === '/test/p2') {
+        if (lastSetupPath === path) return;
+        lastSetupPath = path;
+        setupTestMatch(path === '/test/p1' ? '0' : '1');
+      } else {
+        lastSetupPath = null;
       }
     } else {
       const params = new URLSearchParams(window.location.search);

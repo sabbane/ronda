@@ -14,6 +14,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:smoke": "npx playwright test",
+    "test:local:isolated": "node scripts/run-local-tests-isolated.js",
     "test:prod:isolated": "node scripts/run-prod-tests-isolated.js",
     "start:backend": "node server.js",
     "start:backend:test": "cross-env VITE_TEST_MODE=true node server.js"

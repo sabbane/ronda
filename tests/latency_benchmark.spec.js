@@ -55,7 +55,7 @@ async function measureEndpoint(request, url, label, count = SAMPLE_COUNT) {
 
 // ── Helper: measure browser page load via Navigation Timing API ───────────────
 async function measurePageLoad(page, url) {
-  await page.goto(url, { waitUntil: 'networkidle', timeout: 30_000 });
+  await page.goto(url, { waitUntil: 'load', timeout: 30_000 });
 
   const timing = await page.evaluate(() => {
     const nav = performance.getEntriesByType('navigation')[0];

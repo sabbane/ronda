@@ -1,19 +1,20 @@
 import { spawnSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
-const tests = [
-  'tests/smoke.spec.js',
-  'tests/multiplayer.spec.js',
-  'tests/complete_bot_game.spec.js',
-  'tests/complete_multiplayer_game.spec.js',
-  'tests/play_again.spec.js',
-  'tests/latency_benchmark.spec.js'
-];
+const testsDir = './tests';
 
-console.log('Starting production E2E tests in fully isolated browser processes...\n');
+// Dynamically read and sort all test files from the tests directory
+const testFiles = fs.readdirSync(testsDir)
+  .filter(file => file.endsWith('.spec.js'))
+  .map(file => path.join(testsDir, file).replace(/\\/g, '/'))
+  .sort();
+
+console.log(`Starting all ${testFiles.length} local E2E tests in fully isolated browser processes...\n`);
 
 let failed = false;
 
-for (const testFile of tests) {
+for (const testFile of testFiles) {
   console.log(`======================================================================`);
   console.log(`🚀 RUNNING TEST IN ISOLATION: ${testFile}`);
   console.log(`======================================================================`);
@@ -22,8 +23,7 @@ for (const testFile of tests) {
     stdio: 'inherit',
     shell: true,
     env: {
-      ...process.env,
-      BASE_URL: 'https://playronda.ma'
+      ...process.env
     }
   });
 
@@ -36,9 +36,9 @@ for (const testFile of tests) {
 }
 
 if (failed) {
-  console.error('❌ Some production tests failed.');
+  console.error('❌ Some local tests failed.');
   process.exit(1);
 } else {
-  console.log('🎉 All production tests passed successfully in isolation!');
+  console.log('🎉 All local tests passed successfully in isolation!');
   process.exit(0);
 }
