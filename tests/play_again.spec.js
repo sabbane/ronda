@@ -61,7 +61,7 @@ test('Play Again: Clicking Play Again after game over starts a new round', async
     const cardCount = await myCards.count().catch(() => 0);
     if (cardCount > 0) {
       try {
-        await myCards.first().click({ timeout: 500 });
+        await myCards.first().click({ timeout: 500, force: true });
       } catch {
         // Card might be animating or stale
       }

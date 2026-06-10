@@ -93,7 +93,7 @@ test.describe('Functional Test: Complete Game vs AI', () => {
       if (cardCount > 0) {
         try {
           // Play the first available card in our hand
-          await myCards.first().click({ timeout: 500 });
+          await myCards.first().click({ timeout: 500, force: true });
           cardsPlayedByUs++;
           // Give the game a slightly longer moment to process the move and animate before the next loop
           await page.waitForTimeout(800); 

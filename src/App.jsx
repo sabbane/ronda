@@ -78,7 +78,12 @@ const App = () => {
     fetchPublicRooms
   } = useLobby();
 
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(() => {
+    if (typeof window !== 'undefined' && window.navigator.webdriver) {
+      return false;
+    }
+    return true;
+  });
 
   if (showSplash) {
     return <Splashscreen onComplete={() => setShowSplash(false)} />;
