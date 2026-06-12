@@ -1,4 +1,6 @@
+import { useEffect, useRef } from 'react';
 import { Copy, Music, Volume2, VolumeX } from 'lucide-react';
+import { useSound } from '../contexts/SoundContext';
 
 const PlayerSeatCard = ({
   pID,
@@ -105,10 +107,34 @@ export const WaitingLobby = ({
   currentTrack,
   tracks
 }) => {
+  const { playCardSweep } = useSound();
   const numP = ctx.numPlayers || 2;
   const allPlayersJoined = Array.from({ length: numP }, (_, i) => String(i)).every(pID => !!G.players[pID]?.name?.trim());
 
-  const renderSeatCards = (playerIds, className = "grid grid-cols-1 sm:grid-cols-2 gap-4") => (
+  const prevJoinedRef = useRef({});
+
+  useEffect(() => {
+    let playedSound = false;
+    const playerIds = Array.from({ length: numP }, (_, i) => String(i));
+
+    playerIds.forEach(pID => {
+      const pName = G.players?.[pID]?.name || '';
+      const isHost = pID === '0';
+      const hasJoined = isHost || !!pName.trim();
+
+      const wasJoined = prevJoinedRef.current[pID];
+      if (hasJoined && wasJoined === false) {
+        playedSound = true;
+      }
+      prevJoinedRef.current[pID] = hasJoined;
+    });
+
+    if (playedSound) {
+      playCardSweep();
+    }
+  }, [G.players, numP, playCardSweep]);
+
+  const renderSeatCards = (playerIds, className = "grid grid-cols-2 gap-3 sm:gap-4") => (
     <div className={className}>
       {playerIds.map((pID) => (
         <PlayerSeatCard
@@ -126,7 +152,7 @@ export const WaitingLobby = ({
   );
 
   return (
-    <div className="min-h-[100dvh] flex flex-col items-center justify-center p-4 font-sans text-slate-100 relative overflow-y-auto overflow-x-hidden">
+    <div className="min-h-[100dvh] flex flex-col items-center justify-start sm:justify-center p-4 font-sans text-slate-100 relative overflow-y-auto overflow-x-hidden">
       <div 
         className="fixed inset-0 pointer-events-none"
         style={{
