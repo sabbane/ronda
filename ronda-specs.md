@@ -66,6 +66,8 @@ Die App verwendet reale Bilddateien für die spanischen Spielkarten sowie hochau
     *   **Animations- & Z-Index-Schutz:** Angepasste Hierarchien (Z-Index) und Timing-Schutz in der Deal-Phase verhindern Kartenüberlappungen und Anzeigefehler.
     *   **Rules Dialog:** Eine integrierte "How to Play" Anleitung erklärt die Regeln und Sondersituationen.
     *   **Navigation:** Ein "Back to Menu" Button ermöglicht die Rückkehr zum Hauptmenü während des Spiels.
+    *   **Responsive Viewport Fitting:** CSS-Optimierungen für Kartenskalierungen bei geringer Viewport-Höhe auf Mobilgeräten. Reduziertes Tisch-Padding auf 0.5rem stellt sicher, dass mindestens 3 Karten nebeneinander auf dem Tisch liegen, ohne in eine neue Reihe umzubrechen.
+    *   **4-Spieler-Layout-Optimierung:** Die Karten des oberen Partners wurden auf 3.5rem x 5.25rem verkleinert und die maximale Breite der Partnertabelle begrenzt, um ausreichend Platz für die Seiten-Spieler-Sitze auf Mobilgeräten freizuhalten.
 
 ## 4. Architektur-Features
 ### 4.1 Internationalisierung (i18n)
@@ -96,6 +98,7 @@ Das Spiel setzt auf eine dedizierte `AdService`-Schicht (`src/services/AdService
     *   `setup.js`: Initialer State-Entwurf.
     *   `game.js`: Haupt-Einstiegspunkt für boardgame.io, der die Submodule orchestriert.
 *   **RandomBot:** Agiert nur für Spieler 1, wartet auf UI-Animationen und priorisiert Captures.
+    *   **Sicherheitsprüfungen im Move-Enumerator:** Der Bot-Enumerator (`enumerateMoves` in `src/game/bot.js`) enthält nun explizite Guards (`player === gameCtx.currentPlayer` und `!gameG.gameStatus`), um Züge außerhalb des eigenen Zugs oder nach Spielende zuverlässig abzufangen.
 *   **Stages & Timing:** Nutzung von `waitForUI` und angepassten Bot-Verzögerungen (`botDelay`) zur exakten Synchronisation zwischen Game-Engine, Popups und Frontend-Animationen.
 
 ### 4.4 Online-Multiplayer & Infrastruktur
@@ -118,9 +121,10 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 
 ### 4.6 Testing, Qualitätssicherung & Performance
 *   **Unit-Tests:** Prüfung der Kern-Spiellogik (Sequenzen, Scoring, Clash) in `game.test.js`.
-*   **E2E-Tests:** End-to-End-Tests des Multiplayers mit **Playwright**. 
+*   **E2E-Tests:** End-to-End-Tests des Multiplayers und des Spiellayouts mit **Playwright**.
+*   **Layout-Validierung:** Der E2E-Test `table_cards_row_fit.spec.js` prüft auf Mobilgeräten, dass die Karten auf dem Tisch in einer horizontalen Reihe bleiben (Y-Differenz unter 10px).
 *   **Performance-Benchmarks:** Das Tool `latency_benchmark.spec.js` misst die Antwortzeiten des Live-Servers.
-*   **Asset-Preloading:** Karten-Assets werden vorab geladen (Preload im HTML und verstecktes Rendern in den Komponenten), um Latenzen oder Flackern bei der Kartenausgabe zu vermeiden.
+*   **Asset-Preloading:** Karten-Assets und das neue Vektor-Logo (`logo.svg`) werden vorab geladen (Preload im HTML und Splashscreen), um Latenzen oder Flackern bei der Kartenausgabe und beim Laden zu vermeiden.
 
 ### 4.7 Audiosystem (HTML5 Audio mit echten Sound-Assets)
 Um das Spielgefühl immersiv zu gestalten, wurde das Audiosystem auf echte Audio-Assets umgestellt (`src/services/SoundService.js`):
@@ -171,6 +175,7 @@ Die Benutzeroberfläche und die Event-Synchronisierung wurden vollständig entko
     Board.jsx       # Haupt-Spielfeld & Event-Handling (inkl. Rematch-UI & Ad-Trigger)
     Card.jsx        # Karten-Komponente (mit Glow & Preload-Logik aus src/assets/cards)
     MainMenu.jsx    # Ausgelagertes Hauptmenü (Navigation, Play-Buttons, Branding)
+    Splashscreen.jsx # Ladebildschirm mit Presented-By-Logo-Präsentation
     AdSlot.jsx      # Banner-Werbe-Integration
     DonateButton.jsx # Spenden-Funktion
     Rules.jsx       # Spielanleitung (Modal)
@@ -219,12 +224,13 @@ Die Benutzeroberfläche und die Event-Synchronisierung wurden vollständig entko
   player_cards_size.spec.js            # E2E Kartengrößen-Test
   singleplayer_start.spec.js           # E2E Einzelspieler-Start
   connection_stability.spec.js         # E2E Verbindungsstabilität
+  table_cards_row_fit.spec.js          # E2E Mobile-Tischkarten Zeilenumbruch-Verifizierung
   latency_benchmark.spec.js            # Performance Benchmarks
 server.js           # Backend-Server für Online-Multiplayer
 Dockerfile.frontend # Docker-Konfiguration für das Frontend
 Dockerfile.backend  # Docker-Konfiguration für das Backend
 /public
-  /assets           # Statische Assets für Web/PWA-Builds (Fallback)
+  /assets           # Statische Assets für Web/PWA-Builds (z. B. logo.svg)
 ```
 
 ## 6. Plattform-Vertriebsstrategie
@@ -244,11 +250,13 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 ### 6.3 Google Play Store (Android App)
 *   **Trusted Web Activity (TWA)** via **Google Bubblewrap**: Die PWA (`playronda.ma`) wird in eine native Android-App (`.aab`) verpackt.
 *   **Automatische Updates:** Deployments auf der Webseite werden sofort in der Play Store App reflektiert.
-*   Monetarisi### 6.4 PWA-Konfiguration (gemeinsame Basis)
+*   **Monetarisierung:** Werbeanzeigen über Google H5 Games Ads.
+
+### 6.4 PWA-Konfiguration (gemeinsame Basis)
 *   **Manifest:** Vollständige `manifest.json` für App-Branding und Startbildschirme.
 *   **Service Worker:** `vite-plugin-pwa` mit `autoUpdate`-Strategie für Offline-Support und nahtlose Updates.
 *   **Versionsmanagement:** Die App-Version (aktuell `0.9.4`) wird automatisch aus der `package.json` in den Build-Prozess injiziert.
-*   **Workbox Precaching & iOS Safari Fix:** Um den iOS Safari Bug beim Abspielen gecachter Audiodateien zu umgehen (Range-Requests auf Service-Worker-Ressourcen schlagen fehl), sind alle `.mp3`-Dateien vom PWA-Precaching über `globIgnores` ausgeschlossen.
+*   **Workbox Precaching & iOS Safari Fix:** Um den iOS Safari Bug beim Abspielen gecachter Audiodateien zu umgehen (Range-Requests auf Service-Worker-Ressourcen schlagen fehl), sind alle `.mp3`-Dateien vom PWA-Precaching über `globIgnores` ausgeschlossen (einschließlich `logo.svg`).
  
 ## 7. Aktueller Status
 *   [x] Core Game Logic (Stechen, Sequenzen, Missa, Derba)
@@ -295,6 +303,10 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   [x] SoundService: Doppelschlag-Effekt bei Taawida (Derba Double SFX nach 250ms Delay)
 *   [x] Modularisierung der Spiellogik in Submodule (deck, capture, rules, moves, setup)
 *   [x] Entkopplung von UI-Zuständen und Event-Handlern über Custom Hooks (/src/hooks/)
-*   [x] Erweiterte E2E-Test-Suite (19 Spec-Dateien: Lobby, Multiplayer, Bot, Responsiveness, etc.)
+*   [x] Mobile-Layout: Zeilenumbruch-Schutz der Tischkarten (mindestens 3 Karten in einer Reihe auf Handys)
+*   [x] Splashscreen: "Presented By" Vektorlogo-Präsentation (logo.svg)
+*   [x] Bot-Engine: Sicherheitsüberprüfungen im Move-Enumerator (Turn- & Status-Guards)
+*   [x] Layout-Validierung: Automatisierter Playwright-Test für Karten-Einzeiligkeits-Garantie
+*   [x] Erweiterte E2E-Test-Suite (20 Spec-Dateien: Lobby, Multiplayer, Bot, Responsiveness, Layout, etc.)
 *   [ ] Google Play Store: Bubblewrap TWA-Packaging & Store-Listing
 *   [ ] Erweiterte KI-Heuristik

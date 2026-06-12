@@ -59,7 +59,7 @@ export const PlayerSeats = ({
         /* 4-Player Mode: Seats Layout */
         <>
           {/* 4-Player Top: Partner */}
-          <div className="w-full max-w-4xl relative z-20 shrink-0">
+          <div className="w-full max-w-4xl relative z-20 shrink-0 top-partner-hand">
             {(() => {
               const topIsTeamA = topID === '0' || topID === '2';
               const topName = G.players[topID]?.name || t('playerSeatName', { num: parseInt(topID) + 1 });

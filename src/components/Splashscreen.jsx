@@ -8,6 +8,7 @@ const ASSETS_TO_LOAD = [
   ...Object.values(cardImages),
   '/assets/background-zellig.svg',
   '/felt.png',
+  '/assets/logo.svg',
   '/favicon.png',
   '/favicon.svg',
   '/flag-fr.svg',
@@ -191,6 +192,18 @@ export const Splashscreen = ({ onComplete }) => {
               >
                 {statusText}
               </motion.span>
+            </div>
+
+            {/* Presented By Logo */}
+            <div className="mt-12 flex flex-col items-center gap-2">
+              <span className="text-[11px] uppercase tracking-[0.25em] text-slate-500 font-extrabold">
+                presented by
+              </span>
+              <img
+                src="/assets/logo.svg"
+                alt="Logo"
+                className="h-20 w-auto object-contain opacity-80"
+              />
             </div>
           </div>
         </motion.div>

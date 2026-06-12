@@ -139,7 +139,7 @@ export default defineConfig(({ mode }) => {
         workbox: {
           // Exclude .mp3 files from PWA precaching to solve the iOS Safari media Range-Request playback bug
           globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
-          globIgnores: ['**/assets/sounds/*.mp3', '**/logo.png'],
+          globIgnores: ['**/assets/sounds/*.mp3', '**/logo.svg'],
           // Forces the new Service Worker to activate immediately,
           // without waiting for all tabs to be closed first.
           skipWaiting: true,

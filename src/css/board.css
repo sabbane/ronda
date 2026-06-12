@@ -4,21 +4,21 @@
 
 /* 1. Default (Desktop View) */
 .game-card-container {
-  width: 4rem;
-  height: 6rem;
+  width: 2.5rem;
+  height: 3.75rem;
   flex-shrink: 0;
   position: relative;
 }
 @media (min-width: 640px) {
   .game-card-container {
-    width: 5rem;
-    height: 8rem;
+    width: 3.25rem;
+    height: 4.875rem;
   }
 }
 @media (min-width: 768px) {
   .game-card-container {
-    width: 6rem;
-    height: 9rem;
+    width: 4.5rem;
+    height: 6.75rem;
   }
 }
 
@@ -95,13 +95,16 @@
   .game-table {
     min-height: 22rem;
   }
+  .game-table-4player {
+    max-width: calc(100% - 280px) !important;
+  }
 }
 
 /* 2. Constrained Viewport Height: Height <= 1000px (Mobile only) */
 @media (max-height: 1000px) and (max-width: 767px) {
   .game-card-container {
-    width: 6.25rem !important;
-    height: 9.375rem !important;
+    width: 4.25rem;
+    height: 6.375rem;
   }
   .hand-card-container {
     width: 6rem !important;
@@ -115,10 +118,10 @@
   }
   .game-table {
     min-height: 20rem !important;
-    padding: 1.25rem !important;
+    padding: 0.5rem !important;
   }
   .game-table-4player {
-    max-width: 54% !important; /* Restrict table width so side seats are perfectly cleared */
+    max-width: 59% !important; /* Restrict table width so side seats are perfectly cleared */
     width: 100% !important;
   }
 }
@@ -126,8 +129,8 @@
 /* 3. Highly Constrained Viewport Height: Height <= 800px (Mobile only) */
 @media (max-height: 800px) and (max-width: 767px) {
   .game-card-container {
-    width: 5.75rem !important;
-    height: 8.625rem !important;
+    width: 4rem !important;
+    height: 6rem !important;
   }
   .hand-card-container {
     width: 5.75rem !important;
@@ -141,11 +144,11 @@
   }
   .game-table {
     min-height: 18rem !important;
-    padding: 0.85rem !important;
+    padding: 0.5rem !important;
     border-radius: 1.25rem !important;
   }
   .game-table-4player {
-    max-width: 54% !important; /* Restrict table width so side seats are perfectly cleared */
+    max-width: 59% !important;
     width: 100% !important;
   }
 }
@@ -153,8 +156,8 @@
 /* 4. Ultra Constrained Viewport Height: Height <= 650px (Mobile only) */
 @media (max-height: 650px) and (max-width: 767px) {
   .game-card-container {
-    width: 4.75rem !important;
-    height: 7.125rem !important;
+    width: 3.75rem !important;
+    height: 5.625rem !important;
   }
   .hand-card-container {
     width: 4.75rem !important;
@@ -172,7 +175,7 @@
     border-width: 3px !important;
   }
   .game-table-4player {
-    max-width: 54% !important; /* Restrict table width so side seats are perfectly cleared */
+    max-width: 59% !important;
     width: 100% !important;
   }
 }
@@ -181,12 +184,16 @@
 @media (max-width: 767px) {
   /* Default mobile card dimensions when height is large (height > 1000px) */
   .game-card-container {
-    width: 6.25rem !important;
-    height: 9.375rem !important;
+    width: 4.25rem !important;
+    height: 6.375rem !important;
   }
   .hand-card-container {
     width: 6rem !important;
     height: 9rem !important;
+  }
+  .top-partner-hand .hand-card-container {
+    width: 3.5rem !important;
+    height: 5.25rem !important;
   }
 
   /* Player and Opponent Name sizing */

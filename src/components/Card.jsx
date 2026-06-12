@@ -19,7 +19,7 @@ export const Card = ({ card, hidden = false, onClick, className = '' }) => {
     return (
       <motion.div
         whileHover={{ scale: 1.05 }}
-        className={`game-card-container game-card bg-white border-2 border-slate-200 shadow-xl overflow-hidden ${className}`}
+        className={`game-card bg-white border-2 border-slate-200 shadow-xl overflow-hidden ${className}`}
       >
         <div className="w-full h-full p-1 bg-slate-50 flex items-center justify-center">
           {backError ? (
@@ -57,7 +57,7 @@ export const Card = ({ card, hidden = false, onClick, className = '' }) => {
       whileHover={onClick ? { scale: 1.05, y: -10 } : {}}
       whileTap={onClick ? { scale: 0.95 } : {}}
       onClick={onClick}
-      className={`game-card-container game-card bg-white border-2 border-slate-200 shadow-lg overflow-hidden cursor-pointer ${className}`}
+      className={`game-card bg-white border-2 border-slate-200 shadow-lg overflow-hidden cursor-pointer ${className}`}
     >
       {faceError ? (
         <div className="w-full h-full flex flex-col items-center justify-center p-2 text-center bg-slate-100 border border-slate-300 rounded-xl select-none">

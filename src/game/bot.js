@@ -149,6 +149,8 @@ export const enumerateMoves = (G, ctx, playerID) => {
 
   // Bot only plays for Player 1
   if (player !== '1') return [];
+  if (player !== gameCtx.currentPlayer) return [];
+  if (gameG.gameStatus) return [];
 
   // Wait if UI is busy
   if (gameG.isAnimating || (gameG.announcements && gameG.announcements.length > 0) || (gameCtx.activePlayers && gameCtx.activePlayers[player] === 'waitForUI')) {
