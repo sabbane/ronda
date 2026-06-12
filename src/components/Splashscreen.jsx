@@ -161,7 +161,7 @@ export const Splashscreen = ({ onComplete }) => {
                 RONDA
               </h1>
               <p className="text-slate-400 text-[10px] tracking-[0.2em] font-extrabold uppercase mt-1">
-                L'Authentique Jeu Marocain
+                A Timeless Moroccan Classic
               </p>
             </motion.div>
 

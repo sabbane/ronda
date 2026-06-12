@@ -123,6 +123,7 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 *   **Unit-Tests:** Prüfung der Kern-Spiellogik (Sequenzen, Scoring, Clash) in `game.test.js`.
 *   **E2E-Tests:** End-to-End-Tests des Multiplayers und des Spiellayouts mit **Playwright**.
 *   **Layout-Validierung:** Der E2E-Test `table_cards_row_fit.spec.js` prüft auf Mobilgeräten, dass die Karten auf dem Tisch in einer horizontalen Reihe bleiben (Y-Differenz unter 10px).
+*   **Layout-Debugging via URL-Parameter:** Zur manuellen Verifizierung von Layouts und Skalierungseffekten unterstützt die Anwendung das URL-Argument `?debug_table=<Anzahl>` (in `Board.jsx` ausgelesen). Damit lässt sich die Anzahl der auf dem Tisch gerenderten Karten zu Testzwecken manipulieren.
 *   **Performance-Benchmarks:** Das Tool `latency_benchmark.spec.js` misst die Antwortzeiten des Live-Servers.
 *   **Asset-Preloading:** Karten-Assets und das neue Vektor-Logo (`logo.svg`) werden vorab geladen (Preload im HTML und Splashscreen), um Latenzen oder Flackern bei der Kartenausgabe und beim Laden zu vermeiden.
 

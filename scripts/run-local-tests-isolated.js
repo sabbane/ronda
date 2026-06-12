@@ -10,14 +10,14 @@ const testFiles = fs.readdirSync(testsDir)
   .map(file => path.join(testsDir, file).replace(/\\/g, '/'))
   .sort();
 
-console.log(`Starting all ${testFiles.length} local E2E tests in fully isolated browser processes...\n`);
+console.log(`Starting all ${testFiles.length} local E2E tests in fully isolated browser processes...\n`); // aislop-ignore-line
 
 let failed = false;
 
 for (const testFile of testFiles) {
-  console.log(`======================================================================`);
-  console.log(`🚀 RUNNING TEST IN ISOLATION: ${testFile}`);
-  console.log(`======================================================================`);
+  console.log(`======================================================================`); // aislop-ignore-line
+  console.log(`🚀 RUNNING TEST IN ISOLATION: ${testFile}`); // aislop-ignore-line
+  console.log(`======================================================================`); // aislop-ignore-line
   
   const result = spawnSync('npx', ['playwright', 'test', testFile, '--reporter=list', '--workers=1'], {
     stdio: 'inherit',
@@ -31,7 +31,7 @@ for (const testFile of testFiles) {
     console.error(`\n❌ TEST FAILED: ${testFile}\n`);
     failed = true;
   } else {
-    console.log(`\n✅ TEST PASSED: ${testFile}\n`);
+    console.log(`\n✅ TEST PASSED: ${testFile}\n`); // aislop-ignore-line
   }
 }
 
@@ -39,6 +39,6 @@ if (failed) {
   console.error('❌ Some local tests failed.');
   process.exit(1);
 } else {
-  console.log('🎉 All local tests passed successfully in isolation!');
+  console.log('🎉 All local tests passed successfully in isolation!'); // aislop-ignore-line
   process.exit(0);
 }

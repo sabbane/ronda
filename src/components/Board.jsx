@@ -55,7 +55,19 @@ export const RondaBoard = (props) => {
     playedCardId
   } = useBoardState(props);
 
-  if (G.gameStarted === false) {
+  const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const debugTableCount = params?.get('debug_table');
+  const displayG = debugTableCount ? {
+    ...G,
+    table: Array.from({ length: parseInt(debugTableCount, 10) }, (_, i) => ({
+      id: `dheb-${(i % 10) + 1}`,
+      value: (i % 10) + 1,
+      displayValue: (i % 10) + 1,
+      suit: 'dheb'
+    }))
+  } : G;
+
+  if (displayG.gameStarted === false) {
     return (
       <WaitingLobby
         G={G}
@@ -144,7 +156,7 @@ export const RondaBoard = (props) => {
 
       {/* Central felt card-table */}
       <GameTable
-        G={G}
+        G={displayG}
         myID={myID}
         numP={numP}
         t={t}

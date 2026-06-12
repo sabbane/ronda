@@ -103,7 +103,7 @@ export const GameTable = ({
         </AnimatePresence>
         
         {G.table.length === 0 && (
-          <div className="text-emerald-700/50 text-3xl font-bold uppercase tracking-widest absolute">
+          <div className="text-emerald-700/50 text-3xl font-bold uppercase tracking-widest absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             {t('tableEmpty')}
           </div>
         )}
