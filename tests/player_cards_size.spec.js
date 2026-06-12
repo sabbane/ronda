@@ -26,7 +26,7 @@ test('Gameplay: Player hand cards must be compact and well-proportioned at QHD/4
   // 5. Locate the first card in the player's active hand
   // The player area's hand is the bottom .game-hand container
   const playerHand = page.locator('.game-hand').last();
-  const playerCard = playerHand.locator('.game-card-container').first();
+  const playerCard = playerHand.locator('.hand-card-container').first();
   await expect(playerCard).toBeVisible();
 
   // 6. Get bounding box coordinates and size
