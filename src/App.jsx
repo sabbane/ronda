@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Client as ReactClient } from 'boardgame.io/dist/esm/react.js';
 import { Local, SocketIO } from 'boardgame.io/dist/esm/multiplayer.js';
 import { RondaGame } from './game/game';
@@ -82,7 +82,7 @@ const RondaClientOnline4 = ReactClient({
 
 const App = () => {
   const { language, changeLanguage, t } = useLanguage();
-  const { isMuted, toggleMute, playClick, currentTrack, tracks, nextTrack } = useSound();
+  const { isMuted, toggleMute, playClick, currentTrack, tracks, nextTrack, enableBGM } = useSound();
   
   const {
     mode, setMode,
@@ -118,6 +118,12 @@ const App = () => {
     }
     return true;
   });
+
+  useEffect(() => {
+    if (!showSplash) {
+      enableBGM();
+    }
+  }, [showSplash, enableBGM]);
 
   if (showSplash) {
     return <Splashscreen onComplete={() => setShowSplash(false)} />;

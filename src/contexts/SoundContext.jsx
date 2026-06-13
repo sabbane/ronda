@@ -7,6 +7,12 @@ const SoundContext = createContext();
 export const SoundProvider = ({ children }) => {
   const [isMuted, setIsMuted] = useState(soundService.muted);
   const [currentTrack, setCurrentTrack] = useState(soundService.currentTrackIndex);
+  const [isBGMEnabled, setIsBGMEnabled] = useState(false);
+
+  const enableBGM = () => {
+    soundService.bgmAllowed = true;
+    setIsBGMEnabled(true);
+  };
 
   // Synchronize initial state
   useEffect(() => {
@@ -15,6 +21,8 @@ export const SoundProvider = ({ children }) => {
 
   // Satisfy autoplay policies by triggering initialization on the very first user gesture anywhere
   useEffect(() => {
+    if (!isBGMEnabled) return;
+
     const handleGesture = async () => {
       if (!isMuted) {
         try {
@@ -37,7 +45,7 @@ export const SoundProvider = ({ children }) => {
     window.addEventListener('keydown', handleGesture);
 
     return cleanup;
-  }, [isMuted]);
+  }, [isMuted, isBGMEnabled]);
 
   const toggleMute = () => {
     setIsMuted(prev => {
@@ -125,7 +133,8 @@ export const SoundProvider = ({ children }) => {
         playRondaTringa,
         playClash,
         playVictory,
-        playDefeat
+        playDefeat,
+        enableBGM
       }}
     >
       {children}

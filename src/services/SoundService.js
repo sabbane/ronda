@@ -2,6 +2,7 @@ class SoundService {
   constructor() {
     this._muted = localStorage.getItem('ronda_muted') === 'true';
     this.bgmPlaying = false;
+    this.bgmAllowed = false;
     this.audioCtx = null;
     this.gainNode = null;
     this.activeSources = [];
@@ -166,6 +167,7 @@ class SoundService {
   }
 
   async startBGM() {
+    if (!this.bgmAllowed) return;
     if (this.muted || this.adPlaying) return;
     if (this.bgmPlaying) return;
 
