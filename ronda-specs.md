@@ -94,7 +94,10 @@ Das Spiel setzt auf eine dedizierte `AdService`-Schicht (`src/services/AdService
     *   `moves.js`: boardgame.io Aktionen (`playCard`, `processCapture`, `counterDarba`, Lobby-Verwaltung, Rematch, etc.).
     *   `setup.js`: Initialer State-Entwurf.
     *   `game.js`: Haupt-Einstiegspunkt für boardgame.io, der die Submodule orchestriert.
-*   **RandomBot:** Agiert nur für Spieler 1, wartet auf UI-Animationen und priorisiert Captures.
+*   **RandomBot & Orchestrierung:** Der Bot agiert als Spieler 1 im Einzelspieler-Modus. Um Race-Conditions mit UI-Animationen zu vermeiden, wird die standardmäßige `RandomBot`-Klasse in `App.jsx` erweitert:
+    *   **Synchronisations- & Turn-Guards:** Die überschriebene `play()`-Methode gleicht den Spielzustand mit `window.latestGameState` ab. Sie blockiert Bot-Züge (mittels ungelöstem Promise), solange UI-Animationen (`G.isAnimating`) laufen, Event-Popups aktiv sind oder der Bot nicht am Zug ist (`isBotActive`).
+    *   **Fehlertoleranz:** Sollte die KI keine gültige Aktion berechnen können, wird ein sicheres `NO_OP`-Ereignis übermittelt, um Abstürze zu verhindern.
+    *   **Zustandssynchronisierung:** Um React-Rendernebenwirkungen zu vermeiden, wird die Synchronisation von `window.latestGameState` in `Board.jsx` sicher über einen reaktiven `useEffect`-Hook gesteuert.
 *   **Bot-Identität & Name ("El Haj"):** Im Einzelspieler-Modus (vs. KI) wird der Bot-Spieler (ID 1) in `setup.js` mit dem Namen `"El Haj"` initialisiert. Alle Benutzeroberflächen-Elemente und Ankündigungen (z. B. Darba-Popups) übersetzen und referenzieren diesen Namen reaktiv (z. B. "You hit El Haj" / "El Haj hits you").
 *   **Sicherheitsprüfungen im Move-Enumerator:** Der Bot-Enumerator (`enumerateMoves` in `src/game/bot.js`) enthält nun explizite Guards (`player === gameCtx.currentPlayer` und `!gameG.gameStatus`), um Züge außerhalb des eigenen Zugs oder nach Spielende zuverlässig abzufangen.
 *   **Stages & Timing:** Nutzung von `waitForUI` und angepassten Bot-Verzögerungen (`botDelay`) zur exakten Synchronisation zwischen Game-Engine, Popups und Frontend-Animationen.
@@ -312,6 +315,8 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   [x] Splashscreen: "Presented By" Vektorlogo-Präsentation (logo.svg, vergrößert)
 *   [x] Bot-Engine: Sicherheitsüberprüfungen im Move-Enumerator (Turn- & Status-Guards)
 *   [x] Bot-Engine: Bot-Identität und Name ("El Haj") mit reaktiver Übersetzung in Popups
+*   [x] Bot-Engine: Eigene Bot-Klassen-Erweiterung in App.jsx zur synchronisierten Zug-Freigabe (Play-Guards)
+*   [x] UI-Zustand: Sichere Synchronisation von window.latestGameState via useEffect-Hook
 *   [x] Layout-Validierung: Automatisierter Playwright-Test für Karten-Einzeiligkeits-Garantie und Slot-Koordinatenstabilität (Anti-Sliding)
 *   [x] Erweiterte E2E-Test-Suite (22 Spec-Dateien: Lobby, Multiplayer, Bot, Responsiveness, Layout, Anti-Sliding, etc.)
 *   [ ] Google Play Store: Bubblewrap TWA-Packaging & Store-Listing
