@@ -19,9 +19,9 @@ export const Card = ({ card, hidden = false, onClick, className = '' }) => {
     return (
       <motion.div
         whileHover={{ scale: 1.05 }}
-        className={`game-card bg-white border-2 border-slate-200 shadow-xl overflow-hidden ${className}`}
+        className={`game-card shadow-xl ${className}`}
       >
-        <div className="w-full h-full p-1 bg-slate-50 flex items-center justify-center">
+        <div className="w-full h-full flex items-center justify-center">
           {backError ? (
             <div className="text-xs font-bold text-slate-300 transform -rotate-45 select-none">RONDA</div>
           ) : (
@@ -57,10 +57,10 @@ export const Card = ({ card, hidden = false, onClick, className = '' }) => {
       whileHover={onClick ? { scale: 1.05, y: -10 } : {}}
       whileTap={onClick ? { scale: 0.95 } : {}}
       onClick={onClick}
-      className={`game-card bg-white border-2 border-slate-200 shadow-lg overflow-hidden cursor-pointer ${className}`}
+      className={`game-card bg-white shadow-lg cursor-pointer ${className}`}
     >
       {faceError ? (
-        <div className="w-full h-full flex flex-col items-center justify-center p-2 text-center bg-slate-100 border border-slate-300 rounded-xl select-none">
+        <div className="w-full h-full flex flex-col items-center justify-center p-2 text-center bg-slate-100 border border-slate-300 select-none">
           <span className="text-xs font-black text-slate-700">{value}</span>
           <span className="text-[9px] font-bold text-slate-500 uppercase">{card.suit}</span>
         </div>
@@ -68,7 +68,7 @@ export const Card = ({ card, hidden = false, onClick, className = '' }) => {
         <img 
           src={imagePath} 
           alt={`${card.suit} ${card.displayValue}`} 
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
           onError={() => {
             console.error(`Failed to load image: ${imagePath}`);
             setFaceError(true);

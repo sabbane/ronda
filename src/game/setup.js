@@ -47,7 +47,17 @@ export const setupGame = ({ ctx }, setupData) => {
       (typeof window !== 'undefined' && window.isRondaBotGame === true) || 
       (matchID && /bot/i.test(matchID))
     );
-    acc[pID] = { hand: deck.splice(0, 3), captured: [], score: 0, name: isBot ? 'El Haj' : '' };
+    let botName = '';
+    if (isBot) {
+      // Determine language dynamically if we are in the browser
+      const isArabic = typeof window !== 'undefined' && (
+        localStorage.getItem('ronda-lang') === 'ar' ||
+        window.__rondaLanguage__ === 'ar' ||
+        document.documentElement.lang === 'ar'
+      );
+      botName = isArabic ? 'الحاج' : 'El Haj';
+    }
+    acc[pID] = { hand: deck.splice(0, 3), captured: [], score: 0, name: botName };
     return acc;
   }, {});
   const matchesWon = playerIds.reduce((acc, pID) => {

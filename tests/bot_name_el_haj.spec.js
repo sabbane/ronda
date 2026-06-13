@@ -57,9 +57,33 @@ test('Bot should be named El Haj and Darba announcement should display You hit E
     // Play a card if it's our turn
     const cardCount = await myCards.count().catch(() => 0);
     if (cardCount > 0) {
-      // Look at the last card played on the table (if any) and see if we can trigger a Darba
-      // Simple bot playing loop
-      await myCards.first().click({ force: true }).catch(() => {});
+      try {
+        const tableCardTestIds = await page.locator('[data-test-id="game-table"] [data-testid]').evaluateAll(elements =>
+          elements.map(el => el.getAttribute('data-testid'))
+        );
+        const handCardTestIds = await page.locator('.game-hand').last().locator('[data-testid]').evaluateAll(elements =>
+          elements.map(el => el.getAttribute('data-testid'))
+        );
+
+        let matchingHandIndex = 0; // Default to first card
+        for (let h = 0; h < handCardTestIds.length; h++) {
+          if (!handCardTestIds[h]) continue;
+          const handVal = handCardTestIds[h].split('-')[2];
+          for (let t = 0; t < tableCardTestIds.length; t++) {
+            if (!tableCardTestIds[t]) continue;
+            const tableVal = tableCardTestIds[t].split('-')[2];
+            if (handVal === tableVal) {
+              matchingHandIndex = h;
+              break;
+            }
+          }
+          if (matchingHandIndex !== 0) break;
+        }
+
+        await myCards.nth(matchingHandIndex).click({ force: true });
+      } catch {
+        await myCards.first().click({ force: true }).catch(() => {});
+      }
     }
 
     await page.waitForTimeout(1000);

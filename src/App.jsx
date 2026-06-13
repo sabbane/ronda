@@ -79,6 +79,7 @@ const App = () => {
   } = useLobby();
 
   if (typeof window !== 'undefined') {
+    // eslint-disable-next-line react-hooks/immutability
     window.isRondaBotGame = mode === 'bot';
   }
 

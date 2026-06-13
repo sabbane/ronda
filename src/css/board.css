@@ -6,7 +6,7 @@
 .game-card-container,
 .game-table-slot-placeholder {
   width: 2.5rem;
-  height: 3.75rem;
+  height: 4rem;
   flex-shrink: 0;
   position: relative;
 }
@@ -14,38 +14,38 @@
   .game-card-container,
   .game-table-slot-placeholder {
     width: 3.25rem;
-    height: 4.875rem;
+    height: 5.2rem;
   }
 }
 @media (min-width: 768px) {
   .game-card-container,
   .game-table-slot-placeholder {
     width: 4.5rem;
-    height: 6.75rem;
+    height: 7.2rem;
   }
 }
 
 .hand-card-container {
   width: 3rem !important;
-  height: 4.5rem !important;
+  height: 4.8rem !important;
 }
 @media (min-width: 640px) {
   .hand-card-container {
     width: 4rem !important;
-    height: 6rem !important;
+    height: 6.4rem !important;
   }
 }
 @media (min-width: 768px) {
   .hand-card-container {
     width: 5rem !important;
-    height: 7.5rem !important;
+    height: 8rem !important;
   }
 }
 
 .game-card {
   width: 100% !important;
   height: 100% !important;
-  border-radius: 0.75rem !important;
+  border-radius: 0 !important;
   flex-shrink: 0;
 }
 
@@ -55,19 +55,19 @@
   gap: 0.5rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-  min-height: 7rem;
+  min-height: 5.8rem;
 }
 @media (min-width: 640px) {
   .game-hand {
     gap: 1rem;
     padding-top: 1.5rem;
     padding-bottom: 1.5rem;
-    min-height: 10rem;
+    min-height: 9.4rem;
   }
 }
 @media (min-width: 768px) {
   .game-hand {
-    min-height: 11.5rem;
+    min-height: 11rem;
   }
 }
 
@@ -113,15 +113,15 @@
   .game-card-container,
   .game-table-slot-placeholder {
     width: 4.25rem !important;
-    height: 6.375rem !important;
+    height: 6.8rem !important;
   }
   .hand-card-container {
     width: 6rem !important;
-    height: 9rem !important;
+    height: 9.6rem !important;
   }
   .top-partner-hand .hand-card-container {
     width: 3.5rem !important;
-    height: 5.25rem !important;
+    height: 5.6rem !important;
   }
 
   /* Player and Opponent Name sizing */
@@ -200,16 +200,16 @@
   .game-card-container,
   .game-table-slot-placeholder {
     width: 4.25rem;
-    height: 6.375rem;
+    height: 6.8rem;
   }
   .hand-card-container {
     width: 6rem !important;
-    height: 9rem !important;
+    height: 9.6rem !important;
   }
   .game-hand {
     padding-top: 0.75rem !important;
     padding-bottom: 0.75rem !important;
-    min-height: 10rem !important;
+    min-height: 11.1rem !important;
     gap: 1.15rem !important; /* Spaced cards */
   }
   .game-table {
@@ -227,16 +227,16 @@
   .game-card-container,
   .game-table-slot-placeholder {
     width: 4rem !important;
-    height: 6rem !important;
+    height: 6.4rem !important;
   }
   .hand-card-container {
     width: 5.75rem !important;
-    height: 8.625rem !important;
+    height: 9.2rem !important;
   }
   .game-hand {
     padding-top: 0.5rem !important;
     padding-bottom: 0.5rem !important;
-    min-height: 9.4rem !important;
+    min-height: 10.2rem !important;
     gap: 0.85rem !important;
   }
   .game-table {
@@ -255,16 +255,16 @@
   .game-card-container,
   .game-table-slot-placeholder {
     width: 3.75rem !important;
-    height: 5.625rem !important;
+    height: 6rem !important;
   }
   .hand-card-container {
     width: 4.75rem !important;
-    height: 7.125rem !important;
+    height: 7.6rem !important;
   }
   .game-hand {
     padding-top: 0.25rem !important;
     padding-bottom: 0.25rem !important;
-    min-height: 7.8rem !important;
+    min-height: 8.1rem !important;
     gap: 0.75rem !important;
   }
   .game-table {
