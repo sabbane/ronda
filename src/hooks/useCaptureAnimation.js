@@ -38,7 +38,7 @@ export const useCaptureAnimation = ({
 
   React.useEffect(() => {
     let timerId;
-    const isDerbaActive = activeEvent && (activeEvent.type === 'Derba' || activeEvent.type === 'Taawida');
+    const isDarbaActive = activeEvent && (activeEvent.type === 'Darba' || activeEvent.type === 'Taawida');
     
     if (G.pendingCapture) {
       if (captureSequence.length > 0) {
@@ -52,7 +52,7 @@ export const useCaptureAnimation = ({
             setCaptureRects(rects);
           }, 0);
         }
-      } else if (!isDerbaActive) {
+      } else if (!isDarbaActive) {
         const isOnline = !!ctx.multiplayer;
         const isMyCapture = G.pendingCapture.player === myID;
         if (isMyCapture || (!isOnline && myID === '0')) {
@@ -75,9 +75,9 @@ export const useCaptureAnimation = ({
   // Progress animation sequence
   React.useEffect(() => {
     let timerId;
-    const isDerbaActive = activeEvent && (activeEvent.type === 'Derba' || activeEvent.type === 'Taawida');
+    const isDarbaActive = activeEvent && (activeEvent.type === 'Darba' || activeEvent.type === 'Taawida');
     
-    if (G.pendingCapture && captureSequence.length > 0 && Object.keys(captureRects).length > 0 && !isDerbaActive) {
+    if (G.pendingCapture && captureSequence.length > 0 && Object.keys(captureRects).length > 0 && !isDarbaActive) {
       if (captureStep < captureSequence.length) {
         timerId = setTimeout(() => {
           setCaptureStep(prev => prev + 1);

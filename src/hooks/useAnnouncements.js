@@ -70,7 +70,7 @@ export const useAnnouncements = ({
             customText = isMe ? t('announcements.missaMe') : t('announcements.missaOpponent', { oppName: announcerName });
             customIcon = "🧹";
           }
-          if (ann.type === 'Derba') {
+          if (ann.type === 'Darba') {
             const numPVal = ctx.numPlayers || 2;
             if (numPVal === 4) {
               const isHitterMyTeam = (ann.player === myID) || 
@@ -87,21 +87,21 @@ export const useAnnouncements = ({
 
               if (isHitterMyTeam) {
                 if (myID === ann.player) {
-                  customText = t('announcements.derbaMe4', { oppName: victimName });
+                  customText = t('announcements.darbaMe4', { oppName: victimName });
                 } else {
-                  customText = t('announcements.derbaTeammate4', { hitterName, oppName: victimName });
+                  customText = t('announcements.darbaTeammate4', { hitterName, oppName: victimName });
                 }
               } else {
                 if (myID === victimID) {
-                  customText = t('announcements.derbaOpponent4', { oppName: hitterName });
+                  customText = t('announcements.darbaOpponent4', { oppName: hitterName });
                 } else if (isVictimMyTeam) {
-                  customText = t('announcements.derbaTeammateOpponent4', { hitterName, victimName });
+                  customText = t('announcements.darbaTeammateOpponent4', { hitterName, victimName });
                 } else {
-                  customText = t('announcements.derbaOther4', { hitterName, victimName });
+                  customText = t('announcements.darbaOther4', { hitterName, victimName });
                 }
               }
             } else {
-              customText = isMe ? t('announcements.derbaMe', { oppName: opponentName }) : t('announcements.derbaOpponent', { oppName: announcerName });
+              customText = isMe ? t('announcements.darbaMe', { oppName: opponentName }) : t('announcements.darbaOpponent', { oppName: announcerName });
             }
             customIcon = "👊";
           }
@@ -175,7 +175,7 @@ export const useAnnouncements = ({
           }
 
           let variant = "info";
-          const allPointEvents = ['Ronda', 'Tringa', 'Missa', 'Derba', 'Taawida', 'Clash Won', 'King Finish', 'TringaWins', 'Final Fail', 'As Finish'];
+          const allPointEvents = ['Ronda', 'Tringa', 'Missa', 'Darba', 'Taawida', 'Clash Won', 'King Finish', 'TringaWins', 'Final Fail', 'As Finish'];
 
           if (allPointEvents.includes(ann.type)) {
             const isTeamEvent = (ann.player === myID) || 
@@ -260,8 +260,8 @@ export const useAnnouncements = ({
   const isGameOverState = !!(G?.gameStatus && ctx.activePlayers?.[myID] === 'gameOver');
   const showGameOverOverlay = isGameOverState && !hasPendingAnnouncements;
 
-  const canCounterDerba = React.useMemo(() => {
-    if (!activeEvent || (activeEvent.type !== 'Derba' && activeEvent.type !== 'Taawida')) return false;
+  const canCounterDarba = React.useMemo(() => {
+    if (!activeEvent || (activeEvent.type !== 'Darba' && activeEvent.type !== 'Taawida')) return false;
     const isVictim = activeEvent.player !== myID;
     if (!isVictim) return false;
     const matchVal = activeEvent.currentVal;
@@ -275,6 +275,6 @@ export const useAnnouncements = ({
     eventQueue,
     setEventQueue,
     showGameOverOverlay,
-    canCounterDerba
+    canCounterDarba
   };
 };

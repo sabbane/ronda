@@ -114,7 +114,7 @@ export const playCard = ({ G, ctx, events, playerID }, cardIndex) => {
       if (G.lastPlayedCard && G.lastPlayedCard.value === currentVal && G.lastPlayedCard.player !== player) {
         const newStreak = (G.lastPlayedCard.streak || 1) + 1;
         if (newStreak === 2) {
-          G.announcements.push({ player, type: 'Derba', opponent: G.lastPlayedCard.player, currentVal: currentVal });
+          G.announcements.push({ player, type: 'Darba', opponent: G.lastPlayedCard.player, currentVal: currentVal });
         } else if (newStreak === 4) {
           G.announcements.push({ player, type: 'Taawida', streak: newStreak, currentVal: currentVal });
         }
@@ -151,7 +151,7 @@ export const processCapture = ({ G }) => {
   return executeCapture(G);
 };
 
-export const counterDerba = ({ G, ctx, events, playerID }, cardIndex) => {
+export const counterDarba = ({ G, ctx, events, playerID }, cardIndex) => {
   if (!G.pendingCapture) return INVALID_MOVE;
   const victim = (playerID !== undefined && playerID !== null) ? playerID : ctx.currentPlayer;
   if (victim === G.pendingCapture.player) return INVALID_MOVE;

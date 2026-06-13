@@ -13,8 +13,8 @@ export const useBoardSounds = ({
     playCardPlace,
     playCardSweep,
     playMissa,
-    playDerba,
-    playDerbaDouble,
+    playDarba,
+    playDarbaDouble,
     playUltimateAttack,
     playRondaTringa,
     playClash,
@@ -81,13 +81,13 @@ export const useBoardSounds = ({
       
       if (type === 'Missa') {
         playMissa(isSuccess);
-      } else if (type === 'Derba') {
-        playDerba(isSuccess);
+      } else if (type === 'Darba') {
+        playDarba(isSuccess);
       } else if (type === 'Taawida') {
         if (streak === 4) {
           playUltimateAttack();
         } else {
-          playDerbaDouble(isSuccess);
+          playDarbaDouble(isSuccess);
         }
       } else if (type === 'Clash' || type === 'Clash Draw') {
         playClash(true);
@@ -95,7 +95,7 @@ export const useBoardSounds = ({
         playRondaTringa(isSuccess);
       }
     }
-  }, [activeEvent, playMissa, playDerba, playDerbaDouble, playUltimateAttack, playRondaTringa, playClash]);
+  }, [activeEvent, playMissa, playDarba, playDarbaDouble, playUltimateAttack, playRondaTringa, playClash]);
 
   // Play victory or defeat sound at game end
   const prevIsGameOver = React.useRef(false);

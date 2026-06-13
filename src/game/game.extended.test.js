@@ -151,7 +151,7 @@ describe('Ronda Game Logic - Deep Testing', () => {
     expect(afterState.G.table.length).toBe(initialState.G.table.length); // Table is untouched
   });
 
-  test('Smarter Bot: Scenario 1 - Bot plays direct Derba when Player plays card 5 and Bot has 5 and 3', () => {
+  test('Smarter Bot: Scenario 1 - Bot plays direct Darba when Player plays card 5 and Bot has 5 and 3', () => {
     const G = RondaGame.setup({ ctx: { numPlayers: 2 } });
     G.isAnimating = false;
     G.announcements = [];
@@ -286,15 +286,15 @@ describe('Ronda Game Logic - Deep Testing', () => {
     expect(customText).not.toBe('Player 1 and Player 2 have Ronda! Clash!');
   });
 
-  test('Derba announcement 2-player bug: verify that when local player hits a Derba, the message resolves to "You hit You" or "You hit [my name]" instead of referencing the opponent', () => {
+  test('Darba announcement 2-player bug: verify that when local player hits a Darba, the message resolves to "You hit You" or "You hit [my name]" instead of referencing the opponent', () => {
     // Setup translation dictionaries locally for English
     const mockT = (key, params = {}) => {
       const translations = {
         'you': 'You',
         'opponent': 'Opponent',
         'announcements': {
-          derbaMe: "You hit {oppName} (+1 you)",
-          derbaOpponent: "{oppName} hits you (+1 {oppName})",
+          darbaMe: "You hit {oppName} (+1 you)",
+          darbaOpponent: "{oppName} hits you (+1 {oppName})",
         }
       };
       const keys = key.split('.');
@@ -323,8 +323,8 @@ describe('Ronda Game Logic - Deep Testing', () => {
     const opponentID = '1';
     const numP = 2;
 
-    // Local player (player '0') hits a Derba
-    const ann = { player: '0', type: 'Derba' };
+    // Local player (player '0') hits a Darba
+    const ann = { player: '0', type: 'Darba' };
     const isMe = ann.player === myID;
 
     // Mimic the exact corrected rendering logic in useBoardEvents.js
@@ -344,11 +344,11 @@ describe('Ronda Game Logic - Deep Testing', () => {
     }
 
     let customText = "";
-    if (ann.type === 'Derba') {
+    if (ann.type === 'Darba') {
       if (numP === 4) {
         // 4 player logic
       } else {
-        customText = isMe ? mockT('announcements.derbaMe', { oppName: opponentName }) : mockT('announcements.derbaOpponent', { oppName: announcerName });
+        customText = isMe ? mockT('announcements.darbaMe', { oppName: opponentName }) : mockT('announcements.darbaOpponent', { oppName: announcerName });
       }
     }
 
@@ -415,7 +415,7 @@ describe('Ronda Game Logic - Deep Testing', () => {
 
     // Mimic the hook's variant assignment logic
     const getVariant = (ann, myID, numP) => {
-      const allPointEvents = ['Ronda', 'Tringa', 'Missa', 'Derba', 'Taawida', 'Clash Won', 'King Finish', 'TringaWins', 'Final Fail', 'As Finish'];
+      const allPointEvents = ['Ronda', 'Tringa', 'Missa', 'Darba', 'Taawida', 'Clash Won', 'King Finish', 'TringaWins', 'Final Fail', 'As Finish'];
       if (allPointEvents.includes(ann.type)) {
         const isTeamEvent = (ann.player === myID) || 
           (numP === 4 && (

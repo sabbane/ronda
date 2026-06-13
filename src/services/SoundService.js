@@ -60,8 +60,8 @@ class SoundService {
       'card_sweep.mp3',
       'missa_success.mp3',
       'missa_fail.mp3',
-      'derba_success.mp3',
-      'derba_fail.mp3',
+      'darba_success.mp3',
+      'darba_fail.mp3',
       'ultimate_attack.mp3',
       'ronda_tringa.mp3',
       'ronda_tringa_fail.mp3',
@@ -291,11 +291,11 @@ class SoundService {
     this._playSFX(isSuccess ? 'missa_success.mp3' : 'missa_fail.mp3', 0.85);
   }
 
-  async playDerba(isSuccess = true, double = false) {
-    this._playSFX(isSuccess ? 'derba_success.mp3' : 'derba_fail.mp3', 0.85);
+  async playDarba(isSuccess = true, double = false) {
+    this._playSFX(isSuccess ? 'darba_success.mp3' : 'darba_fail.mp3', 0.85);
     if (double) {
       setTimeout(() => {
-        this._playSFX(isSuccess ? 'derba_success.mp3' : 'derba_fail.mp3', 0.85);
+        this._playSFX(isSuccess ? 'darba_success.mp3' : 'darba_fail.mp3', 0.85);
       }, 250);
     }
   }

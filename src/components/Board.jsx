@@ -28,7 +28,7 @@ export const RondaBoard = (props) => {
     boardContainerRef,
     shouldScroll,
     activeEvent,
-    canCounterDerba,
+    canCounterDarba,
     showGameOverOverlay,
     captureSequence,
     captureStep,
@@ -173,7 +173,7 @@ export const RondaBoard = (props) => {
         myID={myID}
         t={t}
         isCurrentPlayer={isCurrentPlayer}
-        canCounterDerba={canCounterDerba}
+        canCounterDarba={canCounterDarba}
         isProcessing={isProcessing}
         handlePlayCard={handlePlayCard}
         playedCardId={playedCardId}

@@ -35,14 +35,14 @@ const evaluateCaptureMove = (G, player, playedCard, currentVal, isTaawidaTransfe
     const points = newStreak === 3 ? 5 : 10;
     score += points;
   } else {
-    const isDerba = !!(
+    const isDarba = !!(
       G.lastPlayedCard &&
       G.lastPlayedCard.value === currentVal &&
       G.lastPlayedCard.player !== player &&
       G.lastPlayedCard.streak === 1
     );
 
-    if (isDerba) {
+    if (isDarba) {
       score += 1.0;
 
       // Check if opponent can counter-attack
@@ -51,7 +51,7 @@ const evaluateCaptureMove = (G, player, playedCard, currentVal, isTaawidaTransfe
       const opponentHandRank = getHandRank(opponentHand);
       const opponentHasRonda = opponentHandRank && (opponentHandRank.type === 'Ronda' || opponentHandRank.type === 'Tringa');
 
-      score += opponentHasRonda ? 8.0 : 15.0; // Risky vs Safe Derba
+      score += opponentHasRonda ? 8.0 : 15.0; // Risky vs Safe Darba
     }
   }
 
@@ -116,7 +116,7 @@ export const evaluateCardMove = (G, player, cardIndex) => {
   const currentVal = playedCard.value;
   const hasTableMatch = G.table.some(c => c.value === currentVal);
 
-  // Taawida check: opponent did a Derba/Taawida on this value
+  // Taawida check: opponent did a Darba/Taawida on this value
   const isTaawidaTransfer = !!(
     G.lastPlayedCard &&
     G.lastPlayedCard.value === currentVal &&

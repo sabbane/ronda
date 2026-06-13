@@ -17,7 +17,7 @@ export const useBoardEvents = ({
     eventQueue,
     setEventQueue,
     showGameOverOverlay,
-    canCounterDerba
+    canCounterDarba
   } = useAnnouncements({ G, ctx, moves, myID, opponentID, numP, t });
 
   useBoardSounds({ G, myID, numP, activeEvent, showGameOverOverlay });
@@ -36,7 +36,7 @@ export const useBoardEvents = ({
     setActiveEvent,
     eventQueue,
     setEventQueue,
-    canCounterDerba,
+    canCounterDarba,
     showGameOverOverlay,
     captureSequence,
     captureStep,

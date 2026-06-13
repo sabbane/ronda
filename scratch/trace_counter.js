@@ -55,16 +55,16 @@ await sync();
 client0.moves.playCard(0);
 await advanceUI(client0);
 
-// 2. P1 plays their first 5 (Derba!)
+// 2. P1 plays their first 5 (Darba!)
 client1.moves.playCard(0);
 await sync(); // Let the card land, but DO NOT advanceUI yet (since P0 will counter immediately!)
 
 // 3. P0 counters with their second 5!
-client0.moves.counterDerba(0);
+client0.moves.counterDarba(0);
 await sync(); // Let the card land, but DO NOT advanceUI yet (since P1 will counter immediately!)
 
 // 4. P1 counters with their second 5 (Ultimate Attack)!
-client1.moves.counterDerba(0);
+client1.moves.counterDarba(0);
 await sync(); // Let the card land, now let's advance UI normally (since no one else has cards to counter!)
 
 // 5. Ultimate Attack settles, processCapture is called (normally triggered by card sweeping ending)

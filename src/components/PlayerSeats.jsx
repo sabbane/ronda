@@ -17,7 +17,7 @@ export const PlayerSeats = ({
     <>
       {numP === 2 ? (
         /* 2-Player Mode: Top Opponent */
-        <div className="w-full max-w-4xl relative z-20 shrink-0">
+        <div className="w-full max-w-4xl relative z-20 shrink-0 top-partner-hand">
           <div className="flex justify-between items-center px-4 sm:px-8 mb-0 sm:mb-2">
             <div className="text-base sm:text-lg font-medium text-slate-400 flex items-center gap-3">
               {G.players[opponentID]?.name || t('opponent')}

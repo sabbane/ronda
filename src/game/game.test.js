@@ -89,7 +89,7 @@ describe('RondaGame - Extended Requirements', () => {
     expect(state.G.players['0'].score).toBe(1);
   });
 
-  test('Derba: Matching the opponents last card should award +1 point', () => {
+  test('Darba: Matching the opponents last card should award +1 point', () => {
     const game = setupCustomGame((G) => {
       G.players['0'].hand = [{ suit: 'syouf', value: 3, id: 's3' }, { suit: 'dheb', value: 1, id: 'c1' }];
       G.players['1'].hand = [{ suit: 'jben', value: 3, id: 'c3' }, { suit: 'zrawet', value: 1, id: 'cl1' }];
@@ -107,9 +107,9 @@ describe('RondaGame - Extended Requirements', () => {
     client.moves.processCapture();
     
     const state = client.getState();
-    const derbaAnnouncement = state.G.announcements.find(a => a.type === 'Derba');
-    expect(derbaAnnouncement).toBeDefined();
-    // Derba (+1) + Missa (+1) = 2
+    const darbaAnnouncement = state.G.announcements.find(a => a.type === 'Darba');
+    expect(darbaAnnouncement).toBeDefined();
+    // Darba (+1) + Missa (+1) = 2
     expect(state.G.players['1'].score).toBe(2);
     expect(state.G.players['0'].score).toBe(0); // No subtraction anymore
   });
@@ -127,13 +127,13 @@ describe('RondaGame - Extended Requirements', () => {
     client.moves.playCard(0);
     advanceUI(client);
 
-    // Player 1 matches 3 (Derba)
+    // Player 1 matches 3 (Darba)
     client.moves.playCard(0);
     client.moves.processCapture();
     
     let state = client.getState();
-    expect(state.G.announcements.find(a => a.type === 'Derba')).toBeDefined();
-    expect(state.G.players['1'].score).toBe(2); // Derba (+1) + Missa (+1)
+    expect(state.G.announcements.find(a => a.type === 'Darba')).toBeDefined();
+    expect(state.G.players['1'].score).toBe(2); // Darba (+1) + Missa (+1)
     
     advanceUI(client);
     
@@ -153,7 +153,7 @@ describe('RondaGame - Extended Requirements', () => {
     client.moves.processCapture();
 
     state = client.getState();
-    // P1 had 2 points. Lost 1 point during P0's Taawida (Derba deduction). 
+    // P1 had 2 points. Lost 1 point during P0's Taawida (Darba deduction). 
     // Now P1 gets +10 points for Taawida. Score = 2 - 1 + 10 = 11.
     expect(state.G.players['1'].score).toBe(11); 
     // P0 loses the 5 points from their Taawida. Score = 0.
@@ -180,12 +180,12 @@ describe('RondaGame - Extended Requirements', () => {
     client.moves.playCard(0);
     advanceUI(client);
     
-    // 2. P1 plays 5 (Derba +1)
+    // 2. P1 plays 5 (Darba +1)
     client.moves.playCard(0);
     client.moves.processCapture();
     
     let state = client.getState();
-    // P1 score: 1 (init) + 1 (Derba) = 2. 
+    // P1 score: 1 (init) + 1 (Darba) = 2. 
     // Card count: P1 captured 2 cards (5 from P0, 5 from P1).
     // User calculates "Total" (score + cards) = 2 + 2 = 4.
     expect(state.G.players['1'].score).toBe(2);
@@ -198,7 +198,7 @@ describe('RondaGame - Extended Requirements', () => {
     client.moves.processCapture();
     
     state = client.getState();
-    // P1 loses Derba point: 2 - 1 = 1.
+    // P1 loses Darba point: 2 - 1 = 1.
     // P1 loses 2 captured cards.
     expect(state.G.players['1'].score).toBe(1);
     expect(state.G.players['1'].captured.length).toBe(0);
@@ -388,7 +388,7 @@ describe('RondaGame - Extended Requirements', () => {
     expect(state.G.announcements.find(a => a.type === 'As Finish')).toBeDefined();
   });
 
-  test('Taawida: Player 1 counters immediately after Player 2s Derba + Missa on 10, winning all cards and points', () => {
+  test('Taawida: Player 1 counters immediately after Player 2s Darba + Missa on 10, winning all cards and points', () => {
     const game = setupCustomGame((G) => {
       // Start with 1 point each
       G.players['0'].score = 1;
@@ -429,7 +429,7 @@ describe('RondaGame - Extended Requirements', () => {
     client.moves.playCard(0); // Plays p0-10-1
     advanceUI(client);
 
-    // 2. Player 2 plays 10 (Derba + Missa on the table cards 10, 11, 12)
+    // 2. Player 2 plays 10 (Darba + Missa on the table cards 10, 11, 12)
     client.moves.playCard(1); // Plays p1-10 (which is at index 1 of [6, 10, 2])
     client.moves.processCapture();
     advanceUI(client);
@@ -459,7 +459,7 @@ describe('RondaGame - Extended Requirements', () => {
     expect(p1Total).toBe(1);
   });
 
-  test('Counter-Derba: Rapid recursive counters down to empty hands must transition turn correctly without engine crash', async () => {
+  test('Counter-Darba: Rapid recursive counters down to empty hands must transition turn correctly without engine crash', async () => {
     const game = setupCustomGame((G) => {
       G.deck = [
         { suit: 'dheb', value: 1, id: 'deck-1' },
@@ -516,16 +516,16 @@ describe('RondaGame - Extended Requirements', () => {
     await advanceLocalUI(client0);
     await sync();
 
-    // 2. P1 plays their first 5 (triggers Derba)
+    // 2. P1 plays their first 5 (triggers Darba)
     client1.moves.playCard(0);
     await sync();
 
     // 3. P0 counters immediately with second 5
-    client0.moves.counterDerba(0);
+    client0.moves.counterDarba(0);
     await sync();
 
     // 4. P1 counters immediately with second 5 (Ultimate Attack)
-    client1.moves.counterDerba(0);
+    client1.moves.counterDarba(0);
     await sync();
 
     // 5. Ultimate Attack settles: processCapture is called

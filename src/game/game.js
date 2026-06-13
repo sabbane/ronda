@@ -11,7 +11,7 @@ import {
   playerLeft,
   playCard,
   processCapture,
-  counterDerba,
+  counterDarba,
   clearAnnouncements,
   endAnimation,
   restartGame
@@ -59,7 +59,7 @@ export const RondaGame = {
     },
     playCard,
     processCapture,
-    counterDerba
+    counterDarba
   },
 
   turn: {
@@ -114,7 +114,7 @@ export const RondaGame = {
       waitForUI: {
         moves: {
           processCapture,
-          counterDerba,
+          counterDarba,
           clearAnnouncements,
           endAnimation,
           playerLeft: {

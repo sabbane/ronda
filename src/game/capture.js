@@ -50,8 +50,8 @@ const processNormalCapture = (G, player, playedCard, currentVal, capturedCards, 
     if (newStreak === 2) {
       awardedPoints = 1;
       addScore(G, player, awardedPoints);
-      if (!G.announcements.some(a => a.type === 'Derba')) {
-        G.announcements.push({ player, type: 'Derba', opponent: G.lastPlayedCard.player, currentVal: currentVal });
+      if (!G.announcements.some(a => a.type === 'Darba')) {
+        G.announcements.push({ player, type: 'Darba', opponent: G.lastPlayedCard.player, currentVal: currentVal });
       }
       streakCards = [matchedCard, playedCard];
     } else if (newStreak === 4) {

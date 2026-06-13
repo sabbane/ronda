@@ -40,8 +40,8 @@ Ronda is played with a 40-card Spanish deck (4 suits: *dheb* (coins), *jben* (cu
 
 1. **Dealing**: Each player receives 3 cards, and 4 cards are placed face-up on the table.
 2. **Capturing**: A player captures cards by playing a card of the same value. They can also sequentially sweep subsequent cards (e.g. playing a 5 captures a 5 on the table, plus any 6, 7, 10, 11, 12 present).
-3. **Derba (+1 pt)**: Play a card of the same value that the previous opponent *just* played.
-4. **Taawida (+5 or +10 pts)**: Play a matching card immediately after an opponent hits a Derba on your turn (counters are recursive!).
+3. **Darba (+1 pt)**: Play a card of the same value that the previous opponent *just* played.
+4. **Taawida (+5 or +10 pts)**: Play a matching card immediately after an opponent hits a Darba on your turn (counters are recursive!).
 5. **Missa (+1 pt)**: Clearing all cards from the table.
 6. **King Finish / As Finish (+5 pts)**: Play the 12 (King) or 1 (Ace) as the very last card of the round to secure final victory points.
 
@@ -85,7 +85,7 @@ npm install
   # In Terminal 2 (Start Client in Rigged mode)
   npm run dev:test
   ```
-  Navigating to `/test/p1` and `/test/p2` allows local developers to simulate complex clash-draws and double-derba counters with deterministic pre-dealt test hands.
+  Navigating to `/test/p1` and `/test/p2` allows local developers to simulate complex clash-draws and double-darba counters with deterministic pre-dealt test hands.
 
 ---
 

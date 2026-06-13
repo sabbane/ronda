@@ -33,10 +33,10 @@ const advanceUI = (client) => {
 client.moves.playCard(0);
 advanceUI(client);
 
-// P1 plays 5 (Derba)
+// P1 plays 5 (Darba)
 client.moves.playCard(0);
 client.moves.processCapture();
-console.log("After P1 Derba:", client.getState().G.announcements);
+console.log("After P1 Darba:", client.getState().G.announcements);
 console.log("P1 Score:", client.getState().G.players['1'].score);
 console.log("Last played card:", client.getState().G.lastPlayedCard);
 advanceUI(client);

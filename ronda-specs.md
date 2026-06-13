@@ -37,8 +37,8 @@ Offizielle Website: [https://www.playronda.ma](https://www.playronda.ma)
 ### 3.3 Scoring & Sondersituationen
 Die Punkte werden während des Spiels und am Ende berechnet. Das Scoring ist additiv (Punkte werden dem Spieler gutgeschrieben):
 *   **Missa (Tisch):** Den Tisch komplett leer räumen (+1 Punkt/Karte). (Früher: Messa)
-*   **Derba (Zug):** Eine Karte stechen, die der Gegner gerade erst abgelegt hat (+1 Punkt/Karte). (Früher: Bounti)
-*   **Taawida (Counter-Attack):** Wird nach einer Derba angesagt, wenn der Schlagabtausch auf demselben Rang fortgesetzt wird:
+*   **Darba (Zug):** Eine Karte stechen, die der Gegner gerade erst abgelegt hat (+1 Punkt/Karte). (Früher: Bounti)
+*   **Taawida (Counter-Attack):** Wird nach einer Darba angesagt, wenn der Schlagabtausch auf demselben Rang fortgesetzt wird:
     *   **Konter (Taawida):** 3. Karte des gleichen Ranges (+5 Punkte & Transfer der vorherigen Karten).
     *   **Ultimativer Konter:** 4. Karte des gleichen Ranges (+10 Punkte & Transfer der vorherigen Karten).
 *   **Final Fail:** Wenn die allerletzte Karte des Spiels ausgespielt wird, ohne einen Stich zu machen, erhält der Gegner +5 Punkte.
@@ -91,7 +91,7 @@ Das Spiel setzt auf eine dedizierte `AdService`-Schicht (`src/services/AdService
     *   `deck.js`: Initialisierung des 40 spanischen Kartendecks sowie marokkanisches Suit-Mapping.
     *   `capture.js`: Logik für Stechen, Sequenzberechnungen und Transferregeln.
     *   `rules.js`: Auswertung von Sondersituationen (Missa, Ronda, Tringa, Clash, King/As Finish, Endabrechnung).
-    *   `moves.js`: boardgame.io Aktionen (`playCard`, `processCapture`, `counterDerba`, Lobby-Verwaltung, Rematch, etc.).
+    *   `moves.js`: boardgame.io Aktionen (`playCard`, `processCapture`, `counterDarba`, Lobby-Verwaltung, Rematch, etc.).
     *   `setup.js`: Initialer State-Entwurf.
     *   `game.js`: Haupt-Einstiegspunkt für boardgame.io, der die Submodule orchestriert.
 *   **RandomBot:** Agiert nur für Spieler 1, wartet auf UI-Animationen und priorisiert Captures.
@@ -139,7 +139,7 @@ Um das Spielgefühl immersiv zu gestalten, wurde das Audiosystem auf echte Audio
     3.  *Card Place:* `card_place.mp3`
     4.  *Card Sweep:* `card_sweep.mp3`
     5.  *Missa:* `missa_success.mp3` / `missa_fail.mp3` (je nach Ausgang)
-    6.  *Derba:* `derba_success.mp3` / `derba_fail.mp3`
+    6.  *Darba:* `darba_success.mp3` / `darba_fail.mp3`
     7.  *Ultimate Attack (Taawida):* `ultimate_attack.mp3`
     8.  *Ronda/Tringa:* `ronda_tringa.mp3` / `ronda_tringa_fail.mp3`
     9.  *Clash:* `clash.mp3` / `clash_fail.mp3`
@@ -148,7 +148,7 @@ Um das Spielgefühl immersiv zu gestalten, wurde das Audiosystem auf echte Audio
 *   **SFX-Preload-Cache (Performance-Optimierung):** Um Latenzen und Garbage-Collection-Ruckler beim dynamischen Instanziieren von Sounds zu vermeiden, werden alle 15 SFX-Dateien beim App-Start im `sfxCache` über `audio.preload = 'auto'` vorab geladen.
 *   **Zero-Latency Node Cloning:** `_playSFX()` nutzt das Klonen der vorgeladenen HTML5-Audionodes (`cached.cloneNode()`). Dadurch können Soundeffekte überlappungsfrei, zeitgleich und ohne nennenswerte Ladeverzögerungen oder HTTP-Requests abgespielt werden.
 *   **Robustes Autoplay-Verhalten:** Bei einem fehlerhaften BGM-Start (z.B. aufgrund restriktiver Browser-Richtlinien) wird der interne Status `bgmPlaying = false` zurückgesetzt. Dies ermöglicht einen automatischen BGM-Startversuch bei der nächsten Benutzerinteraktion.
-*   **Doppelschlag-Effekt bei Taawida (Derba Double SFX):** Die Methode `playDerba(isSuccess, double)` nimmt nun einen optionalen Parameter entgegen. Wenn `double = true`, wird der Derba-Effekt nach 250ms automatisch ein zweites Mal gestartet. Dies wird über den Context-Helper `playDerbaDouble` z.B. bei einem Taawida Streak von 3 verwendet.
+*   **Doppelschlag-Effekt bei Taawida (Darba Double SFX):** Die Methode `playDarba(isSuccess, double)` nimmt nun einen optionalen Parameter entgegen. Wenn `double = true`, wird der Darba-Effekt nach 250ms automatisch ein zweites Mal gestartet. Dies wird über den Context-Helper `playDarbaDouble` z.B. bei einem Taawida Streak von 3 verwendet.
 *   **iOS Safari PWA Audio-Fix (Excluding MP3s):** Um den bekannten Bug in iOS Safari zu umgehen, bei dem PWA-precached Mediendateien aufgrund fehlerhafter Range-Requests nicht abgespielt werden, wurden sämtliche `.mp3`-Dateien in `vite.config.js` via Workbox `globIgnores` vom precaching ausgeschlossen.
 *   **Reaktive Sound-Trigger:** In `src/components/Board.jsx` überwachen declarative `useEffect`-Hooks den Spielstatus und lösen die passenden SFX aus.
 *   **Mute-Option & Persistenz:** Der Mute-Status wird in `localStorage` (`ronda_muted`) gespeichert und steuert sowohl BGM als auch alle SFX.
@@ -260,7 +260,7 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   **Workbox Precaching & iOS Safari Fix:** Um den iOS Safari Bug beim Abspielen gecachter Audiodateien zu umgehen (Range-Requests auf Service-Worker-Ressourcen schlagen fehl), sind alle `.mp3`-Dateien vom PWA-Precaching über `globIgnores` ausgeschlossen (einschließlich `logo.svg`).
  
 ## 7. Aktueller Status
-*   [x] Core Game Logic (Stechen, Sequenzen, Missa, Derba)
+*   [x] Core Game Logic (Stechen, Sequenzen, Missa, Darba)
 *   [x] Taawida-System (Konter & Ultimativer Konter mit Karten-Transfer)
 *   [x] Ronda/Tringa Clash-Logik & Tringa vs. Ronda Sofort-Auflösung
 *   [x] "As Finish", "King Finish" & "Final Fail" Regeln implementiert
@@ -301,7 +301,7 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   [x] iOS Safari PWA Audio-Fix (MP3-Ausschluss aus Workbox Precaching)
 *   [x] Modulare Internationalisierung mit separaten Übersetzungsdateien (`en.js`, `fr.js`, `ar.js` unter `/translations`)
 *   [x] Hauptmenü in eigenständige Komponente ausgelagert (`MainMenu.jsx`)
-*   [x] SoundService: Doppelschlag-Effekt bei Taawida (Derba Double SFX nach 250ms Delay)
+*   [x] SoundService: Doppelschlag-Effekt bei Taawida (Darba Double SFX nach 250ms Delay)
 *   [x] Modularisierung der Spiellogik in Submodule (deck, capture, rules, moves, setup)
 *   [x] Entkopplung von UI-Zuständen und Event-Handlern über Custom Hooks (/src/hooks/)
 *   [x] Mobile-Layout: Zeilenumbruch-Schutz der Tischkarten (mindestens 3 Karten in einer Reihe auf Handys)

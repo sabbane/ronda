@@ -77,12 +77,12 @@ export const SoundProvider = ({ children }) => {
     if (!isMuted) soundService.playMissa(isSuccess);
   };
 
-  const playDerba = (isSuccess) => {
-    if (!isMuted) soundService.playDerba(isSuccess);
+  const playDarba = (isSuccess) => {
+    if (!isMuted) soundService.playDarba(isSuccess);
   };
 
-  const playDerbaDouble = (isSuccess) => {
-    if (!isMuted) soundService.playDerba(isSuccess, true);
+  const playDarbaDouble = (isSuccess) => {
+    if (!isMuted) soundService.playDarba(isSuccess, true);
   };
 
   const playRondaTringa = (isSuccess) => {
@@ -119,8 +119,8 @@ export const SoundProvider = ({ children }) => {
         playCardPlace,
         playCardSweep,
         playMissa,
-        playDerba,
-        playDerbaDouble,
+        playDarba,
+        playDarbaDouble,
         playUltimateAttack,
         playRondaTringa,
         playClash,

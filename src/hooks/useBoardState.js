@@ -53,13 +53,13 @@ const checkCurrentPlayer = (id, G, ctx) => {
 };
 
 const playCardMove = (opts) => {
-  const { cardIndex, G, myID, moves, activeEvent, canCounterDerba, isProcessing, setIsProcessing } = opts;
+  const { cardIndex, G, myID, moves, activeEvent, canCounterDarba, isProcessing, setIsProcessing } = opts;
   if (isProcessing) return;
-  if (canCounterDerba) {
+  if (canCounterDarba) {
     const card = G.players[myID]?.hand?.[cardIndex];
     if (card && card.value === activeEvent.currentVal) {
       setIsProcessing(true);
-      moves.counterDerba(cardIndex);
+      moves.counterDarba(cardIndex);
       setTimeout(() => setIsProcessing(false), 200);
       return;
     }
@@ -104,7 +104,7 @@ export const useBoardState = (props) => {
   const boardContainerRef = React.useRef(null);
 
   const {
-    activeEvent, canCounterDerba, showGameOverOverlay,
+    activeEvent, canCounterDarba, showGameOverOverlay,
     captureSequence, captureStep, captureRects, getWrapperForCard
   } = useBoardEvents({ G, ctx, moves, myID, opponentID, numP, t, language });
 
@@ -140,7 +140,7 @@ export const useBoardState = (props) => {
   const isCurrentPlayer = (id) => checkCurrentPlayer(id, G, ctx);
 
   const handlePlayCard = (cardIndex) => {
-    playCardMove({ cardIndex, G, myID, moves, activeEvent, canCounterDerba, isProcessing, setIsProcessing });
+    playCardMove({ cardIndex, G, myID, moves, activeEvent, canCounterDarba, isProcessing, setIsProcessing });
   };
 
   const isMyTeamA = myID === '0' || myID === '2';
@@ -153,7 +153,7 @@ export const useBoardState = (props) => {
   return {
     language, t, myID, opponentID, numP, leftID, topID, rightID,
     isProcessing, isAdPlaying, setIsAdPlaying, opponentLeft, boardContainerRef, shouldScroll,
-    activeEvent, canCounterDerba, showGameOverOverlay, captureSequence, captureStep, captureRects, getWrapperForCard,
+    activeEvent, canCounterDarba, showGameOverOverlay, captureSequence, captureStep, captureRects, getWrapperForCard,
     isMuted, toggleMute, currentTrack, tracks, nextTrack, playClick,
     isCurrentPlayer, handlePlayCard, handleLeaveLobby, playedCardId, isMyTeamA, ...teamDetails
   };

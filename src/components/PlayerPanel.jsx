@@ -9,7 +9,7 @@ export const PlayerPanel = ({
   myID,
   t,
   isCurrentPlayer,
-  canCounterDerba,
+  canCounterDarba,
   isProcessing,
   handlePlayCard,
   playedCardId,
@@ -61,11 +61,11 @@ export const PlayerPanel = ({
       
       <PlayerHand 
         hand={(G.players && G.players[myID]?.hand) || []} 
-        isCurrentPlayer={(isCurrentPlayer(myID) || canCounterDerba) && !isProcessing} 
+        isCurrentPlayer={(isCurrentPlayer(myID) || canCounterDarba) && !isProcessing} 
         onPlayCard={handlePlayCard} 
         dealDelays={[0.0, 1.2, 2.4]}
         playedCardId={playedCardId}
-        counterCardValue={canCounterDerba ? activeEvent.currentVal : null}
+        counterCardValue={canCounterDarba ? activeEvent.currentVal : null}
       />
 
       {/* Deck Info & Sound Toggle - Moved below player hand to prevent overlap on mobile */}

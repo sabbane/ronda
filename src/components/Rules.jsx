@@ -80,7 +80,7 @@ export const Rules = ({ onBack }) => {
               <p className="mb-4">{t('rulesPoints')}</p>
               <ul className="space-y-3 pl-4 sm:pl-6 rtl:pr-4 rtl:pl-0 rtl:sm:pr-6 text-amber-100/90">
                 <li>{t('rulesMissa')}</li>
-                <li>{t('rulesDerba')}</li>
+                <li>{t('rulesDarba')}</li>
                 <li>{t('rulesRonda')}</li>
                 <li>{t('rulesTringa')}</li>
               </ul>
