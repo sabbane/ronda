@@ -12,6 +12,10 @@ import { MainMenu } from './components/MainMenu';
 import { useLobby } from './hooks/useLobby';
 import { Splashscreen } from './components/Splashscreen';
 
+if (typeof window !== 'undefined') {
+  window.isRondaBotGame = true;
+}
+
 const RondaClientBot = ReactClient({
   game: RondaGame,
   board: RondaBoard,
@@ -24,6 +28,31 @@ const RondaClientBot = ReactClient({
             enumerate: RondaGame.ai.enumerate,
             ...opts
           });
+        }
+        async play(state, playerID) {
+          const latestState = (typeof window !== 'undefined' && window.latestGameState) || state;
+          const { G, ctx } = latestState;
+
+          const isBotActive = ctx.activePlayers 
+            ? (playerID in ctx.activePlayers) 
+            : (ctx.currentPlayer === playerID);
+
+          if (G.isAnimating || (G.announcements && G.announcements.length > 0) || !isBotActive) {
+            return new Promise(() => {});
+          }
+
+          const res = await super.play(state, playerID);
+          if (!res || !res.action) {
+            return {
+              action: {
+                type: 'NO_OP',
+                payload: {
+                  playerID: playerID
+                }
+              }
+            };
+          }
+          return res;
         }
       }
     },

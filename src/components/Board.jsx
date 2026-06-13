@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useBoardState } from '../hooks/useBoardState';
 
 import { WaitingLobby } from './WaitingLobby';
@@ -11,6 +12,12 @@ import { AdOverlay } from './AdOverlay';
 
 export const RondaBoard = (props) => {
   const { G, ctx, moves, matchID } = props;
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.latestGameState = { G, ctx };
+    }
+  }, [G, ctx]);
   
   const {
     language,

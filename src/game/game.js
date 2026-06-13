@@ -70,7 +70,11 @@ export const RondaGame = {
       }
       if (G.pendingCapture) {
         if ((G.announcements && G.announcements.length > 0) || G.isAnimating) {
-          events.setActivePlayers({ all: 'waitForUI' });
+          if (G.isBotGame) {
+            events.setActivePlayers({ value: { '0': 'waitForUI' } });
+          } else {
+            events.setActivePlayers({ all: 'waitForUI' });
+          }
         }
         return;
       }
@@ -90,7 +94,11 @@ export const RondaGame = {
 
       if ((G.announcements && G.announcements.length > 0) || G.isAnimating) {
         G.endTurnAfterUI = false;
-        events.setActivePlayers({ all: 'waitForUI' });
+        if (G.isBotGame) {
+          events.setActivePlayers({ value: { '0': 'waitForUI' } });
+        } else {
+          events.setActivePlayers({ all: 'waitForUI' });
+        }
       }
     },
     stages: {

@@ -3,6 +3,14 @@ import { addScore, checkRoundEnd } from './rules.js';
 import { executeCapture } from './capture.js';
 import { setupGame } from './setup.js';
 
+const setActivePlayersWaitForUI = (G, events) => {
+  if (G.isBotGame) {
+    events.setActivePlayers({ value: { '0': 'waitForUI' } });
+  } else {
+    events.setActivePlayers({ all: 'waitForUI' });
+  }
+};
+
 export const checkWaitForUI = (G, events) => {
   if (G.announcements.length > 0 || G.isAnimating) {
     if (G.announcements.length > 0 && !G._announcementIdIncremented) {
@@ -10,7 +18,7 @@ export const checkWaitForUI = (G, events) => {
       G._announcementIdIncremented = true;
     }
     G.endTurnAfterUI = true;
-    events.setActivePlayers({ all: 'waitForUI' });
+    setActivePlayersWaitForUI(G, events);
     return true;
   }
 
@@ -46,7 +54,7 @@ export const startGameLobby = ({ G, events }) => {
   events.setActivePlayers({ all: null });
   if ((G.announcements && G.announcements.length > 0) || G.isAnimating) {
     G.endTurnAfterUI = false;
-    events.setActivePlayers({ all: 'waitForUI' });
+    setActivePlayersWaitForUI(G, events);
   }
 };
 
@@ -54,7 +62,7 @@ export const startGameTop = ({ G, events }) => {
   G.gameStarted = true;
   if ((G.announcements && G.announcements.length > 0) || G.isAnimating) {
     G.endTurnAfterUI = false;
-    events.setActivePlayers({ all: 'waitForUI' });
+    setActivePlayersWaitForUI(G, events);
   }
 };
 
@@ -255,6 +263,10 @@ export const restartGame = ({ G, ctx, events }) => {
   events.setActivePlayers({ all: null });
 
   if (G.announcements.length > 0 || G.isAnimating) {
-    events.setActivePlayers({ all: 'waitForUI' });
+    if (G.isBotGame) {
+      events.setActivePlayers({ value: { '0': 'waitForUI' } });
+    } else {
+      events.setActivePlayers({ all: 'waitForUI' });
+    }
   }
 };

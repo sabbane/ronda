@@ -42,11 +42,13 @@ export const setupGame = ({ ctx }, setupData) => {
   const table = deck.splice(0, 4).map((card, i) => ({ ...card, slot: i }));
   const numP = ctx.numPlayers || 2;
   const playerIds = Array.from({ length: numP }, (_, i) => String(i));
+  
+  const isBotGame = (typeof window !== 'undefined' && window.isRondaBotGame === true) || 
+                    (matchID && /bot/i.test(matchID)) ||
+                    (setupData && setupData.isBotGame === true);
+
   const players = playerIds.reduce((acc, pID) => {
-    const isBot = pID === '1' && (
-      (typeof window !== 'undefined' && window.isRondaBotGame === true) || 
-      (matchID && /bot/i.test(matchID))
-    );
+    const isBot = pID === '1' && isBotGame;
     let botName = '';
     if (isBot) {
       // Determine language dynamically if we are in the browser
@@ -80,6 +82,7 @@ export const setupGame = ({ ctx }, setupData) => {
     gameStatus: null, // Custom game over state
     matchesWon, // Track overall games won
     teamNames: { TeamA: '', TeamB: '' },
+    isBotGame,
   };
 
   evaluateRondaTringa(G);
