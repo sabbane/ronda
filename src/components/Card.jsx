@@ -57,7 +57,7 @@ export const Card = ({ card, hidden = false, onClick, className = '' }) => {
       whileHover={onClick ? { scale: 1.05, y: -10 } : {}}
       whileTap={onClick ? { scale: 0.95 } : {}}
       onClick={onClick}
-      className={`game-card bg-white shadow-lg cursor-pointer ${className}`}
+      className={`game-card bg-white dark:bg-[#f4ecc2] shadow-lg cursor-pointer ${className}`}
     >
       {faceError ? (
         <div className="w-full h-full flex flex-col items-center justify-center p-2 text-center bg-slate-100 border border-slate-300 select-none">

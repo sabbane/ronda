@@ -65,6 +65,7 @@ Die App verwendet reale Bilddateien für die spanischen Spielkarten sowie hochau
     *   **4-Spieler-Layout-Optimierung:** Die Karten des oberen Partners wurden auf 3.5rem x 5.25rem verkleinert und die maximale Breite der Partnertabelle begrenzt, um ausreichend Platz für die Seiten-Spieler-Sitze auf Mobilgeräten freizuhalten.
     *   **Statisches Slot-Layout für Tischkarten:** Um das unerwünschte horizontale Verrutschen ("Sliding") von Tischkarten bei der Entnahme/Stechen benachbarter Karten zu verhindern, wurde ein stabiles CSS-Grid-Spielfeld in `GameTable.jsx` eingeführt. Jeder Tischkarte wird beim Austeilen (`setup.js`) oder Ausspielen (`moves.js`) ein fixer `slot`-Index (nächster freier Slot ab 0) zugewiesen. Leere Positionen werden mit unsichtbaren Platzhaltern (`.game-table-slot-placeholder`) gefüllt, wodurch besetzte Karten ihre absolute Position im Grid stets beibehalten.
     *   **Presented-By-Branding:** Der Splashscreen (`Splashscreen.jsx`) präsentiert ein vergrößertes Vektor-Logo (`logo.svg`, Höhe von 20 auf 40 erhöht) für eine wirkungsvollere Markenpräsenz.
+    *   **Dark-Mode Kartenhintergrund:** Für eine harmonische Optik und besseren Augenschutz in dunklen Darstellungen wechseln offene Spielkarten bei aktivem Dark Mode (`dark:bg-[#f4ecc2]`) auf einen augenfreundlichen, pergamentfarbenen Farbton (`rgb(244, 236, 194)`), anstatt das Standard-Weiß beizubehalten.
 
 ## 4. Architektur-Features
 ### 4.1 Internationalisierung (i18n)
@@ -126,6 +127,7 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 *   **Layout-Validierung:** Der E2E-Test `table_cards_row_fit.spec.js` prüft auf Mobilgeräten, dass die Karten auf dem Tisch in einer horizontalen Reihe bleiben (Y-Differenz unter 10px).
 *   **Anti-Sliding-Verifizierung:** Der Test `table_cards_sliding_wrong_behavior.spec.js` stellt sicher, dass verbleibende Tischkarten nach einem gegnerischen Stich ihre absoluten Koordinaten (X-Wert) im Grid beibehalten und nicht verrutschen.
 *   **Bot-Namensprüfung:** Der E2E-Test `bot_name_el_haj.spec.js` verifiziert, dass die Bot-Gegner-Komponente mit dem Namen "El Haj" initialisiert wird und Spiel-Popups diesen Namen dynamisch verwenden.
+*   **Dark-Mode-Verifizierung:** Das Testskript `card_dark_mode.spec.js` validiert reaktiv das Farbschema des Kartenhintergrunds unter Dark-Mode-Medienbedingungen.
 *   **Layout-Debugging via URL-Parameter:** Zur manuellen Verifizierung von Layouts und Skalierungseffekten unterstützt die Anwendung das URL-Argument `?debug_table=<Anzahl>` (in `Board.jsx` ausgelesen). Damit lässt sich die Anzahl der auf dem Tisch gerenderten Karten zu Testzwecken manipulieren.
 *   **Performance-Benchmarks:** Das Tool `latency_benchmark.spec.js` misst die Antwortzeiten des Live-Servers.
 *   **Asset-Preloading:** Karten-Assets und das neue Vektor-Logo (`logo.svg`) werden vorab geladen (Preload im HTML und Splashscreen), um Latenzen oder Flackern bei der Kartenausgabe und beim Laden zu vermeiden.
@@ -232,6 +234,7 @@ Die Benutzeroberfläche und die Event-Synchronisierung wurden vollständig entko
   table_cards_row_fit.spec.js          # E2E Mobile-Tischkarten Zeilenumbruch-Verifizierung
   table_cards_sliding_wrong_behavior.spec.js # E2E Mobile-Tischkarten Layoutstabilität (Anti-Sliding)
   bot_name_el_haj.spec.js              # E2E Bot-Name & Popups Verifizierung
+  card_dark_mode.spec.js               # E2E Karten-Farbtest für den Dark Mode
   latency_benchmark.spec.js            # Performance Benchmarks
 server.js           # Backend-Server für Online-Multiplayer
 Dockerfile.frontend # Docker-Konfiguration für das Frontend
@@ -312,12 +315,13 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   [x] Entkopplung von UI-Zuständen und Event-Handlern über Custom Hooks (/src/hooks/)
 *   [x] Mobile-Layout: Zeilenumbruch-Schutz der Tischkarten (mindestens 3 Karten in einer Reihe auf Handys)
 *   [x] Mobile/Desktop Layout: Stabiler Slot-Grid-Tisch für Karten zur Vermeidung von Verschiebungen (Anti-Sliding)
+*   [x] Mobile/Desktop Layout: Augenschonender, pergamentartiger Kartenhintergrund im Dark Mode (#f4ecc2)
 *   [x] Splashscreen: "Presented By" Vektorlogo-Präsentation (logo.svg, vergrößert)
 *   [x] Bot-Engine: Sicherheitsüberprüfungen im Move-Enumerator (Turn- & Status-Guards)
 *   [x] Bot-Engine: Bot-Identität und Name ("El Haj") mit reaktiver Übersetzung in Popups
 *   [x] Bot-Engine: Eigene Bot-Klassen-Erweiterung in App.jsx zur synchronisierten Zug-Freigabe (Play-Guards)
 *   [x] UI-Zustand: Sichere Synchronisation von window.latestGameState via useEffect-Hook
 *   [x] Layout-Validierung: Automatisierter Playwright-Test für Karten-Einzeiligkeits-Garantie und Slot-Koordinatenstabilität (Anti-Sliding)
-*   [x] Erweiterte E2E-Test-Suite (22 Spec-Dateien: Lobby, Multiplayer, Bot, Responsiveness, Layout, Anti-Sliding, etc.)
+*   [x] Erweiterte E2E-Test-Suite (23 Spec-Dateien: Lobby, Multiplayer, Bot, Responsiveness, Layout, Anti-Sliding, Dark Mode, etc.)
 *   [ ] Google Play Store: Bubblewrap TWA-Packaging & Store-Listing
 *   [ ] Erweiterte KI-Heuristik
