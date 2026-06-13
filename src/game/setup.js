@@ -39,7 +39,7 @@ export const setupGame = ({ ctx }, setupData) => {
     deck = shuffle(generateDeck());
   }
 
-  const table = deck.splice(0, 4);
+  const table = deck.splice(0, 4).map((card, i) => ({ ...card, slot: i }));
   const numP = ctx.numPlayers || 2;
   const playerIds = Array.from({ length: numP }, (_, i) => String(i));
   const players = playerIds.reduce((acc, pID) => {

@@ -87,6 +87,12 @@ export const playCard = ({ G, ctx, events, playerID }, cardIndex) => {
   hand.splice(cardIndex, 1);
 
   let currentVal = playedCard.value;
+  const occupiedSlots = G.table.map(c => c.slot).filter(s => s !== undefined);
+  let nextSlot = 0;
+  while (occupiedSlots.includes(nextSlot)) {
+    nextSlot++;
+  }
+  playedCard.slot = nextSlot;
   G.table.push(playedCard);
   
   let matchIndex = G.table.findIndex(c => c.value === currentVal && c.id !== playedCard.id);
@@ -163,6 +169,12 @@ export const counterDerba = ({ G, ctx, events, playerID }, cardIndex) => {
   G._announcementIdIncremented = false;
 
   hand.splice(cardIndex, 1);
+  const occupiedSlots = G.table.map(c => c.slot).filter(s => s !== undefined);
+  let nextSlot = 0;
+  while (occupiedSlots.includes(nextSlot)) {
+    nextSlot++;
+  }
+  playedCard.slot = nextSlot;
   G.table.push(playedCard);
 
   events.endTurn();

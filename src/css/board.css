@@ -3,20 +3,23 @@
    ========================================== */
 
 /* 1. Default (Desktop View) */
-.game-card-container {
+.game-card-container,
+.game-table-slot-placeholder {
   width: 2.5rem;
   height: 3.75rem;
   flex-shrink: 0;
   position: relative;
 }
 @media (min-width: 640px) {
-  .game-card-container {
+  .game-card-container,
+  .game-table-slot-placeholder {
     width: 3.25rem;
     height: 4.875rem;
   }
 }
 @media (min-width: 768px) {
-  .game-card-container {
+  .game-card-container,
+  .game-table-slot-placeholder {
     width: 4.5rem;
     height: 6.75rem;
   }
@@ -107,7 +110,8 @@
 /* 2. General Mobile Scaling for HUD, Text, and Buttons */
 @media (max-width: 767px) {
   /* Default mobile card dimensions when height is large (height > 1000px) */
-  .game-card-container {
+  .game-card-container,
+  .game-table-slot-placeholder {
     width: 4.25rem !important;
     height: 6.375rem !important;
   }
@@ -193,7 +197,8 @@
 
 /* 3. Constrained Viewport Height: Height <= 1000px (Mobile only) */
 @media (max-height: 1000px) and (max-width: 767px) {
-  .game-card-container {
+  .game-card-container,
+  .game-table-slot-placeholder {
     width: 4.25rem;
     height: 6.375rem;
   }
@@ -219,7 +224,8 @@
 
 /* 4. Highly Constrained Viewport Height: Height <= 800px (Mobile only) */
 @media (max-height: 800px) and (max-width: 767px) {
-  .game-card-container {
+  .game-card-container,
+  .game-table-slot-placeholder {
     width: 4rem !important;
     height: 6rem !important;
   }
@@ -246,7 +252,8 @@
 
 /* 5. Ultra Constrained Viewport Height: Height <= 650px (Mobile only) */
 @media (max-height: 650px) and (max-width: 767px) {
-  .game-card-container {
+  .game-card-container,
+  .game-table-slot-placeholder {
     width: 3.75rem !important;
     height: 5.625rem !important;
   }

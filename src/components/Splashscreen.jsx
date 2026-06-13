@@ -202,7 +202,7 @@ export const Splashscreen = ({ onComplete }) => {
               <img
                 src="/assets/logo.svg"
                 alt="Logo"
-                className="h-20 w-auto object-contain opacity-80"
+                className="h-40 w-auto object-contain opacity-80"
               />
             </div>
           </div>

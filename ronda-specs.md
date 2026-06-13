@@ -61,13 +61,10 @@ Die App verwendet reale Bilddateien für die spanischen Spielkarten sowie hochau
 *   **Dateinamen-Konvention:** `{Value}-{Suit}.png` (z.B. `01-dheb.png`)
 *   **Suits:** Die Suits sind sowohl intern im Code als auch in den Dateinamen marokkanisch benannt: `dheb` (Gold), `jben` (Becher), `syouf` (Schwerter), `zrawet` (Keulen).
 *   **UI-Features & Optimierungen:**
-    *   **Mobile-First Layout:** Nutzung von `100dvh` und dynamischen Paddings für optimale Darstellung auf mobilen Browsern.
-    *   **Visuelles Feedback:** Ankündigungen nutzen farbcodierte Varianten (Success/Danger). Aktive Handkarten des Spielers am Zug werden mit einem sanften Glow-Effekt hervorgehoben.
-    *   **Animations- & Z-Index-Schutz:** Angepasste Hierarchien (Z-Index) und Timing-Schutz in der Deal-Phase verhindern Kartenüberlappungen und Anzeigefehler.
-    *   **Rules Dialog:** Eine integrierte "How to Play" Anleitung erklärt die Regeln und Sondersituationen.
-    *   **Navigation:** Ein "Back to Menu" Button ermöglicht die Rückkehr zum Hauptmenü während des Spiels.
     *   **Responsive Viewport Fitting:** CSS-Optimierungen für Kartenskalierungen bei geringer Viewport-Höhe auf Mobilgeräten. Reduziertes Tisch-Padding auf 0.5rem stellt sicher, dass mindestens 3 Karten nebeneinander auf dem Tisch liegen, ohne in eine neue Reihe umzubrechen.
     *   **4-Spieler-Layout-Optimierung:** Die Karten des oberen Partners wurden auf 3.5rem x 5.25rem verkleinert und die maximale Breite der Partnertabelle begrenzt, um ausreichend Platz für die Seiten-Spieler-Sitze auf Mobilgeräten freizuhalten.
+    *   **Statisches Slot-Layout für Tischkarten:** Um das unerwünschte horizontale Verrutschen ("Sliding") von Tischkarten bei der Entnahme/Stechen benachbarter Karten zu verhindern, wurde ein stabiles CSS-Grid-Spielfeld in `GameTable.jsx` eingeführt. Jeder Tischkarte wird beim Austeilen (`setup.js`) oder Ausspielen (`moves.js`) ein fixer `slot`-Index (nächster freier Slot ab 0) zugewiesen. Leere Positionen werden mit unsichtbaren Platzhaltern (`.game-table-slot-placeholder`) gefüllt, wodurch besetzte Karten ihre absolute Position im Grid stets beibehalten.
+    *   **Presented-By-Branding:** Der Splashscreen (`Splashscreen.jsx`) präsentiert ein vergrößertes Vektor-Logo (`logo.svg`, Höhe von 20 auf 40 erhöht) für eine wirkungsvollere Markenpräsenz.
 
 ## 4. Architektur-Features
 ### 4.1 Internationalisierung (i18n)
@@ -121,8 +118,9 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 
 ### 4.6 Testing, Qualitätssicherung & Performance
 *   **Unit-Tests:** Prüfung der Kern-Spiellogik (Sequenzen, Scoring, Clash) in `game.test.js`.
-*   **E2E-Tests:** End-to-End-Tests des Multiplayers und des Spiellayouts mit **Playwright**.
+*   **E2E-Tests:** End-to-End-Tests des Multiplayers, des Spiellayouts und der Slot-Stabilität mit **Playwright**.
 *   **Layout-Validierung:** Der E2E-Test `table_cards_row_fit.spec.js` prüft auf Mobilgeräten, dass die Karten auf dem Tisch in einer horizontalen Reihe bleiben (Y-Differenz unter 10px).
+*   **Anti-Sliding-Verifizierung:** Der Test `table_cards_sliding_wrong_behavior.spec.js` stellt sicher, dass verbleibende Tischkarten nach einem gegnerischen Stich ihre absoluten Koordinaten (X-Wert) im Grid beibehalten und nicht verrutschen.
 *   **Layout-Debugging via URL-Parameter:** Zur manuellen Verifizierung von Layouts und Skalierungseffekten unterstützt die Anwendung das URL-Argument `?debug_table=<Anzahl>` (in `Board.jsx` ausgelesen). Damit lässt sich die Anzahl der auf dem Tisch gerenderten Karten zu Testzwecken manipulieren.
 *   **Performance-Benchmarks:** Das Tool `latency_benchmark.spec.js` misst die Antwortzeiten des Live-Servers.
 *   **Asset-Preloading:** Karten-Assets und das neue Vektor-Logo (`logo.svg`) werden vorab geladen (Preload im HTML und Splashscreen), um Latenzen oder Flackern bei der Kartenausgabe und beim Laden zu vermeiden.
@@ -175,8 +173,9 @@ Die Benutzeroberfläche und die Event-Synchronisierung wurden vollständig entko
   /components
     Board.jsx       # Haupt-Spielfeld & Event-Handling (inkl. Rematch-UI & Ad-Trigger)
     Card.jsx        # Karten-Komponente (mit Glow & Preload-Logik aus src/assets/cards)
+    GameTable.jsx   # Tisch-Komponente (CSS Grid mit stabiler Slot-Belegung und Platzhaltern)
     MainMenu.jsx    # Ausgelagertes Hauptmenü (Navigation, Play-Buttons, Branding)
-    Splashscreen.jsx # Ladebildschirm mit Presented-By-Logo-Präsentation
+    Splashscreen.jsx # Ladebildschirm mit vergrößerter Presented-By-Logo-Präsentation
     AdSlot.jsx      # Banner-Werbe-Integration
     DonateButton.jsx # Spenden-Funktion
     Rules.jsx       # Spielanleitung (Modal)
@@ -203,11 +202,11 @@ Die Benutzeroberfläche und die Event-Synchronisierung wurden vollständig entko
   /game
     game.js         # Haupt-Einstiegspunkt und Orchestrierung für boardgame.io
     bot.js          # KI-Verhalten
-    setup.js        # Initialisierung des Spielzustands (State Blueprint)
+    setup.js        # Initialisierung des Spielzustands (Zuweisung stabiler Slot-Indizes)
     deck.js         # Kartendeck & marokkanische Suit-Mappings
     capture.js      # Logik für Stechen & Sequenzen
     rules.js        # Spielregeln, Scoring & Sondersituationen
-    moves.js        # boardgame.io Züge und Lobby-Aktionen
+    moves.js        # boardgame.io Züge (Slot-Zuweisung für neu gelegte Karten) und Lobby-Aktionen
     game.test.js    # Unit-Tests für Spielregeln
   App.jsx           # Einstiegspunkt, Lobby-Logik, URL-Sync & Online-Client
 /tests
@@ -226,6 +225,7 @@ Die Benutzeroberfläche und die Event-Synchronisierung wurden vollständig entko
   singleplayer_start.spec.js           # E2E Einzelspieler-Start
   connection_stability.spec.js         # E2E Verbindungsstabilität
   table_cards_row_fit.spec.js          # E2E Mobile-Tischkarten Zeilenumbruch-Verifizierung
+  table_cards_sliding_wrong_behavior.spec.js # E2E Mobile-Tischkarten Layoutstabilität (Anti-Sliding)
   latency_benchmark.spec.js            # Performance Benchmarks
 server.js           # Backend-Server für Online-Multiplayer
 Dockerfile.frontend # Docker-Konfiguration für das Frontend
@@ -305,9 +305,10 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   [x] Modularisierung der Spiellogik in Submodule (deck, capture, rules, moves, setup)
 *   [x] Entkopplung von UI-Zuständen und Event-Handlern über Custom Hooks (/src/hooks/)
 *   [x] Mobile-Layout: Zeilenumbruch-Schutz der Tischkarten (mindestens 3 Karten in einer Reihe auf Handys)
-*   [x] Splashscreen: "Presented By" Vektorlogo-Präsentation (logo.svg)
+*   [x] Mobile/Desktop Layout: Stabiler Slot-Grid-Tisch für Karten zur Vermeidung von Verschiebungen (Anti-Sliding)
+*   [x] Splashscreen: "Presented By" Vektorlogo-Präsentation (logo.svg, vergrößert)
 *   [x] Bot-Engine: Sicherheitsüberprüfungen im Move-Enumerator (Turn- & Status-Guards)
-*   [x] Layout-Validierung: Automatisierter Playwright-Test für Karten-Einzeiligkeits-Garantie
-*   [x] Erweiterte E2E-Test-Suite (20 Spec-Dateien: Lobby, Multiplayer, Bot, Responsiveness, Layout, etc.)
+*   [x] Layout-Validierung: Automatisierter Playwright-Test für Karten-Einzeiligkeits-Garantie und Slot-Koordinatenstabilität (Anti-Sliding)
+*   [x] Erweiterte E2E-Test-Suite (21 Spec-Dateien: Lobby, Multiplayer, Bot, Responsiveness, Layout, Anti-Sliding, etc.)
 *   [ ] Google Play Store: Bubblewrap TWA-Packaging & Store-Listing
 *   [ ] Erweiterte KI-Heuristik
