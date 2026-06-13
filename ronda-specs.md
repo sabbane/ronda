@@ -95,7 +95,8 @@ Das Spiel setzt auf eine dedizierte `AdService`-Schicht (`src/services/AdService
     *   `setup.js`: Initialer State-Entwurf.
     *   `game.js`: Haupt-Einstiegspunkt für boardgame.io, der die Submodule orchestriert.
 *   **RandomBot:** Agiert nur für Spieler 1, wartet auf UI-Animationen und priorisiert Captures.
-    *   **Sicherheitsprüfungen im Move-Enumerator:** Der Bot-Enumerator (`enumerateMoves` in `src/game/bot.js`) enthält nun explizite Guards (`player === gameCtx.currentPlayer` und `!gameG.gameStatus`), um Züge außerhalb des eigenen Zugs oder nach Spielende zuverlässig abzufangen.
+*   **Bot-Identität & Name ("El Haj"):** Im Einzelspieler-Modus (vs. KI) wird der Bot-Spieler (ID 1) in `setup.js` mit dem Namen `"El Haj"` initialisiert. Alle Benutzeroberflächen-Elemente und Ankündigungen (z. B. Darba-Popups) übersetzen und referenzieren diesen Namen reaktiv (z. B. "You hit El Haj" / "El Haj hits you").
+*   **Sicherheitsprüfungen im Move-Enumerator:** Der Bot-Enumerator (`enumerateMoves` in `src/game/bot.js`) enthält nun explizite Guards (`player === gameCtx.currentPlayer` und `!gameG.gameStatus`), um Züge außerhalb des eigenen Zugs oder nach Spielende zuverlässig abzufangen.
 *   **Stages & Timing:** Nutzung von `waitForUI` und angepassten Bot-Verzögerungen (`botDelay`) zur exakten Synchronisation zwischen Game-Engine, Popups und Frontend-Animationen.
 
 ### 4.4 Online-Multiplayer & Infrastruktur
@@ -121,6 +122,7 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 *   **E2E-Tests:** End-to-End-Tests des Multiplayers, des Spiellayouts und der Slot-Stabilität mit **Playwright**.
 *   **Layout-Validierung:** Der E2E-Test `table_cards_row_fit.spec.js` prüft auf Mobilgeräten, dass die Karten auf dem Tisch in einer horizontalen Reihe bleiben (Y-Differenz unter 10px).
 *   **Anti-Sliding-Verifizierung:** Der Test `table_cards_sliding_wrong_behavior.spec.js` stellt sicher, dass verbleibende Tischkarten nach einem gegnerischen Stich ihre absoluten Koordinaten (X-Wert) im Grid beibehalten und nicht verrutschen.
+*   **Bot-Namensprüfung:** Der E2E-Test `bot_name_el_haj.spec.js` verifiziert, dass die Bot-Gegner-Komponente mit dem Namen "El Haj" initialisiert wird und Spiel-Popups diesen Namen dynamisch verwenden.
 *   **Layout-Debugging via URL-Parameter:** Zur manuellen Verifizierung von Layouts und Skalierungseffekten unterstützt die Anwendung das URL-Argument `?debug_table=<Anzahl>` (in `Board.jsx` ausgelesen). Damit lässt sich die Anzahl der auf dem Tisch gerenderten Karten zu Testzwecken manipulieren.
 *   **Performance-Benchmarks:** Das Tool `latency_benchmark.spec.js` misst die Antwortzeiten des Live-Servers.
 *   **Asset-Preloading:** Karten-Assets und das neue Vektor-Logo (`logo.svg`) werden vorab geladen (Preload im HTML und Splashscreen), um Latenzen oder Flackern bei der Kartenausgabe und beim Laden zu vermeiden.
@@ -226,6 +228,7 @@ Die Benutzeroberfläche und die Event-Synchronisierung wurden vollständig entko
   connection_stability.spec.js         # E2E Verbindungsstabilität
   table_cards_row_fit.spec.js          # E2E Mobile-Tischkarten Zeilenumbruch-Verifizierung
   table_cards_sliding_wrong_behavior.spec.js # E2E Mobile-Tischkarten Layoutstabilität (Anti-Sliding)
+  bot_name_el_haj.spec.js              # E2E Bot-Name & Popups Verifizierung
   latency_benchmark.spec.js            # Performance Benchmarks
 server.js           # Backend-Server für Online-Multiplayer
 Dockerfile.frontend # Docker-Konfiguration für das Frontend
@@ -308,7 +311,8 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   [x] Mobile/Desktop Layout: Stabiler Slot-Grid-Tisch für Karten zur Vermeidung von Verschiebungen (Anti-Sliding)
 *   [x] Splashscreen: "Presented By" Vektorlogo-Präsentation (logo.svg, vergrößert)
 *   [x] Bot-Engine: Sicherheitsüberprüfungen im Move-Enumerator (Turn- & Status-Guards)
+*   [x] Bot-Engine: Bot-Identität und Name ("El Haj") mit reaktiver Übersetzung in Popups
 *   [x] Layout-Validierung: Automatisierter Playwright-Test für Karten-Einzeiligkeits-Garantie und Slot-Koordinatenstabilität (Anti-Sliding)
-*   [x] Erweiterte E2E-Test-Suite (21 Spec-Dateien: Lobby, Multiplayer, Bot, Responsiveness, Layout, Anti-Sliding, etc.)
+*   [x] Erweiterte E2E-Test-Suite (22 Spec-Dateien: Lobby, Multiplayer, Bot, Responsiveness, Layout, Anti-Sliding, etc.)
 *   [ ] Google Play Store: Bubblewrap TWA-Packaging & Store-Listing
 *   [ ] Erweiterte KI-Heuristik

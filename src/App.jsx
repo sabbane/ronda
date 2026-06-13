@@ -78,6 +78,10 @@ const App = () => {
     fetchPublicRooms
   } = useLobby();
 
+  if (typeof window !== 'undefined') {
+    window.isRondaBotGame = mode === 'bot';
+  }
+
   const [showSplash, setShowSplash] = useState(() => {
     if (typeof window !== 'undefined' && window.navigator.webdriver) {
       return false;

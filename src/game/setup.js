@@ -43,7 +43,11 @@ export const setupGame = ({ ctx }, setupData) => {
   const numP = ctx.numPlayers || 2;
   const playerIds = Array.from({ length: numP }, (_, i) => String(i));
   const players = playerIds.reduce((acc, pID) => {
-    acc[pID] = { hand: deck.splice(0, 3), captured: [], score: 0, name: '' };
+    const isBot = pID === '1' && (
+      (typeof window !== 'undefined' && window.isRondaBotGame === true) || 
+      (matchID && /bot/i.test(matchID))
+    );
+    acc[pID] = { hand: deck.splice(0, 3), captured: [], score: 0, name: isBot ? 'El Haj' : '' };
     return acc;
   }, {});
   const matchesWon = playerIds.reduce((acc, pID) => {
