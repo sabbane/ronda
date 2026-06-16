@@ -62,68 +62,13 @@ export const DebugRondaBoard = (props) => {
     playedCardId
   } = useBoardState(props);
 
-  const displayG = debugTableCount ? {
-    ...G,
-    table: Array.from({ length: parseInt(debugTableCount, 10) }, (_, i) => ({
-      id: `dheb-${i + 1}`,
-      value: (i % 10) + 1,
-      displayValue: (i % 10) + 1,
-      suit: 'dheb'
-    })),
-    ...(debugCapture ? {
-      pendingCapture: {
-        player: '0',
-        playedCardId: `dheb-${debugTableCount}`,
-        currentVal: 1,
-        isTaawidaTransfer: false
-      },
-      isAnimating: true
-    } : {})
-  } : G;
-
-  const displayGetWrapperForCard = debugCapture ? (cardId) => {
-    if (cardId === `dheb-${debugTableCount}`) {
-      return `dheb-1`;
-    }
-    return cardId;
-  } : getWrapperForCard;
-
-  const [debugCaptureStep, setDebugCaptureStep] = useState(0);
-  useEffect(() => {
-    if (debugCapture) {
-      if (displayG.gameStarted) {
-        const timer = setInterval(() => {
-          setDebugCaptureStep(prev => prev + 1);
-        }, 1000);
-        return () => clearInterval(timer);
-      } else {
-        const timer = setTimeout(() => {
-          setDebugCaptureStep(0);
-        }, 0);
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [debugCapture, displayG.gameStarted]);
-
-  const displayCaptureSequence = debugCapture ? Array.from({ length: parseInt(debugTableCount, 10) }, (_, i) => `dheb-${i + 1}`) : captureSequence;
-
-  const [displayCaptureRects, setDisplayCaptureRects] = useState({});
-  useEffect(() => {
-    if (debugCapture && displayG.gameStarted && displayG.table.length > 0) {
-      const timer = setTimeout(() => {
-        const rects = {};
-        displayG.table.forEach(card => {
-          const el = document.getElementById(`table-wrapper-${card.id}`);
-          if (el) rects[card.id] = el.getBoundingClientRect();
-        });
-        if (Object.keys(rects).length > 0) {
-          setDisplayCaptureRects(rects);
-        }
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debugCapture, displayG.gameStarted, displayG.table.length]);
+  const {
+    displayG,
+    displayGetWrapperForCard,
+    debugCaptureStep,
+    displayCaptureSequence,
+    displayCaptureRects
+  } = useDebugSetup(G, debugTableCount, debugCapture, getWrapperForCard, captureSequence);
 
   if (displayG.gameStarted === false) {
     return (
@@ -147,6 +92,95 @@ export const DebugRondaBoard = (props) => {
     );
   }
 
+  return (
+    <DebugRondaBoardLayout
+      boardContainerRef={boardContainerRef}
+      shouldScroll={shouldScroll}
+      t={t}
+      numP={numP}
+      language={language}
+      G={G}
+      myID={myID}
+      isMyTeamA={isMyTeamA}
+      playClick={playClick}
+      moves={moves}
+      activeEvent={activeEvent}
+      showGameOverOverlay={showGameOverOverlay}
+      opponentLeft={opponentLeft}
+      didIWin={didIWin}
+      winner={winner}
+      myTeamMatchesWon={myTeamMatchesWon}
+      oppTeamMatchesWon={oppTeamMatchesWon}
+      myTeamName={myTeamName}
+      oppTeamName={oppTeamName}
+      myTeamScore={myTeamScore}
+      oppTeamScore={oppTeamScore}
+      setIsAdPlaying={setIsAdPlaying}
+      opponentID={opponentID}
+      leftID={leftID}
+      topID={topID}
+      rightID={rightID}
+      isCurrentPlayer={isCurrentPlayer}
+      playedCardId={playedCardId}
+      displayG={displayG}
+      displayCaptureRects={displayCaptureRects}
+      displayCaptureSequence={displayCaptureSequence}
+      displayCaptureStep={debugCapture ? debugCaptureStep : captureStep}
+      displayGetWrapperForCard={displayGetWrapperForCard}
+      canCounterDarba={canCounterDarba}
+      isProcessing={isProcessing}
+      handlePlayCard={handlePlayCard}
+      isAdPlaying={isAdPlaying}
+      debugCapture={debugCapture}
+      captureRects={captureRects}
+      captureSequence={captureSequence}
+      captureStep={captureStep}
+      getWrapperForCard={getWrapperForCard}
+    />
+  );
+};
+
+const DebugRondaBoardLayout = ({
+  boardContainerRef,
+  shouldScroll,
+  t,
+  numP,
+  language,
+  G,
+  myID,
+  isMyTeamA,
+  playClick,
+  moves,
+  activeEvent,
+  showGameOverOverlay,
+  opponentLeft,
+  didIWin,
+  winner,
+  myTeamMatchesWon,
+  oppTeamMatchesWon,
+  myTeamName,
+  oppTeamName,
+  myTeamScore,
+  oppTeamScore,
+  setIsAdPlaying,
+  opponentID,
+  leftID,
+  topID,
+  rightID,
+  isCurrentPlayer,
+  playedCardId,
+  displayG,
+  displayCaptureRects,
+  displayCaptureSequence,
+  displayCaptureStep,
+  displayGetWrapperForCard,
+  canCounterDarba,
+  isProcessing,
+  handlePlayCard,
+  isAdPlaying,
+  debugCapture,
+  captureRects
+}) => {
   return (
     <div 
       ref={boardContainerRef}
@@ -217,7 +251,7 @@ export const DebugRondaBoard = (props) => {
         t={t}
         captureRects={debugCapture ? displayCaptureRects : captureRects}
         captureSequence={displayCaptureSequence}
-        captureStep={debugCapture ? debugCaptureStep : captureStep}
+        captureStep={displayCaptureStep}
         getWrapperForCard={displayGetWrapperForCard}
         playedCardId={playedCardId}
       />
@@ -240,4 +274,77 @@ export const DebugRondaBoard = (props) => {
       />
     </div>
   );
+};
+
+const useDebugSetup = (G, debugTableCount, debugCapture, getWrapperForCard, captureSequence) => {
+  const displayG = debugTableCount ? {
+    ...G,
+    table: Array.from({ length: parseInt(debugTableCount, 10) }, (_, i) => ({
+      id: `dheb-${i + 1}`,
+      value: (i % 10) + 1,
+      displayValue: (i % 10) + 1,
+      suit: 'dheb'
+    })),
+    ...(debugCapture ? {
+      pendingCapture: {
+        player: '0',
+        playedCardId: `dheb-${debugTableCount}`,
+        currentVal: 1,
+        isTaawidaTransfer: false
+      },
+      isAnimating: true
+    } : {})
+  } : G;
+
+  const displayGetWrapperForCard = debugCapture ? (cardId) => {
+    if (cardId === `dheb-${debugTableCount}`) {
+      return `dheb-1`;
+    }
+    return cardId;
+  } : getWrapperForCard;
+
+  const [debugCaptureStep, setDebugCaptureStep] = useState(0);
+  useEffect(() => {
+    if (debugCapture) {
+      if (displayG.gameStarted) {
+        const timer = setInterval(() => {
+          setDebugCaptureStep(prev => prev + 1);
+        }, 1000);
+        return () => clearInterval(timer);
+      } else {
+        const timer = setTimeout(() => {
+          setDebugCaptureStep(0);
+        }, 0);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [debugCapture, displayG.gameStarted]);
+
+  const displayCaptureSequence = debugCapture ? Array.from({ length: parseInt(debugTableCount, 10) }, (_, i) => `dheb-${i + 1}`) : captureSequence;
+
+  const [displayCaptureRects, setDisplayCaptureRects] = useState({});
+  useEffect(() => {
+    if (debugCapture && displayG.gameStarted && displayG.table.length > 0) {
+      const timer = setTimeout(() => {
+        const rects = {};
+        displayG.table.forEach(card => {
+          const el = document.getElementById(`table-wrapper-${card.id}`);
+          if (el) rects[card.id] = el.getBoundingClientRect();
+        });
+        if (Object.keys(rects).length > 0) {
+          setDisplayCaptureRects(rects);
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debugCapture, displayG.gameStarted, displayG.table.length]);
+
+  return {
+    displayG,
+    displayGetWrapperForCard,
+    debugCaptureStep,
+    displayCaptureSequence,
+    displayCaptureRects
+  };
 };

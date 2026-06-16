@@ -20,6 +20,17 @@ export const GameOverDisplay = ({
   G,
   playerID,
 }) => {
+  const handleRestartGame = () => {
+    playClick();
+    adService.showInterstitial({
+      onBeforeAd: () => setIsAdPlaying(true),
+      onComplete: () => {
+        setIsAdPlaying(false);
+        moves.restartGame();
+      }
+    });
+  };
+
   const getChallengeData = () => {
     if (!G || !G.wantsPlayAgain || !playerID) return null;
     
@@ -268,16 +279,7 @@ export const GameOverDisplay = ({
                   </span>
                   
                   <button
-                    onClick={() => {
-                      playClick();
-                      adService.showInterstitial({
-                        onBeforeAd: () => setIsAdPlaying(true),
-                        onComplete: () => {
-                          setIsAdPlaying(false);
-                          moves.restartGame();
-                        }
-                      });
-                    }}
+                    onClick={handleRestartGame}
                     className="w-full btn-moroccan-primary px-5 py-3 rounded-xl font-bold text-sm cursor-pointer z-10 shadow-md transform active:scale-95 transition-transform"
                   >
                     {challengeData.buttonText}
@@ -291,16 +293,7 @@ export const GameOverDisplay = ({
                   return (
                     <button 
                       disabled={hasVotedRematch}
-                      onClick={() => {
-                        playClick();
-                        adService.showInterstitial({
-                          onBeforeAd: () => setIsAdPlaying(true),
-                          onComplete: () => {
-                            setIsAdPlaying(false);
-                            moves.restartGame();
-                          }
-                        });
-                      }}
+                      onClick={handleRestartGame}
                       className={`btn-moroccan-primary px-8 py-3.5 rounded-2xl font-bold text-base cursor-pointer ${hasVotedRematch ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       {hasVotedRematch ? t('waiting') : t('playAgain')}
