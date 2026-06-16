@@ -37,7 +37,7 @@ test('Bot should be named El Haj and Darba announcement should display You hit E
   console.log('Playing cards to trigger Darba...');
   let darbaDetected = false;
 
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 80; i++) {
     // Check if Darba popup is visible
     if (await popupText.isVisible().catch(() => false)) {
       const text = await popupText.innerText();

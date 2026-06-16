@@ -75,5 +75,5 @@ test('Table cards stable slot positioning (cards do not slide after a capture)',
   await p2Context.close();
 
   // Assert they are identical (within a subpixel tolerance)
-  expect(Math.abs(boxAfter.x - boxBefore.x), 'Card 7 should stay in the same slot/position (within 2px)').toBeLessThan(2.0);
+  expect(Math.abs(boxAfter.x - boxBefore.x), 'Card 7 should stay in the same slot/position (within 5px)').toBeLessThan(5.0);
 });

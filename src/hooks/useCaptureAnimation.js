@@ -62,10 +62,12 @@ export const useCaptureAnimation = ({
         }
       }
     } else {
-      setTimeout(() => {
-        setCaptureStep(0);
-        setCaptureRects({});
-      }, 0);
+      if (captureStep !== 0 || Object.keys(captureRects).length > 0) {
+        setTimeout(() => {
+          setCaptureStep(0);
+          setCaptureRects({});
+        }, 0);
+      }
     }
     return () => {
       if (timerId) clearTimeout(timerId);

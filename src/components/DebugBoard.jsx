@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useBoardState } from '../hooks/useBoardState';
 
 import { WaitingLobby } from './WaitingLobby';
@@ -10,21 +10,19 @@ import { PlayerSeats } from './PlayerSeats';
 import { PlayerPanel } from './PlayerPanel';
 import { AdOverlay } from './AdOverlay';
 
-import { DebugRondaBoard } from './DebugBoard';
+export const DebugRondaBoard = (props) => {
+  const { G, ctx, moves, myID } = props;
+  const { debugTableCount, debugCapture } = props;
 
-const ProductionRondaBoard = (props) => {
-  const { G, ctx, moves, matchID } = props;
-  
   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.latestGameState = { G, ctx };
     }
   }, [G, ctx]);
-  
+
   const {
     language,
     t,
-    myID,
     opponentID,
     numP,
     leftID,
@@ -64,7 +62,70 @@ const ProductionRondaBoard = (props) => {
     playedCardId
   } = useBoardState(props);
 
-  if (G.gameStarted === false) {
+  const displayG = debugTableCount ? {
+    ...G,
+    table: Array.from({ length: parseInt(debugTableCount, 10) }, (_, i) => ({
+      id: `dheb-${i + 1}`,
+      value: (i % 10) + 1,
+      displayValue: (i % 10) + 1,
+      suit: 'dheb'
+    })),
+    ...(debugCapture ? {
+      pendingCapture: {
+        player: '0',
+        playedCardId: `dheb-${debugTableCount}`,
+        currentVal: 1,
+        isTaawidaTransfer: false
+      },
+      isAnimating: true
+    } : {})
+  } : G;
+
+  const displayGetWrapperForCard = debugCapture ? (cardId) => {
+    if (cardId === `dheb-${debugTableCount}`) {
+      return `dheb-1`;
+    }
+    return cardId;
+  } : getWrapperForCard;
+
+  const [debugCaptureStep, setDebugCaptureStep] = useState(0);
+  useEffect(() => {
+    if (debugCapture) {
+      if (displayG.gameStarted) {
+        const timer = setInterval(() => {
+          setDebugCaptureStep(prev => prev + 1);
+        }, 1000);
+        return () => clearInterval(timer);
+      } else {
+        const timer = setTimeout(() => {
+          setDebugCaptureStep(0);
+        }, 0);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [debugCapture, displayG.gameStarted]);
+
+  const displayCaptureSequence = debugCapture ? Array.from({ length: parseInt(debugTableCount, 10) }, (_, i) => `dheb-${i + 1}`) : captureSequence;
+
+  const [displayCaptureRects, setDisplayCaptureRects] = useState({});
+  useEffect(() => {
+    if (debugCapture && displayG.gameStarted && displayG.table.length > 0) {
+      const timer = setTimeout(() => {
+        const rects = {};
+        displayG.table.forEach(card => {
+          const el = document.getElementById(`table-wrapper-${card.id}`);
+          if (el) rects[card.id] = el.getBoundingClientRect();
+        });
+        if (Object.keys(rects).length > 0) {
+          setDisplayCaptureRects(rects);
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debugCapture, displayG.gameStarted, displayG.table.length]);
+
+  if (displayG.gameStarted === false) {
     return (
       <WaitingLobby
         G={G}
@@ -72,7 +133,7 @@ const ProductionRondaBoard = (props) => {
         moves={moves}
         myID={myID}
         opponentID={opponentID}
-        matchID={matchID}
+        matchID={props.matchID}
         language={language}
         t={t}
         playClick={playClick}
@@ -102,7 +163,6 @@ const ProductionRondaBoard = (props) => {
         }}
       />
 
-      {/* Scoreboard and HUD */}
       <Scoreboard
         t={t}
         numP={numP}
@@ -114,10 +174,8 @@ const ProductionRondaBoard = (props) => {
         moves={moves}
       />
 
-      {/* Central Event Notification Overlay */}
       <Popups activeEvent={activeEvent} />
 
-      {/* Game Over & Opponent Left Overlays */}
       <GameOverDisplay
         showGameOverOverlay={showGameOverOverlay}
         opponentLeft={opponentLeft}
@@ -136,7 +194,6 @@ const ProductionRondaBoard = (props) => {
         language={language}
       />
 
-      {/* Opponent / Partner / Seats Area */}
       <PlayerSeats
         numP={numP}
         G={G}
@@ -151,20 +208,18 @@ const ProductionRondaBoard = (props) => {
         playedCardId={playedCardId}
       />
 
-      {/* Central felt card-table */}
       <GameTable
-        G={G}
+        G={displayG}
         myID={myID}
         numP={numP}
         t={t}
-        captureRects={captureRects}
-        captureSequence={captureSequence}
-        captureStep={captureStep}
-        getWrapperForCard={getWrapperForCard}
+        captureRects={debugCapture ? displayCaptureRects : captureRects}
+        captureSequence={displayCaptureSequence}
+        captureStep={debugCapture ? debugCaptureStep : captureStep}
+        getWrapperForCard={displayGetWrapperForCard}
         playedCardId={playedCardId}
       />
 
-      {/* Bottom controls panel & player hand */}
       <PlayerPanel
         G={G}
         myID={myID}
@@ -177,29 +232,10 @@ const ProductionRondaBoard = (props) => {
         activeEvent={activeEvent}
       />
 
-      {/* Glassmorphic ad playing blocker overlay */}
       <AdOverlay
         isAdPlaying={isAdPlaying}
         t={t}
       />
     </div>
   );
-};
-
-export const RondaBoard = (props) => {
-  const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-  const debugTableCount = params?.get('debug_table');
-  const debugCapture = params?.get('debug_capture') === 'true';
-
-  if (debugCapture || debugTableCount) {
-    return (
-      <DebugRondaBoard
-        {...props}
-        debugTableCount={debugTableCount}
-        debugCapture={debugCapture}
-      />
-    );
-  }
-
-  return <ProductionRondaBoard {...props} />;
 };

@@ -180,7 +180,7 @@ const App = () => {
           key={`bot-${gameKey}`}
           matchID={`bot-room-${gameKey}`}
           playerID="0"
-          setupData={{ testMode, gameStarted: true }}
+          setupData={{ testMode: testMode || import.meta.env.VITE_TEST_MODE === 'true', gameStarted: true }}
         />
       )}
       {mode === 'online' && (credentials || testMode) && (

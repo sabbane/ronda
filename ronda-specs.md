@@ -123,12 +123,14 @@ Die App unterstützt Echtzeit-Multiplayer über einen dedizierten Server:
 
 ### 4.6 Testing, Qualitätssicherung & Performance
 *   **Unit-Tests:** Prüfung der Kern-Spiellogik (Sequenzen, Scoring, Clash) in `game.test.js`.
-*   **E2E-Tests:** End-to-End-Tests des Multiplayers, des Spiellayouts und der Slot-Stabilität mit **Playwright**.
+*   **E2E-Tests:** End-to-End-Tests des Multiplayers, des Spiellayouts, der Slot-Stabilität und der Animationspfade mit **Playwright**.
 *   **Layout-Validierung:** Der E2E-Test `table_cards_row_fit.spec.js` prüft auf Mobilgeräten, dass die Karten auf dem Tisch in einer horizontalen Reihe bleiben (Y-Differenz unter 10px).
 *   **Anti-Sliding-Verifizierung:** Der Test `table_cards_sliding_wrong_behavior.spec.js` stellt sicher, dass verbleibende Tischkarten nach einem gegnerischen Stich ihre absoluten Koordinaten (X-Wert) im Grid beibehalten und nicht verrutschen.
 *   **Bot-Namensprüfung:** Der E2E-Test `bot_name_el_haj.spec.js` verifiziert, dass die Bot-Gegner-Komponente mit dem Namen "El Haj" initialisiert wird und Spiel-Popups diesen Namen dynamisch verwenden.
 *   **Dark-Mode-Verifizierung:** Das Testskript `card_dark_mode.spec.js` validiert reaktiv das Farbschema des Kartenhintergrunds unter Dark-Mode-Medienbedingungen.
-*   **Layout-Debugging via URL-Parameter:** Zur manuellen Verifizierung von Layouts und Skalierungseffekten unterstützt die Anwendung das URL-Argument `?debug_table=<Anzahl>` (in `Board.jsx` ausgelesen). Damit lässt sich die Anzahl der auf dem Tisch gerenderten Karten zu Testzwecken manipulieren.
+*   **Animations- & Pfadverfolgung:** Der E2E-Test `played_card_animation_tracking.spec.js` validiert, dass die ausgespielte Karte bei der Auswertung einer Stichsequenz synchron mit den jeweiligen Zielkarten mitgleitet.
+*   **Größenstabilität der Spielfläche:** Der E2E-Test `table_height_capture_expansion.spec.js` prüft auf Desktop und Mobilgeräten, dass sich die Tischhöhe während einer Stichphase nicht unerwünscht vergrößert oder flackert. Dies wird durch das gezielte Ausschließen der in-flight-Karte aus der Grid-Slot-Berechnung in `GameTable.jsx` erreicht.
+*   **Layout-Debugging via URL-Parameter:** Zur manuellen Verifizierung von Layouts und Skalierungseffekten unterstützt die Anwendung die Argumente `?debug_table=<Anzahl>` und optional `&debug_capture=true`. Dies wird an eine dedizierte Debug-Komponente (`DebugRondaBoard.jsx` in `DebugBoard.jsx`) delegiert, um das Produktionsboard frei von Testlogiken zu halten.
 *   **Performance-Benchmarks:** Das Tool `latency_benchmark.spec.js` misst die Antwortzeiten des Live-Servers.
 *   **Asset-Preloading:** Karten-Assets und das neue Vektor-Logo (`logo.svg`) werden vorab geladen (Preload im HTML und Splashscreen), um Latenzen oder Flackern bei der Kartenausgabe und beim Laden zu vermeiden.
 
@@ -179,6 +181,7 @@ Die Benutzeroberfläche und die Event-Synchronisierung wurden vollständig entko
     /cards          # Bilddateien der spanischen Karten
   /components
     Board.jsx       # Haupt-Spielfeld & Event-Handling (inkl. Rematch-UI & Ad-Trigger)
+    DebugBoard.jsx  # Debug-Spielfeld für Mock-Zustände und manuelle Layout-Verifikation
     Card.jsx        # Karten-Komponente (mit Glow & Preload-Logik aus src/assets/cards)
     GameTable.jsx   # Tisch-Komponente (CSS Grid mit stabiler Slot-Belegung und Platzhaltern)
     MainMenu.jsx    # Ausgelagertes Hauptmenü (Navigation, Play-Buttons, Branding)
@@ -235,6 +238,8 @@ Die Benutzeroberfläche und die Event-Synchronisierung wurden vollständig entko
   table_cards_sliding_wrong_behavior.spec.js # E2E Mobile-Tischkarten Layoutstabilität (Anti-Sliding)
   bot_name_el_haj.spec.js              # E2E Bot-Name & Popups Verifizierung
   card_dark_mode.spec.js               # E2E Karten-Farbtest für den Dark Mode
+  played_card_animation_tracking.spec.js # E2E Test für Gleitkoordinaten-Präzision der in-flight Karte
+  table_height_capture_expansion.spec.js # E2E Test für Höhenstabilität des Tisch-Layouts
   latency_benchmark.spec.js            # Performance Benchmarks
 server.js           # Backend-Server für Online-Multiplayer
 Dockerfile.frontend # Docker-Konfiguration für das Frontend
@@ -321,7 +326,9 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   [x] Bot-Engine: Bot-Identität und Name ("El Haj") mit reaktiver Übersetzung in Popups
 *   [x] Bot-Engine: Eigene Bot-Klassen-Erweiterung in App.jsx zur synchronisierten Zug-Freigabe (Play-Guards)
 *   [x] UI-Zustand: Sichere Synchronisation von window.latestGameState via useEffect-Hook
+*   [x] Layout-Debugging: Dedizierte Debug-Board-Komponente (DebugBoard.jsx) zur sauberen Kapselung von Test-Zuständen
+*   [x] Animations-Korrekturen: Beseitigung von Tabellenflackern bei Stich-Erfassungen an Zeilenumbruchgrenzen
 *   [x] Layout-Validierung: Automatisierter Playwright-Test für Karten-Einzeiligkeits-Garantie und Slot-Koordinatenstabilität (Anti-Sliding)
-*   [x] Erweiterte E2E-Test-Suite (23 Spec-Dateien: Lobby, Multiplayer, Bot, Responsiveness, Layout, Anti-Sliding, Dark Mode, etc.)
+*   [x] Erweiterte E2E-Test-Suite (25 Spec-Dateien: Lobby, Multiplayer, Bot, Responsiveness, Layout, Anti-Sliding, Dark Mode, Animations-Tracking, etc.)
 *   [ ] Google Play Store: Bubblewrap TWA-Packaging & Store-Listing
 *   [ ] Erweiterte KI-Heuristik

@@ -47,7 +47,12 @@ export const GameTable = ({
 
   // 3. Compute grid slots count
   const minSlots = cols === 3 ? 9 : 8;
-  const maxSlot = cardsWithSlots.reduce((max, card) => card.slot > max ? card.slot : max, -1);
+  const maxSlot = cardsWithSlots.reduce((max, card) => {
+    if (G.pendingCapture && card.id === G.pendingCapture.playedCardId) {
+      return max;
+    }
+    return card.slot > max ? card.slot : max;
+  }, -1);
   const neededSlots = Math.max(minSlots, maxSlot + 1);
   const totalSlots = Math.ceil(neededSlots / cols) * cols;
   
@@ -55,7 +60,11 @@ export const GameTable = ({
 
   return (
     <div className="w-full flex items-center justify-center my-0.5 sm:my-2 relative z-10 shrink-0" dir="ltr">
-      <div className={`game-table bg-emerald-900/40 border-green-700/90 shadow-2xl shadow-green-900/30 ${numP === 4 ? 'game-table-4player' : ''}`} data-test-id="game-table">
+      <div 
+        className={`game-table bg-emerald-900/40 border-green-700/90 shadow-2xl shadow-green-900/30 ${numP === 4 ? 'game-table-4player' : ''}`} 
+        data-test-id="game-table"
+        data-capture-step={G.pendingCapture ? captureStep : undefined}
+      >
         <div className="absolute inset-0 bg-[url('/felt.png')] opacity-10 rounded-3xl mix-blend-overlay pointer-events-none"></div>
         
         {slotsArray.map((slotIndex) => {
@@ -86,8 +95,11 @@ export const GameTable = ({
                   let animZ = isPlayedBadge ? 50 : 1;
                   let transition = { duration: 0.3, type: "spring", stiffness: 100 };
                   
-                  if (G.pendingCapture && Object.keys(captureRects).length > 0 && captureRects[card.id]) {
-                    const isPlayedCard = card.id === G.pendingCapture.playedCardId;
+                  const isPlayedCard = G.pendingCapture && card.id === G.pendingCapture.playedCardId;
+                  const sourceRectId = isPlayedCard ? (captureSequence && captureSequence[0]) : card.id;
+
+
+                  if (G.pendingCapture && Object.keys(captureRects).length > 0 && captureRects[sourceRectId]) {
                     const seqIndex = captureSequence.indexOf(card.id);
                     const isCollected = seqIndex !== -1 && seqIndex < captureStep;
                     
@@ -96,8 +108,6 @@ export const GameTable = ({
                       const targetId = captureSequence[targetStep];
                       const targetRect = captureRects[targetId];
                       
-                      // playedCard mounts in sequence[0] wrapper, others in their own wrapper
-                      const sourceRectId = isPlayedCard ? captureSequence[0] : card.id;
                       const sourceRect = captureRects[sourceRectId];
                       
                       if (targetRect && sourceRect) {
@@ -115,6 +125,8 @@ export const GameTable = ({
                         animY = (targetRect.top - sourceRect.top) + offsetY;
                         animZ = 60 + stackIndex;
                         transition = { duration: 1.0, type: "tween", ease: "easeInOut" };
+
+
                       }
                     } else if (seqIndex === captureStep) {
                       animScale = 1.05;
