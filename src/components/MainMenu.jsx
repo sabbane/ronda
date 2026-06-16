@@ -298,7 +298,7 @@ export const MainMenu = ({
                             type="text"
                             value={joinRoomId}
                             onChange={e => setJoinRoomId(e.target.value)}
-                            className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-mono focus:outline-none focus:border-amber-500/50 transition-colors"
+                            className="flex-1 w-full min-w-0 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-mono focus:outline-none focus:border-amber-500/50 transition-colors"
                             placeholder={t('enterRoomId')}
                             required
                             aria-label={t('matchId') || 'Match ID'}
