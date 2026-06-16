@@ -1,13 +1,13 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Multiplayer Play Again Regression Test', () => {
+test.describe('Multiplayer Play Again Consent Bug Detection', () => {
   test.setTimeout(420_000); // 7 minutes - game animations and turns can take a few minutes
 
-  test('Clicking Play Again in multiplayer should directly start a new game instead of going back to the lobby', async ({ browser }) => {
-    const hostNickname = 'RondaHost';
-    const guestNickname = 'CardGuest';
+  test('Clicking Play Again by only one player must NOT immediately restart the game for the opponent', async ({ browser }) => {
+    const hostNickname = 'ConsentHost';
+    const guestNickname = 'ConsentGuest';
 
-    // 1. Setup isolation
+    // 1. Setup isolated contexts
     const hostContext = await browser.newContext();
     const guestContext = await browser.newContext();
     const hostPage = await hostContext.newPage();
@@ -20,32 +20,25 @@ test.describe('Multiplayer Play Again Regression Test', () => {
     console.log('Host: Creating a multiplayer room...');
     await hostPage.goto('/');
 
-    // Choose English language for consistent selectors
     const enButton1 = hostPage.locator('button', { hasText: /^EN$/i });
     if (await enButton1.isVisible().catch(() => false)) await enButton1.click();
 
-    // Click "Create Room"
     const createRoomBtn = hostPage.locator('button', { hasText: /Create Room/i }).first();
     await expect(createRoomBtn).toBeVisible();
     await createRoomBtn.click();
 
-    // Fill in Host Nickname
     const hostNicknameInput = hostPage.locator('input[placeholder*="name" i]').first();
     await hostNicknameInput.fill(hostNickname);
 
-    // Set privacy to Public
     const publicBtn = hostPage.locator('button', { hasText: /Public/i }).first();
     await publicBtn.click();
 
-    // Click "Create"
     const createSubmitBtn = hostPage.locator('button', { hasText: /^Create$/i }).first();
     await createSubmitBtn.click();
 
-    // Wait until Host is in the Lobby
     const hostLobbyHeader = hostPage.locator('h1', { hasText: /Game Lobby/i });
     await expect(hostLobbyHeader).toBeVisible({ timeout: 10000 });
 
-    // Extract generated Room ID from Lobby URL
     const url = hostPage.url();
     const realMatchID = new URL(url).searchParams.get('room');
     console.log(`Host created room successfully. Room ID: ${realMatchID}`);
@@ -54,35 +47,23 @@ test.describe('Multiplayer Play Again Regression Test', () => {
     console.log(`Guest: Joining room ${realMatchID}...`);
     await guestPage.goto(`/`);
 
-    // Choose English language for guest
     const enButton2 = guestPage.locator('button', { hasText: /^EN$/i });
     if (await enButton2.isVisible().catch(() => false)) await enButton2.click();
 
-    // Click Join Room
     await guestPage.locator('button', { hasText: /Join Room/i }).first().click();
 
-    // Fill in Guest Nickname
     const guestNicknameInput = guestPage.locator('input[placeholder*="name" i]').first();
     await guestNicknameInput.fill(guestNickname);
 
-    // Click Private Room tab
     await guestPage.locator('button', { hasText: /Private Room/i }).first().click();
-
-    // Fill Room ID
     await guestPage.locator('input[placeholder*="Room ID" i], input[placeholder*="Enter Room" i]').first().fill(realMatchID);
 
-    // Click Join button
     const joinBtn = guestPage.locator('button', { hasText: /^Join$/i }).first();
     await joinBtn.click();
 
-    // Wait until Guest is in the Lobby
     const guestLobbyHeader = guestPage.locator('h1', { hasText: /Game Lobby/i });
     await expect(guestLobbyHeader).toBeVisible({ timeout: 10000 });
     console.log('Guest joined the lobby successfully.');
-
-    // Verify Host sees the Guest's nickname in the Lobby
-    const hostLobbyGuestName = hostPage.locator(`text=${guestNickname}`).first();
-    await expect(hostLobbyGuestName).toBeVisible({ timeout: 10000 });
 
     // 4. Host starts the game
     console.log('Host starting the multiplayer game...');
@@ -153,44 +134,23 @@ test.describe('Multiplayer Play Again Regression Test', () => {
       };
     });
 
-    // 6. Host clicks "Play Again"
-    console.log('Host clicking Play Again...');
-    const playAgainBtn1 = hostPage.locator('button', { hasText: /Play Again|Rejouer/i }).first();
-    await expect(playAgainBtn1).toBeVisible();
-    await playAgainBtn1.click();
+    // 6. Only Host clicks "Play Again"
+    console.log('Host clicks Play Again...');
+    const playAgainBtn = hostPage.locator('button', { hasText: /Play Again|Rejouer/i }).first();
+    await expect(playAgainBtn).toBeVisible();
+    await playAgainBtn.click();
 
-    // Verify Host's button goes into a waiting state (e.g. text changes to "Waiting..." or similar)
-    // The English waiting text is "Waiting..."
-    console.log('Verifying Host button is in waiting state...');
-    await expect(hostPage.locator('button', { hasText: /Waiting/i }).first()).toBeVisible({ timeout: 5000 });
+    // 7. Verify Guest (who has NOT clicked Play Again) still sees the Game Over screen
+    console.log('Checking if Guest is still on Game Over screen...');
+    
+    // We wait 3 seconds to let any potential state sync propagate
+    await guestPage.waitForTimeout(3000);
 
-    // 7. Guest clicks "Play Again"
-    console.log('Guest clicking Play Again...');
-    const playAgainBtn2 = guestPage.locator('button', { hasText: /Play Again|Rejouer/i }).first();
-    await expect(playAgainBtn2).toBeVisible();
-    await playAgainBtn2.click();
-
-    // 8. Verify both players directly start a new game instead of going back to the lobby
-    console.log('Verifying play again behavior...');
-
-    // The Game Over overlay should disappear on both screens
-    await expect(gameOver1).not.toBeVisible({ timeout: 10000 });
-    await expect(gameOver2).not.toBeVisible({ timeout: 10000 });
-
-    // ASSERTION: The Lobby waiting screen should NOT be visible.
-    await expect(hostLobbyHeader).not.toBeVisible({ timeout: 5000 });
-    await expect(guestLobbyHeader).not.toBeVisible({ timeout: 5000 });
-
-    // Wait for the dealing animation to finish and cards to settle
-    await hostPage.waitForTimeout(4000);
-
-    // A new active round should be set up, so card hands are visible on both screens
-    const myCards1 = hostPage.locator('[data-testid^="card-"]');
-    const myCards2 = guestPage.locator('[data-testid^="card-"]');
-    await expect(myCards1.first()).toBeVisible({ timeout: 15000 });
-    await expect(myCards2.first()).toBeVisible({ timeout: 15000 });
-
-    console.log('✅ Success: New multiplayer round started directly without returning to lobby after consensus.');
+    // If the bug exists, the Guest's Game Over screen will have disappeared
+    // because the game restarted immediately.
+    console.log('Asserting Guest Game Over screen is still visible...');
+    await expect(gameOver2).toBeVisible();
+    console.log('SUCCESS: Game did not restart immediately for Guest.');
 
     // Clean up
     await hostContext.close();

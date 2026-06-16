@@ -83,6 +83,10 @@ export const setupGame = ({ ctx }, setupData) => {
     matchesWon, // Track overall games won
     teamNames: { TeamA: '', TeamB: '' },
     isBotGame,
+    wantsPlayAgain: playerIds.reduce((acc, pID) => {
+      acc[pID] = false;
+      return acc;
+    }, {}),
   };
 
   evaluateRondaTringa(G);

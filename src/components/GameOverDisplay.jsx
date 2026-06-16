@@ -17,6 +17,8 @@ export const GameOverDisplay = ({
   playClick,
   setIsAdPlaying,
   moves,
+  G,
+  playerID,
 }) => {
   const moroccanSymbols = [
     // Khamsa (Hand of Fatima)
@@ -178,21 +180,27 @@ export const GameOverDisplay = ({
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-                <button 
-                  onClick={() => {
-                    playClick();
-                    adService.showInterstitial({
-                      onBeforeAd: () => setIsAdPlaying(true),
-                      onComplete: () => {
-                        setIsAdPlaying(false);
-                        moves.restartGame();
-                      }
-                    });
-                  }}
-                  className="btn-moroccan-primary px-8 py-3.5 rounded-2xl font-bold text-base cursor-pointer"
-                >
-                  {t('playAgain')}
-                </button>
+                {(() => {
+                  const hasVotedRematch = G && G.wantsPlayAgain && G.wantsPlayAgain[playerID] === true;
+                  return (
+                    <button 
+                      disabled={hasVotedRematch}
+                      onClick={() => {
+                        playClick();
+                        adService.showInterstitial({
+                          onBeforeAd: () => setIsAdPlaying(true),
+                          onComplete: () => {
+                            setIsAdPlaying(false);
+                            moves.restartGame();
+                          }
+                        });
+                      }}
+                      className={`btn-moroccan-primary px-8 py-3.5 rounded-2xl font-bold text-base cursor-pointer ${hasVotedRematch ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      {hasVotedRematch ? t('waiting') : t('playAgain')}
+                    </button>
+                  );
+                })()}
                 <button 
                   onClick={() => {
                     playClick();

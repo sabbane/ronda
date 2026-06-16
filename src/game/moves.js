@@ -234,39 +234,63 @@ export const endAnimation = ({ G, events }) => {
   }
 };
 
-export const restartGame = ({ G, ctx, events }) => {
-  const numP = Object.keys(G.players).length;
-  const preservedTeamNames = G.teamNames ? { ...G.teamNames } : { TeamA: '', TeamB: '' };
-  const playerIds = Array.from({ length: numP }, (_, i) => String(i));
-  const matches = G.matchesWon ? { ...G.matchesWon } : {};
-
-  const names = playerIds.reduce((acc, pID) => {
-    acc[pID] = G.players && G.players[pID] ? G.players[pID].name : '';
-    return acc;
-  }, {});
-
-  const fresh = setupGame({ ctx });
-
-  Object.keys(G).forEach(key => delete G[key]);
-  Object.assign(G, fresh);
-
-  G.matchesWon = matches;
-  G.teamNames = preservedTeamNames;
-  G.gameStarted = true;
+export const restartGame = ({ G, ctx, events, playerID }) => {
+  if (!G.wantsPlayAgain) {
+    G.wantsPlayAgain = {};
+  }
   
-  playerIds.forEach(pID => {
-    if (G.players && G.players[pID]) {
-      G.players[pID].name = names[pID];
-    }
-  });
+  const pID = playerID !== undefined && playerID !== null ? String(playerID) : '0';
+  G.wantsPlayAgain[pID] = true;
 
-  events.setActivePlayers({ all: null });
+  const numP = Object.keys(G.players).length;
+  const playerIds = Array.from({ length: numP }, (_, i) => String(i));
 
-  if (G.announcements.length > 0 || G.isAnimating) {
-    if (G.isBotGame) {
-      events.setActivePlayers({ value: { '0': 'waitForUI' } });
-    } else {
-      events.setActivePlayers({ all: 'waitForUI' });
+  // If this is a bot game, human is player '0'. The bot '1' doesn't have a UI to click, so it auto-votes true.
+  if (G.isBotGame) {
+    G.wantsPlayAgain['1'] = true;
+  }
+
+  // Check if all players have voted true
+  const allConsented = playerIds.every(id => G.wantsPlayAgain[id] === true);
+
+  if (allConsented) {
+    const preservedTeamNames = G.teamNames ? { ...G.teamNames } : { TeamA: '', TeamB: '' };
+    const matches = G.matchesWon ? { ...G.matchesWon } : {};
+
+    const names = playerIds.reduce((acc, id) => {
+      acc[id] = G.players && G.players[id] ? G.players[id].name : '';
+      return acc;
+    }, {});
+
+    const fresh = setupGame({ ctx });
+
+    Object.keys(G).forEach(key => delete G[key]);
+    Object.assign(G, fresh);
+
+    G.matchesWon = matches;
+    G.teamNames = preservedTeamNames;
+    G.gameStarted = true;
+    
+    playerIds.forEach(id => {
+      if (G.players && G.players[id]) {
+        G.players[id].name = names[id];
+      }
+    });
+
+    // Reset wantsPlayAgain on new game state
+    G.wantsPlayAgain = playerIds.reduce((acc, id) => {
+      acc[id] = false;
+      return acc;
+    }, {});
+
+    events.setActivePlayers({ all: null });
+
+    if (G.announcements.length > 0 || G.isAnimating) {
+      if (G.isBotGame) {
+        events.setActivePlayers({ value: { '0': 'waitForUI' } });
+      } else {
+        events.setActivePlayers({ all: 'waitForUI' });
+      }
     }
   }
 };

@@ -134,6 +134,8 @@ const ProductionRondaBoard = (props) => {
         setIsAdPlaying={setIsAdPlaying}
         moves={moves}
         language={language}
+        G={G}
+        playerID={myID}
       />
 
       {/* Opponent / Partner / Seats Area */}
