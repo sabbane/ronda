@@ -30,21 +30,27 @@ export const GameOverDisplay = ({
     const numP = Object.keys(G.players).length;
     const is4Player = numP === 4;
 
+    const isDraw = winner === 'Draw' || winner === 'draw';
+
     if (is4Player) {
       // 4-Player mode (Team Mode)
       // Partner IDs: 0 <-> 2, 1 <-> 3
       const partnerIDMap = { '0': '2', '2': '0', '1': '3', '3': '1' };
       const partnerID = partnerIDMap[playerID];
 
-      // Check if my partner wants a revanche
+      // Check if my partner wants a revanche / rematch
       if (partnerID && G.wantsPlayAgain[partnerID] === true) {
+        const partnerWon = isDraw || didIWin;
+        const text = partnerWon
+          ? (t('partnerRematchRequest') || "Your teammate wants a rematch, back him up!")
+          : (t('partnerRevancheRequest') || "Your teammate wants a revanche, back him up!");
         return {
-          text: t('partnerRevancheRequest') || "Your teammate wants a revanche, back him up!",
+          text,
           buttonText: t('joinChallenge') || "Join Challenge"
         };
       }
 
-      // Check if anyone on the opposing team wants a revanche
+      // Check if anyone on the opposing team wants a revanche / rematch
       const isTeamA = playerID === '0' || playerID === '2';
       const oppTeamKey = isTeamA ? 'TeamB' : 'TeamA';
       const oppPlayerIds = isTeamA ? ['1', '3'] : ['0', '2'];
@@ -53,8 +59,12 @@ export const GameOverDisplay = ({
       if (oppHasVoted) {
         const customTeamName = G.teamNames && G.teamNames[oppTeamKey];
         const teamName = customTeamName || (isTeamA ? t('teamB') || 'Team B' : t('teamA') || 'Team A');
+        const oppWon = isDraw || !didIWin;
+        const text = oppWon
+          ? (t('teamRematchRequest', { team: teamName }) || `${teamName} wants a rematch`)
+          : (t('teamRevancheRequest', { team: teamName }) || `${teamName} wants a revanche`);
         return {
-          text: t('teamRevancheRequest', { team: teamName }) || `${teamName} wants a revanche`,
+          text,
           buttonText: t('acceptChallenge') || "Accept Challenge"
         };
       }
@@ -63,8 +73,12 @@ export const GameOverDisplay = ({
       const oppID = playerID === '0' ? '1' : '0';
       if (G.wantsPlayAgain[oppID] === true) {
         const oppName = G.players[oppID]?.name || t('roleOpponent') || 'Opponent';
+        const oppWon = isDraw || !didIWin;
+        const text = oppWon
+          ? (t('rematchRequest', { name: oppName }) || `${oppName} wants a rematch`)
+          : (t('revancheRequest', { name: oppName }) || `${oppName} wants a revanche`);
         return {
-          text: t('revancheRequest', { name: oppName }) || `${oppName} wants a revanche`,
+          text,
           buttonText: t('acceptChallenge') || "Accept Challenge"
         };
       }

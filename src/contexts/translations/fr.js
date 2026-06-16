@@ -153,6 +153,9 @@ export const fr = {
   revancheRequest: "{name} veut sa revanche",
   teamRevancheRequest: "{team} veut sa revanche",
   partnerRevancheRequest: "Votre coéquipier veut sa revanche, soutenez-le !",
+  rematchRequest: "{name} propose de rejouer",
+  teamRematchRequest: "{team} propose de rejouer",
+  partnerRematchRequest: "Votre coéquipier veut rejouer, soutenez-le !",
   joinChallenge: "Rejoindre le défi",
   rematchTitle: "Demande de revanche"
 };

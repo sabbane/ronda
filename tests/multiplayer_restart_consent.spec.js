@@ -144,7 +144,7 @@ test.describe('Multiplayer Play Again Consent Bug Detection', () => {
     console.log('Checking if Guest sees the challenge card...');
 
     // Locate the challenge card container or text
-    const challengeCardText = guestPage.locator('text=ConsentHost wants a revanche').first();
+    const challengeCardText = guestPage.locator('text=/ConsentHost wants a (revanche|rematch)/').first();
     await expect(challengeCardText).toBeVisible({ timeout: 10000 });
 
     const acceptChallengeBtn = guestPage.locator('button', { hasText: /Accept Challenge/i }).first();

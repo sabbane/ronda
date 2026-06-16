@@ -153,6 +153,9 @@ export const en = {
   revancheRequest: "{name} wants a revanche",
   teamRevancheRequest: "{team} wants a revanche",
   partnerRevancheRequest: "Your teammate wants a revanche, back him up!",
+  rematchRequest: "{name} wants a rematch",
+  teamRematchRequest: "{team} wants a rematch",
+  partnerRematchRequest: "Your teammate wants a rematch, back him up!",
   joinChallenge: "Join Challenge",
   rematchTitle: "Rematch Request"
 };

@@ -154,6 +154,9 @@ export const ar = {
   revancheRequest: "يريد {name} مباراة انتقامية",
   teamRevancheRequest: "يريد فريق {team} مباراة انتقامية",
   partnerRevancheRequest: "زميلك في الفريق يريد مباراة انتقامية، سانده!",
+  rematchRequest: "يريد {name} مباراة جديدة",
+  teamRematchRequest: "يريد فريق {team} مباراة جديدة",
+  partnerRematchRequest: "زميلك في الفريق يريد إعادة اللعب، سانده!",
   joinChallenge: "الانضمام إلى التحدي",
   rematchTitle: "طلب مباراة انتقامية"
 };
