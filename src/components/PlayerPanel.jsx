@@ -91,7 +91,7 @@ export const PlayerPanel = ({
                 className={tracks && tracks[currentTrack]?.name === "No Sound" ? "text-slate-400" : "text-amber-400 animate-pulse"} 
               />
               {tracks && tracks[currentTrack]?.name === "No Sound" && (
-                <div className="absolute w-[20px] h-[1.5px] bg-red-400 rotate-45 rounded-sm shadow-sm" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[20px] h-[1.5px] bg-red-400 rotate-45 rounded-sm shadow-sm" />
               )}
             </div>
             <span className="text-slate-300 font-medium text-xs sm:text-sm">{tracks && tracks[currentTrack] ? tracks[currentTrack].name : t('music')}</span>
