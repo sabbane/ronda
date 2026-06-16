@@ -7,7 +7,7 @@ export const Rules = ({ onBack }) => {
   const { playClick } = useSound();
 
   return (
-    <div className="h-screen w-full flex flex-col items-center text-white relative overflow-y-auto custom-scrollbar">
+    <div className="h-[100dvh] w-full flex flex-col items-center text-white relative overflow-y-auto custom-scrollbar">
       {/* Background Image with Moroccan Zellige Theme */}
       <div
         className="fixed inset-0 z-0 scale-105 pointer-events-none"
@@ -19,7 +19,7 @@ export const Rules = ({ onBack }) => {
         }}
       />
 
-      <div className="w-full max-w-2xl p-4 z-30 pt-12 pb-8 relative flex flex-col">
+      <div className="w-full max-w-2xl p-4 z-30 pt-12 pb-24 sm:pb-12 relative flex flex-col">
         
         {/* Header section: Back button and Language Switcher */}
         <div className="flex justify-between items-center mb-8 relative">
