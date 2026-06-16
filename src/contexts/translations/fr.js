@@ -75,7 +75,7 @@ export const fr = {
   rulesUltimateAttack: "• Attaque Ultime : Contrer une Contre-Attaque (+10 points).",
   rulesFinalFail: "• Échec Final : Rater la dernière carte donne +5 points à l'adversaire.",
   rulesKingFinish: "• King Finish : Faire un pli avec un Roi comme toute toute dernière carte du jeu (+5 points).",
-  rulesAsFinish: "• As Finish : Faire un pli avec un As comme toute toute dernière carte donne +5 points à l'adversaire.",
+  rulesAsFinish: "• Ace Finish : Faire un pli avec un As comme toute toute dernière carte donne +5 points à l'adversaire.",
   announcements: {
     rondaMe: "Vous avez une Ronda (+1 vous)",
     rondaOpponent: "{oppName} a une Ronda (+1 {oppName})",
@@ -114,7 +114,7 @@ export const fr = {
     finalFailTitle: "Échec Final",
     finalFailMe: "{oppName} a manqué la dernière carte ! (+5 vous)",
     finalFailOpponent: "Vous avez manqué la dernière carte ! (+5 {oppName})",
-    asFinishTitle: "As Finish",
+    asFinishTitle: "Ace Finish",
     asFinishMe: "{oppName} a capturé avec l'As ! (+5 vous)",
     asFinishOpponent: "Vous avez capturé avec l'As ! (+5 {oppName})"
   },

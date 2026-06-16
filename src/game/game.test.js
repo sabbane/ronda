@@ -367,7 +367,7 @@ describe('RondaGame - Extended Requirements', () => {
     expect(state.G.announcements.find(a => a.type === 'Final Fail')).toBeDefined();
   });
 
-  test('As Finish: Capturing with Ace as the last card awards 5 points to the opponent', () => {
+  test('Ace Finish: Capturing with Ace as the last card awards 5 points to the opponent', () => {
     const game = setupCustomGame((G) => {
       G.deck = [];
       G.players['0'].hand = [{ suit: 'dheb', value: 1, id: 'd1' }];
@@ -385,7 +385,7 @@ describe('RondaGame - Extended Requirements', () => {
     const state = client.getState();
     // P1 (opponent) should get 5 points
     expect(state.G.players['1'].score).toBe(5);
-    expect(state.G.announcements.find(a => a.type === 'As Finish')).toBeDefined();
+    expect(state.G.announcements.find(a => a.type === 'Ace Finish')).toBeDefined();
   });
 
   test('Taawida: Player 1 counters immediately after Player 2s Darba + Missa on 10, winning all cards and points', () => {

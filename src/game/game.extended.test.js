@@ -415,7 +415,7 @@ describe('Ronda Game Logic - Deep Testing', () => {
 
     // Mimic the hook's variant assignment logic
     const getVariant = (ann, myID, numP) => {
-      const allPointEvents = ['Ronda', 'Tringa', 'Missa', 'Darba', 'Taawida', 'Clash Won', 'King Finish', 'TringaWins', 'Final Fail', 'As Finish'];
+      const allPointEvents = ['Ronda', 'Tringa', 'Missa', 'Darba', 'Taawida', 'Clash Won', 'King Finish', 'TringaWins', 'Final Fail', 'Ace Finish'];
       if (allPointEvents.includes(ann.type)) {
         const isTeamEvent = (ann.player === myID) || 
           (numP === 4 && (

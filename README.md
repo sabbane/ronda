@@ -10,7 +10,7 @@ Built with **React**, **Vite**, **boardgame.io**, **Framer Motion**, and a custo
 
 * **🤖 Smart Tactical Singleplayer Bot**: 
   * Powered by a rule-based tactical decision-making matrix (`bot.js`).
-  * Calculates optimal card drop strategies, plans high-yielding captures, baits human players with safe drops, and avoids end-of-game penalty traps (like *As Finish* or *Final Fail*).
+  * Calculates optimal card drop strategies, plans high-yielding captures, baits human players with safe drops, and avoids end-of-game penalty traps (like *Ace Finish* or *Final Fail*).
   * Plays at realistic human speeds for a natural pairing experience.
 
 * **🌐 Realtime Socket.io Online Multiplayer**:
@@ -43,7 +43,7 @@ Ronda is played with a 40-card Spanish deck (4 suits: *dheb* (coins), *jben* (cu
 3. **Darba (+1 pt)**: Play a card of the same value that the previous opponent *just* played.
 4. **Taawida (+5 or +10 pts)**: Play a matching card immediately after an opponent hits a Darba on your turn (counters are recursive!).
 5. **Missa (+1 pt)**: Clearing all cards from the table.
-6. **King Finish / As Finish (+5 pts)**: Play the 12 (King) or 1 (Ace) as the very last card of the round to secure final victory points.
+6. **King Finish / Ace Finish (+5 pts)**: Play the 12 (King) or 1 (Ace) as the very last card of the round to secure final victory points.
 
 ---
 

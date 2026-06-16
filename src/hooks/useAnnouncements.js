@@ -168,14 +168,14 @@ export const useAnnouncements = ({
             customText = isMe ? t('announcements.finalFailMe', { oppName: failingPlayerName }) : t('announcements.finalFailOpponent', { oppName: announcerName });
             customIcon = "📉";
           }
-          if (ann.type === 'As Finish') {
+          if (ann.type === 'Ace Finish') {
             customTitle = t('announcements.asFinishTitle');
             customText = isMe ? t('announcements.asFinishMe', { oppName: failingPlayerName }) : t('announcements.asFinishOpponent', { oppName: announcerName });
             customIcon = "🂱";
           }
 
           let variant = "info";
-          const allPointEvents = ['Ronda', 'Tringa', 'Missa', 'Darba', 'Taawida', 'Clash Won', 'King Finish', 'TringaWins', 'Final Fail', 'As Finish'];
+          const allPointEvents = ['Ronda', 'Tringa', 'Missa', 'Darba', 'Taawida', 'Clash Won', 'King Finish', 'TringaWins', 'Final Fail', 'Ace Finish'];
 
           if (allPointEvents.includes(ann.type)) {
             const isTeamEvent = (ann.player === myID) || 

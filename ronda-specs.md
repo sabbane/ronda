@@ -42,7 +42,7 @@ Die Punkte werden während des Spiels und am Ende berechnet. Das Scoring ist add
     *   **Konter (Taawida):** 3. Karte des gleichen Ranges (+5 Punkte & Transfer der vorherigen Karten).
     *   **Ultimativer Konter:** 4. Karte des gleichen Ranges (+10 Punkte & Transfer der vorherigen Karten).
 *   **Final Fail:** Wenn die allerletzte Karte des Spiels ausgespielt wird, ohne einen Stich zu machen, erhält der Gegner +5 Punkte.
-*   **As Finish:** Wenn die allerletzte Karte des Spiels ein Ass (Wert 1) ist und einen Stich macht, erhält der Gegner +5 Punkte.
+*   **Ace Finish:** Wenn die allerletzte Karte des Spiels ein Ass (Wert 1) ist und einen Stich macht, erhält der Gegner +5 Punkte.
 *   **King Finish:** Wenn die allerletzte Karte des Spiels ein König (Wert 12) ist und einen Stich macht, erhält der Spieler +5 Punkte.
 *   **Ronda & Tringa (Hand):**
     *   **Ronda:** Zwei gleiche Karten auf der Hand. (+1 Punkt bei Einzelansage)
@@ -91,7 +91,7 @@ Das Spiel setzt auf eine dedizierte `AdService`-Schicht (`src/services/AdService
 *   **Modularisierung der Spiellogik:** Um die Wartbarkeit und Testbarkeit zu verbessern, wurde die Kern-Spiellogik aus dem monolithischen `game.js` in eigenständige Submodule unter `/src/game/` aufgeteilt:
     *   `deck.js`: Initialisierung des 40 spanischen Kartendecks sowie marokkanisches Suit-Mapping.
     *   `capture.js`: Logik für Stechen, Sequenzberechnungen und Transferregeln.
-    *   `rules.js`: Auswertung von Sondersituationen (Missa, Ronda, Tringa, Clash, King/As Finish, Endabrechnung).
+    *   `rules.js`: Auswertung von Sondersituationen (Missa, Ronda, Tringa, Clash, King/Ace Finish, Endabrechnung).
     *   `moves.js`: boardgame.io Aktionen (`playCard`, `processCapture`, `counterDarba`, Lobby-Verwaltung, Rematch, etc.).
     *   `setup.js`: Initialer State-Entwurf.
     *   `game.js`: Haupt-Einstiegspunkt für boardgame.io, der die Submodule orchestriert.
@@ -277,7 +277,7 @@ Das Spiel wird auf drei Plattformen parallel angeboten, alle aus derselben Codeb
 *   [x] Core Game Logic (Stechen, Sequenzen, Missa, Darba)
 *   [x] Taawida-System (Konter & Ultimativer Konter mit Karten-Transfer)
 *   [x] Ronda/Tringa Clash-Logik & Tringa vs. Ronda Sofort-Auflösung
-*   [x] "As Finish", "King Finish" & "Final Fail" Regeln implementiert
+*   [x] "Ace Finish", "King Finish" & "Final Fail" Regeln implementiert
 *   [x] Rematch-System (beliebig viele Spiele in einem Raum)
 *   [x] Match-Wins Tracking (Gesamtscore der Session)
 *   [x] Tisch leeren am Spielende (Karten an letzten Stecher)

@@ -126,7 +126,7 @@ export const executeCapture = (G) => {
       const numP4 = Object.keys(G.players).length;
       const asOpponent = numP4 === 2 ? (player === '0' ? '1' : '0') : String((parseInt(player) + 1) % numP4);
       addScore(G, asOpponent, 5); 
-      G.announcements.push({ player: asOpponent, type: 'As Finish' }); 
+      G.announcements.push({ player: asOpponent, type: 'Ace Finish' }); 
     }
   }
   checkRoundEnd(G);

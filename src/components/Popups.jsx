@@ -4,7 +4,7 @@ export const Popups = ({ activeEvent }) => {
   return (
     <AnimatePresence>
       {activeEvent && (() => {
-        const isBigEvent = activeEvent.streak >= 3 || activeEvent.type === 'King Finish' || activeEvent.type === 'Final Fail' || activeEvent.type === 'As Finish';
+        const isBigEvent = activeEvent.streak >= 3 || activeEvent.type === 'King Finish' || activeEvent.type === 'Final Fail' || activeEvent.type === 'Ace Finish';
         return (
           <motion.div 
             key={activeEvent.id}

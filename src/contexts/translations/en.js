@@ -75,7 +75,7 @@ export const en = {
   rulesUltimateAttack: "• Ultimate Attack: Countering a Counter Attack (+10 points).",
   rulesFinalFail: "• Final Fail: Missing the last card gives +5 points to the opponent.",
   rulesKingFinish: "• King Finish: Capturing with a King as the very last card of the game (+5 points).",
-  rulesAsFinish: "• As Finish: Capturing with an Ace as the very last card gives +5 points to the opponent.",
+  rulesAsFinish: "• Ace Finish: Capturing with an Ace as the very last card gives +5 points to the opponent.",
   announcements: {
     rondaMe: "You have a Ronda (+1 you)",
     rondaOpponent: "{oppName} has a Ronda (+1 {oppName})",
@@ -114,7 +114,7 @@ export const en = {
     finalFailTitle: "Final Fail",
     finalFailMe: "{oppName} missed the last card! (+5 you)",
     finalFailOpponent: "You missed the last card! (+5 {oppName})",
-    asFinishTitle: "As Finish",
+    asFinishTitle: "Ace Finish",
     asFinishMe: "{oppName} captured with Ace! (+5 you)",
     asFinishOpponent: "You captured with Ace! (+5 {oppName})"
   },

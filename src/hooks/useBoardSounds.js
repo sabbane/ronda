@@ -91,7 +91,7 @@ export const useBoardSounds = ({
         }
       } else if (type === 'Clash' || type === 'Clash Draw') {
         playClash(true);
-      } else if (['Ronda', 'Tringa', 'TringaWins', 'Clash Won', 'King Finish', 'As Finish', 'Final Fail'].includes(type)) {
+      } else if (['Ronda', 'Tringa', 'TringaWins', 'Clash Won', 'King Finish', 'Ace Finish', 'Final Fail'].includes(type)) {
         playRondaTringa(isSuccess);
       }
     }
