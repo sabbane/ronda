@@ -140,17 +140,35 @@ test.describe('Multiplayer Play Again Consent Bug Detection', () => {
     await expect(playAgainBtn).toBeVisible();
     await playAgainBtn.click();
 
-    // 7. Verify Guest (who has NOT clicked Play Again) still sees the Game Over screen
-    console.log('Checking if Guest is still on Game Over screen...');
-    
-    // We wait 3 seconds to let any potential state sync propagate
-    await guestPage.waitForTimeout(3000);
+    // 7. Verify Guest (who has NOT clicked Play Again) sees the challenge card
+    console.log('Checking if Guest sees the challenge card...');
 
-    // If the bug exists, the Guest's Game Over screen will have disappeared
-    // because the game restarted immediately.
-    console.log('Asserting Guest Game Over screen is still visible...');
-    await expect(gameOver2).toBeVisible();
-    console.log('SUCCESS: Game did not restart immediately for Guest.');
+    // Locate the challenge card container or text
+    const challengeCardText = guestPage.locator('text=ConsentHost wants a revanche').first();
+    await expect(challengeCardText).toBeVisible({ timeout: 10000 });
+
+    const acceptChallengeBtn = guestPage.locator('button', { hasText: /Accept Challenge/i }).first();
+    await expect(acceptChallengeBtn).toBeVisible();
+
+    // 8. Click "Accept Challenge" on Guest screen
+    console.log('Guest clicks Accept Challenge...');
+    await acceptChallengeBtn.click();
+
+    // 9. Verify the game restarts for both players
+    console.log('Verifying game restart for both players...');
+    await expect(gameOver1).not.toBeVisible({ timeout: 10000 });
+    await expect(gameOver2).not.toBeVisible({ timeout: 10000 });
+
+    // Wait for the dealing animation to finish and cards to settle
+    await hostPage.waitForTimeout(4000);
+
+    // A new active round should be set up, so card hands are visible on both screens
+    const myCards1 = hostPage.locator('[data-testid^="card-"]');
+    const myCards2 = guestPage.locator('[data-testid^="card-"]');
+    await expect(myCards1.first()).toBeVisible({ timeout: 15000 });
+    await expect(myCards2.first()).toBeVisible({ timeout: 15000 });
+
+    console.log('✅ Success: Rematch challenge was accepted and game restarted successfully.');
 
     // Clean up
     await hostContext.close();

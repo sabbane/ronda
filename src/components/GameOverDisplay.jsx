@@ -20,6 +20,61 @@ export const GameOverDisplay = ({
   G,
   playerID,
 }) => {
+  const getChallengeData = () => {
+    if (!G || !G.wantsPlayAgain || !playerID) return null;
+    
+    // If I already voted, I don't see any challenge popup (I am the challenger)
+    if (G.wantsPlayAgain[playerID] === true) return null;
+    if (G.isBotGame) return null;
+
+    const numP = Object.keys(G.players).length;
+    const is4Player = numP === 4;
+
+    if (is4Player) {
+      // 4-Player mode (Team Mode)
+      // Partner IDs: 0 <-> 2, 1 <-> 3
+      const partnerIDMap = { '0': '2', '2': '0', '1': '3', '3': '1' };
+      const partnerID = partnerIDMap[playerID];
+
+      // Check if my partner wants a revanche
+      if (partnerID && G.wantsPlayAgain[partnerID] === true) {
+        return {
+          text: t('partnerRevancheRequest') || "Your teammate wants a revanche, back him up!",
+          buttonText: t('joinChallenge') || "Join Challenge"
+        };
+      }
+
+      // Check if anyone on the opposing team wants a revanche
+      const isTeamA = playerID === '0' || playerID === '2';
+      const oppTeamKey = isTeamA ? 'TeamB' : 'TeamA';
+      const oppPlayerIds = isTeamA ? ['1', '3'] : ['0', '2'];
+      const oppHasVoted = oppPlayerIds.some(id => G.wantsPlayAgain[id] === true);
+
+      if (oppHasVoted) {
+        const customTeamName = G.teamNames && G.teamNames[oppTeamKey];
+        const teamName = customTeamName || (isTeamA ? t('teamB') || 'Team B' : t('teamA') || 'Team A');
+        return {
+          text: t('teamRevancheRequest', { team: teamName }) || `${teamName} wants a revanche`,
+          buttonText: t('acceptChallenge') || "Accept Challenge"
+        };
+      }
+    } else {
+      // 2-Player mode
+      const oppID = playerID === '0' ? '1' : '0';
+      if (G.wantsPlayAgain[oppID] === true) {
+        const oppName = G.players[oppID]?.name || t('roleOpponent') || 'Opponent';
+        return {
+          text: t('revancheRequest', { name: oppName }) || `${oppName} wants a revanche`,
+          buttonText: t('acceptChallenge') || "Accept Challenge"
+        };
+      }
+    }
+
+    return null;
+  };
+
+  const challengeData = getChallengeData();
+
   const moroccanSymbols = [
     // Khamsa (Hand of Fatima)
     ({ color }) => (
@@ -179,8 +234,45 @@ export const GameOverDisplay = ({
                   </span>
                 </div>
               </div>
+
+              {challengeData && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  className="mt-6 p-5 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex flex-col items-center gap-3.5 shadow-lg relative overflow-hidden"
+                >
+                  {/* Subtle pulsing background glow */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-amber-500/0 via-amber-500/5 to-amber-500/0 animate-pulse pointer-events-none" />
+                  
+                  <div className="flex items-center gap-2 text-amber-300 font-bold z-10">
+                    <span className="text-xl">⚔️</span>
+                    <span className="text-xs sm:text-sm tracking-wide uppercase">{t('rematchTitle') || 'Rematch Request'}</span>
+                  </div>
+                  
+                  <span className="text-sm sm:text-base font-semibold text-slate-100 text-center z-10">
+                    {challengeData.text}
+                  </span>
+                  
+                  <button
+                    onClick={() => {
+                      playClick();
+                      adService.showInterstitial({
+                        onBeforeAd: () => setIsAdPlaying(true),
+                        onComplete: () => {
+                          setIsAdPlaying(false);
+                          moves.restartGame();
+                        }
+                      });
+                    }}
+                    className="w-full btn-moroccan-primary px-5 py-3 rounded-xl font-bold text-sm cursor-pointer z-10 shadow-md transform active:scale-95 transition-transform"
+                  >
+                    {challengeData.buttonText}
+                  </button>
+                </motion.div>
+              )}
+
               <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-                {(() => {
+                {!challengeData && (() => {
                   const hasVotedRematch = G && G.wantsPlayAgain && G.wantsPlayAgain[playerID] === true;
                   return (
                     <button 

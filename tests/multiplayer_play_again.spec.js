@@ -164,11 +164,11 @@ test.describe('Multiplayer Play Again Regression Test', () => {
     console.log('Verifying Host button is in waiting state...');
     await expect(hostPage.locator('button', { hasText: /Waiting/i }).first()).toBeVisible({ timeout: 5000 });
 
-    // 7. Guest clicks "Play Again"
-    console.log('Guest clicking Play Again...');
-    const playAgainBtn2 = guestPage.locator('button', { hasText: /Play Again|Rejouer/i }).first();
-    await expect(playAgainBtn2).toBeVisible();
-    await playAgainBtn2.click();
+    // 7. Guest clicks "Accept Challenge"
+    console.log('Guest clicking Accept Challenge...');
+    const acceptChallengeBtn = guestPage.locator('button', { hasText: /Accept Challenge/i }).first();
+    await expect(acceptChallengeBtn).toBeVisible();
+    await acceptChallengeBtn.click();
 
     // 8. Verify both players directly start a new game instead of going back to the lobby
     console.log('Verifying play again behavior...');

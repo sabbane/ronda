@@ -149,6 +149,12 @@ export const ar = {
   unmuteSound: "تشغيل الصوت",
   music: "موسيقى",
   sound: "صوت",
-  muted: "مكتوم"
+  muted: "مكتوم",
+  acceptChallenge: "قبول التحدي",
+  revancheRequest: "يريد {name} مباراة انتقامية",
+  teamRevancheRequest: "يريد فريق {team} مباراة انتقامية",
+  partnerRevancheRequest: "زميلك في الفريق يريد مباراة انتقامية، سانده!",
+  joinChallenge: "الانضمام إلى التحدي",
+  rematchTitle: "طلب مباراة انتقامية"
 };
 

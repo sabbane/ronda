@@ -148,5 +148,11 @@ export const fr = {
   unmuteSound: "Activer le son",
   music: "Musique",
   sound: "Son",
-  muted: "Muet"
+  muted: "Muet",
+  acceptChallenge: "Accepter le défi",
+  revancheRequest: "{name} veut sa revanche",
+  teamRevancheRequest: "{team} veut sa revanche",
+  partnerRevancheRequest: "Votre coéquipier veut sa revanche, soutenez-le !",
+  joinChallenge: "Rejoindre le défi",
+  rematchTitle: "Demande de revanche"
 };
