@@ -158,15 +158,15 @@
   }
 
   /* Deck Remaining count container */
-  .game-board-container .bg-slate-800\/80 {
+  .game-board-container .deck-info-container {
     padding: 0.45rem 0.9rem !important;
     border-width: 1px !important;
   }
-  .game-board-container .bg-slate-800\/80 span {
+  .game-board-container .deck-info-container span {
     font-size: 0.9rem !important;
   }
   /* Scale up Deck card back thumbnail */
-  .game-board-container .bg-slate-800\/80 div {
+  .game-board-container .deck-info-container .deck-thumbnail {
     width: 1.35rem !important;
     height: 1.9rem !important;
   }
