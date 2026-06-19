@@ -13,6 +13,10 @@ export const PlayerSeats = ({
   isCurrentPlayer,
   playedCardId,
 }) => {
+  const isArabic = t('opponent') === 'الخصم';
+  const isTest = G?.isTestMode || (typeof window !== 'undefined' && /^\/test\//i.test(window.location.pathname));
+  const oppName = G?.players?.[opponentID]?.name || (isTest && opponentID === '1' ? (isArabic ? 'الحاج' : 'El Haj') : t('opponent'));
+
   return (
     <>
       {numP === 2 ? (
@@ -20,7 +24,7 @@ export const PlayerSeats = ({
         <div className="w-full max-w-4xl relative z-20 shrink-0 top-partner-hand">
           <div className="flex justify-between items-center px-4 sm:px-8 mb-0 sm:mb-2">
             <div className="text-base sm:text-lg font-medium text-slate-400 flex items-center gap-3">
-              {G.players[opponentID]?.name || t('opponent')}
+              {oppName}
               {isCurrentPlayer(opponentID) && (
                 <span className="flex h-3 w-3">
                   <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-purple-400 opacity-75"></span>

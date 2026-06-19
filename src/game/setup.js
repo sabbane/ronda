@@ -24,7 +24,7 @@ export const setupGame = ({ ctx }, setupData) => {
   const players = playerIds.reduce((acc, pID) => {
     const isBot = pID === '1' && isBotGame;
     let botName = '';
-    if (isBot) {
+    if (isBot || (isTestMode && pID === '1')) {
       // Determine language dynamically if we are in the browser
       const isArabic = typeof window !== 'undefined' && (
         localStorage.getItem('ronda-lang') === 'ar' ||
@@ -57,6 +57,7 @@ export const setupGame = ({ ctx }, setupData) => {
     matchesWon, // Track overall games won
     teamNames: { TeamA: '', TeamB: '' },
     isBotGame,
+    isTestMode,
     wantsPlayAgain: playerIds.reduce((acc, pID) => {
       acc[pID] = false;
       return acc;

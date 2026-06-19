@@ -83,7 +83,10 @@ export const GameOverDisplay = ({
       // 2-Player mode
       const oppID = playerID === '0' ? '1' : '0';
       if (G.wantsPlayAgain[oppID] === true) {
-        const oppName = G.players[oppID]?.name || t('roleOpponent') || 'Opponent';
+        const isArabic = t('roleOpponent') === 'خصم' || t('opponent') === 'الخصم';
+        const isTest = G.isTestMode || (typeof window !== 'undefined' && /^\/test\//i.test(window.location.pathname));
+        const defaultOppName = (isTest && oppID === '1') ? (isArabic ? 'الحاج' : 'El Haj') : (t('roleOpponent') || 'Opponent');
+        const oppName = G.players[oppID]?.name || defaultOppName;
         const oppWon = isDraw || !didIWin;
         const text = oppWon
           ? (t('rematchRequest', { name: oppName }) || `${oppName} wants a rematch`)

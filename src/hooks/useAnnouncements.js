@@ -14,6 +14,20 @@ export const useAnnouncements = ({
   const [eventQueue, setEventQueue] = React.useState([]);
   const processedAnnouncements = React.useRef(new Set());
 
+  const getPlayerName = (pID) => {
+    const name = G.players?.[pID]?.name;
+    if (name) return name;
+    if (pID === opponentID && numP === 2) {
+      const isArabic = t('opponent') === 'الخصم';
+      const isTest = G.isTestMode || (typeof window !== 'undefined' && /^\/test\//i.test(window.location.pathname));
+      if (isTest && pID === '1') {
+        return isArabic ? 'الحاج' : 'El Haj';
+      }
+    }
+    if (pID === myID) return t('you');
+    return pID === opponentID ? t('opponent') : `Player ${Number(pID) + 1}`;
+  };
+
   React.useEffect(() => {
     if (!G.gameStarted) {
       processedAnnouncements.current.clear();
@@ -35,16 +49,16 @@ export const useAnnouncements = ({
           let opponentName;
           if (numP === 2) {
             if (ann.player === myID) {
-              announcerName = G.players[myID]?.name || t('you');
-              opponentName = G.players[opponentID]?.name || t('opponent');
+              announcerName = getPlayerName(myID);
+              opponentName = getPlayerName(opponentID);
             } else {
-              announcerName = G.players[opponentID]?.name || t('opponent');
-              opponentName = G.players[myID]?.name || t('you');
+              announcerName = getPlayerName(opponentID);
+              opponentName = getPlayerName(myID);
             }
           } else {
-            announcerName = G.players[ann.player]?.name || `Player ${Number(ann.player) + 1}`;
+            announcerName = getPlayerName(ann.player);
             const prevPlayerID = String((Number(ann.player) + 3) % 4);
-            opponentName = G.players[prevPlayerID]?.name || `Player ${Number(prevPlayerID) + 1}`;
+            opponentName = getPlayerName(prevPlayerID);
           }
           
           // Resolve victim or failing player name
@@ -52,12 +66,12 @@ export const useAnnouncements = ({
           let failingPlayerName;
           if (numP === 2) {
             if (failingPlayerID === myID) {
-              failingPlayerName = G.players[myID]?.name || t('you');
+              failingPlayerName = getPlayerName(myID);
             } else {
-              failingPlayerName = G.players[opponentID]?.name || t('opponent');
+              failingPlayerName = getPlayerName(opponentID);
             }
           } else {
-            failingPlayerName = G.players[failingPlayerID]?.name || `Player ${Number(failingPlayerID) + 1}`;
+            failingPlayerName = getPlayerName(failingPlayerID);
           }
           
           let customText = "";

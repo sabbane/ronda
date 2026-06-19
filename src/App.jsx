@@ -20,6 +20,7 @@ const RondaClientBot = ReactClient({
   game: RondaGame,
   board: RondaBoard,
   numPlayers: 2,
+  debug: false,
   multiplayer: Local({
     bots: {
       '1': class extends RandomBot {
@@ -70,6 +71,7 @@ const RondaClientOnline2 = ReactClient({
   game: RondaGame,
   board: RondaBoard,
   numPlayers: 2,
+  debug: false,
   multiplayer: SocketIO({ server: socketServerUrl }),
 });
 
@@ -77,6 +79,7 @@ const RondaClientOnline4 = ReactClient({
   game: RondaGame,
   board: RondaBoard,
   numPlayers: 4,
+  debug: false,
   multiplayer: SocketIO({ server: socketServerUrl }),
 });
 
