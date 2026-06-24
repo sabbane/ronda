@@ -7,9 +7,15 @@ const getCardImage = (filename) => {
   return cardImages[`../assets/cards/${filename}`] || null;
 };
 
-export const Card = ({ card, hidden = false, onClick, className = '' }) => {
+export const Card = ({ card, hidden = false, onClick, className = '', backType = 'default' }) => {
   const [backError, setBackError] = useState(false);
   const [faceError, setFaceError] = useState(false);
+
+  const getCardBackImage = () => {
+    if (backType === 'red') return getCardImage('card_back_red.png');
+    if (backType === 'blue') return getCardImage('card_back_blue.png');
+    return getCardImage('back.png');
+  };
 
   if (hidden) {
     const value = (card.displayValue !== undefined ? card.displayValue : card.value).toString();
@@ -26,7 +32,7 @@ export const Card = ({ card, hidden = false, onClick, className = '' }) => {
             <div className="text-xs font-bold text-slate-300 transform -rotate-45 select-none">RONDA</div>
           ) : (
             <img 
-              src={getCardImage('back.png')} 
+              src={getCardBackImage()} 
               alt="Card Back" 
               className="w-full h-full object-contain"
               onError={() => setBackError(true)}

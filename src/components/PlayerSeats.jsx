@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { PlayerHand } from './PlayerHand';
-import backCard from '../assets/cards/back.png';
+import backRed from '../assets/cards/card_back_red.png';
+import backBlue from '../assets/cards/card_back_blue.png';
 
 export const PlayerSeats = ({
   numP,
@@ -16,6 +17,7 @@ export const PlayerSeats = ({
   const isArabic = t('opponent') === 'الخصم';
   const isTest = G?.isTestMode || (typeof window !== 'undefined' && /^\/test\//i.test(window.location.pathname));
   const oppName = G?.players?.[opponentID]?.name || (isTest && opponentID === '1' ? (isArabic ? 'الحاج' : 'El Haj') : t('opponent'));
+  const topIsTeamA = topID === '0' || topID === '2';
 
   return (
     <>
@@ -39,8 +41,10 @@ export const PlayerSeats = ({
                     key={`cap-opp-${card.id}`}
                     layoutId={`card-${card.id}`}
                     transition={{ type: "spring", stiffness: 40, damping: 12, mass: 1.2 }}
-                    className="absolute inset-0 bg-purple-900/50 border border-purple-700/50 rounded-sm shadow-sm"
-                  />
+                    className="absolute inset-0 bg-purple-900/50 border border-purple-700/50 rounded-sm shadow-sm overflow-hidden"
+                  >
+                    <img src={backBlue} alt="Captured Card" className="w-full h-full object-cover" />
+                  </motion.div>
                 ))}
               </div>
               <div className="bg-slate-800 px-4 py-1 rounded-full text-sm border border-slate-700 shadow-inner flex items-center gap-2">
@@ -57,6 +61,7 @@ export const PlayerSeats = ({
             hidden={true}
             dealDelays={[0.6, 1.8, 3.0]}
             playedCardId={playedCardId}
+            backType="blue"
           />
         </div>
       ) : (
@@ -65,7 +70,6 @@ export const PlayerSeats = ({
           {/* 4-Player Top: Partner */}
           <div className="w-full max-w-4xl relative z-20 shrink-0 top-partner-hand">
             {(() => {
-              const topIsTeamA = topID === '0' || topID === '2';
               const topName = G.players[topID]?.name || t('playerSeatName', { num: parseInt(topID) + 1 });
               const topScore = ((G.players[topID]?.captured?.length) || 0) + ((G.players[topID]?.score) || 0);
               const topColor = topIsTeamA ? 'text-amber-400' : 'text-purple-400';
@@ -85,8 +89,10 @@ export const PlayerSeats = ({
                       {G.players[topID]?.captured.map((card) => (
                         <div
                           key={`cap-partner-${card.id}`}
-                          className={`absolute inset-0 ${topIsTeamA ? 'bg-amber-900/50 border border-amber-700/50' : 'bg-purple-900/50 border border-purple-700/50'} rounded-sm shadow-sm`}
-                        />
+                          className={`absolute inset-0 ${topIsTeamA ? 'bg-amber-900/50 border border-amber-700/50' : 'bg-purple-900/50 border border-purple-700/50'} rounded-sm shadow-sm overflow-hidden`}
+                        >
+                          <img src={topIsTeamA ? backRed : backBlue} alt="Captured Card" className="w-full h-full object-cover" />
+                        </div>
                       ))}
                     </div>
                     <div className={`bg-slate-800 px-4 py-1 rounded-full text-sm border border-slate-700 shadow-inner flex items-center gap-2`}>
@@ -99,12 +105,13 @@ export const PlayerSeats = ({
                 </div>
               );
             })()}
-            <PlayerHand
+             <PlayerHand
               hand={(G.players && G.players[topID]?.hand) || []}
               isCurrentPlayer={false}
               hidden={true}
               dealDelays={[0.6, 1.8, 3.0]}
               playedCardId={playedCardId}
+              backType={topIsTeamA ? "red" : "blue"}
             />
           </div>
 
@@ -125,7 +132,7 @@ export const PlayerSeats = ({
                 <div className="flex -space-x-4 rtl:space-x-reverse h-8 items-center justify-center my-0.5 select-none pointer-events-none">
                   {Array.from({ length: G.players[leftID]?.hand?.length || 0 }).map((_, idx) => (
                     <div key={idx} className="w-5 h-8 rounded bg-slate-800 border border-slate-700 shadow flex items-center justify-center">
-                      <img src={backCard} alt="Back" className="w-full h-full object-cover rounded opacity-80" />
+                      <img src={backBlue} alt="Back" className="w-full h-full object-cover rounded opacity-80" />
                     </div>
                   ))}
                 </div>
@@ -153,7 +160,7 @@ export const PlayerSeats = ({
                 <div className="flex -space-x-4 rtl:space-x-reverse h-8 items-center justify-center my-0.5 select-none pointer-events-none">
                   {Array.from({ length: G.players[rightID]?.hand?.length || 0 }).map((_, idx) => (
                     <div key={idx} className="w-5 h-8 rounded bg-slate-800 border border-slate-700 shadow flex items-center justify-center">
-                      <img src={backCard} alt="Back" className="w-full h-full object-cover rounded opacity-80" />
+                      <img src={backBlue} alt="Back" className="w-full h-full object-cover rounded opacity-80" />
                     </div>
                   ))}
                 </div>

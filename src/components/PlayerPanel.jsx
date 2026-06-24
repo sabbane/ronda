@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { PlayerHand } from './PlayerHand';
 import { Volume2, VolumeX, Music } from 'lucide-react';
 import { useSound } from '../contexts/SoundContext';
-import backCard from '../assets/cards/back.png';
+import backRed from '../assets/cards/card_back_red.png';
+import backBlue from '../assets/cards/card_back_blue.png';
 
 export const PlayerPanel = ({
   G,
@@ -23,6 +25,8 @@ export const PlayerPanel = ({
     nextTrack,
     playClick
   } = useSound();
+
+  const [deckBackImage] = useState(() => Math.random() < 0.5 ? backBlue : backRed);
 
   return (
     <div className="w-full max-w-4xl relative z-20 shrink-0">
@@ -46,8 +50,10 @@ export const PlayerPanel = ({
                 key={`cap-me-${card.id}`}
                 layoutId={`card-${card.id}`}
                 transition={{ type: "spring", stiffness: 40, damping: 12, mass: 1.2 }}
-                className="absolute inset-0 bg-indigo-900/50 border border-indigo-700/50 rounded-sm shadow-sm"
-              />
+                className="absolute inset-0 bg-indigo-900/50 border border-indigo-700/50 rounded-sm shadow-sm overflow-hidden"
+              >
+                <img src={backRed} alt="Captured Card" className="w-full h-full object-cover" />
+              </motion.div>
             ))}
           </div>
           <div className="bg-slate-800 px-4 py-1 rounded-full text-sm border border-slate-700 shadow-inner flex items-center gap-2">
@@ -66,13 +72,14 @@ export const PlayerPanel = ({
         dealDelays={[0.0, 1.2, 2.4]}
         playedCardId={playedCardId}
         counterCardValue={canCounterDarba ? activeEvent.currentVal : null}
+        backType="red"
       />
 
       {/* Deck Info & Sound Toggle - Moved below player hand to prevent overlap on mobile */}
       <div className="flex justify-between items-center px-2 sm:px-8 mt-4 sm:mt-6 pb-4 sm:pb-6 w-full">
         <div className="deck-info-container flex items-center gap-2 bg-slate-800/80 backdrop-blur px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-slate-700 shadow-lg z-20">
-          <div className="deck-thumbnail w-5 h-7 sm:w-6 sm:h-8 rounded-md border border-slate-200/30 shadow overflow-hidden flex-shrink-0 bg-white">
-            <img src={backCard} alt="Card Back" className="w-full h-full object-cover" />
+          <div className="deck-thumbnail w-5 h-7 sm:w-6 sm:h-8 rounded-md border border-slate-200/30 shadow overflow-hidden flex-shrink-0">
+            <img src={deckBackImage} alt="Card Back" className="w-full h-full object-cover" />
           </div>
           <span className="text-slate-300 font-medium text-xs sm:text-sm">{t('cardsRemaining')}: {G.deck.length}</span>
         </div>

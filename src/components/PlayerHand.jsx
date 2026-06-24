@@ -2,7 +2,7 @@ import { Card } from './Card';
 import { motion } from 'framer-motion';
 
 export const PlayerHand = (props) => {
-  const { hand, isCurrentPlayer, onPlayCard, hidden = false, dealDelay = 0, dealDelays = null, playedCardId = null, counterCardValue = null } = props;
+  const { hand, isCurrentPlayer, onPlayCard, hidden = false, dealDelay = 0, dealDelays = null, playedCardId = null, counterCardValue = null, backType = 'default' } = props;
   return (
     <div className="game-hand" dir="ltr">
         {hand.map((card, index) => {
@@ -39,6 +39,7 @@ export const PlayerHand = (props) => {
                 hidden={hidden && playedCardId !== card.id}
                 onClick={isSelectable && !hidden ? () => onPlayCard(index) : undefined}
                 className={isSelectable && !hidden && !isCounterCard ? "ring-4 ring-indigo-400 shadow-[0_0_25px_rgba(129,140,248,0.5)]" : ""}
+                backType={backType}
               />
             </motion.div>
           );
