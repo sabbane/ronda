@@ -341,12 +341,6 @@ export const MainMenu = ({
           </div>
         </div>
 
-        {/* Version */}
-        <div className="flex flex-col items-center gap-4 mt-6 z-30 menu-version">
-          <span className="text-[10px] text-slate-500 font-medium tracking-widest uppercase opacity-50">
-            v{import.meta.env.VITE_APP_VERSION}
-          </span>
-        </div>
       </div>
     </div>
   );
