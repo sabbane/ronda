@@ -38,8 +38,8 @@ test('Background music must not start during the splashscreen even if the user i
   await page.goto('/');
 
   // Verify splashscreen is visible
-  const splashText = page.locator('h1', { hasText: 'RONDA' });
-  await expect(splashText).toBeVisible({ timeout: 5000 });
+  const splashBanner = page.locator('img[alt="Ronda"]');
+  await expect(splashBanner).toBeVisible({ timeout: 5000 });
 
   // 4. Perform a user gesture on the page (e.g., click the body) while on splashscreen
   await page.locator('body').click();

@@ -31,7 +31,14 @@ const ASSETS_TO_LOAD = [
   '/assets/sounds/casablanca_intro.mp3',
   '/assets/sounds/casablanca.mp3',
   '/assets/sounds/desert_night_intro.mp3',
-  '/assets/sounds/desert_night.mp3'
+  '/assets/sounds/desert_night.mp3',
+  '/assets/splashscreen/splash_background_mobile.png',
+  '/assets/splashscreen/ronda_banner.png',
+  '/assets/splashscreen/1%20dheb-vector.png',
+  '/assets/splashscreen/10%20dheb-vector.png',
+  '/assets/splashscreen/11%20syouf-vector.png',
+  '/assets/splashscreen/12%20jben-vector.png',
+  '/assets/splashscreen/4%20syouf-vector.png'
 ];
 
 const preloadAsset = (url, onProgress) => {
@@ -130,9 +137,9 @@ export const Splashscreen = ({ onComplete }) => {
           transition={{ duration: 0.8, ease: 'easeInOut' }}
           className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-950 font-sans text-slate-100 overflow-hidden select-none"
         >
-          {/* Subtle Zellij Backdrop */}
+          {/* Subtle Zellij Backdrop (Desktop/Tablet) */}
           <div
-            className="absolute inset-0 opacity-15 pointer-events-none"
+            className="hidden sm:block absolute inset-0 opacity-15 pointer-events-none"
             style={{
               backgroundImage: "url('/assets/background-zellig.svg')",
               backgroundSize: 'cover',
@@ -141,68 +148,108 @@ export const Splashscreen = ({ onComplete }) => {
             }}
           />
 
+          {/* Mobile Splash Background */}
+          <div
+            className="block sm:hidden absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage: "url('/assets/splashscreen/splash_background_mobile.png')",
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          />
+
           {/* Glowing background radial blur */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-radial from-amber-500/10 to-transparent blur-3xl pointer-events-none rounded-full" />
 
           {/* Central Content */}
-          <div className="relative z-10 flex flex-col items-center max-w-sm w-full p-6 text-center">
-            {/* Animated Logo Container */}
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: [0.95, 1, 0.95], opacity: 1 }}
-              transition={{
-                opacity: { duration: 1.2 },
-                scale: { repeat: Infinity, duration: 3.5, ease: 'easeInOut' }
-              }}
-              className="mb-8"
-            >
-              <h1 className="text-4xl sm:text-5xl font-black mt-2 text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-500 tracking-tighter drop-shadow-2xl">
-                RONDA
-              </h1>
-              <p className="text-slate-400 text-[10px] tracking-[0.2em] font-extrabold uppercase mt-1">
-                A Timeless Moroccan Classic
-              </p>
-            </motion.div>
-
-            {/* Custom Loading Bar Container */}
-            <div className="w-full bg-slate-900/60 border border-white/5 rounded-full p-1.5 backdrop-blur-md shadow-inner shadow-black/50 mb-4">
-              <div className="relative h-3 w-full bg-black/40 rounded-full overflow-hidden">
-                {/* Glowing Progress bar */}
-                <motion.div
-                  className="h-full bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-400 rounded-full shadow-[0_0_15px_rgba(245,158,11,0.5)]"
-                  style={{ width: `${progress}%` }}
-                  layout
-                  transition={{ type: 'spring', stiffness: 60, damping: 15 }}
+          <div className="relative z-10 flex flex-col items-center justify-between max-w-sm w-full h-full min-h-[100dvh] pt-6 px-6 pb-2 text-center">
+            {/* Top Block: Logo and Loader */}
+            <div className="flex flex-col items-center justify-center flex-1 w-full mt-4">
+              {/* Logo Container (Unanimated) */}
+              <div className="mb-8 w-full">
+                <img
+                  src="/assets/splashscreen/ronda_banner.png"
+                  alt="Ronda"
+                  className="h-72 sm:h-96 w-auto max-w-full object-contain mx-auto mt-2 drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)]"
                 />
+                
+                {/* Horizontal Row of Card Images */}
+                <div className="flex justify-center items-center gap-1.5 sm:gap-2 -mt-8 sm:-mt-14 mb-4 w-full">
+                  <img
+                    src="/assets/splashscreen/10 dheb-vector.png"
+                    alt="10 Dheb"
+                    className="h-16 sm:h-20 w-auto object-contain shadow-md rounded border border-white/10 bg-white"
+                  />
+                  <img
+                    src="/assets/splashscreen/11 syouf-vector.png"
+                    alt="11 Syouf"
+                    className="h-16 sm:h-20 w-auto object-contain shadow-md rounded border border-white/10 bg-white"
+                  />
+                  <img
+                    src="/assets/splashscreen/1 dheb-vector.png"
+                    alt="1 Dheb"
+                    className="h-16 sm:h-20 w-auto object-contain shadow-md rounded border border-white/10 bg-white"
+                  />
+                  <img
+                    src="/assets/splashscreen/12 jben-vector.png"
+                    alt="12 Jben"
+                    className="h-16 sm:h-20 w-auto object-contain shadow-md rounded border border-white/10 bg-white"
+                  />
+                  <img
+                    src="/assets/splashscreen/4 syouf-vector.png"
+                    alt="4 Syouf"
+                    className="h-16 sm:h-20 w-auto object-contain shadow-md rounded border border-white/10 bg-white"
+                  />
+                </div>
+
+                <p className="text-amber-400/90 text-[10px] tracking-[0.2em] font-extrabold uppercase mt-2 drop-shadow-sm">
+                  A Timeless Moroccan Classic
+                </p>
+              </div>
+
+              {/* Custom Loading Bar Container */}
+              <div className="w-full bg-slate-900/60 border border-white/5 rounded-full p-1.5 backdrop-blur-md shadow-inner shadow-black/50 mb-4">
+                <div className="relative h-3 w-full bg-black/40 rounded-full overflow-hidden">
+                  {/* Glowing Progress bar */}
+                  <motion.div
+                    className="h-full bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-400 rounded-full shadow-[0_0_15px_rgba(245,158,11,0.5)]"
+                    style={{ width: `${progress}%` }}
+                    layout
+                    transition={{ type: 'spring', stiffness: 60, damping: 15 }}
+                  />
+                </div>
+              </div>
+
+              {/* Status and Percentage */}
+              <div className="flex flex-col items-center gap-1.5 h-12">
+                <span className="text-sm font-bold text-amber-300/95 tracking-wide drop-shadow">
+                  {progress}%
+                </span>
+                <motion.span
+                  key={statusText}
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-xs font-semibold text-amber-400/90 uppercase tracking-widest drop-shadow-sm"
+                >
+                  {statusText}
+                </motion.span>
               </div>
             </div>
 
-            {/* Status and Percentage */}
-            <div className="flex flex-col items-center gap-1.5 h-12">
-              <span className="text-sm font-bold text-amber-300/95 tracking-wide drop-shadow">
-                {progress}%
-              </span>
-              <motion.span
-                key={statusText}
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="text-xs font-semibold text-slate-400 uppercase tracking-widest"
-              >
-                {statusText}
-              </motion.span>
-            </div>
-
-            {/* Presented By Logo */}
-            <div className="mt-12 flex flex-col items-center gap-2">
-              <span className="text-[11px] uppercase tracking-[0.25em] text-slate-500 font-extrabold">
-                presented by
-              </span>
-              <img
-                src="/atlas_lion_logo.png"
-                alt="Logo"
-                className="h-40 w-auto object-contain opacity-80"
-              />
+            {/* Bottom Block: Presented By */}
+            <div className="w-full flex flex-col items-center mt-auto pb-0">
+              {/* Presented By Logo */}
+              <div className="mt-2 flex flex-col items-center gap-1">
+                <span className="text-[11px] uppercase tracking-[0.25em] text-amber-500/85 font-extrabold drop-shadow-sm">
+                  presented by
+                </span>
+                <img
+                  src="/atlas_lion_logo.png"
+                  alt="Logo"
+                  className="h-40 w-auto object-contain opacity-80"
+                />
+              </div>
             </div>
           </div>
         </motion.div>
