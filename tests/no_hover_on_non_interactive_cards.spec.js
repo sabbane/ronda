@@ -32,6 +32,12 @@ test('Non-interactive cards (opponent hand and table cards) should not have hove
     // Scroll element into view if needed
     await locator.scrollIntoViewIfNeeded();
 
+    // Verify that the element's classes do not contain scale-105 or transition-transform
+    const classList = await locator.evaluate(el => el.className);
+    console.log(`[${label}] Classes: "${classList}"`);
+    expect(classList, `${label} card should not have hover:scale-105 or transition-transform classes`).not.toContain('hover:scale');
+    expect(classList, `${label} card should not have hover:scale-105 or transition-transform classes`).not.toContain('transition-transform');
+
     // Get transform style before hover
     const transformBefore = await locator.evaluate(el => window.getComputedStyle(el).transform);
     console.log(`[${label}] Transform before hover: "${transformBefore}"`);

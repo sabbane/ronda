@@ -150,7 +150,7 @@ export const GameTable = ({
                     >
                       <Card 
                         card={card} 
-                        className={`shadow-2xl ${isPlayedBadge ? 'ring-4 ring-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.6)]' : 'transition-transform hover:scale-105'}`} 
+                        className={`shadow-2xl ${isPlayedBadge ? 'ring-4 ring-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.6)]' : ''}`} 
                       />
                     </motion.div>
                   );

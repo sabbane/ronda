@@ -24,7 +24,9 @@ export const Card = ({ card, hidden = false, onClick, className = '', backType =
 
     return (
       <motion.div
-        whileHover={{ scale: 1.05 }}
+        whileHover={onClick ? { scale: 1.05 } : {}}
+        whileTap={onClick ? { scale: 0.95 } : {}}
+        onClick={onClick}
         className={`game-card shadow-xl ${className}`}
       >
         <div className="w-full h-full flex items-center justify-center">
