@@ -8,9 +8,8 @@ const ASSETS_TO_LOAD = [
   ...Object.values(cardImages),
   '/assets/background-zellig.svg',
   '/felt.png',
-  '/assets/logo.svg',
+  '/assets/logo.png',
   '/favicon.png',
-  '/favicon.svg',
   '/flag-fr.svg',
   '/flag-gb.svg',
   '/flag-ma.svg',
@@ -200,7 +199,7 @@ export const Splashscreen = ({ onComplete }) => {
                 presented by
               </span>
               <img
-                src="/assets/logo.svg"
+                src="/assets/logo.png"
                 alt="Logo"
                 className="h-40 w-auto object-contain opacity-80"
               />
