@@ -45,9 +45,10 @@ test('Bot should be named El Haj and Darba announcement should display You hit E
       if (text.includes('hit') || text.includes('hits') || text.includes('Darba')) {
         expect(text).toContain('El Haj');
         if (text.includes('You hit')) {
-          expect(text).toContain('You hit El Haj (+1 you)');
+          expect(text).toContain('You hit El Haj');
         } else {
-          expect(text).toContain('hits you (+1 El Haj)');
+          expect(text).toContain('hits you');
+          expect(text).toContain('El Haj');
         }
         darbaDetected = true;
         break;

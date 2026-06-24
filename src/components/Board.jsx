@@ -89,7 +89,7 @@ const ProductionRondaBoard = (props) => {
   return (
     <div 
       ref={boardContainerRef}
-      className={`min-h-[100dvh] game-board-container custom-scrollbar flex flex-col items-center justify-between md:justify-center pt-16 pb-4 px-2 sm:py-4 sm:px-4 font-sans text-slate-100 relative ${shouldScroll ? 'overflow-y-auto' : 'overflow-hidden'}`}
+      className={`min-h-[100dvh] game-board-container custom-scrollbar flex flex-col items-center justify-between ${shouldScroll ? 'overflow-y-auto' : 'md:justify-center overflow-hidden'} pt-16 pb-4 px-2 sm:py-4 sm:px-4 font-sans text-slate-100 relative`}
     >
       <div 
         className="fixed inset-0 pointer-events-none"
