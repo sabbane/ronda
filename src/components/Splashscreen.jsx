@@ -7,6 +7,7 @@ const cardImages = import.meta.glob('../assets/cards/*.{svg,png}', { eager: true
 const ASSETS_TO_LOAD = [
   ...Object.values(cardImages),
   '/assets/background-zellig.svg',
+  '/assets/splashscreen/splash_background_laptop.svg',
   '/felt.png',
   '/atlas_lion_logo.png',
   '/favicon.png',
@@ -137,14 +138,13 @@ export const Splashscreen = ({ onComplete }) => {
           transition={{ duration: 0.8, ease: 'easeInOut' }}
           className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-950 font-sans text-slate-100 overflow-hidden select-none"
         >
-          {/* Subtle Zellij Backdrop (Desktop/Tablet) */}
+          {/* Laptop/Desktop Splash Background */}
           <div
-            className="hidden sm:block absolute inset-0 opacity-15 pointer-events-none"
+            className="hidden sm:block absolute inset-0 pointer-events-none"
             style={{
-              backgroundImage: "url('/assets/background-zellig.svg')",
+              backgroundImage: "url('/assets/splashscreen/splash_background_laptop.svg')",
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              filter: 'brightness(0.35) saturate(1.2)'
             }}
           />
 
@@ -162,7 +162,7 @@ export const Splashscreen = ({ onComplete }) => {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-radial from-amber-500/10 to-transparent blur-3xl pointer-events-none rounded-full" />
 
           {/* Central Content */}
-          <div className="relative z-10 flex flex-col items-center justify-between max-w-sm w-full h-full min-h-[100dvh] pt-6 px-6 pb-2 text-center">
+          <div className="relative z-10 flex flex-col items-center justify-between max-w-sm sm:max-w-4xl w-full h-full min-h-[100dvh] pt-6 px-6 pb-2 sm:pb-10 text-center">
             {/* Top Block: Logo and Loader */}
             <div className="flex flex-col items-center justify-center flex-1 w-full mt-4">
               {/* Logo Container (Unanimated) */}
@@ -170,7 +170,7 @@ export const Splashscreen = ({ onComplete }) => {
                 <img
                   src="/assets/splashscreen/ronda_banner.png"
                   alt="Ronda"
-                  className="h-[40dvh] min-h-[220px] max-h-[450px] w-auto max-w-full object-contain mx-auto -mt-6 sm:-mt-10 drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)]"
+                  className="h-[40dvh] min-h-[220px] max-h-[450px] sm:h-[48dvh] sm:min-h-[280px] sm:max-h-[600px] w-auto max-w-full object-contain mx-auto -mt-2 sm:-mt-4 drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)]"
                 />
                 
                 {/* Horizontal Row of Card Images */}

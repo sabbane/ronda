@@ -29,7 +29,14 @@ test('Splashscreen content must fit completely within a standard laptop viewport
   console.log(`[Diagnostic] Banner Bounding Box: y=${bannerBox.y}, height=${bannerBox.height}, bottom=${bannerBox.y + bannerBox.height}`);
   console.log(`[Diagnostic] Logo Bounding Box: y=${logoBox.y}, height=${logoBox.height}, bottom=${logoBox.y + logoBox.height}`);
 
-  // 5. Assert that the bottom of the logo fits inside the viewport
-  // If this fails, it confirms the content overflows the screen and is cut off.
-  expect(logoBox.y + logoBox.height).toBeLessThanOrEqual(viewportSize.height);
+  // 5. Assert that the bottom of the logo fits inside the viewport with a safety margin of at least 24px
+  // to ensure it is not cut off by taskbars, browser boundaries, or bottom screen edges.
+  const safetyMargin = 24;
+  expect(logoBox.y + logoBox.height + safetyMargin).toBeLessThanOrEqual(viewportSize.height);
+
+  // 6. Assert that the document is not scrollable (which indicates layout overflow/clipping)
+  const isScrollable = await page.evaluate(() => {
+    return document.documentElement.scrollHeight > window.innerHeight;
+  });
+  expect(isScrollable).toBe(false);
 });
