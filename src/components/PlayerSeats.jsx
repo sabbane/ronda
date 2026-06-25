@@ -49,7 +49,7 @@ export const PlayerSeats = ({
               </div>
               <div className="bg-slate-800 px-4 py-1 rounded-full text-sm border border-slate-700 shadow-inner flex items-center gap-2">
                 <span className="text-slate-400">{t('cards')}</span> 
-                <span className="font-bold text-lg text-purple-400">
+                <span className="font-bold text-lg text-purple-400 inline-block w-6 text-center">
                   {((G.players && G.players[opponentID]?.captured?.length) || 0) + ((G.players && G.players[opponentID]?.score) || 0)}
                 </span>
               </div>
@@ -97,7 +97,7 @@ export const PlayerSeats = ({
                     </div>
                     <div className={`bg-slate-800 px-4 py-1 rounded-full text-sm border border-slate-700 shadow-inner flex items-center gap-2`}>
                       <span className="text-slate-400">{t('cards')}</span>
-                      <span className={`font-bold text-lg ${topIsTeamA ? 'text-amber-400' : 'text-purple-400'}`}>
+                      <span className={`font-bold text-lg ${topIsTeamA ? 'text-amber-400' : 'text-purple-400'} inline-block w-6 text-center`}>
                         {topScore}
                       </span>
                     </div>
