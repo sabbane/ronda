@@ -144,6 +144,7 @@ export default defineConfig(({ mode }) => {
           // without waiting for all tabs to be closed first.
           skipWaiting: true,
           clientsClaim: true,
+          maximumFileSizeToCacheInBytes: 4000000,
         },
         manifest: {
           name: 'Ronda Card Game',

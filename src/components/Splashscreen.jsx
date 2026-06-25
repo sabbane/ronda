@@ -170,11 +170,11 @@ export const Splashscreen = ({ onComplete }) => {
                 <img
                   src="/assets/splashscreen/ronda_banner.png"
                   alt="Ronda"
-                  className="h-72 sm:h-96 w-auto max-w-full object-contain mx-auto mt-2 drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)]"
+                  className="h-80 sm:h-[450px] w-auto max-w-full object-contain mx-auto -mt-6 sm:-mt-10 drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)]"
                 />
                 
                 {/* Horizontal Row of Card Images */}
-                <div className="flex justify-center items-center gap-1.5 sm:gap-2 -mt-8 sm:-mt-14 mb-4 w-full">
+                <div className="flex justify-center items-center gap-1.5 sm:gap-2 -mt-4 sm:-mt-8 mb-4 w-full">
                   <img
                     src="/assets/splashscreen/10 dheb-vector.png"
                     alt="10 Dheb"
