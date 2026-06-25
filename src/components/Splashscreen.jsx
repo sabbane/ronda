@@ -170,7 +170,7 @@ export const Splashscreen = ({ onComplete }) => {
                 <img
                   src="/assets/splashscreen/ronda_banner.png"
                   alt="Ronda"
-                  className="h-80 sm:h-[450px] w-auto max-w-full object-contain mx-auto -mt-6 sm:-mt-10 drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)]"
+                  className="h-[40dvh] min-h-[220px] max-h-[450px] w-auto max-w-full object-contain mx-auto -mt-6 sm:-mt-10 drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)]"
                 />
                 
                 {/* Horizontal Row of Card Images */}
@@ -178,27 +178,27 @@ export const Splashscreen = ({ onComplete }) => {
                   <img
                     src="/assets/splashscreen/10 dheb-vector.png"
                     alt="10 Dheb"
-                    className="h-16 sm:h-20 w-auto object-contain shadow-md rounded border border-white/10 bg-white"
+                    className="h-[7dvh] min-h-[48px] max-h-20 w-auto object-contain shadow-md rounded border border-white/10 bg-white"
                   />
                   <img
                     src="/assets/splashscreen/11 syouf-vector.png"
                     alt="11 Syouf"
-                    className="h-16 sm:h-20 w-auto object-contain shadow-md rounded border border-white/10 bg-white"
+                    className="h-[7dvh] min-h-[48px] max-h-20 w-auto object-contain shadow-md rounded border border-white/10 bg-white"
                   />
                   <img
                     src="/assets/splashscreen/1 dheb-vector.png"
                     alt="1 Dheb"
-                    className="h-16 sm:h-20 w-auto object-contain shadow-md rounded border border-white/10 bg-white"
+                    className="h-[7dvh] min-h-[48px] max-h-20 w-auto object-contain shadow-md rounded border border-white/10 bg-white"
                   />
                   <img
                     src="/assets/splashscreen/12 jben-vector.png"
                     alt="12 Jben"
-                    className="h-16 sm:h-20 w-auto object-contain shadow-md rounded border border-white/10 bg-white"
+                    className="h-[7dvh] min-h-[48px] max-h-20 w-auto object-contain shadow-md rounded border border-white/10 bg-white"
                   />
                   <img
                     src="/assets/splashscreen/4 syouf-vector.png"
                     alt="4 Syouf"
-                    className="h-16 sm:h-20 w-auto object-contain shadow-md rounded border border-white/10 bg-white"
+                    className="h-[7dvh] min-h-[48px] max-h-20 w-auto object-contain shadow-md rounded border border-white/10 bg-white"
                   />
                 </div>
 
@@ -247,7 +247,7 @@ export const Splashscreen = ({ onComplete }) => {
                 <img
                   src="/atlas_lion_logo.png"
                   alt="Logo"
-                  className="h-40 w-auto object-contain opacity-80"
+                  className="h-[15dvh] min-h-[80px] max-h-[160px] w-auto object-contain opacity-80"
                 />
               </div>
             </div>
