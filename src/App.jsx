@@ -42,7 +42,7 @@ const RondaClientBot = ReactClient({
             return new Promise(() => {});
           }
 
-          const res = await super.play(state, playerID);
+          const res = await super.play(latestState, playerID);
           if (!res || !res.action) {
             return {
               action: {
