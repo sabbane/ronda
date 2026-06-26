@@ -61,7 +61,7 @@ export const PlayerSeats = ({
             hidden={true}
             dealDelays={[0.6, 1.8, 3.0]}
             playedCardId={playedCardId}
-            backType="blue"
+            backType={G.teamColors ? G.teamColors.TeamB : "blue"}
           />
         </div>
       ) : (
@@ -111,7 +111,7 @@ export const PlayerSeats = ({
               hidden={true}
               dealDelays={[0.6, 1.8, 3.0]}
               playedCardId={playedCardId}
-              backType={topIsTeamA ? "red" : "blue"}
+              backType={G.teamColors ? (topIsTeamA ? G.teamColors.TeamA : G.teamColors.TeamB) : (topIsTeamA ? "red" : "blue")}
             />
           </div>
 
@@ -129,12 +129,17 @@ export const PlayerSeats = ({
                 <div className={`text-[9px] sm:text-[10px] font-bold truncate max-w-[64px] sm:max-w-[80px] ${leftNameColor}`}>
                   {leftName}
                 </div>
-                <div className="flex -space-x-4 rtl:space-x-reverse h-8 items-center justify-center my-0.5 select-none pointer-events-none">
-                  {Array.from({ length: G.players[leftID]?.hand?.length || 0 }).map((_, idx) => (
-                    <div key={idx} className="w-5 h-8 rounded bg-slate-800 border border-slate-700 shadow flex items-center justify-center">
-                      <img src={backBlue} alt="Back" className="w-full h-full object-cover rounded opacity-80" />
-                    </div>
-                  ))}
+                <div className="flex flex-col -space-y-3 items-center justify-center my-0.5 select-none pointer-events-none">
+                  {(() => {
+                    const leftIsTeamA = leftID === '0' || leftID === '2';
+                    const leftColor = G.teamColors ? (leftIsTeamA ? G.teamColors.TeamA : G.teamColors.TeamB) : 'blue';
+                    const leftBackImg = leftColor === 'red' ? backRed : backBlue;
+                    return Array.from({ length: G.players[leftID]?.hand?.length || 0 }).map((_, idx) => (
+                      <div key={idx} className="w-5 h-8 rounded bg-slate-800 border border-slate-700 shadow flex items-center justify-center transform rotate-90">
+                        <img src={leftBackImg} alt="Back" className="w-full h-full object-cover rounded opacity-80" />
+                      </div>
+                    ));
+                  })()}
                 </div>
                 <div className={`text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${leftScoreBadge}`}>
                   {leftScore} pts
@@ -157,12 +162,17 @@ export const PlayerSeats = ({
                 <div className={`text-[9px] sm:text-[10px] font-bold truncate max-w-[64px] sm:max-w-[80px] ${rightNameColor}`}>
                   {rightName}
                 </div>
-                <div className="flex -space-x-4 rtl:space-x-reverse h-8 items-center justify-center my-0.5 select-none pointer-events-none">
-                  {Array.from({ length: G.players[rightID]?.hand?.length || 0 }).map((_, idx) => (
-                    <div key={idx} className="w-5 h-8 rounded bg-slate-800 border border-slate-700 shadow flex items-center justify-center">
-                      <img src={backBlue} alt="Back" className="w-full h-full object-cover rounded opacity-80" />
-                    </div>
-                  ))}
+                <div className="flex flex-col -space-y-3 items-center justify-center my-0.5 select-none pointer-events-none">
+                  {(() => {
+                    const rightIsTeamA = rightID === '0' || rightID === '2';
+                    const rightColor = G.teamColors ? (rightIsTeamA ? G.teamColors.TeamA : G.teamColors.TeamB) : 'blue';
+                    const rightBackImg = rightColor === 'red' ? backRed : backBlue;
+                    return Array.from({ length: G.players[rightID]?.hand?.length || 0 }).map((_, idx) => (
+                      <div key={idx} className="w-5 h-8 rounded bg-slate-800 border border-slate-700 shadow flex items-center justify-center transform -rotate-90">
+                        <img src={rightBackImg} alt="Back" className="w-full h-full object-cover rounded opacity-80" />
+                      </div>
+                    ));
+                  })()}
                 </div>
                 <div className={`text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${rightScoreBadge}`}>
                   {rightScore} pts

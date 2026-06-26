@@ -64,6 +64,8 @@ export const GameTable = ({
         className={`game-table bg-emerald-900/40 border-green-700/90 shadow-2xl shadow-green-900/30 ${numP === 4 ? 'game-table-4player' : ''}`} 
         data-test-id="game-table"
         data-capture-step={G.pendingCapture ? captureStep : undefined}
+        data-team-a-color={G.teamColors?.TeamA}
+        data-team-b-color={G.teamColors?.TeamB}
       >
         <div className="absolute inset-0 bg-[url('/felt.png')] opacity-10 rounded-3xl mix-blend-overlay pointer-events-none"></div>
         

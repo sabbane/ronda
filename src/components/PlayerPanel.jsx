@@ -27,6 +27,8 @@ export const PlayerPanel = ({
   } = useSound();
 
   const [deckBackImage] = useState(() => Math.random() < 0.5 ? backBlue : backRed);
+  const isTeamA = myID === '0' || myID === '2';
+  const myColor = G.teamColors ? (isTeamA ? G.teamColors.TeamA : G.teamColors.TeamB) : 'red';
 
   return (
     <div className="w-full max-w-4xl relative z-20 shrink-0">
@@ -52,7 +54,7 @@ export const PlayerPanel = ({
                 transition={{ type: "spring", stiffness: 40, damping: 12, mass: 1.2 }}
                 className="absolute inset-0 bg-indigo-900/50 border border-indigo-700/50 rounded-sm shadow-sm overflow-hidden"
               >
-                <img src={backRed} alt="Captured Card" className="w-full h-full object-cover" />
+                <img src={myColor === 'red' ? backRed : backBlue} alt="Captured Card" className="w-full h-full object-cover" />
               </motion.div>
             ))}
           </div>
@@ -72,7 +74,7 @@ export const PlayerPanel = ({
         dealDelays={[0.0, 1.2, 2.4]}
         playedCardId={playedCardId}
         counterCardValue={canCounterDarba ? activeEvent.currentVal : null}
-        backType="red"
+        backType={myColor}
       />
 
       {/* Deck Info & Sound Toggle - Moved below player hand to prevent overlap on mobile */}

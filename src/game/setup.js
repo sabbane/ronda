@@ -41,6 +41,12 @@ export const setupGame = ({ ctx }, setupData) => {
     return acc;
   }, {});
   
+  const randomColor = Math.random() < 0.5 ? 'blue' : 'red';
+  const teamColors = {
+    TeamA: randomColor,
+    TeamB: randomColor === 'blue' ? 'red' : 'blue'
+  };
+
   let G = {
     deck,
     table,
@@ -56,6 +62,7 @@ export const setupGame = ({ ctx }, setupData) => {
     gameStatus: null, // Custom game over state
     matchesWon, // Track overall games won
     teamNames: { TeamA: '', TeamB: '' },
+    teamColors,
     isBotGame,
     isTestMode,
     wantsPlayAgain: playerIds.reduce((acc, pID) => {

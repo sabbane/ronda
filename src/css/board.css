@@ -146,14 +146,14 @@
   }
 
   /* Score and Point badges */
-  .game-board-container .bg-slate-800 {
+  .game-board-container .bg-slate-800.rounded-full {
     padding: 0.35rem 0.85rem !important;
     border-width: 1px !important;
   }
-  .game-board-container .bg-slate-800 span {
+  .game-board-container .bg-slate-800.rounded-full span {
     font-size: 0.95rem !important;
   }
-  .game-board-container .bg-slate-800 span.font-bold {
+  .game-board-container .bg-slate-800.rounded-full span.font-bold {
     font-size: 1.2rem !important;
   }
 
