@@ -13,7 +13,13 @@ test('Splashscreen content must fit completely within a standard laptop viewport
     });
   });
 
-  // 2. Go to main page (which will display the splashscreen)
+  // 2. Delay asset loading to keep splashscreen visible
+  await page.route('**/felt.png', async route => {
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    await route.continue();
+  });
+
+  // 3. Go to main page (which will display the splashscreen)
   await page.goto('/');
 
   // 3. Verify splashscreen is visible

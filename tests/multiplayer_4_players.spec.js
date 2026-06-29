@@ -154,7 +154,7 @@ test.describe('4-Player Team Mode E2E', () => {
     // Wait for Team A update to sync and state ID to increment before Team B update
     await page2.waitForTimeout(1500);
 
-    await p3TeamBInput.fill('Zellij FC');
+    await p3TeamBInput.fill('Zellij');
     await p3TeamBInput.press('Enter');
 
     // Give time to sync
@@ -164,7 +164,7 @@ test.describe('4-Player Team Mode E2E', () => {
     const p1TeamAInput = page1.locator('input[placeholder*="Team A" i]').first();
     const p1TeamBInput = page1.locator('input[placeholder*="Team B" i]').first();
     await expect(p1TeamAInput).toHaveValue('Al-Mourabitoun');
-    await expect(p1TeamBInput).toHaveValue('Zellij FC');
+    await expect(p1TeamBInput).toHaveValue('Zellij');
     console.log('[Test] Confirmed: Custom team names successfully synchronized in real time.');
 
     // ─── Start the Game ───────────────────────────────────────────────────────

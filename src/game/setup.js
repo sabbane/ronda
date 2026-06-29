@@ -46,6 +46,17 @@ export const setupGame = ({ ctx }, setupData) => {
     TeamA: randomColor,
     TeamB: randomColor === 'blue' ? 'red' : 'blue'
   };
+  
+  const teamNames = { TeamA: '', TeamB: '' };
+  if (numP === 4) {
+    if (Math.random() < 0.28) {
+      const teamAPairs = ["AtlasLions", "Raja", "ZellijStars", "MoroccoPro", "ProPlayers", "Warriors", "Titans", "RondaKings"];
+      const teamBPairs = ["BerberCats", "Wydad", "MosaicSquad", "MaghrebGamer", "NoobSlayers", "Shadows", "Legends", "RondaQueens"];
+      const rIdx = Math.floor(Math.random() * teamAPairs.length);
+      teamNames.TeamA = teamAPairs[rIdx];
+      teamNames.TeamB = teamBPairs[rIdx];
+    }
+  }
 
   let G = {
     deck,
@@ -57,11 +68,11 @@ export const setupGame = ({ ctx }, setupData) => {
     pendingCapture: null,
     isAnimating: true,
     isDealing: true,
-    gameStarted: setupData ? (isTestMode || setupData.gameStarted === true) : true,
+    gameStarted: setupData ? (setupData.gameStarted !== false) : true,
     endTurnAfterUI: false,
     gameStatus: null, // Custom game over state
     matchesWon, // Track overall games won
-    teamNames: { TeamA: '', TeamB: '' },
+    teamNames,
     teamColors,
     isBotGame,
     isTestMode,

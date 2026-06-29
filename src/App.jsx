@@ -31,8 +31,10 @@ const RondaClientBot = ReactClient({
           });
         }
         async play(state, playerID) {
-          const latestState = (typeof window !== 'undefined' && window.latestGameState) || state;
-          const { G, ctx } = latestState;
+          if (!state || !state.G || !state.ctx) {
+            return new Promise(() => {});
+          }
+          const { G, ctx } = state;
 
           const isBotActive = ctx.activePlayers 
             ? (playerID in ctx.activePlayers) 
@@ -42,17 +44,12 @@ const RondaClientBot = ReactClient({
             return new Promise(() => {});
           }
 
-          const res = await super.play(latestState, playerID);
-          if (!res || !res.action) {
-            return {
-              action: {
-                type: 'NO_OP',
-                payload: {
-                  playerID: playerID
-                }
-              }
-            };
+          const moves = RondaGame.ai.enumerate(G, ctx, playerID);
+          if (!moves || moves.length === 0) {
+            return new Promise(() => {});
           }
+
+          const res = await super.play(state, playerID);
           return res;
         }
       }

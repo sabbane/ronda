@@ -44,8 +44,11 @@ export const clearPlayerSeat = ({ G }, targetPlayerID) => {
 };
 
 export const setTeamName = ({ G }, { team, name }) => {
-  if (G.teamNames) {
-    G.teamNames[team] = name;
+  if (G.teamNames && name) {
+    const trimmed = name.trim();
+    if (trimmed && !trimmed.includes(' ') && trimmed.length <= 20) {
+      G.teamNames[team] = trimmed;
+    }
   }
 };
 

@@ -26,10 +26,14 @@ const updateUrl = (id) => {
 // Helper function to handle lobby match creation APIs
 const createRoomMatch = async (maxPlayers, isPrivate, testMode, nickname) => {
   localStorage.setItem('ronda_nickname', nickname);
+  const urlParams = new URLSearchParams(window.location.search);
+  const allowFallback = urlParams.get('botFallback') === 'true';
+  const noBots = testMode && !allowFallback;
+
   const match = await lobbyClient.createMatch(RondaGame.name, {
     numPlayers: maxPlayers,
     unlisted: isPrivate,
-    setupData: { gameStarted: false, testMode }
+    setupData: { gameStarted: false, testMode, noBots }
   });
   const realMatchID = match.matchID;
   const joinData = await lobbyClient.joinMatch(RondaGame.name, realMatchID, {
@@ -126,7 +130,7 @@ const executeFetchPublicRooms = async ({ setPublicRooms, setIsLoadingRooms, setE
 
 export const useLobby = () => {
   const [mode, setMode] = useState(null); // 'bot', 'online', 'rules' or null
-  const [testMode, setTestMode] = useState(false);
+  const [testMode, setTestMode] = useState(() => import.meta.env.VITE_TEST_MODE === 'true');
   const [playerID, setPlayerID] = useState('0');
   const [matchID, setMatchID] = useState(() => new URLSearchParams(window.location.search).get('room') || '');
   const [nickname, setNickname] = useState(() => localStorage.getItem('ronda_nickname') || '');
