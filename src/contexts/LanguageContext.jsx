@@ -14,7 +14,8 @@ const LanguageContext = createContext();
 
 const safeGetLocalStorage = (key, fallback) => {
   try {
-    return localStorage.getItem(key) || fallback;
+    const value = localStorage.getItem(key);
+    return value !== null ? value : fallback;
   } catch (e) {
     console.warn('[LanguageContext] localStorage is blocked:', e);
     return fallback;
