@@ -33,3 +33,5 @@ blob-report/
 # PlayGama Releases ZIP archives
 playgama-releases/
 
+# Runtime bot credentials (generated at server startup, not for version control)
+scratch/bot_credentials.json
