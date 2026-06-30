@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { Client } from 'boardgame.io/dist/cjs/client.js';
 import { SocketIO } from 'boardgame.io/dist/cjs/multiplayer.js';
+import { moroccanNames, europeanNames } from './src/game/botNames.js';
 
 const server = Server({
   games: [RondaGame],
@@ -96,15 +97,7 @@ server.router.get('/test/match-id', async (ctx) => {
   }
 });
 
-const moroccanNames = [
-  "Youssef", "Amine", "Sarah", "Karim", "Mehdi", "Anass", "Yasmin", "Layla",
-  "Rachid", "Hamza", "Fatima", "Khadija", "Nour", "Omar", "Sofia", "Adnane"
-];
 
-const europeanNames = [
-  "Thomas", "Chloé", "Lukas", "Emma", "Lucas", "Léa", "Arthur", "Manon",
-  "Paul", "Sarah", "Jonas", "Laura", "David", "Marie", "Simon", "Anna"
-];
 
 const generateBotName = () => {
   if (Math.random() < 0.90) {
