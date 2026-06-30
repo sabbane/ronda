@@ -218,10 +218,34 @@ const startBotClient = (port, matchID, playerID, credentials, botName) => {
 
     if (timerId) return;
 
-    // Delay: 0.5 to 1.5 seconds for the last card of a round, 1.0 to 4.0 seconds otherwise
+    // Delay: 0.2 to 1.0 seconds for capture/Darba moves and the last card, 1.0 to 3.0 seconds otherwise
     const hand = G.players && G.players[playerID] ? G.players[playerID].hand : [];
     const isLastCard = hand.length === 1;
-    const delay = isLastCard ? (Math.random() * 1000 + 500) : (Math.random() * 3000 + 1000);
+
+    let isCaptureMove = false;
+    const botMoves = RondaGame.ai.enumerate(G, ctx, playerID);
+    if (botMoves && botMoves.length > 0) {
+      const nextMove = botMoves[0];
+      if (nextMove.move === 'playCard') {
+        const cardIdx = nextMove.args[0];
+        const playedCard = hand[cardIdx];
+        if (playedCard) {
+          const currentVal = playedCard.value;
+          const hasTableMatch = G.table.some(c => c.value === currentVal);
+          const isTaawidaTransfer = !!(
+            G.lastPlayedCard &&
+            G.lastPlayedCard.value === currentVal &&
+            G.lastPlayedCard.player !== playerID &&
+            G.lastPlayedCard.streak >= 2
+          );
+          if (hasTableMatch || isTaawidaTransfer) {
+            isCaptureMove = true;
+          }
+        }
+      }
+    }
+
+    const delay = (isLastCard || isCaptureMove) ? (Math.random() * 800 + 200) : (Math.random() * 2000 + 1000);
 
     timerId = setTimeout(() => {
       timerId = null;
