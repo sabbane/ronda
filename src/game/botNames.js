@@ -11,3 +11,10 @@ export const europeanNames = [
   "Killer", "Ghost", "Ninja", "Phantom", "Shadow", "Spectre", "Wraith",
   "Mercenary", "Assassin", "Viper", "Raptor", "Eagle", "Falcon", "Hawk"
 ];
+
+export const teamNames = [
+  "AtlasLions", "Raja", "RCA", "TheStars", "Morocco", "ProPlayers", "Warriors", "Titans", "RondaKings",
+  "WAC", "Wydad", "TheSquad", "MaghrebGamers", "NoobSlayers", "Shadows", "TheLegends", "Strangers", "DimaDima",
+  "DimaWAC", "DimaRCA", "DimaRaja", "FAR", "FUS", "KACM", "MAT", "MCO", "HUSA", "IRTIZNIT", "USM", "LesCoquins",
+  "LesChevaliers", "Vampires", "Tigres", "LEquipe", "LesAigles", "Lions"
+];

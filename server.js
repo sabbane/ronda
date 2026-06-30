@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { Client } from 'boardgame.io/dist/cjs/client.js';
 import { SocketIO } from 'boardgame.io/dist/cjs/multiplayer.js';
-import { moroccanNames, europeanNames } from './src/game/botNames.js';
+import { moroccanNames, europeanNames, teamNames } from './src/game/botNames.js';
 
 const server = Server({
   games: [RondaGame],
@@ -151,6 +151,7 @@ const startBotClient = (port, matchID, playerID, credentials, botName) => {
   activeBotClients.set(clientKey, client);
 
   let nameSynced = false;
+  let teamNameChecked = false;
   let timerId = null;
 
   client.subscribe(state => {
@@ -165,6 +166,35 @@ const startBotClient = (port, matchID, playerID, credentials, botName) => {
       } catch (err) {
         console.error(`[Bot ${clientKey}] Failed to set name:`, err);
         nameSynced = false;
+      }
+    }
+
+    // Check if Team B name needs to be set (4-player mode, lobby phase, first bot in Team B, Team B name is empty)
+    if (!teamNameChecked && ctx.numPlayers === 4 && G.gameStarted === false && (playerID === '1' || playerID === '3') && G.teamNames && G.teamNames.TeamB === '') {
+      const otherSlot = playerID === '1' ? '3' : '1';
+      const isOtherEmpty = !G.players || !G.players[otherSlot] || !G.players[otherSlot].name;
+      
+      if (isOtherEmpty) {
+        teamNameChecked = true;
+        const shouldSet = G.isTestMode === true || Math.random() < 0.5;
+        if (shouldSet) {
+          const chosenName = teamNames[Math.floor(Math.random() * teamNames.length)];
+          const delay = G.isTestMode === true ? 1000 : (Math.random() * 5000 + 5000);
+          console.log(`[Bot ${clientKey}] Decided to set Team B name to "${chosenName}" after ${delay.toFixed(0)}ms`);
+          
+          setTimeout(() => {
+            const latestState = client.getState();
+            if (latestState && latestState.G && latestState.G.gameStarted === false && latestState.G.teamNames && latestState.G.teamNames.TeamB === '' && activeBotClients.has(clientKey)) {
+              try {
+                client.moves.setTeamName({ team: 'TeamB', name: chosenName });
+              } catch (err) {
+                console.error(`[Bot ${clientKey}] Failed to set team name:`, err);
+              }
+            }
+          }, delay);
+        } else {
+          console.log(`[Bot ${clientKey}] Decided NOT to set Team B name (50% roll failed)`);
+        }
       }
     }
 
