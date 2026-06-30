@@ -30,7 +30,7 @@ test.describe('Multiplayer: Bot Matchmaking Fallback System', () => {
 
     // 5. Locate the seat card of the Opponent (Player 1)
     // Initially, it should show "Waiting" or similar
-    const opponentSeat = page.locator('div', { has: page.locator('div', { hasText: /^Opponent$/i }) }).first();
+    const opponentSeat = page.locator('div', { has: page.locator('span', { hasText: /Player 2/i }) }).first();
     await expect(opponentSeat).toBeVisible({ timeout: 10000 });
 
     const waitingSpan = opponentSeat.locator('span', { hasText: /Waiting/i }).first();
