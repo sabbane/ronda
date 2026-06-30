@@ -27,7 +27,7 @@ test.describe('Multiplayer: Bot Rematch Flow and Early Disconnect', () => {
     await expect(page.locator('h1', { hasText: /Game Lobby/i })).toBeVisible({ timeout: 15000 });
 
     // 5. Wait for bot to automatically join
-    const opponentSeat = page.locator('div', { has: page.locator('div', { hasText: /^Opponent$/i }) }).first();
+    const opponentSeat = page.locator('div', { has: page.locator('span', { hasText: /Player 2/i }) }).first();
     const botNameSpan = opponentSeat.locator('span.text-slate-200').first();
     await expect(botNameSpan).toBeVisible({ timeout: 10000 });
     const botName = await botNameSpan.innerText();

@@ -26,7 +26,7 @@ test.describe('Multiplayer Lobby: Bot Team Name Trigger', () => {
     await expect(page.locator('h1', { hasText: /Game Lobby/i })).toBeVisible({ timeout: 15000 });
 
     // 7. Wait for the first bot (Slot 1 / Team B) to join
-    const slot1Seat = page.locator('div', { has: page.locator('div', { hasText: /Opponent 1/i }) }).first();
+    const slot1Seat = page.locator('div', { has: page.locator('span', { hasText: /Player 2/i }) }).first();
     const slot1NameSpan = slot1Seat.locator('span.text-slate-200').first();
     // Bot should join within 10 seconds in test mode
     await expect(slot1NameSpan).toBeVisible({ timeout: 10000 });

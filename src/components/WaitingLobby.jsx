@@ -16,18 +16,7 @@ const PlayerSeatCard = ({
   const hasJoined = isHost || !!pName.trim();
   const isLocalPlayer = myID === pID;
 
-  let role = '';
-  if (numP === 2) {
-    role = isHost ? 'Host' : t('roleOpponent');
-  } else {
-    if (pID === '0') role = 'Host';
-    else if (pID === '2') role = t('rolePartnerA');
-    else if (pID === '1') role = t('roleOpponent1B');
-    else if (pID === '3') role = t('roleOpponent2B');
-  }
-
   const isAmberTeam = numP === 2 ? pID === '0' : (pID === '0' || pID === '2');
-  const badgeColor = isAmberTeam ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' : 'bg-purple-500/20 text-purple-300 border-purple-500/30';
   const iconBg = hasJoined
     ? (isAmberTeam ? 'bg-amber-600/20 border-amber-500/30 text-amber-400' : 'bg-purple-600/20 border-purple-500/30 text-purple-400')
     : 'bg-white/5 border border-white/5 text-slate-600 animate-pulse';
@@ -45,9 +34,6 @@ const PlayerSeatCard = ({
 
   return (
     <div className={`bg-white/5 border border-white/10 rounded-2xl ${cardPadding} flex flex-col items-center relative overflow-hidden group shadow-lg`}>
-      <div className={`absolute top-3 right-3 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full border ${badgeColor}`}>
-        {role}
-      </div>
       <div className={`rounded-full flex items-center justify-center ${iconSize} ${iconBg}`}>
         <svg xmlns="http://www.w3.org/2000/svg" width={svgSize} height={svgSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
