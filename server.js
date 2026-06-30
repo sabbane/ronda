@@ -175,21 +175,41 @@ const startBotClient = (port, matchID, playerID, credentials, botName) => {
       }
     }
 
-    if (!G.gameStarted || G.gameStatus) {
-      if (G.gameStatus) {
-        if (activeBotClients.has(clientKey)) {
-          console.log(`[Bot ${clientKey}] Game over, stopping bot client.`);
-          activeBotClients.delete(clientKey);
-          try {
-            client.stop();
-          } catch (err) {
-            console.error(`[Bot ${clientKey}] Error stopping client:`, err);
-          }
-          if (botCredentials[clientKey]) {
-            delete botCredentials[clientKey];
-            saveCredentials();
-          }
+    // Stop bot if the host left the game
+    if (G.playerLeft && G.playerLeft['0'] === true) {
+      if (activeBotClients.has(clientKey)) {
+        console.log(`[Bot ${clientKey}] Host left, stopping bot client.`);
+        activeBotClients.delete(clientKey);
+        try {
+          client.stop();
+        } catch (err) {
+          console.error(`[Bot ${clientKey}] Error stopping client:`, err);
         }
+        if (botCredentials[clientKey]) {
+          delete botCredentials[clientKey];
+          saveCredentials();
+        }
+      }
+      return;
+    }
+
+    // Auto-consent to rematch challenges
+    const isBotInGameOverStage = ctx.activePlayers && ctx.activePlayers[playerID] === 'gameOver';
+    if (isBotInGameOverStage && G.wantsPlayAgain && G.wantsPlayAgain['0'] === true && !G.wantsPlayAgain[playerID]) {
+      console.log(`[Bot ${clientKey}] Accepting rematch challenge...`);
+      try {
+        client.moves.restartGame();
+      } catch (err) {
+        console.error(`[Bot ${clientKey}] Failed to accept rematch:`, err);
+      }
+      return;
+    }
+
+    // Do not allow normal play moves if game is not started or is already over
+    if (!G.gameStarted || G.gameStatus) {
+      if (timerId) {
+        clearTimeout(timerId);
+        timerId = null;
       }
       return;
     }
@@ -322,6 +342,24 @@ const monitorMatchmaking = async (port) => {
     for (const matchID of lobbyTimes.keys()) {
       if (!activeMatchIDs.has(matchID)) {
         lobbyTimes.delete(matchID);
+      }
+    }
+
+    // Cleanup orphaned bot clients whose matches are no longer active
+    for (const [clientKey, botClient] of activeBotClients.entries()) {
+      const matchID = clientKey.split('-')[0];
+      if (!activeMatchIDs.has(matchID)) {
+        console.log(`[Bot Monitor] Cleaning up orphaned bot client ${clientKey}`);
+        try {
+          botClient.stop();
+        } catch (err) {
+          console.error(`[Bot Monitor] Error stopping orphaned client ${clientKey}:`, err);
+        }
+        activeBotClients.delete(clientKey);
+        if (botCredentials[clientKey]) {
+          delete botCredentials[clientKey];
+          saveCredentials();
+        }
       }
     }
 
