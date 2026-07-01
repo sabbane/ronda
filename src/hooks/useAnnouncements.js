@@ -242,6 +242,14 @@ export const useAnnouncements = ({
   }, [activeEvent]);
 
   React.useEffect(() => {
+    console.log('[useAnnouncements] Check clearAnnouncements:', {
+      eventQueueLength: eventQueue.length,
+      hasActiveEvent: !!activeEvent,
+      announcementsLength: G.announcements?.length,
+      activePlayers: ctx.activePlayers,
+      myStage: ctx.activePlayers?.[myID],
+      myID
+    });
     if (
       eventQueue.length === 0 && 
       !activeEvent && 
@@ -251,7 +259,9 @@ export const useAnnouncements = ({
       ctx.activePlayers[myID] === 'waitForUI'
     ) {
       const currentId = G.announcementId;
+      console.log(`[useAnnouncements] Scheduling clearAnnouncements in 800ms for ID ${currentId}`);
       const timer = setTimeout(() => {
+        console.log('[useAnnouncements] Calling moves.clearAnnouncements()');
         moves.clearAnnouncements(currentId);
       }, 800);
       return () => clearTimeout(timer);
@@ -260,10 +270,19 @@ export const useAnnouncements = ({
 
   // End animation stage after delay
   React.useEffect(() => {
+    console.log('[useAnnouncements] Check endAnimation:', {
+      isAnimating: G.isAnimating,
+      hasPendingCapture: !!G.pendingCapture,
+      activePlayers: ctx.activePlayers,
+      myStage: ctx.activePlayers?.[myID],
+      myID
+    });
     if (G.isAnimating && !G.pendingCapture && ctx.activePlayers && ctx.activePlayers[myID] === 'waitForUI') {
       const isDealPhase = G.isDealing;
       const delay = isDealPhase ? 3400 : 1500;
+      console.log(`[useAnnouncements] Scheduling endAnimation in ${delay}ms`);
       const timer = setTimeout(() => {
+        console.log('[useAnnouncements] Calling moves.endAnimation()');
         moves.endAnimation();
       }, delay);
       return () => clearTimeout(timer);

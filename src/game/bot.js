@@ -147,15 +147,10 @@ export const enumerateMoves = (G, ctx, playerID) => {
 
   if (!gameG || !gameCtx || !player) return [];
 
-  // Bot only plays for Player 1
-  if (player !== '1') return [];
+  // Bot does not play for Player 0 (Host/Human)
+  if (player === '0') return [];
   if (player !== gameCtx.currentPlayer) return [];
   if (gameG.gameStatus) return [];
-
-  // Wait if UI is busy
-  if (gameG.isAnimating || (gameG.announcements && gameG.announcements.length > 0) || (gameCtx.activePlayers && gameCtx.activePlayers[player] === 'waitForUI')) {
-    return [];
-  }
 
   if (gameG.pendingCapture) {
     if (gameG.pendingCapture.player === player) {
@@ -164,9 +159,11 @@ export const enumerateMoves = (G, ctx, playerID) => {
     return [];
   }
 
-  if (gameG.players['0'].hand.length === 0 && gameG.players['1'].hand.length === 0 && gameG.deck.length > 0) {
-    return [{ move: 'dealCards', args: [] }];
+  // Wait if UI is busy
+  if (gameG.isAnimating || (gameG.announcements && gameG.announcements.length > 0) || (gameCtx.activePlayers && gameCtx.activePlayers[player] === 'waitForUI')) {
+    return [];
   }
+
 
   const hand = gameG.players[player]?.hand || [];
   if (hand.length === 0) return [];

@@ -249,9 +249,12 @@ const startBotClient = (port, matchID, playerID, credentials, botName) => {
       return;
     }
 
-    // Do not schedule or run the timer if the UI is busy animating or announcements are active
+    // Do not schedule or run the timer if the UI is busy animating or announcements are active,
+    // unless this bot itself has a pending capture to resolve (which is resolved automatically via processCapture).
     const isUIBusy = G.isAnimating || (G.announcements && G.announcements.length > 0) || (ctx.activePlayers && ctx.activePlayers[playerID] === 'waitForUI');
-    if (isUIBusy) {
+    const isMyPendingCapture = G.pendingCapture && G.pendingCapture.player === playerID;
+
+    if (isUIBusy && !isMyPendingCapture) {
       if (timerId) {
         clearTimeout(timerId);
         timerId = null;

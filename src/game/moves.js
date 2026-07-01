@@ -93,7 +93,7 @@ export const playCard = ({ G, ctx, events, playerID }, cardIndex) => {
 
   if (!playedCard) return INVALID_MOVE;
 
-  G.announcements = [];
+  G.announcements.splice(0, G.announcements.length);
   G._announcementIdIncremented = false;
   G.isDealing = false;
 
@@ -178,7 +178,7 @@ export const counterDarba = ({ G, ctx, events, playerID }, cardIndex) => {
   const captureRes = executeCapture(G);
   if (captureRes === INVALID_MOVE) return INVALID_MOVE;
 
-  G.announcements = [];
+  G.announcements.splice(0, G.announcements.length);
   G._announcementIdIncremented = false;
 
   hand.splice(cardIndex, 1);
@@ -207,10 +207,17 @@ export const counterDarba = ({ G, ctx, events, playerID }, cardIndex) => {
 };
 
 export const clearAnnouncements = ({ G, events }, announcementId) => {
+  console.log('[Server clearAnnouncements] Calling with:', {
+    announcementId,
+    serverAnnouncementId: G.announcementId,
+    announcements: G.announcements,
+    isAnimating: G.isAnimating
+  });
   if (announcementId !== undefined && announcementId !== null && G.announcementId !== announcementId) {
+    console.log('[Server clearAnnouncements] Bypassed due to ID mismatch');
     return;
   }
-  G.announcements = [];
+  G.announcements.splice(0, G.announcements.length);
   G._announcementIdIncremented = false;
   if (G.isAnimating) return;
   if (G.gameStatus) {
