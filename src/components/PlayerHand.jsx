@@ -2,9 +2,29 @@ import { Card } from './Card';
 import { motion } from 'framer-motion';
 
 export const PlayerHand = (props) => {
-  const { hand, isCurrentPlayer, onPlayCard, hidden = false, dealDelay = 0, dealDelays = null, playedCardId = null, counterCardValue = null, backType = 'default' } = props;
+  const {
+    hand,
+    isCurrentPlayer,
+    onPlayCard,
+    hidden = false,
+    dealDelay = 0,
+    dealDelays = null,
+    playedCardId = null,
+    counterCardValue = null,
+    backType = 'default',
+    layout = 'horizontal',
+    customRotate = 0,
+    cardClassName = '',
+    containerClassName = '',
+  } = props;
+
+  const isVertical = layout === 'vertical';
+
   return (
-    <div className="game-hand" dir="ltr">
+    <div
+      className={containerClassName || (isVertical ? "flex flex-col -space-y-3 items-center justify-center" : "game-hand")}
+      dir="ltr"
+    >
         {hand.map((card, index) => {
           const isCounterCard = counterCardValue !== null && card.value === counterCardValue;
           const isSelectable = isCurrentPlayer && (counterCardValue === null || isCounterCard);
@@ -13,8 +33,8 @@ export const PlayerHand = (props) => {
             <motion.div
               key={card.id}
               layoutId={`card-${card.id}`}
-              initial={{ opacity: 0, y: -100, x: -100, rotate: -20 }}
-              animate={{ opacity: 1, y: 0, x: 0, rotate: 0 }}
+              initial={{ opacity: 0, y: isVertical ? -50 : -100, x: isVertical ? -50 : -100, rotate: customRotate - 20 }}
+              animate={{ opacity: 1, y: 0, x: 0, rotate: customRotate }}
               exit={{}}
               transition={{ 
                 type: "spring", 
@@ -28,16 +48,16 @@ export const PlayerHand = (props) => {
               dragElastic={0.1}
               onDragEnd={(event, info) => {
                 if (isSelectable && !hidden && info.offset.y < -100) {
-                  onPlayCard(index);
+                  onPlayCard && onPlayCard(index);
                 }
               }}
               whileDrag={{ scale: 1.1, zIndex: 100 }}
-              className={`hand-card-container relative z-20 ${isSelectable && !hidden ? "cursor-grab active:cursor-grabbing" : ""} ${isCounterCard ? "ring-4 ring-amber-500 shadow-[0_0_30px_rgba(245,158,11,0.8)] scale-105 border-amber-400" : ""}`}
+              className={`hand-card-container relative z-20 ${cardClassName} ${isSelectable && !hidden ? "cursor-grab active:cursor-grabbing" : ""} ${isCounterCard ? "ring-4 ring-amber-500 shadow-[0_0_30px_rgba(245,158,11,0.8)] scale-105 border-amber-400" : ""}`}
             >
               <Card
                 card={card}
                 hidden={hidden && playedCardId !== card.id}
-                onClick={isSelectable && !hidden ? () => onPlayCard(index) : undefined}
+                onClick={isSelectable && !hidden ? () => onPlayCard && onPlayCard(index) : undefined}
                 className={isSelectable && !hidden && !isCounterCard ? "ring-4 ring-indigo-400 shadow-[0_0_25px_rgba(129,140,248,0.5)]" : ""}
                 backType={backType}
               />

@@ -87,12 +87,14 @@ export const PlayerSeats = ({
                   <div className="flex gap-4 items-center">
                     <div className="relative w-8 h-12">
                       {G.players[topID]?.captured.map((card) => (
-                        <div
+                        <motion.div
                           key={`cap-partner-${card.id}`}
+                          layoutId={`card-${card.id}`}
+                          transition={{ type: "spring", stiffness: 40, damping: 12, mass: 1.2 }}
                           className={`absolute inset-0 ${topIsTeamA ? 'bg-amber-900/50 border border-amber-700/50' : 'bg-purple-900/50 border border-purple-700/50'} rounded-sm shadow-sm overflow-hidden`}
                         >
                           <img src={topIsTeamA ? backRed : backBlue} alt="Captured Card" className="w-full h-full object-cover" />
-                        </div>
+                        </motion.div>
                       ))}
                     </div>
                     <div className={`bg-slate-800 px-4 py-1 rounded-full text-sm border border-slate-700 shadow-inner flex items-center gap-2`}>
@@ -129,20 +131,34 @@ export const PlayerSeats = ({
                 <div className={`text-[9px] sm:text-[10px] font-bold truncate max-w-[64px] sm:max-w-[80px] ${leftNameColor}`}>
                   {leftName}
                 </div>
-                <div className="flex flex-col -space-y-3 items-center justify-center my-0.5 select-none pointer-events-none">
-                  {(() => {
-                    const leftIsTeamA = leftID === '0' || leftID === '2';
-                    const leftColor = G.teamColors ? (leftIsTeamA ? G.teamColors.TeamA : G.teamColors.TeamB) : 'blue';
-                    const leftBackImg = leftColor === 'red' ? backRed : backBlue;
-                    return Array.from({ length: G.players[leftID]?.hand?.length || 0 }).map((_, idx) => (
-                      <div key={idx} className="w-5 h-8 rounded bg-slate-800 border border-slate-700 shadow flex items-center justify-center transform rotate-90">
-                        <img src={leftBackImg} alt="Back" className="w-full h-full object-cover rounded opacity-80" />
-                      </div>
-                    ));
-                  })()}
-                </div>
-                <div className={`text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${leftScoreBadge}`}>
+                {(() => {
+                  const leftIsTeamA = leftID === '0' || leftID === '2';
+                  const leftColor = G.teamColors ? (leftIsTeamA ? G.teamColors.TeamA : G.teamColors.TeamB) : 'blue';
+                  return (
+                    <PlayerHand
+                      hand={(G.players && G.players[leftID]?.hand) || []}
+                      isCurrentPlayer={false}
+                      hidden={true}
+                      layout="vertical"
+                      customRotate={90}
+                      dealDelays={[0.6, 1.8, 3.0]}
+                      playedCardId={playedCardId}
+                      backType={leftColor}
+                      containerClassName="game-hand-vertical flex flex-col -space-y-3 items-center justify-center my-0.5 select-none pointer-events-none"
+                    />
+                  );
+                })()}
+                <div className={`text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${leftScoreBadge} relative`}>
                   {leftScore} pts
+                  <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-0">
+                    {G.players[leftID]?.captured.map((card) => (
+                      <motion.div
+                        key={`cap-left-${card.id}`}
+                        layoutId={`card-${card.id}`}
+                        className="w-full h-full"
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             );
@@ -162,20 +178,34 @@ export const PlayerSeats = ({
                 <div className={`text-[9px] sm:text-[10px] font-bold truncate max-w-[64px] sm:max-w-[80px] ${rightNameColor}`}>
                   {rightName}
                 </div>
-                <div className="flex flex-col -space-y-3 items-center justify-center my-0.5 select-none pointer-events-none">
-                  {(() => {
-                    const rightIsTeamA = rightID === '0' || rightID === '2';
-                    const rightColor = G.teamColors ? (rightIsTeamA ? G.teamColors.TeamA : G.teamColors.TeamB) : 'blue';
-                    const rightBackImg = rightColor === 'red' ? backRed : backBlue;
-                    return Array.from({ length: G.players[rightID]?.hand?.length || 0 }).map((_, idx) => (
-                      <div key={idx} className="w-5 h-8 rounded bg-slate-800 border border-slate-700 shadow flex items-center justify-center transform -rotate-90">
-                        <img src={rightBackImg} alt="Back" className="w-full h-full object-cover rounded opacity-80" />
-                      </div>
-                    ));
-                  })()}
-                </div>
-                <div className={`text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${rightScoreBadge}`}>
+                {(() => {
+                  const rightIsTeamA = rightID === '0' || rightID === '2';
+                  const rightColor = G.teamColors ? (rightIsTeamA ? G.teamColors.TeamA : G.teamColors.TeamB) : 'blue';
+                  return (
+                    <PlayerHand
+                      hand={(G.players && G.players[rightID]?.hand) || []}
+                      isCurrentPlayer={false}
+                      hidden={true}
+                      layout="vertical"
+                      customRotate={-90}
+                      dealDelays={[0.6, 1.8, 3.0]}
+                      playedCardId={playedCardId}
+                      backType={rightColor}
+                      containerClassName="game-hand-vertical flex flex-col -space-y-3 items-center justify-center my-0.5 select-none pointer-events-none"
+                    />
+                  );
+                })()}
+                <div className={`text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${rightScoreBadge} relative`}>
                   {rightScore} pts
+                  <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-0">
+                    {G.players[rightID]?.captured.map((card) => (
+                      <motion.div
+                        key={`cap-right-${card.id}`}
+                        layoutId={`card-${card.id}`}
+                        className="w-full h-full"
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             );

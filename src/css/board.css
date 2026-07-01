@@ -323,3 +323,8 @@
   }
 }
 
+.game-hand-vertical .hand-card-container {
+  width: 1.25rem !important; /* 20px */
+  height: 2.0rem !important; /* 32px */
+}
+
