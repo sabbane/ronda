@@ -95,7 +95,10 @@ export const GameTable = ({
                   let animY = 0;
                   let animScale = 1;
                   let animZ = isPlayedBadge ? 50 : 1;
-                  let transition = { duration: 0.3, type: "spring", stiffness: 100 };
+                  const isHighIntensity = G.announcements?.some(a => a.type === 'Darba' || a.type === 'Taawida');
+                  let transition = isHighIntensity
+                    ? { duration: 0.3, type: "tween", ease: "easeOut" }
+                    : { duration: 0.8, type: "tween", ease: "easeOut" };
                   
                   const isPlayedCard = G.pendingCapture && card.id === G.pendingCapture.playedCardId;
                   const sourceRectId = isPlayedCard ? (captureSequence && captureSequence[0]) : card.id;
