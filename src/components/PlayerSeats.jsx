@@ -19,6 +19,12 @@ export const PlayerSeats = ({
   const oppName = G?.players?.[opponentID]?.name || (isTest && opponentID === '1' ? (isArabic ? 'الحاج' : 'El Haj') : t('opponent'));
   const topIsTeamA = topID === '0' || topID === '2';
 
+  const getDealDelays = (id) => {
+    const pNum = parseInt(id) || 0;
+    const offset = numP === 4 ? 0.3 : 0.6;
+    return [0.0 + pNum * offset, 1.2 + pNum * offset, 2.4 + pNum * offset];
+  };
+
   return (
     <>
       {numP === 2 ? (
@@ -59,7 +65,7 @@ export const PlayerSeats = ({
             hand={(G.players && G.players[opponentID]?.hand) || []} 
             isCurrentPlayer={false} 
             hidden={true}
-            dealDelays={[0.6, 1.8, 3.0]}
+            dealDelays={getDealDelays(opponentID)}
             playedCardId={playedCardId}
             backType={G.teamColors ? G.teamColors.TeamB : "blue"}
           />
@@ -111,7 +117,7 @@ export const PlayerSeats = ({
               hand={(G.players && G.players[topID]?.hand) || []}
               isCurrentPlayer={false}
               hidden={true}
-              dealDelays={[0.6, 1.8, 3.0]}
+              dealDelays={getDealDelays(topID)}
               playedCardId={playedCardId}
               backType={G.teamColors ? (topIsTeamA ? G.teamColors.TeamA : G.teamColors.TeamB) : (topIsTeamA ? "red" : "blue")}
             />
@@ -141,7 +147,7 @@ export const PlayerSeats = ({
                       hidden={true}
                       layout="vertical"
                       customRotate={90}
-                      dealDelays={[0.6, 1.8, 3.0]}
+                      dealDelays={getDealDelays(leftID)}
                       playedCardId={playedCardId}
                       backType={leftColor}
                       containerClassName="game-hand-vertical flex flex-col -space-y-3 items-center justify-center my-0.5 select-none pointer-events-none"
@@ -188,7 +194,7 @@ export const PlayerSeats = ({
                       hidden={true}
                       layout="vertical"
                       customRotate={-90}
-                      dealDelays={[0.6, 1.8, 3.0]}
+                      dealDelays={getDealDelays(rightID)}
                       playedCardId={playedCardId}
                       backType={rightColor}
                       containerClassName="game-hand-vertical flex flex-col -space-y-3 items-center justify-center my-0.5 select-none pointer-events-none"

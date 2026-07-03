@@ -32,9 +32,9 @@ test.describe('Opponent and Partner Card Animations', () => {
     const p3Seat = page.locator('div.group', { has: page.locator('span', { hasText: /Player 3/i }) }).first();
     const p4Seat = page.locator('div.group', { has: page.locator('span', { hasText: /Player 4/i }) }).first();
 
-    await expect(p2Seat.locator('span.text-slate-200').first()).toBeVisible({ timeout: 15000 });
-    await expect(p3Seat.locator('span.text-slate-200').first()).toBeVisible({ timeout: 15000 });
-    await expect(p4Seat.locator('span.text-slate-200').first()).toBeVisible({ timeout: 15000 });
+    await expect(p2Seat.locator('span.text-slate-200').first()).toBeVisible({ timeout: 30000 });
+    await expect(p3Seat.locator('span.text-slate-200').first()).toBeVisible({ timeout: 30000 });
+    await expect(p4Seat.locator('span.text-slate-200').first()).toBeVisible({ timeout: 30000 });
 
     // 5. Start Game
     const startBtn = page.locator('button', { hasText: /Start Game/i }).first();

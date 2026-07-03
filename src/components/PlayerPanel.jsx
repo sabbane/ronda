@@ -67,15 +67,23 @@ export const PlayerPanel = ({
         </div>
       </div>
       
-      <PlayerHand 
-        hand={(G.players && G.players[myID]?.hand) || []} 
-        isCurrentPlayer={(isCurrentPlayer(myID) || canCounterDarba) && !isProcessing} 
-        onPlayCard={handlePlayCard} 
-        dealDelays={[0.0, 1.2, 2.4]}
-        playedCardId={playedCardId}
-        counterCardValue={canCounterDarba ? activeEvent.currentVal : null}
-        backType={myColor}
-      />
+      {(() => {
+        const numP = G.players ? Object.keys(G.players).length : 2;
+        const pNum = parseInt(myID) || 0;
+        const offset = numP === 4 ? 0.3 : 0.6;
+        const computedDelays = [0.0 + pNum * offset, 1.2 + pNum * offset, 2.4 + pNum * offset];
+        return (
+          <PlayerHand 
+            hand={(G.players && G.players[myID]?.hand) || []} 
+            isCurrentPlayer={(isCurrentPlayer(myID) || canCounterDarba) && !isProcessing} 
+            onPlayCard={handlePlayCard} 
+            dealDelays={computedDelays}
+            playedCardId={playedCardId}
+            counterCardValue={canCounterDarba ? activeEvent.currentVal : null}
+            backType={myColor}
+          />
+        );
+      })()}
 
       {/* Deck Info & Sound Toggle - Moved below player hand to prevent overlap on mobile */}
       <div className="flex justify-between items-center px-2 sm:px-8 mt-4 sm:mt-6 pb-4 sm:pb-6 w-full">

@@ -22,7 +22,10 @@ export const useMultiplayerCleanup = ({
     if (!G.gameStarted || !isMultiplayer || opponentLeft || !matchData) return;
     const opponentData = matchData.find(p => String(p.id) === String(opponentID));
     if (opponentData && opponentData.isConnected === false) {
-      setOpponentLeft(true);
+      const timer = setTimeout(() => {
+        setOpponentLeft(true);
+      }, 5000);
+      return () => clearTimeout(timer);
     }
   }, [matchData, opponentID, G.gameStarted, isMultiplayer, opponentLeft, setOpponentLeft]);
 

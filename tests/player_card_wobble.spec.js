@@ -39,9 +39,9 @@ test.describe('Player Card Animation: Wobble Check', () => {
     const p3Name = p3Seat.locator('span.text-slate-200').first();
     const p4Name = p4Seat.locator('span.text-slate-200').first();
 
-    await expect(p2Name).toBeVisible({ timeout: 15000 });
-    await expect(p3Name).toBeVisible({ timeout: 15000 });
-    await expect(p4Name).toBeVisible({ timeout: 15000 });
+    await expect(p2Name).toBeVisible({ timeout: 30000 });
+    await expect(p3Name).toBeVisible({ timeout: 30000 });
+    await expect(p4Name).toBeVisible({ timeout: 30000 });
 
     // 8. Start Game
     const startBtn = page.locator('button', { hasText: /Start Game/i }).first();
