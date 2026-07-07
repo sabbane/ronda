@@ -161,6 +161,7 @@ export const PlayerSeats = ({
                       <motion.div
                         key={`cap-left-${card.id}`}
                         layoutId={`card-${card.id}`}
+                        transition={{ type: "spring", stiffness: 40, damping: 12, mass: 1.2 }}
                         className="w-full h-full"
                       />
                     ))}
@@ -208,6 +209,7 @@ export const PlayerSeats = ({
                       <motion.div
                         key={`cap-right-${card.id}`}
                         layoutId={`card-${card.id}`}
+                        transition={{ type: "spring", stiffness: 40, damping: 12, mass: 1.2 }}
                         className="w-full h-full"
                       />
                     ))}
