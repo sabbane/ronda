@@ -87,7 +87,7 @@ export const GameTable = ({
               aria-hidden={!hasVisibleCards}
             >
               <AnimatePresence>
-                {hasVisibleCards && cardsInWrapper.map(card => {
+                {cardsInWrapper.map(card => {
                   const isNormalDropCheck = !G.pendingCapture && G.lastPlayedCard?.streakCards?.length === 1 && G.lastPlayedCard.streakCards[0].id === card.id && G.isAnimating;
                   const isPlayedBadge = (G.pendingCapture?.playedCardId === card.id) || isNormalDropCheck;
                   
