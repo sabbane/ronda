@@ -7,9 +7,10 @@ const restServerUrl = import.meta.env.VITE_SERVER_URL || (
 );
 
 // Helper function to fetch test match ID
-const fetchTestMatchID = async (pID) => {
+const fetchTestMatchID = async (pID, numP = 2) => {
   if (pID === '0') {
-    const resp = await fetch(`${restServerUrl}/test/reset`, { method: 'POST' });
+    const endpoint = numP === 4 ? '/test/reset4' : '/test/reset';
+    const resp = await fetch(`${restServerUrl}${endpoint}`, { method: 'POST' });
     const data = await resp.json();
     if (!data.ok || !data.matchID) {
       throw new Error('Server could not create test match');
@@ -47,13 +48,13 @@ export const useTestMatchSetup = ({
     const isAppInTestMode = import.meta.env.VITE_TEST_MODE === 'true';
     const path = window.location.pathname;
 
-    const setupTestMatch = async (pID) => {
+    const setupTestMatch = async (pID, numP) => {
       try {
-        const testMatchID = await fetchTestMatchID(pID);
+        const testMatchID = await fetchTestMatchID(pID, numP);
         console.log(`[TestMode] P${pID === '0' ? '1' : '2'}: test match resolved:`, testMatchID);
         setMatchID(testMatchID);
         setPlayerID(pID);
-        setMatchNumPlayers(2);
+        setMatchNumPlayers(numP);
         setMode('online');
         setTestMode(true);
       } catch (err) {
@@ -62,10 +63,12 @@ export const useTestMatchSetup = ({
     };
 
     if (isAppInTestMode) {
-      if (path === '/test/p1' || path === '/test/p2') {
+      if (path === '/test/p1' || path === '/test/p2' || path === '/test/p1_4') {
         if (lastSetupPath === path) return;
         lastSetupPath = path;
-        setupTestMatch(path === '/test/p1' ? '0' : '1');
+        const pID = path === '/test/p2' ? '1' : '0';
+        const numP = path === '/test/p1_4' ? 4 : 2;
+        setupTestMatch(pID, numP);
       } else {
         lastSetupPath = null;
       }

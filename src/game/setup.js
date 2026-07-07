@@ -2,19 +2,20 @@ import { generateDeck, shuffle } from './deck.js';
 import { evaluateRondaTringa } from './rules.js';
 
 export const setupGame = ({ ctx }, setupData) => {
+  console.log('[Server SetupGame] setupData:', setupData, 'ctx:', ctx);
+  const numP = ctx.numPlayers || 2;
   let deck;
   const matchID = ctx?.matchID;
   
   const isTestMode = setupData?.testMode === true || (matchID && /test/i.test(matchID));
 
   if (isTestMode) {
-    deck = getRiggedTestDeck();
+    deck = numP === 4 ? getRiggedTestDeck4() : getRiggedTestDeck();
   } else {
     deck = shuffle(generateDeck());
   }
 
   const table = deck.splice(0, 4).map((card, i) => ({ ...card, slot: i }));
-  const numP = ctx.numPlayers || 2;
   const playerIds = Array.from({ length: numP }, (_, i) => String(i));
   
   const isBotGame = (typeof window !== 'undefined' && window.isRondaBotGame === true) || 
@@ -103,6 +104,29 @@ const getRiggedTestDeck = () => {
       ...card, 
       displayValue: displayMap[card.value] || card.value, 
       id: `${card.suit}-${card.value}` 
+    };
+  });
+};
+
+const getRiggedTestDeck4 = () => {
+  const riggedPart = [
+    { value: 1, suit: 'dheb' }, { value: 2, suit: 'dheb' }, { value: 3, suit: 'dheb' }, { value: 4, suit: 'dheb' }, // Table
+    { value: 10, suit: 'dheb' }, { value: 10, suit: 'jben' }, { value: 10, suit: 'syouf' }, // Player 0 (Host)
+    { value: 1, suit: 'jben' }, { value: 5, suit: 'dheb' }, { value: 6, suit: 'dheb' }, // Player 1 (Right Bot) - has 1-jben to capture!
+    { value: 10, suit: 'zrawet' }, { value: 5, suit: 'jben' }, { value: 6, suit: 'jben' }, // Player 2 (Top Bot)
+    { value: 9, suit: 'dheb' }, { value: 5, suit: 'syouf' }, { value: 6, suit: 'syouf' } // Player 3 (Left Bot)
+  ];
+  
+  const riggedIds = new Set(riggedPart.map(c => `${c.suit}-${c.value}`));
+  const fullDeck = generateDeck();
+  const remaining = fullDeck.filter(c => !riggedIds.has(c.id));
+  
+  return [...riggedPart, ...remaining].map(c => {
+    const displayMap = { 8: 10, 9: 11, 10: 12 };
+    return {
+      ...c,
+      displayValue: displayMap[c.value] || c.value,
+      id: `${c.suit}-${c.value}`
     };
   });
 };

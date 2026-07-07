@@ -87,6 +87,39 @@ server.router.post('/test/reset', async (ctx) => {
   }
 });
 
+server.router.post('/test/reset4', async (ctx) => {
+  try {
+    const PORT = process.env.PORT || 8000;
+    const base = `http://127.0.0.1:${PORT}`;
+
+    const createResp = await fetch(`${base}/games/ronda/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        numPlayers: 4,
+        setupData: { testMode: true, gameStarted: false },
+      }),
+    });
+
+    if (!createResp.ok) {
+      const errText = await createResp.text();
+      ctx.status = 500;
+      ctx.body = { ok: false, error: errText };
+      return;
+    }
+
+    const data = await createResp.json();
+    const matchID = data.matchID;
+
+    server._testMatchID = matchID;
+
+    ctx.body = { ok: true, matchID };
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { ok: false, error: String(err) };
+  }
+});
+
 // GET /test/match-id  →  returns the current test matchID
 server.router.get('/test/match-id', async (ctx) => {
   if (server._testMatchID) {
@@ -131,6 +164,25 @@ const saveCredentials = () => {
 };
 
 const activeBotClients = new Map();
+
+const getCaptureSequenceLength = (G) => {
+  if (!G.pendingCapture) return 0;
+  let count = 0;
+  let val = G.pendingCapture.currentVal;
+  let matchIndex = G.table.findIndex(c => c.value === val && c.id !== G.pendingCapture.playedCardId);
+  if (matchIndex !== -1) {
+    count++;
+    let nextVal = val < 10 ? val + 1 : null;
+    while (nextVal !== null) {
+      let nextMatchIndex = G.table.findIndex(c => c.value === nextVal);
+      if (nextMatchIndex !== -1) {
+        count++;
+        nextVal = nextVal < 10 ? nextVal + 1 : null;
+      } else break;
+    }
+  }
+  return count;
+};
 
 const startBotClient = (port, matchID, playerID, credentials, botName) => {
   const clientKey = `${matchID}-${playerID}`;
@@ -262,16 +314,25 @@ const startBotClient = (port, matchID, playerID, credentials, botName) => {
       return;
     }
 
-    if (timerId) return;
+    if (isMyPendingCapture) {
+      if (timerId) {
+        clearTimeout(timerId);
+        timerId = null;
+      }
+    } else {
+      if (timerId) return;
+    }
 
     // Delay: 0.2 to 1.0 seconds for capture/Darba moves and the last card, 1.0 to 3.0 seconds otherwise
     const hand = G.players && G.players[playerID] ? G.players[playerID].hand : [];
     const isLastCard = hand.length === 1;
 
     let isCaptureMove = false;
+    let isProcessCaptureMove = false;
     const botMoves = RondaGame.ai.enumerate(G, ctx, playerID);
     if (botMoves && botMoves.length > 0) {
       const nextMove = botMoves[0];
+      console.log(`[Bot ${clientKey}] botMoves length: ${botMoves.length}, nextMove: ${JSON.stringify(nextMove)}`);
       if (nextMove.move === 'playCard') {
         const cardIdx = nextMove.args[0];
         const playedCard = hand[cardIdx];
@@ -288,10 +349,20 @@ const startBotClient = (port, matchID, playerID, credentials, botName) => {
             isCaptureMove = true;
           }
         }
+      } else if (nextMove.move === 'processCapture') {
+        isProcessCaptureMove = true;
       }
     }
 
-    const delay = (isLastCard || isCaptureMove) ? (Math.random() * 800 + 200) : (Math.random() * 2000 + 1000);
+    let delay;
+    if (isProcessCaptureMove) {
+      const seqLen = getCaptureSequenceLength(G);
+      delay = seqLen > 0 ? (seqLen * 1000 + 1000) : 1500;
+      console.log(`[Bot ${clientKey}] Scheduling processCapture in ${delay}ms (seqLen: ${seqLen})`);
+    } else {
+      delay = (isLastCard || isCaptureMove) ? (Math.random() * 800 + 200) : (Math.random() * 2000 + 1000);
+      console.log(`[Bot ${clientKey}] Scheduling standard move in ${delay.toFixed(0)}ms`);
+    }
 
     timerId = setTimeout(() => {
       timerId = null;
@@ -373,7 +444,8 @@ const monitorMatchmaking = async (port) => {
 
     // Cleanup orphaned bot clients whose matches are no longer active
     for (const [clientKey, botClient] of activeBotClients.entries()) {
-      const matchID = clientKey.split('-')[0];
+      const lastHyphenIndex = clientKey.lastIndexOf('-');
+      const matchID = lastHyphenIndex !== -1 ? clientKey.substring(0, lastHyphenIndex) : clientKey;
       if (!activeMatchIDs.has(matchID)) {
         console.log(`[Bot Monitor] Cleaning up orphaned bot client ${clientKey}`);
         try {
@@ -509,7 +581,9 @@ const monitorMatchmaking = async (port) => {
 const restoreActiveBots = async (port) => {
   const keys = Object.keys(botCredentials);
   for (const key of keys) {
-    const [matchID, playerID] = key.split('-');
+    const lastHyphenIndex = key.lastIndexOf('-');
+    const matchID = lastHyphenIndex !== -1 ? key.substring(0, lastHyphenIndex) : key;
+    const playerID = lastHyphenIndex !== -1 ? key.substring(lastHyphenIndex + 1) : '';
     try {
       const resp = await fetch(`http://127.0.0.1:${port}/games/ronda/${matchID}`);
       if (resp.ok) {

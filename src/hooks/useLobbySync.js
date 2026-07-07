@@ -19,9 +19,9 @@ export const useLobbySync = (opts) => {
       const isOccupiedInLobby = !!player.name;
       const nameInGame = G.players[pID]?.name || '';
 
-      if (!isOccupiedInLobby && nameInGame !== '') {
+      if (pID !== myID && !isOccupiedInLobby && nameInGame !== '') {
         moves.clearPlayerSeat(pID);
       }
     });
-  }, [isConnected, matchData, G.players, G.gameStarted, moves]);
+  }, [isConnected, matchData, G.players, G.gameStarted, moves, myID]);
 };

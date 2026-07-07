@@ -31,9 +31,9 @@ export const useAnnouncements = ({
   React.useEffect(() => {
     if (!G.gameStarted) {
       processedAnnouncements.current.clear();
-      setTimeout(() => {
+      if (eventQueue.length > 0) {
         setEventQueue([]);
-      }, 0);
+      }
       return;
     }
     if (G.announcements && G.announcements.length > 0) {

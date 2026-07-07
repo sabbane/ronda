@@ -6,7 +6,7 @@ export const useScrollAdjustments = (boardContainerRef, G, activeEvent, setShoul
       const container = boardContainerRef.current;
       if (container) {
         const hasOverflow = container.scrollHeight > window.innerHeight + 10;
-        setShouldScroll(hasOverflow);
+        setShouldScroll(prev => (prev !== hasOverflow ? hasOverflow : prev));
       }
     };
 
