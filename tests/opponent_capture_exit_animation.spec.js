@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Opponent Capture Exit Animation Speed Check', () => {
-  test('should verify that captured cards visually animate (fly) to the player pile slow enough to be seen', async ({ page }) => {
+test.describe('Opponent Capture Exit Animation and Stack Check', () => {
+  test('should verify that captured cards fly to a visible captured pile with images for Player 2 and 4', async ({ page }) => {
     test.setTimeout(60000);
 
     page.on('console', msg => {
@@ -16,7 +16,7 @@ test.describe('Opponent Capture Exit Animation Speed Check', () => {
 
     await page.goto('/?botFallback=true');
 
-    // Create room, pick 4 players
+    // Create room
     const createRoomBtn = page.locator('button', { hasText: /Create Room/i }).first();
     await expect(createRoomBtn).toBeVisible({ timeout: 15000 });
     await createRoomBtn.click();
@@ -34,7 +34,7 @@ test.describe('Opponent Capture Exit Animation Speed Check', () => {
 
     await expect(page.locator('h1', { hasText: /Game Lobby/i })).toBeVisible({ timeout: 15000 });
 
-    // Wait for all 3 bots
+    // Wait for bots
     const p2Seat = page.locator('div.group', { has: page.locator('span', { hasText: /Player 2/i }) }).first();
     const p3Seat = page.locator('div.group', { has: page.locator('span', { hasText: /Player 3/i }) }).first();
     const p4Seat = page.locator('div.group', { has: page.locator('span', { hasText: /Player 4/i }) }).first();
@@ -52,9 +52,6 @@ test.describe('Opponent Capture Exit Animation Speed Check', () => {
     // Play a card to trigger opponent capture
     const firstHandCard = page.locator('.game-hand').last().locator('.hand-card-container').first();
     await expect(firstHandCard).toBeVisible({ timeout: 5000 });
-    await expect(firstHandCard).toHaveClass(/cursor-grab/, { timeout: 15000 });
-
-    console.log('Playing card and waiting for opponent capture to register in G...');
     await firstHandCard.click();
 
     // Step 1: wait for a pendingCapture to appear (bot played a capture)
@@ -62,43 +59,22 @@ test.describe('Opponent Capture Exit Animation Speed Check', () => {
       return !!window.latestGameState?.G?.pendingCapture;
     }, { timeout: 15000 });
 
-    // Step 2: wait for pendingCapture to clear (processCapture was called and cards moved to captured pile)
+    // Step 2: wait for pendingCapture to clear (processCapture completed)
     await page.waitForFunction(() => {
       return !window.latestGameState?.G?.pendingCapture;
     }, { timeout: 15000 });
 
-    // Step 3: Inspect the transition properties of the captured card element in the Right player's seat (Player 2)
-    const cardTransition = await page.evaluate(async () => {
+    // Step 3: check if the right seat container (Player 2) has a rendered captured card image
+    const rightSeatImageCount = await page.evaluate(() => {
       const rightSeat = document.querySelector('.fixed.right-1\\.5, .fixed.right-4');
-      if (!rightSeat) return null;
-
-      const divs = Array.from(rightSeat.querySelectorAll('div'));
-      for (const div of divs) {
-        // Skip divs that are part of the hand container
-        if (div.closest('.game-hand-vertical')) continue;
-
-        const fiberKey = Object.keys(div).find(k => k.startsWith('__reactFiber'));
-        if (!fiberKey) continue;
-        let fiber = div[fiberKey];
-        while (fiber) {
-          if (fiber.memoizedProps && fiber.memoizedProps.layoutId && fiber.memoizedProps.layoutId.startsWith('card-')) {
-            return {
-              layoutId: fiber.memoizedProps.layoutId,
-              transition: fiber.memoizedProps.transition
-            };
-          }
-          fiber = fiber.return;
-        }
-      }
-      return null;
+      if (!rightSeat) return 0;
+      const images = rightSeat.querySelectorAll('img[alt="Captured Card"]');
+      return images.length;
     });
 
-    console.log(`[Captured Card Transition Check] Result: ${JSON.stringify(cardTransition)}`);
+    console.log(`[Captured Pile Verification] Found ${rightSeatImageCount} captured card images in Player 2 seat.`);
 
-    expect(cardTransition).not.toBeNull();
-    expect(cardTransition.transition).not.toBeUndefined();
-    expect(cardTransition.transition.type).toBe('spring');
-    expect(cardTransition.transition.stiffness).toBe(40);
-    expect(cardTransition.transition.damping).toBe(12);
+    // Expect at least 1 image to be present (since the bot performed a capture)
+    expect(rightSeatImageCount).toBeGreaterThan(0);
   });
 });

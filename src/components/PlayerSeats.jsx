@@ -133,39 +133,43 @@ export const PlayerSeats = ({
               : 'bg-purple-500/10 text-purple-300 border-purple-500/20';
             const leftNameColor = isCurrentPlayer(leftID) ? (leftIsTeamA ? 'text-amber-400 animate-pulse' : 'text-purple-400 animate-pulse') : 'text-slate-300';
             return (
-              <div className={`fixed left-1.5 sm:left-4 top-[45%] -translate-y-1/2 z-20 flex flex-col items-center gap-1.5 sm:gap-2 bg-slate-900/80 p-1.5 sm:p-3.5 rounded-xl sm:rounded-2xl border ${isCurrentPlayer(leftID) ? (leftIsTeamA ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.35)] ring-2 ring-amber-500/20' : 'border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.35)] ring-2 ring-purple-500/20') : 'border-white/5'} backdrop-blur-md max-w-[74px] sm:max-w-[90px] w-full text-center transition-all animate-fade-in`}>
-                <div className={`text-[9px] sm:text-[10px] font-bold truncate max-w-[64px] sm:max-w-[80px] ${leftNameColor}`}>
-                  {leftName}
-                </div>
-                {(() => {
-                  const leftIsTeamA = leftID === '0' || leftID === '2';
-                  const leftColor = G.teamColors ? (leftIsTeamA ? G.teamColors.TeamA : G.teamColors.TeamB) : 'blue';
-                  return (
-                    <PlayerHand
-                      hand={(G.players && G.players[leftID]?.hand) || []}
-                      isCurrentPlayer={false}
-                      hidden={true}
-                      layout="vertical"
-                      customRotate={90}
-                      dealDelays={getDealDelays(leftID)}
-                      playedCardId={playedCardId}
-                      backType={leftColor}
-                      containerClassName="game-hand-vertical flex flex-col -space-y-3 items-center justify-center my-0.5 select-none pointer-events-none"
-                    />
-                  );
-                })()}
-                <div className={`text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${leftScoreBadge} relative`}>
-                  {leftScore} pts
-                  <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-0">
-                    {G.players[leftID]?.captured.map((card) => (
-                      <motion.div
-                        key={`cap-left-${card.id}`}
-                        layoutId={`card-${card.id}`}
-                        transition={{ type: "spring", stiffness: 40, damping: 12, mass: 1.2 }}
-                        className="w-full h-full"
-                      />
-                    ))}
+              <div className="fixed left-1.5 sm:left-4 top-[45%] -translate-y-1/2 z-20 flex flex-col items-center gap-2">
+                <div className={`flex flex-col items-center gap-1.5 sm:gap-2 bg-slate-900/80 p-1.5 sm:p-3.5 rounded-xl sm:rounded-2xl border ${isCurrentPlayer(leftID) ? (leftIsTeamA ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.35)] ring-2 ring-amber-500/20' : 'border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.35)] ring-2 ring-purple-500/20') : 'border-white/5'} backdrop-blur-md max-w-[74px] sm:max-w-[90px] w-full text-center transition-all animate-fade-in`}>
+                  <div className={`text-[9px] sm:text-[10px] font-bold truncate max-w-[64px] sm:max-w-[80px] ${leftNameColor}`}>
+                    {leftName}
                   </div>
+                  {(() => {
+                    const leftIsTeamA = leftID === '0' || leftID === '2';
+                    const leftColor = G.teamColors ? (leftIsTeamA ? G.teamColors.TeamA : G.teamColors.TeamB) : 'blue';
+                    return (
+                      <PlayerHand
+                        hand={(G.players && G.players[leftID]?.hand) || []}
+                        isCurrentPlayer={false}
+                        hidden={true}
+                        layout="vertical"
+                        customRotate={90}
+                        dealDelays={getDealDelays(leftID)}
+                        playedCardId={playedCardId}
+                        backType={leftColor}
+                        containerClassName="game-hand-vertical flex flex-col -space-y-3 items-center justify-center my-0.5 select-none pointer-events-none"
+                      />
+                    );
+                  })()}
+                  <div className={`text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${leftScoreBadge}`}>
+                    {leftScore} pts
+                  </div>
+                </div>
+                <div className="relative w-4 h-6">
+                  {G.players[leftID]?.captured.map((card) => (
+                    <motion.div
+                      key={`cap-left-${card.id}`}
+                      layoutId={`card-${card.id}`}
+                      transition={{ type: "spring", stiffness: 40, damping: 12, mass: 1.2 }}
+                      className={`absolute inset-0 ${leftIsTeamA ? 'bg-amber-900/50 border border-amber-700/50' : 'bg-purple-900/50 border border-purple-700/50'} rounded-sm shadow-sm overflow-hidden`}
+                    >
+                      <img src={leftIsTeamA ? backRed : backBlue} alt="Captured Card" className="w-full h-full object-cover" />
+                    </motion.div>
+                  ))}
                 </div>
               </div>
             );
@@ -181,39 +185,43 @@ export const PlayerSeats = ({
               : 'bg-purple-500/10 text-purple-300 border-purple-500/20';
             const rightNameColor = isCurrentPlayer(rightID) ? (rightIsTeamA ? 'text-amber-400 animate-pulse' : 'text-purple-400 animate-pulse') : 'text-slate-300';
             return (
-              <div className={`fixed right-1.5 sm:right-4 top-[45%] -translate-y-1/2 z-20 flex flex-col items-center gap-1.5 sm:gap-2 bg-slate-900/80 p-1.5 sm:p-3.5 rounded-xl sm:rounded-2xl border ${isCurrentPlayer(rightID) ? (rightIsTeamA ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.35)] ring-2 ring-amber-500/20' : 'border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.35)] ring-2 ring-purple-500/20') : 'border-white/5'} backdrop-blur-md max-w-[74px] sm:max-w-[90px] w-full text-center transition-all animate-fade-in`}>
-                <div className={`text-[9px] sm:text-[10px] font-bold truncate max-w-[64px] sm:max-w-[80px] ${rightNameColor}`}>
-                  {rightName}
-                </div>
-                {(() => {
-                  const rightIsTeamA = rightID === '0' || rightID === '2';
-                  const rightColor = G.teamColors ? (rightIsTeamA ? G.teamColors.TeamA : G.teamColors.TeamB) : 'blue';
-                  return (
-                    <PlayerHand
-                      hand={(G.players && G.players[rightID]?.hand) || []}
-                      isCurrentPlayer={false}
-                      hidden={true}
-                      layout="vertical"
-                      customRotate={-90}
-                      dealDelays={getDealDelays(rightID)}
-                      playedCardId={playedCardId}
-                      backType={rightColor}
-                      containerClassName="game-hand-vertical flex flex-col -space-y-3 items-center justify-center my-0.5 select-none pointer-events-none"
-                    />
-                  );
-                })()}
-                <div className={`text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${rightScoreBadge} relative`}>
-                  {rightScore} pts
-                  <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-0">
-                    {G.players[rightID]?.captured.map((card) => (
-                      <motion.div
-                        key={`cap-right-${card.id}`}
-                        layoutId={`card-${card.id}`}
-                        transition={{ type: "spring", stiffness: 40, damping: 12, mass: 1.2 }}
-                        className="w-full h-full"
-                      />
-                    ))}
+              <div className="fixed right-1.5 sm:right-4 top-[45%] -translate-y-1/2 z-20 flex flex-col items-center gap-2">
+                <div className={`flex flex-col items-center gap-1.5 sm:gap-2 bg-slate-900/80 p-1.5 sm:p-3.5 rounded-xl sm:rounded-2xl border ${isCurrentPlayer(rightID) ? (rightIsTeamA ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.35)] ring-2 ring-amber-500/20' : 'border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.35)] ring-2 ring-purple-500/20') : 'border-white/5'} backdrop-blur-md max-w-[74px] sm:max-w-[90px] w-full text-center transition-all animate-fade-in`}>
+                  <div className={`text-[9px] sm:text-[10px] font-bold truncate max-w-[64px] sm:max-w-[80px] ${rightNameColor}`}>
+                    {rightName}
                   </div>
+                  {(() => {
+                    const rightIsTeamA = rightID === '0' || rightID === '2';
+                    const rightColor = G.teamColors ? (rightIsTeamA ? G.teamColors.TeamA : G.teamColors.TeamB) : 'blue';
+                    return (
+                      <PlayerHand
+                        hand={(G.players && G.players[rightID]?.hand) || []}
+                        isCurrentPlayer={false}
+                        hidden={true}
+                        layout="vertical"
+                        customRotate={-90}
+                        dealDelays={getDealDelays(rightID)}
+                        playedCardId={playedCardId}
+                        backType={rightColor}
+                        containerClassName="game-hand-vertical flex flex-col -space-y-3 items-center justify-center my-0.5 select-none pointer-events-none"
+                      />
+                    );
+                  })()}
+                  <div className={`text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${rightScoreBadge}`}>
+                    {rightScore} pts
+                  </div>
+                </div>
+                <div className="relative w-4 h-6">
+                  {G.players[rightID]?.captured.map((card) => (
+                    <motion.div
+                      key={`cap-right-${card.id}`}
+                      layoutId={`card-${card.id}`}
+                      transition={{ type: "spring", stiffness: 40, damping: 12, mass: 1.2 }}
+                      className={`absolute inset-0 ${rightIsTeamA ? 'bg-amber-900/50 border border-amber-700/50' : 'bg-purple-900/50 border border-purple-700/50'} rounded-sm shadow-sm overflow-hidden`}
+                    >
+                      <img src={rightIsTeamA ? backRed : backBlue} alt="Captured Card" className="w-full h-full object-cover" />
+                    </motion.div>
+                  ))}
                 </div>
               </div>
             );
