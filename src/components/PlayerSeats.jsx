@@ -133,9 +133,9 @@ export const PlayerSeats = ({
               : 'bg-purple-500/10 text-purple-300 border-purple-500/20';
             const leftNameColor = isCurrentPlayer(leftID) ? (leftIsTeamA ? 'text-amber-400 animate-pulse' : 'text-purple-400 animate-pulse') : 'text-slate-300';
             return (
-              <div className="fixed left-1.5 sm:left-4 top-[45%] -translate-y-1/2 z-20 flex flex-col items-center gap-2">
-                <div className={`flex flex-col items-center gap-1.5 sm:gap-2 bg-slate-900/80 p-1.5 sm:p-3.5 rounded-xl sm:rounded-2xl border ${isCurrentPlayer(leftID) ? (leftIsTeamA ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.35)] ring-2 ring-amber-500/20' : 'border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.35)] ring-2 ring-purple-500/20') : 'border-white/5'} backdrop-blur-md max-w-[74px] sm:max-w-[90px] w-full text-center transition-all animate-fade-in`}>
-                  <div className={`text-[9px] sm:text-[10px] font-bold truncate max-w-[64px] sm:max-w-[80px] ${leftNameColor}`}>
+              <div className="fixed left-2 sm:left-5 top-[45%] -translate-y-1/2 z-20 flex flex-col items-center gap-3">
+                <div className={`flex flex-col items-center gap-2.5 sm:gap-3 bg-slate-900/80 p-2.5 sm:p-6 rounded-2xl sm:rounded-[1.75rem] border ${isCurrentPlayer(leftID) ? (leftIsTeamA ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.35)] ring-2 ring-amber-500/20' : 'border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.35)] ring-2 ring-purple-500/20') : 'border-white/5'} backdrop-blur-md max-w-[130px] sm:max-w-[158px] w-full text-center transition-all animate-fade-in`}>
+                  <div className={`text-[16px] sm:text-[18px] font-bold truncate max-w-[112px] sm:max-w-[140px] ${leftNameColor}`}>
                     {leftName}
                   </div>
                   {(() => {
@@ -151,15 +151,15 @@ export const PlayerSeats = ({
                         dealDelays={getDealDelays(leftID)}
                         playedCardId={playedCardId}
                         backType={leftColor}
-                        containerClassName="game-hand-vertical flex flex-col -space-y-3 items-center justify-center my-0.5 select-none pointer-events-none"
+                        containerClassName="game-hand-vertical flex flex-col -space-y-5 items-center justify-center my-1 select-none pointer-events-none"
                       />
                     );
                   })()}
-                  <div className={`text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${leftScoreBadge}`}>
+                  <div className={`text-[14px] sm:text-[16px] font-bold px-2.5 py-1 rounded-full border ${leftScoreBadge}`}>
                     {leftScore} pts
                   </div>
                 </div>
-                <div className="relative w-4 h-6">
+                <div className="relative w-[28px] h-[42px]">
                   {G.players[leftID]?.captured.map((card) => (
                     <motion.div
                       key={`cap-left-${card.id}`}
@@ -185,9 +185,9 @@ export const PlayerSeats = ({
               : 'bg-purple-500/10 text-purple-300 border-purple-500/20';
             const rightNameColor = isCurrentPlayer(rightID) ? (rightIsTeamA ? 'text-amber-400 animate-pulse' : 'text-purple-400 animate-pulse') : 'text-slate-300';
             return (
-              <div className="fixed right-1.5 sm:right-4 top-[45%] -translate-y-1/2 z-20 flex flex-col items-center gap-2">
-                <div className={`flex flex-col items-center gap-1.5 sm:gap-2 bg-slate-900/80 p-1.5 sm:p-3.5 rounded-xl sm:rounded-2xl border ${isCurrentPlayer(rightID) ? (rightIsTeamA ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.35)] ring-2 ring-amber-500/20' : 'border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.35)] ring-2 ring-purple-500/20') : 'border-white/5'} backdrop-blur-md max-w-[74px] sm:max-w-[90px] w-full text-center transition-all animate-fade-in`}>
-                  <div className={`text-[9px] sm:text-[10px] font-bold truncate max-w-[64px] sm:max-w-[80px] ${rightNameColor}`}>
+              <div className="fixed right-2 sm:right-5 top-[45%] -translate-y-1/2 z-20 flex flex-col items-center gap-3">
+                <div className={`flex flex-col items-center gap-2.5 sm:gap-3 bg-slate-900/80 p-2.5 sm:p-6 rounded-2xl sm:rounded-[1.75rem] border ${isCurrentPlayer(rightID) ? (rightIsTeamA ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.35)] ring-2 ring-amber-500/20' : 'border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.35)] ring-2 ring-purple-500/20') : 'border-white/5'} backdrop-blur-md max-w-[130px] sm:max-w-[158px] w-full text-center transition-all animate-fade-in`}>
+                  <div className={`text-[16px] sm:text-[18px] font-bold truncate max-w-[112px] sm:max-w-[140px] ${rightNameColor}`}>
                     {rightName}
                   </div>
                   {(() => {
@@ -203,15 +203,15 @@ export const PlayerSeats = ({
                         dealDelays={getDealDelays(rightID)}
                         playedCardId={playedCardId}
                         backType={rightColor}
-                        containerClassName="game-hand-vertical flex flex-col -space-y-3 items-center justify-center my-0.5 select-none pointer-events-none"
+                        containerClassName="game-hand-vertical flex flex-col -space-y-5 items-center justify-center my-1 select-none pointer-events-none"
                       />
                     );
                   })()}
-                  <div className={`text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${rightScoreBadge}`}>
+                  <div className={`text-[14px] sm:text-[16px] font-bold px-2.5 py-1 rounded-full border ${rightScoreBadge}`}>
                     {rightScore} pts
                   </div>
                 </div>
-                <div className="relative w-4 h-6">
+                <div className="relative w-[28px] h-[42px]">
                   {G.players[rightID]?.captured.map((card) => (
                     <motion.div
                       key={`cap-right-${card.id}`}

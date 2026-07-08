@@ -101,19 +101,19 @@ test.describe('4-Player Hidden Hand Cards Visibility for Left/Right Seats on Mob
     await page1.waitForTimeout(5000);
 
     // ─── Assert Hidden Hand Cards Visibility on Mobile Seats ───────────
-    const leftSeat = page1.locator('.fixed.left-1\\.5, .fixed.left-4').first();
-    const rightSeat = page1.locator('.fixed.right-1\\.5, .fixed.right-4').first();
+    const leftSeat = page1.locator('.fixed.left-2, .fixed.left-5, .fixed.left-1\\.5, .fixed.left-4').first();
+    const rightSeat = page1.locator('.fixed.right-2, .fixed.right-5, .fixed.right-1\\.5, .fixed.right-4').first();
 
     await expect(leftSeat).toBeVisible();
     await expect(rightSeat).toBeVisible();
 
     // Select the hand cards container (looks for the div with negative letter spacing and card back images)
     // inside the left and right opponent seats.
-    const leftHandContainer = leftSeat.locator('.flex.flex-col.-space-y-3, .flex.-space-x-4');
-    const rightHandContainer = rightSeat.locator('.flex.flex-col.-space-y-3, .flex.-space-x-4');
+    const leftHandContainer = leftSeat.locator('.game-hand-vertical, .flex.flex-col.-space-y-3, .flex.-space-x-4');
+    const rightHandContainer = rightSeat.locator('.game-hand-vertical, .flex.flex-col.-space-y-3, .flex.-space-x-4');
 
-    const leftBackImage = leftHandContainer.locator('img[alt="Back"]').first();
-    const rightBackImage = rightHandContainer.locator('img[alt="Back"]').first();
+    const leftBackImage = leftHandContainer.locator('img[alt*="Back"]').first();
+    const rightBackImage = rightHandContainer.locator('img[alt*="Back"]').first();
 
     // Verify both seats render their containers
     const leftSeatBox = await leftSeat.boundingBox();
@@ -154,6 +154,7 @@ test.describe('4-Player Hidden Hand Cards Visibility for Left/Right Seats on Mob
       return {
         self: getDetails(el),
         parent: getDetails(el.parentElement),
+        grandparent: getDetails(el.closest('.hand-card-container')),
       };
     });
     console.log(`[Diagnostic] leftDebug:`, leftDebug);
@@ -171,6 +172,7 @@ test.describe('4-Player Hidden Hand Cards Visibility for Left/Right Seats on Mob
       return {
         self: getDetails(el),
         parent: getDetails(el.parentElement),
+        grandparent: getDetails(el.closest('.hand-card-container')),
       };
     });
     console.log(`[Diagnostic] rightDebug:`, rightDebug);
@@ -198,8 +200,8 @@ test.describe('4-Player Hidden Hand Cards Visibility for Left/Right Seats on Mob
       return 0;
     };
 
-    const leftAngle = parseAngle(leftDebug.self) || parseAngle(leftDebug.parent);
-    const rightAngle = parseAngle(rightDebug.self) || parseAngle(rightDebug.parent);
+    const leftAngle = parseAngle(leftDebug.self) || parseAngle(leftDebug.parent) || parseAngle(leftDebug.grandparent);
+    const rightAngle = parseAngle(rightDebug.self) || parseAngle(rightDebug.parent) || parseAngle(rightDebug.grandparent);
 
     console.log(`[Diagnostic] leftAngle:`, leftAngle);
     console.log(`[Diagnostic] rightAngle:`, rightAngle);
@@ -208,7 +210,7 @@ test.describe('4-Player Hidden Hand Cards Visibility for Left/Right Seats on Mob
     expect(rightAngle).toBe(-90);
 
     // Verify vertical stacking: cards must be aligned vertically (similar X) and stack downwards (increasing Y)
-    const leftBackImages = leftHandContainer.locator('img[alt="Back"]');
+    const leftBackImages = leftHandContainer.locator('img[alt*="Back"]');
     const leftCount = await leftBackImages.count();
     console.log(`[Diagnostic] Left cards count:`, leftCount);
     if (leftCount >= 2) {
@@ -225,7 +227,7 @@ test.describe('4-Player Hidden Hand Cards Visibility for Left/Right Seats on Mob
       }
     }
 
-    const rightBackImages = rightHandContainer.locator('img[alt="Back"]');
+    const rightBackImages = rightHandContainer.locator('img[alt*="Back"]');
     const rightCount = await rightBackImages.count();
     console.log(`[Diagnostic] Right cards count:`, rightCount);
     if (rightCount >= 2) {

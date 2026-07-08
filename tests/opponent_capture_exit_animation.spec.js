@@ -59,22 +59,43 @@ test.describe('Opponent Capture Exit Animation and Stack Check', () => {
       return !!window.latestGameState?.G?.pendingCapture;
     }, { timeout: 15000 });
 
+    const rightSeat = page.locator('.fixed.right-2, .fixed.right-5, .fixed.right-1\\.5, .fixed.right-4').first();
+    const pile = rightSeat.locator('.relative.w-8.h-12, .relative.w-4.h-6, .relative.w-\\[28px\\].h-\\[42px\\]').first();
+
     // Step 2: wait for pendingCapture to clear (processCapture completed)
     await page.waitForFunction(() => {
       return !window.latestGameState?.G?.pendingCapture;
     }, { timeout: 15000 });
 
-    // Step 3: check if the right seat container (Player 2) has a rendered captured card image
-    const rightSeatImageCount = await page.evaluate(() => {
-      const rightSeat = document.querySelector('.fixed.right-1\\.5, .fixed.right-4');
-      if (!rightSeat) return 0;
-      const images = rightSeat.querySelectorAll('img[alt="Captured Card"]');
-      return images.length;
-    });
+    // Measure immediately!
+    const initialCard = pile.locator('div').first();
+    await expect(initialCard).toBeVisible({ timeout: 5000 });
 
-    console.log(`[Captured Pile Verification] Found ${rightSeatImageCount} captured card images in Player 2 seat.`);
+    const pileBox = await pile.boundingBox();
+    const initialCardBox = await initialCard.boundingBox();
 
-    // Expect at least 1 image to be present (since the bot performed a capture)
-    expect(rightSeatImageCount).toBeGreaterThan(0);
+    console.log(`[Diagnostic] pileBox:`, pileBox);
+    console.log(`[Diagnostic] initialCardBox:`, initialCardBox);
+
+    // Calculate distance between the center of the animating card and the center of the pile
+    const pileCenter = { x: pileBox.x + pileBox.width / 2, y: pileBox.y + pileBox.height / 2 };
+    const cardCenter = { x: initialCardBox.x + initialCardBox.width / 2, y: initialCardBox.y + initialCardBox.height / 2 };
+    const initialDistance = Math.hypot(cardCenter.x - pileCenter.x, cardCenter.y - pileCenter.y);
+    console.log(`[Diagnostic] Initial distance: ${initialDistance}px`);
+
+    // We expect that immediately after processCapture, the card is still in-flight,
+    // so it should be significantly far from the pile center (e.g., > 30px)
+    expect(initialDistance).toBeGreaterThan(30);
+
+    // Wait for the animation to finish (e.g. 1.5 seconds)
+    await page.waitForTimeout(1500);
+
+    const finalCardBox = await initialCard.boundingBox();
+    const finalCardCenter = { x: finalCardBox.x + finalCardBox.width / 2, y: finalCardBox.y + finalCardBox.height / 2 };
+    const finalDistance = Math.hypot(finalCardCenter.x - pileCenter.x, finalCardCenter.y - pileCenter.y);
+    console.log(`[Diagnostic] Final distance: ${finalDistance}px`);
+
+    // After animation finishes, it should be at the pile (distance < 10px)
+    expect(finalDistance).toBeLessThan(10);
   });
 });
