@@ -135,7 +135,7 @@ export const PlayerSeats = ({
             return (
               <div className="fixed left-2 sm:left-5 top-[45%] -translate-y-1/2 z-20 flex flex-col items-center gap-3">
                 <div className={`flex flex-col items-center gap-2.5 sm:gap-3 bg-slate-900/80 p-2.5 sm:p-6 rounded-2xl sm:rounded-[1.75rem] border ${isCurrentPlayer(leftID) ? (leftIsTeamA ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.35)] ring-2 ring-amber-500/20' : 'border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.35)] ring-2 ring-purple-500/20') : 'border-white/5'} backdrop-blur-md max-w-[130px] sm:max-w-[158px] w-full text-center transition-all animate-fade-in`}>
-                  <div className={`text-[16px] sm:text-[18px] font-bold truncate max-w-[112px] sm:max-w-[140px] ${leftNameColor}`}>
+                  <div className={`text-base sm:text-lg font-bold truncate max-w-[112px] sm:max-w-[140px] ${leftNameColor}`}>
                     {leftName}
                   </div>
                   {(() => {
@@ -187,7 +187,7 @@ export const PlayerSeats = ({
             return (
               <div className="fixed right-2 sm:right-5 top-[45%] -translate-y-1/2 z-20 flex flex-col items-center gap-3">
                 <div className={`flex flex-col items-center gap-2.5 sm:gap-3 bg-slate-900/80 p-2.5 sm:p-6 rounded-2xl sm:rounded-[1.75rem] border ${isCurrentPlayer(rightID) ? (rightIsTeamA ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.35)] ring-2 ring-amber-500/20' : 'border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.35)] ring-2 ring-purple-500/20') : 'border-white/5'} backdrop-blur-md max-w-[130px] sm:max-w-[158px] w-full text-center transition-all animate-fade-in`}>
-                  <div className={`text-[16px] sm:text-[18px] font-bold truncate max-w-[112px] sm:max-w-[140px] ${rightNameColor}`}>
+                  <div className={`text-base sm:text-lg font-bold truncate max-w-[112px] sm:max-w-[140px] ${rightNameColor}`}>
                     {rightName}
                   </div>
                   {(() => {
