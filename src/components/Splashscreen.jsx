@@ -45,17 +45,18 @@ const ASSETS_TO_LOAD = [
 const preloadAsset = (url, onProgress) => {
   return new Promise((resolve) => {
     if (url.endsWith('.mp3')) {
-      const audio = new Audio();
-      audio.src = url;
-      audio.preload = 'auto';
-      audio.oncanplaythrough = () => {
-        onProgress();
-        resolve();
-      };
-      audio.onerror = () => {
-        onProgress();
-        resolve();
-      };
+      // On mobile browsers (iOS Safari, Android Chrome), loading media files via new Audio()
+      // blocks indefinitely without a user gesture. We trigger background load (preload = 'auto')
+      // but resolve immediately to prevent the splashscreen from freezing.
+      try {
+        const audio = new Audio();
+        audio.src = url;
+        audio.preload = 'auto';
+      } catch (e) {
+        console.warn('[Splashscreen] Background audio preload failed:', e);
+      }
+      onProgress();
+      resolve();
     } else {
       const img = new Image();
       img.src = url;

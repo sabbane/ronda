@@ -24,28 +24,29 @@ export const SoundProvider = ({ children }) => {
     if (!isBGMEnabled) return;
 
     const handleGesture = async () => {
-      if (!isMuted) {
-        try {
-          await soundService.initContext();
-        } catch (e) {
-          console.warn('Autoplay gesture initialization failed:', e);
+      try {
+        await soundService.initContext();
+        if (soundService.audioCtx && soundService.audioCtx.state === 'running') {
+          cleanup();
         }
+      } catch (e) {
+        console.warn('Autoplay gesture initialization failed:', e);
+        cleanup();
       }
-      cleanup();
     };
 
     const cleanup = () => {
       window.removeEventListener('click', handleGesture);
-      window.removeEventListener('pointerdown', handleGesture);
+      window.removeEventListener('touchend', handleGesture);
       window.removeEventListener('keydown', handleGesture);
     };
 
     window.addEventListener('click', handleGesture);
-    window.addEventListener('pointerdown', handleGesture);
+    window.addEventListener('touchend', handleGesture);
     window.addEventListener('keydown', handleGesture);
 
     return cleanup;
-  }, [isMuted, isBGMEnabled]);
+  }, [isBGMEnabled]);
 
   const toggleMute = () => {
     setIsMuted(prev => {
