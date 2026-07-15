@@ -47,6 +47,7 @@
   height: 100% !important;
   border-radius: 0 !important;
   flex-shrink: 0;
+  touch-action: manipulation;
 }
 
 .game-hand {
@@ -54,20 +55,20 @@
   justify-content: center;
   gap: 0.5rem;
   padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  min-height: 5.8rem;
+  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+  min-height: calc(5.8rem + env(safe-area-inset-bottom, 0px));
 }
 @media (min-width: 640px) {
   .game-hand {
     gap: 1rem;
     padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
-    min-height: 9.4rem;
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    min-height: calc(9.4rem + env(safe-area-inset-bottom, 0px));
   }
 }
 @media (min-width: 768px) {
   .game-hand {
-    min-height: 11rem;
+    min-height: calc(11rem + env(safe-area-inset-bottom, 0px));
   }
 }
 
