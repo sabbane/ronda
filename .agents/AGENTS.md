@@ -32,7 +32,8 @@
 - After completing test validation, if requested by the user, remember to return the servers back to normal mode.
 
 # Test Reporting Rules
-- Always summarize the results of any local or E2E test executions in a clean, structured Markdown table.
+- Always summarize the results of any local or E2E test executions in a clean, structured Markdown table directly within the chat response to the user.
+- Under no circumstances should this table be omitted or delegated only to files/walkthroughs; it must be visible in the final message.
 - The table must contain the following columns:
   * **Test File / Test Name**: The name or path of the test suite.
   * **Status**: E.g., `✅ Passed`, `❌ Failed`, or `⚠️ Skipped`.

@@ -325,7 +325,7 @@
 }
 
 .game-hand-vertical {
-  min-height: 7.875rem;
+  height: 8rem;
 }
 
 .game-hand-vertical .hand-card-container {

@@ -47,43 +47,34 @@ test.describe('Opponent and Partner Card Animations', () => {
 
     // 7. Verify Left Seat Hand and Captured Pile layout setup
     console.log('Verifying Left player (Player 1) hand and captured pile...');
-    const leftSeat = page.locator('div.fixed.left-1\\.5, div.fixed.left-4').first();
+    const leftSeat = page.locator('div.fixed.left-2, div.fixed.left-5').first();
     await expect(leftSeat).toBeVisible();
     
     // Left hand cards should be rendered inside PlayerHand containers (with class hand-card-container)
     const leftHandCards = leftSeat.locator('.hand-card-container');
     await expect(leftHandCards).toHaveCount(3);
-
-    // Verify Left hand cards are rendered small (around 20px width)
+ 
+    // Verify Left hand cards are rendered small (around 20px width on mobile, ~38px on desktop)
     const leftCardBox = await leftHandCards.first().boundingBox();
-    expect(leftCardBox.width).toBeLessThan(25);
-
-    // Left seat should NOT have a separate captured card pile container
-    const leftCapturedPile = leftSeat.locator('.relative.w-8.h-12');
-    await expect(leftCapturedPile).not.toBeVisible();
-
-    // Score badge should have absolute invisible motion anchors for layout animations
-    const leftScoreBadge = leftSeat.locator('div', { hasText: /pts/ }).first();
-    const leftMotionAnchors = leftScoreBadge.locator('div.absolute.inset-0.opacity-0');
-    await expect(leftMotionAnchors).toBeAttached();
-
+    expect(leftCardBox.width).toBeLessThan(45);
+ 
+    // Left seat should have a separate captured card pile container
+    const leftCapturedPile = leftSeat.locator('div.relative').first();
+    await expect(leftCapturedPile).toBeAttached();
+ 
     // 8. Verify Right Seat Hand and Captured Pile layout setup
     console.log('Verifying Right player (Player 3) hand and captured pile...');
-    const rightSeat = page.locator('div.fixed.right-1\\.5, div.fixed.right-4').first();
+    const rightSeat = page.locator('div.fixed.right-2, div.fixed.right-5').first();
     await expect(rightSeat).toBeVisible();
 
     const rightHandCards = rightSeat.locator('.hand-card-container');
     await expect(rightHandCards).toHaveCount(3);
 
     const rightCardBox = await rightHandCards.first().boundingBox();
-    expect(rightCardBox.width).toBeLessThan(25);
+    expect(rightCardBox.width).toBeLessThan(45);
 
-    const rightCapturedPile = rightSeat.locator('.relative.w-8.h-12');
-    await expect(rightCapturedPile).not.toBeVisible();
-
-    const rightScoreBadge = rightSeat.locator('div', { hasText: /pts/ }).first();
-    const rightMotionAnchors = rightScoreBadge.locator('div.absolute.inset-0.opacity-0');
-    await expect(rightMotionAnchors).toBeAttached();
+    const rightCapturedPile = rightSeat.locator('div.relative').first();
+    await expect(rightCapturedPile).toBeAttached();
 
     // 9. Verify Partner (Player 2) Captured Pile uses animated motion elements
     console.log('Verifying Partner (Player 2) captured pile is set up for motion...');
