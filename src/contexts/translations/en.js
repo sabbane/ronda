@@ -93,6 +93,7 @@ export const en = {
     counterAttackTitle: "Counter Attack",
     counterAttackMe: "You countered {oppName}'s attack (+5 for you)",
     counterAttackOpponent: "Your attack was countered by {oppName} (+5 for {oppName})",
+    counterAttackOther4: "{victimName}'s attack was countered by {oppName} (+5 for {oppName})",
     ultimateCounterTitle: "Ultimate Counter",
     ultimateCounterMe: "You executed an Ultimate Counter (+10 for you)",
     ultimateCounterOpponent: "{oppName} executed an Ultimate Counter (+10 for {oppName})",

@@ -47,6 +47,7 @@ export const useAnnouncements = ({
           // Resolve announcer name
           let announcerName;
           let opponentName;
+          let prevPlayerID = "";
           if (numP === 2) {
             if (ann.player === myID) {
               announcerName = getPlayerName(myID);
@@ -57,7 +58,7 @@ export const useAnnouncements = ({
             }
           } else {
             announcerName = getPlayerName(ann.player);
-            const prevPlayerID = String((Number(ann.player) + 3) % 4);
+            prevPlayerID = String((Number(ann.player) + 3) % 4);
             opponentName = getPlayerName(prevPlayerID);
           }
           
@@ -122,7 +123,18 @@ export const useAnnouncements = ({
           if (ann.type === 'Taawida') {
             if (ann.streak === 3) {
               customTitle = t('announcements.counterAttackTitle');
-              customText = isMe ? t('announcements.counterAttackMe', { oppName: opponentName }) : t('announcements.counterAttackOpponent', { oppName: announcerName });
+              if (numP === 4) {
+                const victimID = prevPlayerID;
+                if (isMe) {
+                  customText = t('announcements.counterAttackMe', { oppName: opponentName });
+                } else if (victimID === myID) {
+                  customText = t('announcements.counterAttackOpponent', { oppName: announcerName });
+                } else {
+                  customText = t('announcements.counterAttackOther4', { victimName: opponentName, oppName: announcerName });
+                }
+              } else {
+                customText = isMe ? t('announcements.counterAttackMe', { oppName: opponentName }) : t('announcements.counterAttackOpponent', { oppName: announcerName });
+              }
               customIcon = "🥊";
             } else if (ann.streak === 4) {
               customTitle = t('announcements.ultimateCounterTitle');

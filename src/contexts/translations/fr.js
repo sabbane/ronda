@@ -93,6 +93,7 @@ export const fr = {
     counterAttackTitle: "Contre-Attaque",
     counterAttackMe: "Vous avez contré l'attaque de {oppName} (+5 pour vous)",
     counterAttackOpponent: "Votre attaque a été contrée par {oppName} (+5 pour {oppName})",
+    counterAttackOther4: "L'attaque de {victimName} a été contrée par {oppName} (+5 pour {oppName})",
     ultimateCounterTitle: "Contre Ultime",
     ultimateCounterMe: "Vous avez exécuté un Contre Ultime (+10 pour vous)",
     ultimateCounterOpponent: "{oppName} a exécuté un Contre Ultime (+10 pour {oppName})",

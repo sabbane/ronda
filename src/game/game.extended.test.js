@@ -562,6 +562,74 @@ describe('Ronda Game Logic - Deep Testing', () => {
     expect(customTitle).toBe("Clash Won");
     expect(customText).toBe("You won the Clash of the Rondas (+2 you)");
   });
+
+  test('Taawida counter attack resolution in 4-player mode for observer', () => {
+    const mockT = (key, params = {}) => {
+      const translations = {
+        'announcements': {
+          counterAttackMe: "You countered {oppName}'s attack (+5 for you)",
+          counterAttackOpponent: "Your attack was countered by {oppName} (+5 for {oppName})",
+          counterAttackOther4: "{victimName}'s attack was countered by {oppName} (+5 for {oppName})"
+        }
+      };
+      const keys = key.split('.');
+      let value = translations;
+      for (const k of keys) {
+        if (!value || value[k] === undefined) return key;
+        value = value[k];
+      }
+      if (typeof value === 'string' && Object.keys(params).length > 0) {
+        return Object.keys(params).reduce((str, paramKey) => {
+          return str.replaceAll(`{${paramKey}}`, params[paramKey]);
+        }, value);
+      }
+      return value;
+    };
+
+    const G = {
+      players: {
+        '0': { name: 'Alice', hand: [], captured: [], score: 0 },
+        '1': { name: 'Bob', hand: [], captured: [], score: 0 },
+        '2': { name: 'James', hand: [], captured: [], score: 0 },
+        '3': { name: 'Sarah', hand: [], captured: [], score: 0 }
+      }
+    };
+
+    const myID = '0'; // I am Alice
+    const numP = 4;
+
+    // Player 3 (Sarah) counters Player 2 (James)
+    const ann = { player: '3', type: 'Taawida', streak: 3 };
+
+    const announcerName = G.players[ann.player]?.name || `Player ${Number(ann.player) + 1}`;
+    const prevPlayerID = String((Number(ann.player) + 3) % 4);
+    const opponentName = G.players[prevPlayerID]?.name || `Player ${Number(prevPlayerID) + 1}`;
+
+    const isMe = ann.player === myID;
+    let customText = "";
+
+    // Corrected announcements logic
+    if (ann.type === 'Taawida' && ann.streak === 3) {
+      if (numP === 4) {
+        const victimID = prevPlayerID;
+        if (isMe) {
+          customText = mockT('announcements.counterAttackMe', { oppName: opponentName });
+        } else if (victimID === myID) {
+          customText = mockT('announcements.counterAttackOpponent', { oppName: announcerName });
+        } else {
+          customText = mockT('announcements.counterAttackOther4', { victimName: opponentName, oppName: announcerName });
+        }
+      } else {
+        customText = isMe 
+          ? mockT('announcements.counterAttackMe', { oppName: opponentName }) 
+          : mockT('announcements.counterAttackOpponent', { oppName: announcerName });
+      }
+    }
+
+    // Should assert the desired correct behavior: "James's attack was countered by Sarah (+5 for Sarah)"
+    expect(customText).toBe("James's attack was countered by Sarah (+5 for Sarah)");
+  });
 });
+
 
 
