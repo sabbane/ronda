@@ -32,7 +32,7 @@ test.describe('Safari iPhone Splashscreen Loading Hang Bug Reproduction', () => 
     await page.addInitScript(() => {
       console.log('[Spy] Injecting blocked audio loading simulation...');
       
-      const OriginalAudio = window.Audio;
+      // window.Audio is mocked below
       
       class BlockedAudio {
         constructor() {
