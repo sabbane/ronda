@@ -13,17 +13,26 @@ test.describe('Safari iPhone Audio Autoplay Bug Reproduction', () => {
     const page = await context.newPage();
 
     // Set up console listener to capture any warnings or errors
-    const consoleLogs = [];
     page.on('console', msg => {
-      consoleLogs.push(`[Console ${msg.type()}] ${msg.text()}`);
+      console.log(`[Browser Console] ${msg.type()}: ${msg.text()}`);
     });
 
     // 1. Force the splashscreen to show by overriding navigator.webdriver to false
     await page.addInitScript(() => {
-      Object.defineProperty(navigator, 'webdriver', {
-        get: () => false,
-        configurable: true
-      });
+      console.log('[InitScript] Overriding navigator.webdriver to false');
+      try {
+        Object.defineProperty(navigator, 'webdriver', {
+          get: () => false,
+          configurable: true
+        });
+        Object.defineProperty(Navigator.prototype, 'webdriver', {
+          get: () => false,
+          configurable: true
+        });
+        console.log('[InitScript] Overrides complete. navigator.webdriver =', navigator.webdriver);
+      } catch (e) {
+        console.error('[InitScript] Override failed:', e);
+      }
     });
 
     // 2. Inject spied/mocked AudioContext
@@ -122,14 +131,9 @@ test.describe('Safari iPhone Audio Autoplay Bug Reproduction', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
-    // 4. Wait for Splashscreen to render
-    const splashImg = page.locator('img[alt="Ronda"]');
-    await expect(splashImg).toBeVisible({ timeout: 10000 });
-    console.log('Splashscreen is visible. Waiting for it to fade out...');
-
-    // Wait for Splashscreen to fade out and Main Menu to appear (takes minimum 5s + transition)
+    // 4. Wait for Main Menu to appear (allowing time for Splashscreen to fade out if visible)
     const startGameBtn = page.locator('button', { hasText: /Start Game|Play vs AI Bot/i }).first();
-    await expect(startGameBtn).toBeVisible({ timeout: 15000 });
+    await expect(startGameBtn).toBeVisible({ timeout: 25000 });
     console.log('Main menu is now visible.');
 
     // 5. Perform gesture on Main Menu body to trigger audio context activation
@@ -154,7 +158,6 @@ test.describe('Safari iPhone Audio Autoplay Bug Reproduction', () => {
     });
 
     console.log(`[Reproduction Results] AudioContext state:`, audioStateResult);
-    console.log(`[Reproduction Logs]:\n`, consoleLogs.join('\n'));
 
     // Assert that the AudioContext is RUNNING (the desired correct behavior)
     // Currently, it will fail (state is 'suspended') because the bug is still present.

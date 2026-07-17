@@ -13,7 +13,7 @@ test.describe('iOS Safari Layout and Interaction Quirks Verification', () => {
 
     // 1. Force splashscreen skip to immediately get to game layout
     await page.addInitScript(() => {
-      Object.defineProperty(navigator, 'webdriver', {
+      Object.defineProperty(Navigator.prototype, 'webdriver', {
         get: () => true,
         configurable: true
       });
