@@ -7,7 +7,9 @@ const cardImages = import.meta.glob('../assets/cards/*.{svg,png}', { eager: true
 const ASSETS_TO_LOAD = [
   ...Object.values(cardImages),
   '/assets/background-zellig.svg',
-  '/assets/splashscreen/splash_background_laptop.svg',
+  '/assets/splashscreen/splash_background_desktop.webp',
+  '/assets/main_menu_background_desktop.webp',
+  '/assets/main_menu_background_mobile.webp',
   '/felt.png',
   '/atlas_lion_logo.png',
   '/favicon.png',
@@ -33,8 +35,7 @@ const ASSETS_TO_LOAD = [
   '/assets/sounds/casablanca.mp3',
   '/assets/sounds/desert_night_intro.mp3',
   '/assets/sounds/desert_night.mp3',
-  '/assets/splashscreen/splash_background_mobile.png',
-  '/assets/splashscreen/ronda_banner.png',
+  '/assets/splashscreen/splash_background_mobile.webp',
   '/assets/splashscreen/1%20dheb-vector.png',
   '/assets/splashscreen/10%20dheb-vector.png',
   '/assets/splashscreen/11%20syouf-vector.png',
@@ -78,7 +79,7 @@ const SplashBackdrop = () => (
     <div
       className="hidden sm:block absolute inset-0 pointer-events-none"
       style={{
-        backgroundImage: "url('/assets/splashscreen/splash_background_laptop.svg')",
+        backgroundImage: "url('/assets/splashscreen/splash_background_desktop.webp')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
@@ -88,7 +89,7 @@ const SplashBackdrop = () => (
     <div
       className="block sm:hidden absolute inset-0 pointer-events-none"
       style={{
-        backgroundImage: "url('/assets/splashscreen/splash_background_mobile.png')",
+        backgroundImage: "url('/assets/splashscreen/splash_background_mobile.webp')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
@@ -97,7 +98,7 @@ const SplashBackdrop = () => (
 );
 
 const CardRow = () => (
-  <div className="flex justify-center items-center gap-1.5 sm:gap-2 -mt-4 sm:-mt-8 mb-4 w-full">
+  <div className="flex justify-center items-center gap-1.5 sm:gap-2 mb-4 w-full">
     <img
       src="/assets/splashscreen/10 dheb-vector.png"
       alt="10 Dheb"
@@ -160,7 +161,7 @@ const LoadingProgress = ({ progress, statusText }) => (
 );
 
 const PublisherFooter = () => (
-  <div className="w-full flex flex-col items-center mt-auto pb-0">
+  <div className="absolute bottom-2 sm:bottom-6 left-0 right-0 flex flex-col items-center">
     {/* Presented By Logo */}
     <div className="mt-2 flex flex-col items-center gap-1">
       <span className="text-[11px] uppercase tracking-[0.25em] text-amber-500/85 font-extrabold drop-shadow-sm">
@@ -250,15 +251,9 @@ export const Splashscreen = ({ onComplete }) => {
           {/* Central Content */}
           <div className="relative z-10 flex flex-col items-center justify-between max-w-sm sm:max-w-4xl w-full h-full min-h-[100dvh] pt-6 px-6 pb-2 sm:pb-10 text-center">
             {/* Top Block: Logo and Loader */}
-            <div className="flex flex-col items-center justify-center flex-1 w-full mt-4">
+            <div className="flex flex-col items-center justify-center flex-1 w-full mt-4 pt-36 sm:pt-80">
               {/* Logo Container (Unanimated) */}
               <div className="mb-8 w-full">
-                <img
-                  src="/assets/splashscreen/ronda_banner.png"
-                  alt="Ronda"
-                  className="h-[40dvh] min-h-[220px] max-h-[450px] sm:h-[48dvh] sm:min-h-[280px] sm:max-h-[600px] w-auto max-w-full object-contain mx-auto -mt-2 sm:-mt-4 drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)]"
-                />
-                
                 <CardRow />
 
                 <p className="text-amber-400/90 text-[10px] tracking-[0.2em] font-extrabold uppercase mt-2 drop-shadow-sm">
