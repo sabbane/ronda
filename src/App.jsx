@@ -11,6 +11,7 @@ import { useSound } from './contexts/SoundContext';
 import { MainMenu } from './components/MainMenu';
 import { useLobby } from './hooks/useLobby';
 import { Splashscreen } from './components/Splashscreen';
+import { StatsDashboard } from './components/StatsDashboard';
 
 if (typeof window !== 'undefined') {
   window.isRondaBotGame = true;
@@ -125,6 +126,23 @@ const App = () => {
     }
   }, [showSplash, enableBGM]);
 
+  useEffect(() => {
+    const handleUrlCheck = () => {
+      const hash = window.location.hash;
+      const params = new URLSearchParams(window.location.search);
+      if (hash === '#/stats' || params.get('mode') === 'stats') {
+        setMode('stats');
+      }
+    };
+    handleUrlCheck();
+    window.addEventListener('hashchange', handleUrlCheck);
+    window.addEventListener('popstate', handleUrlCheck);
+    return () => {
+      window.removeEventListener('hashchange', handleUrlCheck);
+      window.removeEventListener('popstate', handleUrlCheck);
+    };
+  }, [setMode]);
+
   if (showSplash) {
     return <Splashscreen onComplete={() => setShowSplash(false)} />;
   }
@@ -134,6 +152,21 @@ const App = () => {
       setMode(null);
       setError(null);
     }} />;
+  }
+
+  if (mode === 'stats') {
+    return (
+      <StatsDashboard
+        onBack={() => {
+          setMode(null);
+          setError(null);
+          try {
+            const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
+            window.history.replaceState({ path: newUrl }, '', newUrl);
+          } catch { /* ignore */ }
+        }}
+      />
+    );
   }
 
   if (!mode) {
@@ -181,6 +214,7 @@ const App = () => {
           matchID={`bot-room-${gameKey}`}
           playerID="0"
           setupData={{ testMode: testMode || import.meta.env.VITE_TEST_MODE === 'true', gameStarted: true }}
+          rondaMode="singleplayer"
         />
       )}
       {mode === 'online' && (credentials || testMode) && (
@@ -191,6 +225,7 @@ const App = () => {
             playerID={playerID}
             credentials={credentials}
             setupData={{ testMode, gameStarted: false }}
+            rondaMode={isPrivate ? "multiplayer_private" : "multiplayer_public"}
           />
         ) : (
           <RondaClientOnline2
@@ -199,6 +234,7 @@ const App = () => {
             playerID={playerID}
             credentials={credentials}
             setupData={{ testMode, gameStarted: false }}
+            rondaMode={isPrivate ? "multiplayer_private" : "multiplayer_public"}
           />
         )
       )}

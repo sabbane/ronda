@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 const restServerUrl = import.meta.env.VITE_SERVER_URL || (
   import.meta.env.DEV
@@ -33,8 +33,6 @@ const fetchTestMatchID = async (pID, numP = 2) => {
   throw new Error('P2 could not find a test match. Open /test/p1 first.');
 };
 
-let lastSetupPath = null;
-
 export const useTestMatchSetup = ({
   setMatchID,
   setPlayerID,
@@ -44,6 +42,8 @@ export const useTestMatchSetup = ({
   setMultiplayerAction,
   setJoinMode
 }) => {
+  const lastSetupPathRef = useRef(null);
+
   useEffect(() => {
     const isAppInTestMode = import.meta.env.VITE_TEST_MODE === 'true';
     const path = window.location.pathname;
@@ -64,13 +64,13 @@ export const useTestMatchSetup = ({
 
     if (isAppInTestMode) {
       if (path === '/test/p1' || path === '/test/p2' || path === '/test/p1_4') {
-        if (lastSetupPath === path) return;
-        lastSetupPath = path;
+        if (lastSetupPathRef.current === path) return;
+        lastSetupPathRef.current = path;
         const pID = path === '/test/p2' ? '1' : '0';
         const numP = path === '/test/p1_4' ? 4 : 2;
         setupTestMatch(pID, numP);
       } else {
-        lastSetupPath = null;
+        lastSetupPathRef.current = null;
       }
     } else {
       const params = new URLSearchParams(window.location.search);
