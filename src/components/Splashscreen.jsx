@@ -7,7 +7,7 @@ const cardImages = import.meta.glob('../assets/cards/*.{svg,png}', { eager: true
 const ASSETS_TO_LOAD = [
   ...Object.values(cardImages),
   '/assets/background-zellig.svg',
-  '/assets/splashscreen/splash_background_laptop.svg',
+  '/assets/splashscreen/splash_background_laptop.webp',
   '/felt.png',
   '/atlas_lion_logo.png',
   '/favicon.png',
@@ -33,7 +33,7 @@ const ASSETS_TO_LOAD = [
   '/assets/sounds/casablanca.mp3',
   '/assets/sounds/desert_night_intro.mp3',
   '/assets/sounds/desert_night.mp3',
-  '/assets/splashscreen/splash_background_mobile.png',
+  '/assets/splashscreen/splash_background_mobile.webp',
   '/assets/splashscreen/ronda_banner.png',
   '/assets/splashscreen/1%20dheb-vector.png',
   '/assets/splashscreen/10%20dheb-vector.png',
@@ -78,7 +78,7 @@ const SplashBackdrop = () => (
     <div
       className="hidden sm:block absolute inset-0 pointer-events-none"
       style={{
-        backgroundImage: "url('/assets/splashscreen/splash_background_laptop.svg')",
+        backgroundImage: "url('/assets/splashscreen/splash_background_laptop.webp')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
@@ -88,7 +88,7 @@ const SplashBackdrop = () => (
     <div
       className="block sm:hidden absolute inset-0 pointer-events-none"
       style={{
-        backgroundImage: "url('/assets/splashscreen/splash_background_mobile.png')",
+        backgroundImage: "url('/assets/splashscreen/splash_background_mobile.webp')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
