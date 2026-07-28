@@ -3,7 +3,7 @@
 - **Autonomous Commits**: Proactively commit meaningful, completed logical work packages autonomously on feature branches. Do not ask for user permission to stage, commit, or create branches. Keep secrets in `.env` files (which must be gitignored).
 - **Branch Creation & Naming**:
   - Always verify you are on a feature branch before committing. If on `main`, autonomously create and switch to a new feature branch: `git checkout -b <category>/<short-description>`.
-  - Format branch names as `<category>/<short-description>`. The category must match the dominant change type, and the short description must use kebab-case with German terms (e.g., `feat/diun-haertung`, `fix/spielplan-ua`, `chore/compose-cleanup`).
+  - Format branch names as `<category>/<short-description>`. The category must match the dominant change type, and the short description must use kebab-case in English (e.g., `feat/diun-hardening`, `fix/schedule-update`, `chore/compose-cleanup`).
 - **Conventional Commits**: Classify commits and branches using Conventional Commits:
   - `feat`: New functionality (new stack, service, feature)
   - `fix`: Bug fix
@@ -15,11 +15,11 @@
   - `ci`: CI pipeline automation
   - `style`: Formatting changes that do not affect semantics
   - `chore`: Maintenance and other miscellaneous tasks
-- **Commit Messages**: Format messages as `<category>: <Beschreibung>` (e.g., `docs: Pläne aktualisieren`). Commit messages should be written in German, in repository style, representing a logical unit of work.
+- **Commit Messages**: Format messages as `<category>: <description>` (e.g., `docs: update documentation`). Commit messages should be written in English, in repository style, representing a logical unit of work.
 - **Automatic Push & Merge Requests**:
   - Automatically push feature branches to the remote repository.
   - Once a task/feature is complete, autonomously open a GitLab Merge Request via GitLab push options:
-    `git push -o merge_request.create -o merge_request.title="<kategorie>: <Beschreibung>" -o merge_request.description="<Beschreibung>"`
+    `git push -o merge_request.create -o merge_request.title="<category>: <description>" -o merge_request.description="<description>"`
 
 
 # Development Rules
