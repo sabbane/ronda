@@ -1,12 +1,32 @@
 # Git and Deployment Rules
-- NEVER execute `git commit` or `git push` autonomously.
-- You are strictly FORBIDDEN from staging changes or pushing to remote repositories unless explicitly commanded by the user in the chat.
-- Always ask for permission before modifying the git index.
+- **Trunk-Based Development**: The `main` branch is the only long-lived branch. All development must occur on short-lived feature/topic branches created directly from `main`. The user handles merging MRs into `main`.
+- **Autonomous Commits**: Proactively commit meaningful, completed logical work packages autonomously on feature branches. Do not ask for user permission to stage, commit, or create branches. Keep secrets in `.env` files (which must be gitignored).
+- **Branch Creation & Naming**:
+  - Always verify you are on a feature branch before committing. If on `main`, autonomously create and switch to a new feature branch: `git checkout -b <category>/<short-description>`.
+  - Format branch names as `<category>/<short-description>`. The category must match the dominant change type, and the short description must use kebab-case with German terms (e.g., `feat/diun-haertung`, `fix/spielplan-ua`, `chore/compose-cleanup`).
+- **Conventional Commits**: Classify commits and branches using Conventional Commits:
+  - `feat`: New functionality (new stack, service, feature)
+  - `fix`: Bug fix
+  - `refactor`: Structural rewrite without behavioral changes
+  - `perf`: Performance improvement (runtime, build time)
+  - `test`: Tests and test infrastructure
+  - `docs`: Documentation (plans, comments, CLAUDE.md)
+  - `build`: Build system and images (Dockerfiles, wrapper scripts, update scripts)
+  - `ci`: CI pipeline automation
+  - `style`: Formatting changes that do not affect semantics
+  - `chore`: Maintenance and other miscellaneous tasks
+- **Commit Messages**: Format messages as `<category>: <Beschreibung>` (e.g., `docs: Pläne aktualisieren`). Commit messages should be written in German, in repository style, representing a logical unit of work.
+- **Automatic Push & Merge Requests**:
+  - Automatically push feature branches to the remote repository.
+  - Once a task/feature is complete, autonomously open a GitLab Merge Request via GitLab push options:
+    `git push -o merge_request.create -o merge_request.title="<kategorie>: <Beschreibung>" -o merge_request.description="<Beschreibung>"`
+
 
 # Development Rules
 - When editing code, assume the user is using VS Code.
 - Use semantically correct brace and bracket placement (like VS Code does naturally).
 - Do NOT "compact" code by removing newlines between logical blocks unless the user explicitly asks for minification.
+- When the user requests to start the app ("starte die App" or similar), you must start both the frontend server (`npm run dev`) and the backend server (`npm run start:backend`).
 
  ## Test-Driven Bug Isolation Workflow
  Whenever the user issues the command "write a test" (or any similar phrasing), you must strictly adhere to the following rules:
