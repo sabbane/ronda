@@ -24,7 +24,7 @@ const server = Server({
 // Forcefully override CORS to allow ANY origin (including null and PlayGama)
 server.app.middleware.unshift(async (ctx, next) => {
   const origin = ctx.get('Origin') || '*';
-  
+
   if (ctx.method === 'OPTIONS') {
     ctx.set('Access-Control-Allow-Origin', origin);
     ctx.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
@@ -32,7 +32,7 @@ server.app.middleware.unshift(async (ctx, next) => {
     ctx.status = 204;
     return;
   }
-  
+
   await next();
   ctx.set('Access-Control-Allow-Origin', origin);
 });
@@ -225,7 +225,7 @@ const startBotClient = (port, matchID, playerID, credentials, botName) => {
     if (!teamNameChecked && ctx.numPlayers === 4 && G.gameStarted === false && (playerID === '1' || playerID === '3') && G.teamNames && G.teamNames.TeamB === '') {
       const otherSlot = playerID === '1' ? '3' : '1';
       const isOtherEmpty = !G.players || !G.players[otherSlot] || !G.players[otherSlot].name;
-      
+
       if (isOtherEmpty) {
         teamNameChecked = true;
         const shouldSet = G.isTestMode === true || Math.random() < 0.5;
@@ -233,7 +233,7 @@ const startBotClient = (port, matchID, playerID, credentials, botName) => {
           const chosenName = teamNames[Math.floor(Math.random() * teamNames.length)];
           const delay = G.isTestMode === true ? 1000 : (Math.random() * 5000 + 5000);
           console.log(`[Bot ${clientKey}] Decided to set Team B name to "${chosenName}" after ${delay.toFixed(0)}ms`);
-          
+
           setTimeout(() => {
             const latestState = client.getState();
             if (latestState && latestState.G && latestState.G.gameStarted === false && latestState.G.teamNames && latestState.G.teamNames.TeamB === '' && activeBotClients.has(clientKey)) {
@@ -407,7 +407,7 @@ const joinBot = async (port, matchID, playerID) => {
       const data = await resp.json();
       const credentials = data.playerCredentials;
       const clientKey = `${matchID}-${playerID}`;
-      
+
       botCredentials[clientKey] = {
         name: botName,
         credentials,
@@ -497,15 +497,15 @@ const monitorMatchmaking = async (port) => {
       // Track lobby time
       if (!lobbyTimes.has(match.matchID)) {
         const isTest = match.setupData?.testMode || /test/i.test(match.matchID);
-        
+
         // Random timeouts: 2-player: 7-30s. 4-player: 7-15s, 15-30s, 30-50s
         const timeouts = numPlayers === 2
-          ? [ isTest ? 3000 : (Math.random() * 23000 + 7000) ]
+          ? [isTest ? 3000 : (Math.random() * 23000 + 7000)]
           : [
-              isTest ? 2000 : (Math.random() * 8000 + 7000),
-              isTest ? 4000 : (Math.random() * 15000 + 15000),
-              isTest ? 6000 : (Math.random() * 20000 + 30000)
-            ];
+            isTest ? 2000 : (Math.random() * 8000 + 7000),
+            isTest ? 4000 : (Math.random() * 15000 + 15000),
+            isTest ? 6000 : (Math.random() * 20000 + 30000)
+          ];
 
         lobbyTimes.set(match.matchID, {
           createdAt: Date.now(),
@@ -609,9 +609,13 @@ const restoreActiveBots = async (port) => {
   saveCredentials();
 };
 
+const isBotsEnabled = process.env.ENABLE_BOTS === 'true' || process.env.ENABLE_BOTS === '1';
+
 const startMatchmakingMonitor = (port) => {
-  setTimeout(() => restoreActiveBots(port), 2000);
-  setInterval(() => monitorMatchmaking(port), 1500);
+  if (isBotsEnabled) {
+    setTimeout(() => restoreActiveBots(port), 2000);
+    setInterval(() => monitorMatchmaking(port), 1500);
+  }
 };
 
 const PORT = process.env.PORT || 8000;
