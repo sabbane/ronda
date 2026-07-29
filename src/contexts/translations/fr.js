@@ -21,7 +21,6 @@ export const fr = {
   cardsRemaining: "Cartes restantes",
   rematchMotivation: "N'abandonnez pas ! L'heure de la revanche a sonné !",
   adLoading: "Chargement de la publicité...",
-
   roundOver: "Manche Terminée !",
   totalGames: "Victoires Totales",
   shareText: "Rejoins ma partie de Ronda !",
@@ -144,6 +143,7 @@ export const fr = {
   roleOpponent: "Adversaire",
   rolePartnerA: "Partenaire (A)",
   roleOpponent1B: "Adversaire 1 (B)",
+  roleOpponent2B: "Adversaire 2 (B)",
   changeTrack: "Changer de piste",
   muteSound: "Couper le son",
   unmuteSound: "Activer le son",

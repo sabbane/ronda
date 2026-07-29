@@ -21,7 +21,6 @@ export const en = {
   cardsRemaining: "Cards remaining",
   rematchMotivation: "Don't give up! Time for a rematch!",
   adLoading: "Loading Advertisement...",
-
   roundOver: "Round Over!",
   totalGames: "Total Wins",
   shareText: "Join my Ronda game!",
@@ -144,6 +143,7 @@ export const en = {
   roleOpponent: "Opponent",
   rolePartnerA: "Partner (A)",
   roleOpponent1B: "Opponent 1 (B)",
+  roleOpponent2B: "Opponent 2 (B)",
   changeTrack: "Change Track",
   muteSound: "Mute Sound",
   unmuteSound: "Unmute Sound",
