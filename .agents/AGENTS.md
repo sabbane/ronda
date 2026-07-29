@@ -3,7 +3,7 @@
 - **Autonomous Commits**: Proactively commit meaningful, completed logical work packages autonomously on feature branches. Do not ask for user permission to stage, commit, or create branches. Keep secrets in `.env` files (which must be gitignored).
 - **Branch Creation & Naming**:
   - Always verify you are on a feature branch before committing. If on `main`, autonomously create and switch to a new feature branch: `git checkout -b <category>/<short-description>`.
-  - Format branch names as `<category>/<short-description>`. The category must match the dominant change type, and the short description must use kebab-case in English (e.g., `feat/diun-hardening`, `fix/schedule-update`, `chore/compose-cleanup`).
+  - Format branch names as `<category>/<short-description>`. The category must match the dominant change type, and the short description must use kebab-case in English (e.g., `feat/new-challenges`, `fix/schedule-update`, `chore/compose-cleanup`).
 - **Conventional Commits**: Classify commits and branches using Conventional Commits:
   - `feat`: New functionality (new stack, service, feature)
   - `fix`: Bug fix
