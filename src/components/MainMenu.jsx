@@ -1,5 +1,29 @@
 import { Volume2, VolumeX, Music } from 'lucide-react';
 
+const MainMenuBackdrop = () => (
+  <>
+    {/* Desktop Background */}
+    <div
+      className="hidden sm:block absolute inset-0 pointer-events-none z-0"
+      style={{
+        backgroundImage: "url('/assets/backgrounds/main_menu_background_dekstop.webp')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    />
+
+    {/* Mobile Background */}
+    <div
+      className="block sm:hidden absolute inset-0 pointer-events-none z-0"
+      style={{
+        backgroundImage: "url('/assets/backgrounds/main_menu_background_mobile.webp')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    />
+  </>
+);
+
 export const MainMenu = ({
   language,
   changeLanguage,
@@ -33,7 +57,8 @@ export const MainMenu = ({
   setMode,
 }) => {
   return (
-    <div className="min-h-screen flex flex-col items-center text-white bg-blue-600 bg-opacity-70 relative overflow-hidden overflow-y-auto">
+    <div className="min-h-screen flex flex-col items-center text-white relative overflow-hidden overflow-y-auto bg-slate-900">
+      <MainMenuBackdrop />
       <div className="flex-1 flex flex-col w-full items-center justify-center p-4 z-30 pt-4 pb-8 menu-container">
         <div className="p-6 sm:p-8 rounded-3xl shadow-[0_0_60px_rgba(30,58,138,0.35)] border-2 border-amber-400/30 text-center max-w-lg w-full relative menu-card flex flex-col justify-between min-h-[82vh] sm:min-h-0" style={{backgroundColor: 'rgba(30, 58, 138, 0.7)'}}>
           <h1 className="text-7xl font-black mb-4 text-[#D69E2E] tracking-tighter drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)] menu-logo">{t('logo')}</h1>
