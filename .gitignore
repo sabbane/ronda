@@ -35,3 +35,9 @@ playgama-releases/
 
 # Runtime bot credentials (generated at server startup, not for version control)
 scratch/bot_credentials.json
+
+# Playwright
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
