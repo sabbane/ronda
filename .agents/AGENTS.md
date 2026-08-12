@@ -21,6 +21,15 @@
   - Once a task/feature is complete, autonomously open a GitLab Merge Request via GitLab push options:
     `git push -o merge_request.create -o merge_request.title="<category>: <description>" -o merge_request.description="<description>"`
 
+# Version Release Rules
+Whenever the user requests to create or bump a version (e.g., "Erstelle die Version 1.0.0-rc10", "release 1.0.0-rc10", or similar phrasing), you MUST strictly adhere to the following workflow:
+1. **Dedicated Release Branch**: Create and switch to a separate branch named `release/<version>` directly from `main` (e.g., `git checkout -b release/1.0.0-rc10`).
+2. **Bump Version**: Update the version in `package.json` and `package-lock.json` using `npm version <version> --no-git-tag-version`.
+3. **Commit & Push**: Stage, commit with message `chore: bump version to <version>`, and push the branch to remote while creating a Merge Request:
+   `git push -u origin release/<version> -o merge_request.create -o merge_request.title="chore: bump version to <version>" -o merge_request.description="Version release <version>"`
+4. **Switch Back to Main**: Switch back to the `main` branch: `git checkout main`.
+
+
 
 # Development Rules
 - When editing code, assume the user is using VS Code.
