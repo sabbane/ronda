@@ -6,6 +6,7 @@ import { useBoardEvents } from './useBoardEvents';
 import { useScrollAdjustments } from './useScrollAdjustments';
 import { useLobbySync } from './useLobbySync';
 import { useMultiplayerCleanup } from './useMultiplayerCleanup';
+import { useAnalyticsTracker } from './useAnalyticsTracker';
 
 const getTeamDetails = (G, numP, myID, opponentID, isMyTeamA, t) => {
   const winner = G.gameStatus ? (G.gameStatus.winner !== undefined ? G.gameStatus.winner : 'Draw') : null;
@@ -86,7 +87,7 @@ const leaveLobbyRoom = (myID, moves, playClick, isLeavingRef) => {
 };
 
 export const useBoardState = (props) => {
-  const { G, ctx, moves, playerID, isConnected, matchData } = props;
+  const { G, ctx, moves, playerID, isConnected, matchData, matchID, rondaMode } = props;
   const { language, t } = useLanguage();
   
   const myID = playerID || '0';
@@ -145,6 +146,16 @@ export const useBoardState = (props) => {
 
   const isMyTeamA = myID === '0' || myID === '2';
   const teamDetails = getTeamDetails(G, numP, myID, opponentID, isMyTeamA, t);
+
+  useAnalyticsTracker({
+    gameStarted: G.gameStarted,
+    matchID,
+    rondaMode,
+    numP,
+    showGameOverOverlay,
+    myTeamScore: teamDetails.myTeamScore,
+    oppTeamScore: teamDetails.oppTeamScore
+  });
 
   const handleLeaveLobby = () => leaveLobbyRoom(myID, moves, playClick, isLeavingRef);
 

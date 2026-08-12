@@ -105,6 +105,11 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   return {
     base: './',
+    server: {
+      watch: {
+        ignored: ['**/scratch/**', '**/data/**']
+      }
+    },
     define: {
       'import.meta.env.VITE_APP_VERSION': JSON.stringify(pkg.version),
     },
@@ -177,11 +182,7 @@ export default defineConfig(({ mode }) => {
         }
       })
     ],
-    server: {
-      watch: {
-        ignored: ['**/scratch/**']
-      }
-    },
+
     test: {
       exclude: ['**/tests/**', '**/node_modules/**'],
     },
