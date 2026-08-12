@@ -32,6 +32,7 @@ export const useAnnouncements = ({
     if (!G.gameStarted) {
       processedAnnouncements.current.clear();
       if (eventQueue.length > 0) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setEventQueue([]);
       }
       return;

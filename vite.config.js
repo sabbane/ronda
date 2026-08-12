@@ -182,11 +182,7 @@ export default defineConfig(({ mode }) => {
         }
       })
     ],
-    server: {
-      watch: {
-        ignored: ['**/scratch/**']
-      }
-    },
+
     test: {
       exclude: ['**/tests/**', '**/node_modules/**'],
     },

@@ -182,9 +182,13 @@ server.router.get('/test/match-id', async (ctx) => {
   if (server._testMatchID) {
     ctx.body = { ok: true, matchID: server._testMatchID };
   } else {
+    ctx.status = 404;
+    ctx.body = { ok: false, error: 'No test match exists yet. POST /test/reset first.' };
+  }
 });
 
 const generateBotName = () => {
+  if (Math.random() < 0.90) {
     return moroccanNames[Math.floor(Math.random() * moroccanNames.length)];
   } else {
     return europeanNames[Math.floor(Math.random() * europeanNames.length)];

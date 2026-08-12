@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   BarChart2, ShieldAlert, LogOut, RefreshCw, ArrowLeft, 
@@ -266,9 +266,9 @@ export const StatsDashboard = ({ onBack }) => {
 
   useEffect(() => {
     if (isAuthenticated) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchData();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
   const handleLogin = async (e) => {
