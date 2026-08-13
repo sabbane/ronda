@@ -1,4 +1,5 @@
 import { Volume2, VolumeX, Music } from 'lucide-react';
+import { challengeService } from '../services/challengeService';
 
 const MainMenuBackdrop = () => (
   <>
@@ -55,7 +56,16 @@ export const MainMenu = ({
   handleCreateRoom,
   handleJoinRoom,
   setMode,
+  onRequireUsername,
 }) => {
+  const handleSinglePlayerChoice = (targetMode) => {
+    const username = challengeService.getUsername();
+    if (!username && onRequireUsername) {
+      onRequireUsername(targetMode);
+    } else {
+      setMode(targetMode);
+    }
+  };
   return (
     <div className="min-h-screen flex flex-col items-center text-white relative overflow-hidden overflow-y-auto bg-slate-900">
       <MainMenuBackdrop />
@@ -120,13 +130,21 @@ export const MainMenu = ({
             {multiplayerAction === null ? (
               <>
                 {/* Singleplayer Box */}
-                <div className="bg-black/30 p-6 rounded-2xl border border-amber-500/10 menu-box backdrop-blur-sm">
-                  <h2 className="text-sm font-extrabold mb-4 text-amber-200/90 uppercase tracking-widest">{t('singleplayer')}</h2>
+                <div className="bg-black/30 p-6 rounded-2xl border border-amber-500/10 menu-box backdrop-blur-sm flex flex-col gap-3">
+                  <h2 className="text-sm font-extrabold mb-1 text-amber-200/90 uppercase tracking-widest">{t('singleplayer')}</h2>
                   <button
-                    onClick={() => { playClick(); setMode('bot'); }}
-                    className="w-full btn-moroccan-gold px-6 py-4 rounded-xl font-bold text-lg cursor-pointer menu-btn-large"
+                    onClick={() => { playClick(); handleSinglePlayerChoice('bot'); }}
+                    className="w-full btn-moroccan-gold px-5 py-3 rounded-xl font-bold text-base cursor-pointer menu-btn-large flex items-center justify-center gap-2"
                   >
-                    {t('playVsBot')}
+                    <span>🎮</span>
+                    <span>{t('freePlay') || 'Free Play'}</span>
+                  </button>
+                  <button
+                    onClick={() => { playClick(); handleSinglePlayerChoice('challenge_menu'); }}
+                    className="w-full btn-moroccan-primary px-5 py-3 rounded-xl font-bold text-base cursor-pointer menu-btn-medium flex items-center justify-center gap-2"
+                  >
+                    <span>🎯</span>
+                    <span>{t('challengesAndLeaderboard') || 'Challenges & Leaderboard'}</span>
                   </button>
                 </div>
 

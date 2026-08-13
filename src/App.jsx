@@ -12,6 +12,9 @@ import { MainMenu } from './components/MainMenu';
 import { useLobby } from './hooks/useLobby';
 import { Splashscreen } from './components/Splashscreen';
 import { StatsDashboard } from './components/StatsDashboard';
+import { UsernameModal } from './components/UsernameModal';
+import { ChallengeMenu } from './components/ChallengeMenu';
+import { challengeService } from './services/challengeService';
 
 if (typeof window !== 'undefined') {
   window.isRondaBotGame = true;
@@ -120,6 +123,25 @@ const App = () => {
     return true;
   });
 
+  const [showUsernameModal, setShowUsernameModal] = useState(false);
+  const [pendingTargetMode, setPendingTargetMode] = useState(null);
+
+  const handleRequireUsername = (targetMode) => {
+    setPendingTargetMode(targetMode);
+    setShowUsernameModal(true);
+  };
+
+  const handleUsernameSubmit = (name) => {
+    challengeService.setUsername(name);
+    setShowUsernameModal(false);
+    if (pendingTargetMode) {
+      if (pendingTargetMode === 'bot') {
+        window.activeRondaChallengeId = null;
+      }
+      setMode(pendingTargetMode);
+    }
+  };
+
   useEffect(() => {
     if (!showSplash) {
       enableBGM();
@@ -167,6 +189,28 @@ const App = () => {
         }}
       />
     );
+  if (mode === 'challenge_menu') {
+    return (
+      <>
+        <ChallengeMenu
+          t={t}
+          playClick={playClick}
+          onBack={() => {
+            setMode(null);
+            setError(null);
+          }}
+          onStartChallenge={(chId) => {
+            window.activeRondaChallengeId = chId;
+            setMode('bot');
+          }}
+        />
+        <UsernameModal
+          isOpen={showUsernameModal}
+          t={t}
+          onSubmit={handleUsernameSubmit}
+        />
+      </>
+    );
   }
 
   if (!mode) {
@@ -201,7 +245,18 @@ const App = () => {
         isCheckingRoom={isCheckingRoom}
         handleCreateRoom={handleCreateRoom}
         handleJoinRoom={handleJoinRoom}
-        setMode={setMode}
+        setMode={(targetMode) => {
+          if (targetMode === 'bot') {
+            window.activeRondaChallengeId = null;
+          }
+          setMode(targetMode);
+        }}
+        onRequireUsername={handleRequireUsername}
+      />
+      <UsernameModal
+        isOpen={showUsernameModal}
+        t={t}
+        onSubmit={handleUsernameSubmit}
       />
     );
   }
