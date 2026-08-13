@@ -134,17 +134,15 @@ export const MainMenu = ({
                   <h2 className="text-sm font-extrabold mb-1 text-amber-200/90 uppercase tracking-widest">{t('singleplayer')}</h2>
                   <button
                     onClick={() => { playClick(); handleSinglePlayerChoice('bot'); }}
-                    className="w-full btn-moroccan-gold px-5 py-3 rounded-xl font-bold text-base cursor-pointer menu-btn-large flex items-center justify-center gap-2"
+                    className="w-full btn-moroccan-gold px-5 py-3 rounded-xl font-bold text-base cursor-pointer menu-btn-large"
                   >
-                    <span>🎮</span>
-                    <span>{t('freePlay') || 'Free Play'}</span>
+                    {t('freePlay') || 'Free Play'}
                   </button>
                   <button
                     onClick={() => { playClick(); handleSinglePlayerChoice('challenge_menu'); }}
-                    className="w-full btn-moroccan-primary px-5 py-3 rounded-xl font-bold text-base cursor-pointer menu-btn-medium flex items-center justify-center gap-2"
+                    className="w-full btn-moroccan-primary px-5 py-3 rounded-xl font-bold text-base cursor-pointer menu-btn-medium"
                   >
-                    <span>🎯</span>
-                    <span>{t('challengesAndLeaderboard') || 'Challenges & Leaderboard'}</span>
+                    {t('challengesTab') || 'Challenges'}
                   </button>
                 </div>
 
