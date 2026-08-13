@@ -12,12 +12,12 @@ const getApiUrl = () => {
 
 export const challengeService = {
   getUsername: () => {
-    if (typeof window === 'undefined') return '';
+    if (typeof localStorage === 'undefined' || !localStorage) return '';
     return localStorage.getItem(USERNAME_KEY) || '';
   },
 
   setUsername: (name) => {
-    if (typeof window === 'undefined') return;
+    if (typeof localStorage === 'undefined' || !localStorage) return;
     const trimmed = (name || '').trim();
     if (trimmed) {
       localStorage.setItem(USERNAME_KEY, trimmed);
@@ -26,7 +26,7 @@ export const challengeService = {
 
   getProgress: () => {
     const defaultData = { completed: [], totalPoints: 0, freePlayWins: 0 };
-    if (typeof window === 'undefined') return defaultData;
+    if (typeof localStorage === 'undefined' || !localStorage) return defaultData;
     try {
       const raw = localStorage.getItem(PROGRESS_KEY);
       if (!raw) return defaultData;
@@ -42,7 +42,7 @@ export const challengeService = {
   },
 
   saveProgress: (progress) => {
-    if (typeof window === 'undefined') return;
+    if (typeof localStorage === 'undefined' || !localStorage) return;
     try {
       localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
     } catch (e) {

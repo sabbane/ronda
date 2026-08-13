@@ -2,6 +2,21 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { CHALLENGES, getChallengeById } from './challenges';
 import { challengeService } from '../services/challengeService';
 
+let memoryStore = {};
+
+const mockLocalStorage = {
+  getItem: (key) => (Object.prototype.hasOwnProperty.call(memoryStore, key) ? memoryStore[key] : null),
+  setItem: (key, val) => { memoryStore[key] = String(val); },
+  removeItem: (key) => { delete memoryStore[key]; },
+  clear: () => { memoryStore = {}; }
+};
+
+Object.defineProperty(globalThis, 'localStorage', {
+  value: mockLocalStorage,
+  writable: true,
+  configurable: true
+});
+
 describe('Challenges Evaluation Logic', () => {
   it('has exactly 2 initial challenges configured', () => {
     expect(CHALLENGES.length).toBe(2);
@@ -38,7 +53,7 @@ describe('Challenges Evaluation Logic', () => {
 
 describe('ChallengeService Local Storage & Score Management', () => {
   beforeEach(() => {
-    localStorage.clear();
+    mockLocalStorage.clear();
   });
 
   it('gets and sets permanent singleplayer username', () => {
