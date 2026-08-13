@@ -36,6 +36,8 @@ playgama-releases/
 # Runtime generated data files (not for version control)
 scratch/bot_credentials.json
 scratch/analytics.json
+scratch/leaderboard.json
+
 
 
 # Playwright
