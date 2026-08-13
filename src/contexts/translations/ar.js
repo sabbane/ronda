@@ -1,6 +1,9 @@
 export const ar = {
   freePlay: "اللعب الحر",
-  challengesAndLeaderboard: "التحديات والترتيب",
+  challengesAndLeaderboard: "التحديات",
+  startChallenge: "ابدأ التحدي",
+  locked: "مغلق",
+  completed: "مكتمل",
   challenge1Title: "النصر الأول",
   challenge1Desc: "اهزم الحاج مرة واحدة في اللعب الفردي.",
   challenge2Title: "فوز ساحق",

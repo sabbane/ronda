@@ -1,6 +1,9 @@
 export const fr = {
   freePlay: "Jeu Libre",
-  challengesAndLeaderboard: "Défis & Classement",
+  challengesAndLeaderboard: "Défis",
+  startChallenge: "Commencer le défi",
+  locked: "Verrouillé",
+  completed: "Terminé",
   challenge1Title: "Première Victoire",
   challenge1Desc: "Battez El Haj 1 fois en solo.",
   challenge2Title: "Victoire Dominante",
