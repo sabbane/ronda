@@ -304,6 +304,10 @@ export const GameOverDisplay = ({
                 <div className="w-px bg-slate-700"></div>
                 <div className="flex flex-col items-center">
                   <span className="text-sm text-slate-400 mb-1">{oppTeamName}</span>
+                  <span className="text-3xl font-bold text-purple-400">
+                    {oppTeamScore}
+                  </span>
+                </div>
               </div>
 
               {singleplayerBanner && (
