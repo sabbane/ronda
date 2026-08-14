@@ -1,3 +1,12 @@
+import { useState, useEffect } from 'react';
+import { challengeService } from '../services/challengeService';
+
+const formatCooldown = (seconds) => {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${s < 10 ? '0' : ''}${s}`;
+};
+
 export const ChallengeCard = ({
   challenge,
   isUnlocked,
@@ -6,8 +15,33 @@ export const ChallengeCard = ({
   onStartChallenge,
   playClick
 }) => {
+  const [cooldownRemaining, setCooldownRemaining] = useState(0);
+
+  useEffect(() => {
+    const update = () => {
+      setCooldownRemaining(challengeService.getChallengeCooldown(challenge.id));
+    };
+    update();
+    const timer = setInterval(update, 1000);
+    return () => clearInterval(timer);
+  }, [challenge.id]);
+
   const title = t(challenge.titleKey) || challenge.id;
   const desc = t(challenge.descKey) || '';
+  const isOnCooldown = cooldownRemaining > 0;
+  const isPlayable = isUnlocked && !isOnCooldown;
+
+  const getButtonText = () => {
+    if (isOnCooldown) {
+      return (
+        t('cooldownAvailableIn', { time: formatCooldown(cooldownRemaining) }) ||
+        `Available in ${formatCooldown(cooldownRemaining)}`
+      );
+    }
+    if (!isUnlocked) return t('locked') || 'Locked';
+    if (isCompleted) return t('playAgain') || 'Play Again';
+    return t('startChallenge') || 'Start Challenge';
+  };
 
   return (
     <div
@@ -43,24 +77,21 @@ export const ChallengeCard = ({
       </p>
 
       <button
-        disabled={!isUnlocked}
+        disabled={!isPlayable}
         onClick={() => {
+          if (!isPlayable) return;
           playClick();
           onStartChallenge(challenge.id);
         }}
-        className={`w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
-          !isUnlocked
-            ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
+        className={`w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all ${
+          !isPlayable
+            ? 'bg-slate-800 text-slate-400 cursor-not-allowed border border-white/10'
             : isCompleted
-            ? 'bg-emerald-600/80 hover:bg-emerald-600 text-white'
-            : 'btn-moroccan-gold text-slate-900'
+            ? 'bg-emerald-600/80 hover:bg-emerald-600 text-white cursor-pointer active:scale-95'
+            : 'btn-moroccan-gold text-slate-900 cursor-pointer active:scale-95'
         }`}
       >
-        {!isUnlocked
-          ? (t('locked') || 'Locked')
-          : isCompleted
-          ? (t('playAgain') || 'Play Again')
-          : (t('startChallenge') || 'Start Challenge')}
+        {getButtonText()}
       </button>
     </div>
   );

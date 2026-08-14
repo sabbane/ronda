@@ -50,7 +50,7 @@ export const GameOverDisplay = ({
           } else if (!didIWin && isMounted) {
             setSingleplayerBanner({
               type: 'fail',
-              text: t('challengeFailed') || '💔 Challenge Failed. Try again!'
+              text: t('challengeFailed') || 'Challenge Failed. Try again!'
             });
           }
         } else if (didIWin) {
@@ -61,16 +61,36 @@ export const GameOverDisplay = ({
               text: t('freePlayWinPoints') || '🏆 +5 Pts added to Leaderboard!'
             });
           }
+        } else {
+          await challengeService.submitFreePlayLoss();
+          if (isMounted) {
+            setSingleplayerBanner({
+              type: 'fail',
+              text: t('freePlayLossPoints') || '-1 Pt on Leaderboard'
+            });
+          }
         }
       } else if (didIWin) {
         const numP = G.players ? Object.keys(G.players).length : 2;
-        const res = await challengeService.submitMultiplayerWin(numP);
+        await challengeService.submitMultiplayerWin(numP);
         if (isMounted) {
           const bannerText = numP === 4
             ? (t('multiplayer4pWinPoints') || '🏆 +20 Pts added to Leaderboard!')
             : (t('multiplayer2pWinPoints') || '🏆 +10 Pts added to Leaderboard!');
           setSingleplayerBanner({
             type: 'multiplayer',
+            text: bannerText
+          });
+        }
+      } else {
+        const numP = G.players ? Object.keys(G.players).length : 2;
+        await challengeService.submitMultiplayerLoss(numP);
+        if (isMounted) {
+          const bannerText = numP === 4
+            ? (t('multiplayer4pLossPoints') || '-4 Pts on Leaderboard')
+            : (t('multiplayer2pLossPoints') || '-2 Pts on Leaderboard');
+          setSingleplayerBanner({
+            type: 'fail',
             text: bannerText
           });
         }

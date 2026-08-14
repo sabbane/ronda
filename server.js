@@ -831,7 +831,7 @@ server.router.post('/api/leaderboard/submit', async (ctx) => {
   try {
     const body = await getBody(ctx);
     const { username, pointsToAdd } = body;
-    if (!username || typeof pointsToAdd !== 'number' || pointsToAdd <= 0) {
+    if (!username || typeof pointsToAdd !== 'number' || pointsToAdd === 0) {
       ctx.status = 400;
       ctx.body = { ok: false, error: 'Invalid payload' };
       return;
@@ -847,9 +847,9 @@ server.router.post('/api/leaderboard/submit', async (ctx) => {
     const updateList = (list) => {
       const existing = list.find(entry => entry.username.toLowerCase() === username.toLowerCase());
       if (existing) {
-        existing.points = (existing.points || 0) + pointsToAdd;
+        existing.points = Math.max(0, (existing.points || 0) + pointsToAdd);
         existing.updatedAt = now.toISOString();
-      } else {
+      } else if (pointsToAdd > 0) {
         list.push({ username, points: pointsToAdd, updatedAt: now.toISOString() });
       }
       list.sort((a, b) => b.points - a.points);

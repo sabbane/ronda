@@ -62,40 +62,60 @@ describe('ChallengeService Local Storage & Score Management', () => {
     expect(challengeService.getUsername()).toBe('AtlasKing');
   });
 
-  it('tracks free play wins (+5 pts)', async () => {
+  it('tracks free play wins (+5 pts) and losses (-1 pt, floor 0)', async () => {
     challengeService.setUsername('TestPlayer');
-    const updated = await challengeService.submitFreePlayWin();
-    expect(updated.freePlayWins).toBe(1);
-    expect(updated.totalPoints).toBe(5);
+    const win1 = await challengeService.submitFreePlayWin();
+    expect(win1.totalPoints).toBe(5);
 
-    const updated2 = await challengeService.submitFreePlayWin();
-    expect(updated2.freePlayWins).toBe(2);
-    expect(updated2.totalPoints).toBe(10);
+    const loss1 = await challengeService.submitFreePlayLoss();
+    expect(loss1.totalPoints).toBe(4);
+
+    // Test floor 0
+    await challengeService.submitFreePlayLoss();
+    await challengeService.submitFreePlayLoss();
+    await challengeService.submitFreePlayLoss();
+    await challengeService.submitFreePlayLoss();
+    const lossFloor = await challengeService.submitFreePlayLoss();
+    expect(lossFloor.totalPoints).toBe(0);
   });
 
-  it('tracks multiplayer 2-player (+10 pts) and 4-player (+20 pts) wins', async () => {
+  it('tracks multiplayer wins (+10 / +20 pts) and losses (-2 / -4 pts)', async () => {
     challengeService.setUsername('MultiplayerChampion');
 
     // 2-player win: +10 pts
-    const res2p = await challengeService.submitMultiplayerWin(2);
-    expect(res2p.pointsAdded).toBe(10);
-    expect(res2p.progress.totalPoints).toBe(10);
-    expect(res2p.progress.multiplayerWins).toBe(1);
+    await challengeService.submitMultiplayerWin(2);
+    expect(challengeService.getProgress().totalPoints).toBe(10);
 
-    // 4-player win: +20 pts
-    const res4p = await challengeService.submitMultiplayerWin(4);
-    expect(res4p.pointsAdded).toBe(20);
-    expect(res4p.progress.totalPoints).toBe(30);
-    expect(res4p.progress.multiplayerWins).toBe(2);
+    // 2-player loss: -2 pts
+    const resLoss2p = await challengeService.submitMultiplayerLoss(2);
+    expect(resLoss2p.pointsDeducted).toBe(2);
+    expect(resLoss2p.progress.totalPoints).toBe(8);
+
+    // 4-player win: +20 pts -> 28
+    await challengeService.submitMultiplayerWin(4);
+    expect(challengeService.getProgress().totalPoints).toBe(28);
+
+    // 4-player loss: -4 pts -> 24
+    const resLoss4p = await challengeService.submitMultiplayerLoss(4);
+    expect(resLoss4p.pointsDeducted).toBe(4);
+    expect(resLoss4p.progress.totalPoints).toBe(24);
   });
 
-  it('handles challenge result submission (+50 pts for C1, +150 pts for C2)', async () => {
+  it('handles challenge result submission and 1-hour cooldown timer', async () => {
     challengeService.setUsername('ChallengeMaster');
+
+    // Cooldown initially 0
+    expect(challengeService.getChallengeCooldown('el_haj_defeat')).toBe(0);
 
     // Submit C1 win
     const res1 = await challengeService.submitChallengeResult('el_haj_defeat', { didIWin: true, myScore: 11, oppScore: 9 });
     expect(res1.completedNow).toBe(true);
     expect(res1.pointsEarned).toBe(50);
+
+    // Cooldown should be ~3600 seconds
+    const cd1 = challengeService.getChallengeCooldown('el_haj_defeat');
+    expect(cd1).toBeGreaterThan(3500);
+    expect(cd1).toBeLessThanOrEqual(3600);
 
     // Duplicate submission of C1 should not re-award points
     const res1Duplicate = await challengeService.submitChallengeResult('el_haj_defeat', { didIWin: true, myScore: 11, oppScore: 9 });
