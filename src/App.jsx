@@ -14,6 +14,7 @@ import { Splashscreen } from './components/Splashscreen';
 import { StatsDashboard } from './components/StatsDashboard';
 import { UsernameModal } from './components/UsernameModal';
 import { ChallengeMenu } from './components/ChallengeMenu';
+import { LeaderboardScreen } from './components/LeaderboardScreen';
 import { challengeService } from './services/challengeService';
 
 if (typeof window !== 'undefined') {
@@ -203,6 +204,26 @@ const App = () => {
           onStartChallenge={(chId) => {
             window.activeRondaChallengeId = chId;
             setMode('bot');
+          }}
+        />
+        <UsernameModal
+          isOpen={showUsernameModal}
+          t={t}
+          onSubmit={handleUsernameSubmit}
+        />
+      </>
+    );
+  }
+
+  if (mode === 'leaderboard') {
+    return (
+      <>
+        <LeaderboardScreen
+          t={t}
+          playClick={playClick}
+          onBack={() => {
+            setMode(null);
+            setError(null);
           }}
         />
         <UsernameModal

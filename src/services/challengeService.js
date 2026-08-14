@@ -25,7 +25,7 @@ export const challengeService = {
   },
 
   getProgress: () => {
-    const defaultData = { completed: [], totalPoints: 0, freePlayWins: 0 };
+    const defaultData = { completed: [], totalPoints: 0, freePlayWins: 0, multiplayerWins: 0 };
     if (typeof localStorage === 'undefined' || !localStorage) return defaultData;
     try {
       const raw = localStorage.getItem(PROGRESS_KEY);
@@ -34,7 +34,8 @@ export const challengeService = {
       return {
         completed: Array.isArray(parsed.completed) ? parsed.completed : [],
         totalPoints: typeof parsed.totalPoints === 'number' ? parsed.totalPoints : 0,
-        freePlayWins: typeof parsed.freePlayWins === 'number' ? parsed.freePlayWins : 0
+        freePlayWins: typeof parsed.freePlayWins === 'number' ? parsed.freePlayWins : 0,
+        multiplayerWins: typeof parsed.multiplayerWins === 'number' ? parsed.multiplayerWins : 0
       };
     } catch {
       return defaultData;
@@ -53,7 +54,7 @@ export const challengeService = {
   submitFreePlayWin: async () => {
     const username = challengeService.getUsername();
     const progress = challengeService.getProgress();
-    progress.freePlayWins += 1;
+    progress.freePlayWins = (progress.freePlayWins || 0) + 1;
     progress.totalPoints += 5;
     challengeService.saveProgress(progress);
 
@@ -61,6 +62,22 @@ export const challengeService = {
       await challengeService.sendLeaderboardScore(username, 5, 'free_play');
     }
     return progress;
+  },
+
+  submitMultiplayerWin: async (numPlayers = 2) => {
+    const pointsToAdd = numPlayers === 4 ? 20 : 10;
+    const source = numPlayers === 4 ? 'multiplayer_4p' : 'multiplayer_2p';
+
+    const username = challengeService.getUsername();
+    const progress = challengeService.getProgress();
+    progress.multiplayerWins = (progress.multiplayerWins || 0) + 1;
+    progress.totalPoints += pointsToAdd;
+    challengeService.saveProgress(progress);
+
+    if (username) {
+      await challengeService.sendLeaderboardScore(username, pointsToAdd, source);
+    }
+    return { pointsAdded: pointsToAdd, progress };
   },
 
   submitChallengeResult: async (challengeId, matchStats) => {
@@ -109,6 +126,20 @@ export const challengeService = {
     } catch (err) {
       console.warn('[ChallengeService] Failed to fetch leaderboard:', err);
       return [];
+    }
+  },
+
+  fetchPlayerRank: async (username) => {
+    if (!username) return { rank: null, points: challengeService.getProgress().totalPoints };
+    try {
+      const entries = await challengeService.fetchLeaderboard('monthly');
+      const idx = entries.findIndex(e => e.username.toLowerCase() === username.toLowerCase());
+      if (idx !== -1) {
+        return { rank: idx + 1, points: entries[idx].points };
+      }
+      return { rank: null, points: challengeService.getProgress().totalPoints };
+    } catch {
+      return { rank: null, points: challengeService.getProgress().totalPoints };
     }
   }
 };

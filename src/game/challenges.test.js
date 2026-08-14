@@ -73,6 +73,22 @@ describe('ChallengeService Local Storage & Score Management', () => {
     expect(updated2.totalPoints).toBe(10);
   });
 
+  it('tracks multiplayer 2-player (+10 pts) and 4-player (+20 pts) wins', async () => {
+    challengeService.setUsername('MultiplayerChampion');
+
+    // 2-player win: +10 pts
+    const res2p = await challengeService.submitMultiplayerWin(2);
+    expect(res2p.pointsAdded).toBe(10);
+    expect(res2p.progress.totalPoints).toBe(10);
+    expect(res2p.progress.multiplayerWins).toBe(1);
+
+    // 4-player win: +20 pts
+    const res4p = await challengeService.submitMultiplayerWin(4);
+    expect(res4p.pointsAdded).toBe(20);
+    expect(res4p.progress.totalPoints).toBe(30);
+    expect(res4p.progress.multiplayerWins).toBe(2);
+  });
+
   it('handles challenge result submission (+50 pts for C1, +150 pts for C2)', async () => {
     challengeService.setUsername('ChallengeMaster');
 
