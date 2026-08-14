@@ -2,25 +2,9 @@ import { useState, useEffect } from 'react';
 import { challengeService } from '../services/challengeService';
 import { LeaderboardView } from './LeaderboardView';
 
-const getSeasonInfo = (t) => {
-  const now = new Date();
-  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-  const diffDays = Math.ceil((nextMonth.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-  
-  const monthKey = `month_${now.getMonth() + 1}`;
-  const monthName = t(monthKey) || now.toLocaleString('default', { month: 'long' });
-  
-  return {
-    days: diffDays,
-    month: monthName,
-    text: t('seasonCountdown', { month: monthName, days: diffDays }) || `Season ${monthName}: ${diffDays} days left until monthly reset`
-  };
-};
-
 export const LeaderboardScreen = ({ onBack, playClick, t }) => {
   const [username, setUsername] = useState('');
   const [points, setPoints] = useState(0);
-  const seasonInfo = getSeasonInfo(t);
 
   useEffect(() => {
     setUsername(challengeService.getUsername());
@@ -37,9 +21,6 @@ export const LeaderboardScreen = ({ onBack, playClick, t }) => {
           {/* Header */}
           <div className="flex justify-between items-center border-b border-white/10 pb-4">
             <div className="flex flex-col text-left">
-              <span className="text-[10px] uppercase font-bold text-amber-300 tracking-wider">
-                {t('singleplayerPlayer') || 'Player'}
-              </span>
               <span className="text-lg font-black text-white truncate max-w-[180px]">
                 {username || 'Player'}
               </span>
@@ -50,12 +31,6 @@ export const LeaderboardScreen = ({ onBack, playClick, t }) => {
                 {points} Pts
               </span>
             </div>
-          </div>
-
-          {/* Season Countdown Banner */}
-          <div className="bg-amber-500/15 border border-amber-400/30 px-3.5 py-2 rounded-xl flex items-center justify-center gap-2 text-xs font-semibold text-amber-200 shadow-sm">
-            <span>⏳</span>
-            <span>{seasonInfo.text}</span>
           </div>
 
           {/* Leaderboard Dual-Tab List */}

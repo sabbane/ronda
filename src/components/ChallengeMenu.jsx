@@ -3,7 +3,7 @@ import { CHALLENGES } from '../game/challenges';
 import { challengeService } from '../services/challengeService';
 import { ChallengeCard } from './ChallengeCard';
 
-export const ChallengeMenu = ({ onStartChallenge, onBack, playClick, t }) => {
+export const ChallengeMenu = ({ onStartChallenge, onOpenLeaderboard, onBack, playClick, t }) => {
   const [progress, setProgress] = useState({ completed: [], totalPoints: 0 });
   const [username, setUsername] = useState('');
 
@@ -22,19 +22,23 @@ export const ChallengeMenu = ({ onStartChallenge, onBack, playClick, t }) => {
           {/* Header */}
           <div className="flex justify-between items-center border-b border-white/10 pb-4">
             <div className="flex flex-col text-left">
-              <span className="text-[10px] uppercase font-bold text-amber-300 tracking-wider">
-                {t('singleplayerPlayer') || 'Player'}
-              </span>
               <span className="text-lg font-black text-white truncate max-w-[180px]">
                 {username || 'Player'}
               </span>
             </div>
-            <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-xl border border-amber-400/30">
+            <button
+              onClick={() => {
+                playClick();
+                if (onOpenLeaderboard) onOpenLeaderboard();
+              }}
+              className="flex items-center gap-2 bg-black/40 hover:bg-black/60 px-3.5 py-1.5 rounded-xl border border-amber-400/30 hover:border-amber-400/60 transition-all cursor-pointer active:scale-95 shadow-md"
+              title={t('viewLeaderboard') || 'Click to view Leaderboard'}
+            >
               <span className="text-base">🏆</span>
               <span className="text-sm font-black text-amber-300 font-mono">
                 {progress.totalPoints} Pts
               </span>
-            </div>
+            </button>
           </div>
 
           <div className="flex items-center justify-between">

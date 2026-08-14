@@ -201,6 +201,9 @@ const App = () => {
             setMode(null);
             setError(null);
           }}
+          onOpenLeaderboard={() => {
+            setMode('leaderboard');
+          }}
           onStartChallenge={(chId) => {
             window.activeRondaChallengeId = chId;
             setMode('bot');
