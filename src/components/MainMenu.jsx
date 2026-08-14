@@ -56,6 +56,7 @@ export const MainMenu = ({
   isCheckingRoom,
   handleCreateRoom,
   handleJoinRoom,
+  setMode,
   onRequireUsername,
 }) => {
   const [playerInfo, setPlayerInfo] = useState({ username: '', points: 0, rank: null });
@@ -91,6 +92,10 @@ export const MainMenu = ({
   };
 
   const handleSinglePlayerChoice = (targetMode) => {
+    if (targetMode === 'bot') {
+      setMode('bot');
+      return;
+    }
     const username = challengeService.getUsername();
     if (!username && onRequireUsername) {
       onRequireUsername(targetMode);
@@ -192,7 +197,7 @@ export const MainMenu = ({
                     onClick={() => { playClick(); handleSinglePlayerChoice('bot'); }}
                     className="w-full btn-moroccan-gold px-5 py-3 rounded-xl font-bold text-base cursor-pointer menu-btn-large"
                   >
-                    {t('freePlay') || 'Free Play'}
+                    {t('playVsBot')}
                   </button>
                   <button
                     onClick={() => { playClick(); handleSinglePlayerChoice('challenge_menu'); }}
