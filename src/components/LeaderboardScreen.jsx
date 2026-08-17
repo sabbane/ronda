@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { challengeService } from '../services/challengeService';
 import { LeaderboardView } from './LeaderboardView';
 
-export const LeaderboardScreen = ({ onBack, playClick, t }) => {
+export const LeaderboardScreen = ({ onBack, playClick, t, previousMode }) => {
   const [username, setUsername] = useState('');
   const [points, setPoints] = useState(0);
 
@@ -10,6 +10,10 @@ export const LeaderboardScreen = ({ onBack, playClick, t }) => {
     setUsername(challengeService.getUsername());
     setPoints(challengeService.getProgress().totalPoints || 0);
   }, []);
+
+  const backButtonLabel = previousMode === 'challenge_menu'
+    ? (t('back') || 'Back')
+    : (t('backToMenu') || 'Back to Main Menu');
 
   return (
     <div className="min-h-screen flex flex-col items-center text-white relative overflow-y-auto bg-slate-950 p-4">
@@ -45,7 +49,7 @@ export const LeaderboardScreen = ({ onBack, playClick, t }) => {
               }}
               className="w-full btn-moroccan-secondary py-3 rounded-xl font-bold text-sm cursor-pointer active:scale-95 transition-transform"
             >
-              {t('backToMenu') || 'Back to Main Menu'}
+              {backButtonLabel}
             </button>
           </div>
         </div>

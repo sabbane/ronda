@@ -126,8 +126,12 @@ const App = () => {
 
   const [showUsernameModal, setShowUsernameModal] = useState(false);
   const [pendingTargetMode, setPendingTargetMode] = useState(null);
+  const [leaderboardPreviousMode, setLeaderboardPreviousMode] = useState(null);
 
   const handleRequireUsername = (targetMode) => {
+    if (targetMode === 'leaderboard') {
+      setLeaderboardPreviousMode(null);
+    }
     setPendingTargetMode(targetMode);
     setShowUsernameModal(true);
   };
@@ -202,6 +206,7 @@ const App = () => {
             setError(null);
           }}
           onOpenLeaderboard={() => {
+            setLeaderboardPreviousMode('challenge_menu');
             setMode('leaderboard');
           }}
           onStartChallenge={(chId) => {
@@ -224,8 +229,10 @@ const App = () => {
         <LeaderboardScreen
           t={t}
           playClick={playClick}
+          previousMode={leaderboardPreviousMode}
           onBack={() => {
-            setMode(null);
+            setMode(leaderboardPreviousMode || null);
+            setLeaderboardPreviousMode(null);
             setError(null);
           }}
         />
