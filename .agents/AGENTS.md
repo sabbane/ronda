@@ -29,6 +29,13 @@ Whenever the user requests to create or bump a version (e.g., "Erstelle die Vers
    `git push -u origin release/<version> -o merge_request.create -o merge_request.title="chore: bump version to <version>" -o merge_request.description="Version release <version>"`
 4. **Switch Back to Main**: Switch back to the `main` branch: `git checkout main`.
 
+# Production Readiness, Infrastructure & Data Safety Rules
+- **Production-First Mindset**: Always assume the application is destined for real-world production deployment (e.g., cloud hosting, Docker containers, multi-tenant web portals like PlayGama/CrazyGames, and `playronda.ma`).
+- **Proactive Infrastructure & Architecture Warnings**:
+  - Whenever proposing or implementing architectural components (such as data persistence, caching, session management, or state storage), you MUST proactively analyze and highlight production risks to the user (e.g., ephemeral container storage in Docker/Railway, concurrent write race conditions, scaling limits).
+  - NEVER silently default to temporary or risky development shortcuts (like unpersisted local JSON files for critical user/leaderboard data) without explicitly warning the user and presenting production-grade alternatives (e.g., PostgreSQL, SQLite with persistent volumes, Redis).
+- **Container & Ephemeral Storage Awareness**: Always account for container lifecycles where local file systems are wiped on redeploy/restart. Ensure all persistent application data (user profiles, scores, match history) is safely decoupled from the ephemeral container filesystem.
+
 
 
 # Development Rules
