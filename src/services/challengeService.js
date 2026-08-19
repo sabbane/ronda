@@ -1,7 +1,9 @@
 import { CHALLENGES } from '../game/challenges';
+import { platformBridge } from './platformBridge';
 
 const USERNAME_KEY = 'ronda_singleplayer_username';
 const PROGRESS_KEY = 'ronda_challenge_progress';
+const PLAYER_ID_KEY = 'ronda_player_id';
 
 const getApiUrl = () => {
   if (typeof window === 'undefined') return 'http://localhost:8000';
@@ -11,6 +13,16 @@ const getApiUrl = () => {
 };
 
 export const challengeService = {
+  getPlayerId: () => {
+    if (typeof localStorage === 'undefined' || !localStorage) return 'guest_dev';
+    let id = localStorage.getItem(PLAYER_ID_KEY);
+    if (!id) {
+      id = `usr_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 8)}`;
+      localStorage.setItem(PLAYER_ID_KEY, id);
+    }
+    return id;
+  },
+
   getUsername: () => {
     if (typeof localStorage === 'undefined' || !localStorage) return '';
     return localStorage.getItem(USERNAME_KEY) || '';
@@ -21,6 +33,9 @@ export const challengeService = {
     const trimmed = (name || '').trim();
     if (trimmed) {
       localStorage.setItem(USERNAME_KEY, trimmed);
+      const playerId = challengeService.getPlayerId();
+      const progress = challengeService.getProgress();
+      platformBridge.savePlayer(playerId, trimmed, progress);
     }
   },
 
@@ -47,6 +62,9 @@ export const challengeService = {
     if (typeof localStorage === 'undefined' || !localStorage) return;
     try {
       localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+      const playerId = challengeService.getPlayerId();
+      const username = challengeService.getUsername();
+      platformBridge.savePlayer(playerId, username, progress);
     } catch (e) {
       console.error('[ChallengeService] Failed to save progress:', e);
     }
@@ -117,7 +135,6 @@ export const challengeService = {
     const meetsRequirements = challenge.requirement(matchStats);
 
     if (meetsRequirements) {
-      // 1-hour cooldown upon win
       progress.cooldowns = { ...(progress.cooldowns || {}), [challengeId]: Date.now() + 60 * 60 * 1000 };
 
       if (!isAlreadyCompleted) {
@@ -142,6 +159,32 @@ export const challengeService = {
     if (!expireTime) return 0;
     const remainingMs = expireTime - Date.now();
     return remainingMs > 0 ? Math.ceil(remainingMs / 1000) : 0;
+  },
+
+  generateTransferCode: async () => {
+    const playerId = challengeService.getPlayerId();
+    return await platformBridge.generateTransferCode(playerId);
+  },
+
+  claimTransferCode: async (code) => {
+    const res = await platformBridge.claimTransferCode(code);
+    if (res?.ok && res.player) {
+      const p = res.player;
+      if (typeof localStorage !== 'undefined' && localStorage) {
+        localStorage.setItem(PLAYER_ID_KEY, p.id);
+        if (p.username) localStorage.setItem(USERNAME_KEY, p.username);
+        const progress = {
+          completed: p.completed || [],
+          totalPoints: p.totalPoints || 0,
+          freePlayWins: p.freePlayWins || 0,
+          multiplayerWins: p.multiplayerWins || 0,
+          cooldowns: p.cooldowns || {}
+        };
+        localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+      }
+      return { ok: true, player: p };
+    }
+    return { ok: false, error: res?.error || 'Invalid code' };
   },
 
   sendLeaderboardScore: async (username, pointsToAdd, source) => {

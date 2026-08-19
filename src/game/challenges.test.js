@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { CHALLENGES, getChallengeById } from './challenges';
 import { challengeService } from '../services/challengeService';
+import { platformBridge } from '../services/platformBridge';
 
 let memoryStore = {};
 
@@ -48,6 +49,20 @@ describe('Challenges Evaluation Logic', () => {
     expect(ch2.requirement({ didIWin: true, myScore: 15, oppScore: 10 })).toBe(false);
     // Lost
     expect(ch2.requirement({ didIWin: false, myScore: 5, oppScore: 15 })).toBe(false);
+  });
+});
+
+describe('PlatformBridge & Cloud Save', () => {
+  it('detects standalone platform in standard web environment', () => {
+    expect(platformBridge.getPlatformName()).toBe('standalone');
+  });
+
+  it('generates persistent unique player ID for auto-guest profile', () => {
+    mockLocalStorage.clear();
+    const id1 = challengeService.getPlayerId();
+    expect(id1).toMatch(/^usr_/);
+    const id2 = challengeService.getPlayerId();
+    expect(id2).toBe(id1);
   });
 });
 

@@ -52,6 +52,27 @@ const saveLeaderboard = () => {
   }
 };
 
+const playersPath = path.join(scratchDir, 'players.json');
+let playersData = {};
+try {
+  if (fs.existsSync(playersPath)) {
+    playersData = JSON.parse(fs.readFileSync(playersPath, 'utf8'));
+    if (!playersData || typeof playersData !== 'object') playersData = {};
+  }
+} catch (err) {
+  console.error('[Players] Failed to load database:', err);
+}
+
+const savePlayers = () => {
+  try {
+    fs.writeFileSync(playersPath, JSON.stringify(playersData, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Players] Failed to save database:', err);
+  }
+};
+
+const transferCodes = {};
+
 const getBody = (ctx) => {
   if (ctx.request.body) return ctx.request.body;
   return new Promise((resolve) => {
@@ -880,6 +901,113 @@ server.router.get('/api/leaderboard', async (ctx) => {
     }
 
     ctx.body = { ok: true, period, monthKey, entries: entries.slice(0, 20) };
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { ok: false, error: String(err) };
+  }
+});
+
+server.router.post('/api/player/sync', async (ctx) => {
+  try {
+    const body = await getBody(ctx);
+    const { playerId, username, platform, data } = body;
+    if (!playerId) {
+      ctx.status = 400;
+      ctx.body = { ok: false, error: 'Missing playerId' };
+      return;
+    }
+    const now = new Date().toISOString();
+    const existing = playersData[playerId] || {
+      id: playerId,
+      username: username || '',
+      totalPoints: 0,
+      freePlayWins: 0,
+      multiplayerWins: 0,
+      completed: [],
+      cooldowns: {},
+      platform: platform || 'standalone',
+      createdAt: now
+    };
+
+    if (username) existing.username = username;
+    if (platform) existing.platform = platform;
+    if (data) {
+      if (typeof data.totalPoints === 'number') existing.totalPoints = data.totalPoints;
+      if (typeof data.freePlayWins === 'number') existing.freePlayWins = data.freePlayWins;
+      if (typeof data.multiplayerWins === 'number') existing.multiplayerWins = data.multiplayerWins;
+      if (Array.isArray(data.completed)) existing.completed = data.completed;
+      if (data.cooldowns && typeof data.cooldowns === 'object') existing.cooldowns = data.cooldowns;
+    }
+    existing.updatedAt = now;
+    playersData[playerId] = existing;
+    savePlayers();
+    ctx.body = { ok: true, player: existing };
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { ok: false, error: String(err) };
+  }
+});
+
+server.router.get('/api/player/:id', async (ctx) => {
+  try {
+    const { id } = ctx.params;
+    const player = playersData[id];
+    if (!player) {
+      ctx.status = 404;
+      ctx.body = { ok: false, error: 'Player not found' };
+      return;
+    }
+    ctx.body = { ok: true, player };
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { ok: false, error: String(err) };
+  }
+});
+
+server.router.post('/api/player/transfer/generate', async (ctx) => {
+  try {
+    const body = await getBody(ctx);
+    const { playerId } = body;
+    if (!playerId || !playersData[playerId]) {
+      ctx.status = 400;
+      ctx.body = { ok: false, error: 'Invalid playerId' };
+      return;
+    }
+    const randomDigits = Math.floor(100000 + Math.random() * 900000);
+    const code = `RND-${randomDigits}`;
+    const expiresAt = Date.now() + 15 * 60 * 1000;
+    transferCodes[code] = { playerId, expiresAt };
+    ctx.body = { ok: true, code, expiresAt };
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { ok: false, error: String(err) };
+  }
+});
+
+server.router.post('/api/player/transfer/claim', async (ctx) => {
+  try {
+    const body = await getBody(ctx);
+    const { code } = body;
+    if (!code || !transferCodes[code]) {
+      ctx.status = 400;
+      ctx.body = { ok: false, error: 'Invalid or expired code' };
+      return;
+    }
+    const item = transferCodes[code];
+    if (Date.now() > item.expiresAt) {
+      delete transferCodes[code];
+      ctx.status = 400;
+      ctx.body = { ok: false, error: 'Code expired' };
+      return;
+    }
+    const player = playersData[item.playerId];
+    if (!player) {
+      ctx.status = 404;
+      ctx.body = { ok: false, error: 'Player data not found' };
+      return;
+    }
+    delete transferCodes[code];
+    ctx.body = { ok: true, player };
   } catch (err) {
     ctx.status = 500;
     ctx.body = { ok: false, error: String(err) };
