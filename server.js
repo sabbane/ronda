@@ -32,46 +32,7 @@ const saveAnalytics = () => {
   }
 };
 
-const leaderboardPath = path.join(scratchDir, 'leaderboard.json');
-let leaderboardData = { monthly: {}, alltime: [] };
-try {
-  if (fs.existsSync(leaderboardPath)) {
-    leaderboardData = JSON.parse(fs.readFileSync(leaderboardPath, 'utf8'));
-    if (!leaderboardData.monthly) leaderboardData.monthly = {};
-    if (!Array.isArray(leaderboardData.alltime)) leaderboardData.alltime = [];
-  }
-} catch (err) {
-  console.error('[Leaderboard] Failed to load database:', err);
-}
-
-const saveLeaderboard = () => {
-  try {
-    fs.writeFileSync(leaderboardPath, JSON.stringify(leaderboardData, null, 2), 'utf8');
-  } catch (err) {
-    console.error('[Leaderboard] Failed to save database:', err);
-  }
-};
-
-const playersPath = path.join(scratchDir, 'players.json');
-let playersData = {};
-try {
-  if (fs.existsSync(playersPath)) {
-    playersData = JSON.parse(fs.readFileSync(playersPath, 'utf8'));
-    if (!playersData || typeof playersData !== 'object') playersData = {};
-  }
-} catch (err) {
-  console.error('[Players] Failed to load database:', err);
-}
-
-const savePlayers = () => {
-  try {
-    fs.writeFileSync(playersPath, JSON.stringify(playersData, null, 2), 'utf8');
-  } catch (err) {
-    console.error('[Players] Failed to save database:', err);
-  }
-};
-
-const transferCodes = {};
+import { dbService, initDatabase } from './db.js';
 
 const getBody = (ctx) => {
   if (ctx.request.body) return ctx.request.body;
@@ -857,30 +818,8 @@ server.router.post('/api/leaderboard/submit', async (ctx) => {
       ctx.body = { ok: false, error: 'Invalid payload' };
       return;
     }
-
-    const now = new Date();
-    const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-
-    if (!leaderboardData.monthly[monthKey]) {
-      leaderboardData.monthly[monthKey] = [];
-    }
-
-    const updateList = (list) => {
-      const existing = list.find(entry => entry.username.toLowerCase() === username.toLowerCase());
-      if (existing) {
-        existing.points = Math.max(0, (existing.points || 0) + pointsToAdd);
-        existing.updatedAt = now.toISOString();
-      } else if (pointsToAdd > 0) {
-        list.push({ username, points: pointsToAdd, updatedAt: now.toISOString() });
-      }
-      list.sort((a, b) => b.points - a.points);
-    };
-
-    updateList(leaderboardData.monthly[monthKey]);
-    updateList(leaderboardData.alltime);
-    saveLeaderboard();
-
-    ctx.body = { ok: true };
+    const res = await dbService.submitLeaderboardScore(username, pointsToAdd);
+    ctx.body = res;
   } catch (err) {
     ctx.status = 500;
     ctx.body = { ok: false, error: String(err) };
@@ -890,17 +829,8 @@ server.router.post('/api/leaderboard/submit', async (ctx) => {
 server.router.get('/api/leaderboard', async (ctx) => {
   try {
     const period = ctx.query.period || 'monthly';
-    const now = new Date();
-    const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-
-    let entries = [];
-    if (period === 'monthly') {
-      entries = leaderboardData.monthly[monthKey] || [];
-    } else {
-      entries = leaderboardData.alltime || [];
-    }
-
-    ctx.body = { ok: true, period, monthKey, entries: entries.slice(0, 20) };
+    const res = await dbService.getLeaderboard(period);
+    ctx.body = res;
   } catch (err) {
     ctx.status = 500;
     ctx.body = { ok: false, error: String(err) };
@@ -916,32 +846,8 @@ server.router.post('/api/player/sync', async (ctx) => {
       ctx.body = { ok: false, error: 'Missing playerId' };
       return;
     }
-    const now = new Date().toISOString();
-    const existing = playersData[playerId] || {
-      id: playerId,
-      username: username || '',
-      totalPoints: 0,
-      freePlayWins: 0,
-      multiplayerWins: 0,
-      completed: [],
-      cooldowns: {},
-      platform: platform || 'standalone',
-      createdAt: now
-    };
-
-    if (username) existing.username = username;
-    if (platform) existing.platform = platform;
-    if (data) {
-      if (typeof data.totalPoints === 'number') existing.totalPoints = data.totalPoints;
-      if (typeof data.freePlayWins === 'number') existing.freePlayWins = data.freePlayWins;
-      if (typeof data.multiplayerWins === 'number') existing.multiplayerWins = data.multiplayerWins;
-      if (Array.isArray(data.completed)) existing.completed = data.completed;
-      if (data.cooldowns && typeof data.cooldowns === 'object') existing.cooldowns = data.cooldowns;
-    }
-    existing.updatedAt = now;
-    playersData[playerId] = existing;
-    savePlayers();
-    ctx.body = { ok: true, player: existing };
+    const player = await dbService.syncPlayer(playerId, username, platform, data);
+    ctx.body = { ok: true, player };
   } catch (err) {
     ctx.status = 500;
     ctx.body = { ok: false, error: String(err) };
@@ -951,7 +857,7 @@ server.router.post('/api/player/sync', async (ctx) => {
 server.router.get('/api/player/:id', async (ctx) => {
   try {
     const { id } = ctx.params;
-    const player = playersData[id];
+    const player = await dbService.getPlayer(id);
     if (!player) {
       ctx.status = 404;
       ctx.body = { ok: false, error: 'Player not found' };
@@ -968,16 +874,13 @@ server.router.post('/api/player/transfer/generate', async (ctx) => {
   try {
     const body = await getBody(ctx);
     const { playerId } = body;
-    if (!playerId || !playersData[playerId]) {
+    if (!playerId) {
       ctx.status = 400;
       ctx.body = { ok: false, error: 'Invalid playerId' };
       return;
     }
-    const randomDigits = Math.floor(100000 + Math.random() * 900000);
-    const code = `RND-${randomDigits}`;
-    const expiresAt = Date.now() + 15 * 60 * 1000;
-    transferCodes[code] = { playerId, expiresAt };
-    ctx.body = { ok: true, code, expiresAt };
+    const res = await dbService.generateTransferCode(playerId);
+    ctx.body = res;
   } catch (err) {
     ctx.status = 500;
     ctx.body = { ok: false, error: String(err) };
@@ -988,25 +891,17 @@ server.router.post('/api/player/transfer/claim', async (ctx) => {
   try {
     const body = await getBody(ctx);
     const { code } = body;
-    if (!code || !transferCodes[code]) {
+    if (!code) {
+      ctx.status = 400;
+      ctx.body = { ok: false, error: 'Missing code' };
+      return;
+    }
+    const player = await dbService.claimTransferCode(code);
+    if (!player) {
       ctx.status = 400;
       ctx.body = { ok: false, error: 'Invalid or expired code' };
       return;
     }
-    const item = transferCodes[code];
-    if (Date.now() > item.expiresAt) {
-      delete transferCodes[code];
-      ctx.status = 400;
-      ctx.body = { ok: false, error: 'Code expired' };
-      return;
-    }
-    const player = playersData[item.playerId];
-    if (!player) {
-      ctx.status = 404;
-      ctx.body = { ok: false, error: 'Player data not found' };
-      return;
-    }
-    delete transferCodes[code];
     ctx.body = { ok: true, player };
   } catch (err) {
     ctx.status = 500;
@@ -1024,7 +919,8 @@ const startMatchmakingMonitor = (port) => {
 };
 
 const PORT = process.env.PORT || 8000;
-server.run(PORT, () => {
+server.run(PORT, async () => {
   console.log(`Backend server running on port ${PORT}...`);
+  await initDatabase();
   startMatchmakingMonitor(PORT);
 });
