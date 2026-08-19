@@ -32,6 +32,26 @@ const saveAnalytics = () => {
   }
 };
 
+const leaderboardPath = path.join(scratchDir, 'leaderboard.json');
+let leaderboardData = { monthly: {}, alltime: [] };
+try {
+  if (fs.existsSync(leaderboardPath)) {
+    leaderboardData = JSON.parse(fs.readFileSync(leaderboardPath, 'utf8'));
+    if (!leaderboardData.monthly) leaderboardData.monthly = {};
+    if (!Array.isArray(leaderboardData.alltime)) leaderboardData.alltime = [];
+  }
+} catch (err) {
+  console.error('[Leaderboard] Failed to load database:', err);
+}
+
+const saveLeaderboard = () => {
+  try {
+    fs.writeFileSync(leaderboardPath, JSON.stringify(leaderboardData, null, 2), 'utf8');
+  } catch (err) {
+    console.error('[Leaderboard] Failed to save database:', err);
+  }
+};
+
 const getBody = (ctx) => {
   if (ctx.request.body) return ctx.request.body;
   return new Promise((resolve) => {
@@ -801,6 +821,65 @@ server.router.get('/api/analytics/stats', async (ctx) => {
       },
       trends
     };
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { ok: false, error: String(err) };
+  }
+});
+
+server.router.post('/api/leaderboard/submit', async (ctx) => {
+  try {
+    const body = await getBody(ctx);
+    const { username, pointsToAdd } = body;
+    if (!username || typeof pointsToAdd !== 'number' || pointsToAdd === 0) {
+      ctx.status = 400;
+      ctx.body = { ok: false, error: 'Invalid payload' };
+      return;
+    }
+
+    const now = new Date();
+    const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    if (!leaderboardData.monthly[monthKey]) {
+      leaderboardData.monthly[monthKey] = [];
+    }
+
+    const updateList = (list) => {
+      const existing = list.find(entry => entry.username.toLowerCase() === username.toLowerCase());
+      if (existing) {
+        existing.points = Math.max(0, (existing.points || 0) + pointsToAdd);
+        existing.updatedAt = now.toISOString();
+      } else if (pointsToAdd > 0) {
+        list.push({ username, points: pointsToAdd, updatedAt: now.toISOString() });
+      }
+      list.sort((a, b) => b.points - a.points);
+    };
+
+    updateList(leaderboardData.monthly[monthKey]);
+    updateList(leaderboardData.alltime);
+    saveLeaderboard();
+
+    ctx.body = { ok: true };
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { ok: false, error: String(err) };
+  }
+});
+
+server.router.get('/api/leaderboard', async (ctx) => {
+  try {
+    const period = ctx.query.period || 'monthly';
+    const now = new Date();
+    const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    let entries = [];
+    if (period === 'monthly') {
+      entries = leaderboardData.monthly[monthKey] || [];
+    } else {
+      entries = leaderboardData.alltime || [];
+    }
+
+    ctx.body = { ok: true, period, monthKey, entries: entries.slice(0, 20) };
   } catch (err) {
     ctx.status = 500;
     ctx.body = { ok: false, error: String(err) };

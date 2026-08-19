@@ -12,6 +12,10 @@ import { MainMenu } from './components/MainMenu';
 import { useLobby } from './hooks/useLobby';
 import { Splashscreen } from './components/Splashscreen';
 import { StatsDashboard } from './components/StatsDashboard';
+import { UsernameModal } from './components/UsernameModal';
+import { ChallengeMenu } from './components/ChallengeMenu';
+import { LeaderboardScreen } from './components/LeaderboardScreen';
+import { challengeService } from './services/challengeService';
 
 if (typeof window !== 'undefined') {
   window.isRondaBotGame = true;
@@ -120,6 +124,29 @@ const App = () => {
     return true;
   });
 
+  const [showUsernameModal, setShowUsernameModal] = useState(false);
+  const [pendingTargetMode, setPendingTargetMode] = useState(null);
+  const [leaderboardPreviousMode, setLeaderboardPreviousMode] = useState(null);
+
+  const handleRequireUsername = (targetMode) => {
+    if (targetMode === 'leaderboard') {
+      setLeaderboardPreviousMode(null);
+    }
+    setPendingTargetMode(targetMode);
+    setShowUsernameModal(true);
+  };
+
+  const handleUsernameSubmit = (name) => {
+    challengeService.setUsername(name);
+    setShowUsernameModal(false);
+    if (pendingTargetMode) {
+      if (pendingTargetMode === 'bot') {
+        window.activeRondaChallengeId = null;
+      }
+      setMode(pendingTargetMode);
+    }
+  };
+
   useEffect(() => {
     if (!showSplash) {
       enableBGM();
@@ -168,41 +195,103 @@ const App = () => {
       />
     );
   }
+  if (mode === 'challenge_menu') {
+    return (
+      <>
+        <ChallengeMenu
+          t={t}
+          playClick={playClick}
+          onBack={() => {
+            setMode(null);
+            setError(null);
+          }}
+          onOpenLeaderboard={() => {
+            setLeaderboardPreviousMode('challenge_menu');
+            setMode('leaderboard');
+          }}
+          onStartChallenge={(chId) => {
+            window.activeRondaChallengeId = chId;
+            setMode('bot');
+          }}
+        />
+        <UsernameModal
+          isOpen={showUsernameModal}
+          t={t}
+          onSubmit={handleUsernameSubmit}
+        />
+      </>
+    );
+  }
+
+  if (mode === 'leaderboard') {
+    return (
+      <>
+        <LeaderboardScreen
+          t={t}
+          playClick={playClick}
+          previousMode={leaderboardPreviousMode}
+          onBack={() => {
+            setMode(leaderboardPreviousMode || null);
+            setLeaderboardPreviousMode(null);
+            setError(null);
+          }}
+        />
+        <UsernameModal
+          isOpen={showUsernameModal}
+          t={t}
+          onSubmit={handleUsernameSubmit}
+        />
+      </>
+    );
+  }
 
   if (!mode) {
     return (
-      <MainMenu
-        language={language}
-        changeLanguage={changeLanguage}
-        t={t}
-        isMuted={isMuted}
-        toggleMute={toggleMute}
-        playClick={playClick}
-        currentTrack={currentTrack}
-        tracks={tracks}
-        nextTrack={nextTrack}
-        nickname={nickname}
-        setNickname={setNickname}
-        multiplayerAction={multiplayerAction}
-        setMultiplayerAction={setMultiplayerAction}
-        isPrivate={isPrivate}
-        setIsPrivate={setIsPrivate}
-        maxPlayers={maxPlayers}
-        setMaxPlayers={setMaxPlayers}
-        joinMode={joinMode}
-        setJoinMode={setJoinMode}
-        joinRoomId={joinRoomId}
-        setJoinRoomId={setJoinRoomId}
-        publicRooms={publicRooms}
-        fetchPublicRooms={fetchPublicRooms}
-        isLoadingRooms={isLoadingRooms}
-        error={error}
-        setError={setError}
-        isCheckingRoom={isCheckingRoom}
-        handleCreateRoom={handleCreateRoom}
-        handleJoinRoom={handleJoinRoom}
-        setMode={setMode}
-      />
+      <>
+        <MainMenu
+          language={language}
+          changeLanguage={changeLanguage}
+          t={t}
+          isMuted={isMuted}
+          toggleMute={toggleMute}
+          playClick={playClick}
+          currentTrack={currentTrack}
+          tracks={tracks}
+          nextTrack={nextTrack}
+          nickname={nickname}
+          setNickname={setNickname}
+          multiplayerAction={multiplayerAction}
+          setMultiplayerAction={setMultiplayerAction}
+          isPrivate={isPrivate}
+          setIsPrivate={setIsPrivate}
+          maxPlayers={maxPlayers}
+          setMaxPlayers={setMaxPlayers}
+          joinMode={joinMode}
+          setJoinMode={setJoinMode}
+          joinRoomId={joinRoomId}
+          setJoinRoomId={setJoinRoomId}
+          publicRooms={publicRooms}
+          fetchPublicRooms={fetchPublicRooms}
+          isLoadingRooms={isLoadingRooms}
+          error={error}
+          setError={setError}
+          isCheckingRoom={isCheckingRoom}
+          handleCreateRoom={handleCreateRoom}
+          handleJoinRoom={handleJoinRoom}
+          setMode={(targetMode) => {
+            if (targetMode === 'bot') {
+              window.activeRondaChallengeId = null;
+            }
+            setMode(targetMode);
+          }}
+          onRequireUsername={handleRequireUsername}
+        />
+        <UsernameModal
+          isOpen={showUsernameModal}
+          t={t}
+          onSubmit={handleUsernameSubmit}
+        />
+      </>
     );
   }
 

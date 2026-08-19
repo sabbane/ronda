@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { adService } from '../services/AdService';
+import { challengeService } from '../services/challengeService';
 
 export const GameOverDisplay = ({
   showGameOverOverlay,
@@ -20,6 +21,86 @@ export const GameOverDisplay = ({
   G,
   playerID,
 }) => {
+  const [singleplayerBanner, setSingleplayerBanner] = useState(null);
+
+  useEffect(() => {
+    if (!showGameOverOverlay || !G) {
+      setSingleplayerBanner(null);
+      return;
+    }
+
+    let isMounted = true;
+    const activeChallengeId = typeof window !== 'undefined' ? window.activeRondaChallengeId : null;
+
+    const processOutcome = async () => {
+      const matchStats = {
+        didIWin: !!didIWin,
+        myScore: myTeamScore || 0,
+        oppScore: oppTeamScore || 0
+      };
+
+      if (G.isBotGame) {
+        if (activeChallengeId) {
+          const res = await challengeService.submitChallengeResult(activeChallengeId, matchStats);
+          if (res.completedNow && isMounted) {
+            setSingleplayerBanner({
+              type: 'success',
+              text: t('challengeCompletedPoints', { points: res.pointsEarned }) || `🎯 Challenge Completed! +${res.pointsEarned} Pts`
+            });
+          } else if (!didIWin && isMounted) {
+            setSingleplayerBanner({
+              type: 'fail',
+              text: t('challengeFailed') || 'Challenge Failed. Try again!'
+            });
+          }
+        } else if (didIWin) {
+          await challengeService.submitFreePlayWin();
+          if (isMounted) {
+            setSingleplayerBanner({
+              type: 'freeplay',
+              text: t('freePlayWinPoints') || '🏆 +5 Pts added to Leaderboard!'
+            });
+          }
+        } else {
+          await challengeService.submitFreePlayLoss();
+          if (isMounted) {
+            setSingleplayerBanner({
+              type: 'fail',
+              text: t('freePlayLossPoints') || '-1 Pt on Leaderboard'
+            });
+          }
+        }
+      } else if (didIWin) {
+        const numP = G.players ? Object.keys(G.players).length : 2;
+        await challengeService.submitMultiplayerWin(numP);
+        if (isMounted) {
+          const bannerText = numP === 4
+            ? (t('multiplayer4pWinPoints') || '🏆 +20 Pts added to Leaderboard!')
+            : (t('multiplayer2pWinPoints') || '🏆 +10 Pts added to Leaderboard!');
+          setSingleplayerBanner({
+            type: 'multiplayer',
+            text: bannerText
+          });
+        }
+      } else {
+        const numP = G.players ? Object.keys(G.players).length : 2;
+        await challengeService.submitMultiplayerLoss(numP);
+        if (isMounted) {
+          const bannerText = numP === 4
+            ? (t('multiplayer4pLossPoints') || '-4 Pts on Leaderboard')
+            : (t('multiplayer2pLossPoints') || '-2 Pts on Leaderboard');
+          setSingleplayerBanner({
+            type: 'fail',
+            text: bannerText
+          });
+        }
+      }
+    };
+
+    processOutcome();
+    return () => { isMounted = false; };
+  }, [showGameOverOverlay, G, didIWin, myTeamScore, oppTeamScore, t]);
+
   const handleRestartGame = () => {
     playClick();
     adService.showInterstitial({
@@ -262,6 +343,22 @@ export const GameOverDisplay = ({
                   </span>
                 </div>
               </div>
+
+              {singleplayerBanner && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`mt-4 p-3.5 rounded-2xl border font-bold text-sm text-center shadow-lg ${
+                    singleplayerBanner.type === 'success'
+                      ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+                      : singleplayerBanner.type === 'fail'
+                      ? 'bg-rose-500/20 border-rose-500/40 text-rose-300'
+                      : 'bg-amber-500/20 border-amber-500/40 text-amber-300'
+                  }`}
+                >
+                  {singleplayerBanner.text}
+                </motion.div>
+              )}
 
               {challengeData && (
                 <motion.div 

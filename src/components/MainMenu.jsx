@@ -1,4 +1,6 @@
+import { useState, useEffect } from 'react';
 import { Volume2, VolumeX, Music } from 'lucide-react';
+import { challengeService } from '../services/challengeService';
 
 const MainMenuBackdrop = () => (
   <>
@@ -55,13 +57,82 @@ export const MainMenu = ({
   handleCreateRoom,
   handleJoinRoom,
   setMode,
+  onRequireUsername,
 }) => {
+  const [playerInfo, setPlayerInfo] = useState({ username: '', points: 0, rank: null });
+
+  useEffect(() => {
+    const username = challengeService.getUsername();
+    const progress = challengeService.getProgress();
+    setPlayerInfo(prev => ({
+      ...prev,
+      username,
+      points: progress.totalPoints || 0
+    }));
+
+    if (username) {
+      challengeService.fetchPlayerRank(username).then(info => {
+        setPlayerInfo({
+          username,
+          points: info.points || progress.totalPoints || 0,
+          rank: info.rank
+        });
+      });
+    }
+  }, []);
+
+  const getRankDisplay = () => {
+    if (!playerInfo.rank) {
+      return playerInfo.points > 0 ? `🏆 ${playerInfo.points} Pts` : `🏆 0 Pts`;
+    }
+    if (playerInfo.rank === 1) return `🥇 ${playerInfo.points} Pts`;
+    if (playerInfo.rank === 2) return `🥈 ${playerInfo.points} Pts`;
+    if (playerInfo.rank === 3) return `🥉 ${playerInfo.points} Pts`;
+    return `🏆 #${playerInfo.rank} • ${playerInfo.points} Pts`;
+  };
+
+  const handleSinglePlayerChoice = (targetMode) => {
+    if (targetMode === 'bot') {
+      setMode('bot');
+      return;
+    }
+    const username = challengeService.getUsername();
+    if (!username && onRequireUsername) {
+      onRequireUsername(targetMode);
+    } else {
+      setMode(targetMode);
+    }
+  };
   return (
     <div className="min-h-screen flex flex-col items-center text-white relative overflow-hidden overflow-y-auto bg-slate-900">
       <MainMenuBackdrop />
       <div className="flex-1 flex flex-col w-full items-center justify-center p-4 z-30 pt-4 pb-8 menu-container">
         <div className="p-6 sm:p-8 rounded-3xl shadow-[0_0_60px_rgba(30,58,138,0.35)] border-2 border-amber-400/30 text-center max-w-lg w-full relative menu-card flex flex-col justify-between min-h-[82vh] sm:min-h-0" style={{backgroundColor: 'rgba(30, 58, 138, 0.7)'}}>
-          <h1 className="text-7xl font-black mb-4 text-[#D69E2E] tracking-tighter drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)] menu-logo">{t('logo')}</h1>
+          <h1 className="text-7xl font-black mb-3 text-[#D69E2E] tracking-tighter drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)] menu-logo">{t('logo')}</h1>
+
+          {/* Clickable Score & Rank Badge */}
+          <button
+            onClick={() => {
+              playClick();
+              const username = challengeService.getUsername();
+              if (!username && onRequireUsername) {
+                onRequireUsername('leaderboard');
+              } else {
+                setMode('leaderboard');
+              }
+            }}
+            className="mb-4 mx-auto px-4 py-2 rounded-2xl bg-black/40 hover:bg-black/60 border border-amber-400/30 hover:border-amber-400/60 shadow-lg flex items-center gap-3 transition-all active:scale-95 cursor-pointer backdrop-blur-md"
+            title={t('viewLeaderboard') || 'Click to view Leaderboard'}
+          >
+            <div className="flex items-center gap-1.5 text-xs font-bold text-white max-w-[140px] truncate">
+              <span className="text-amber-300">👤</span>
+              <span>{playerInfo.username || t('player') || 'Player'}</span>
+            </div>
+            <div className="w-px h-4 bg-white/20" />
+            <div className="font-mono text-xs font-extrabold text-amber-300 flex items-center gap-1">
+              <span>{getRankDisplay()}</span>
+            </div>
+          </button>
 
            {/* Language & Sound Selector in Center */}
           <div className="flex flex-col items-center gap-3 mb-8 menu-selectors" dir="ltr">
@@ -120,13 +191,19 @@ export const MainMenu = ({
             {multiplayerAction === null ? (
               <>
                 {/* Singleplayer Box */}
-                <div className="bg-black/30 p-6 rounded-2xl border border-amber-500/10 menu-box backdrop-blur-sm">
-                  <h2 className="text-sm font-extrabold mb-4 text-amber-200/90 uppercase tracking-widest">{t('singleplayer')}</h2>
+                <div className="bg-black/30 p-6 rounded-2xl border border-amber-500/10 menu-box backdrop-blur-sm flex flex-col gap-3">
+                  <h2 className="text-sm font-extrabold mb-1 text-amber-200/90 uppercase tracking-widest">{t('singleplayer')}</h2>
                   <button
-                    onClick={() => { playClick(); setMode('bot'); }}
-                    className="w-full btn-moroccan-gold px-6 py-4 rounded-xl font-bold text-lg cursor-pointer menu-btn-large"
+                    onClick={() => { playClick(); handleSinglePlayerChoice('bot'); }}
+                    className="w-full btn-moroccan-gold px-5 py-3 rounded-xl font-bold text-base cursor-pointer menu-btn-large"
                   >
                     {t('playVsBot')}
+                  </button>
+                  <button
+                    onClick={() => { playClick(); handleSinglePlayerChoice('challenge_menu'); }}
+                    className="w-full btn-moroccan-primary px-5 py-3 rounded-xl font-bold text-base cursor-pointer menu-btn-medium"
+                  >
+                    {t('challengesTab') || 'Challenges'}
                   </button>
                 </div>
 
