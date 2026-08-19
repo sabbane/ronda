@@ -1,8 +1,8 @@
 # Git and Deployment Rules
 - **Trunk-Based Development**: The `main` branch is the only long-lived branch. All development must occur on short-lived feature/topic branches created directly from `main`. The user handles merging MRs into `main`.
-- **Autonomous Commits**: Proactively commit meaningful, completed logical work packages autonomously on feature branches. Do not ask for user permission to stage, commit, or create branches. Keep secrets in `.env` files (which must be gitignored).
+- **Explicit User Permission for Commits & Pushes**: NEVER stage, commit, or push code changes autonomously. You are STRICTLY FORBIDDEN from executing git commit or git push commands unless the user explicitly requests it in the chat (e.g., "commit", "commite die Änderungen", or similar). Always leave changes uncommitted for user review. Keep secrets in `.env` files (which must be gitignored).
 - **Branch Creation & Naming**:
-  - Always verify you are on a feature branch before committing. If on `main`, autonomously create and switch to a new feature branch: `git checkout -b <category>/<short-description>`.
+  - Always verify you are on a feature branch before committing. If on `main`, create and switch to a new feature branch: `git checkout -b <category>/<short-description>`.
   - Format branch names as `<category>/<short-description>`. The category must match the dominant change type, and the short description must use kebab-case in English (e.g., `feat/new-challenges`, `fix/schedule-update`, `chore/compose-cleanup`).
 - **Conventional Commits**: Classify commits and branches using Conventional Commits:
   - `feat`: New functionality (new stack, service, feature)
@@ -16,10 +16,9 @@
   - `style`: Formatting changes that do not affect semantics
   - `chore`: Maintenance and other miscellaneous tasks
 - **Commit Messages**: Format messages as `<category>: <description>` (e.g., `docs: update documentation`). Commit messages should be written in English, in repository style, representing a logical unit of work.
-- **Automatic Push & Merge Requests**:
-  - Automatically push feature branches to the remote repository.
-  - Once a task/feature is complete, autonomously open a GitLab Merge Request via GitLab push options:
-    `git push -o merge_request.create -o merge_request.title="<category>: <description>" -o merge_request.description="<description>"`
+- **Push & Merge Requests upon Request**:
+  - Only when explicitly requested by the user, push feature branches to the remote repository and open a Merge Request if asked:
+    `git push -u origin <branch> -o merge_request.create -o merge_request.title="<category>: <description>" -o merge_request.description="<description>"`
 
 # Version Release Rules
 Whenever the user requests to create or bump a version (e.g., "Erstelle die Version 1.0.0-rc10", "release 1.0.0-rc10", or similar phrasing), you MUST strictly adhere to the following workflow:

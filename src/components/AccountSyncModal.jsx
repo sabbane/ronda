@@ -120,7 +120,7 @@ export const AccountSyncModal = ({ isOpen, onClose, t, playClick, onSyncSuccess 
                 disabled={isLoading}
                 className="w-full btn-moroccan-gold py-3 rounded-xl font-bold text-slate-900 cursor-pointer disabled:opacity-50"
               >
-                {isLoading ? (t('loading') || 'Loading...') : (t('generateTransferCode') || 'Generate Code')}
+                {isLoading ? (t('loadingLabel') || 'Loading...') : (t('generateTransferCode') || 'Generate Code')}
               </button>
             )}
           </div>
@@ -143,7 +143,7 @@ export const AccountSyncModal = ({ isOpen, onClose, t, playClick, onSyncSuccess 
               disabled={isLoading || !inputCode.trim()}
               className="w-full btn-moroccan-gold py-3 rounded-xl font-bold text-slate-900 cursor-pointer disabled:opacity-50"
             >
-              {isLoading ? (t('loading') || 'Loading...') : (t('restoreAccount') || 'Restore Account')}
+              {isLoading ? (t('loadingLabel') || 'Loading...') : (t('restoreAccount') || 'Restore Account')}
             </button>
           </form>
         )}
