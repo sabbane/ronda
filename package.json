@@ -23,6 +23,7 @@
     "boardgame.io": "^0.50.2",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.14.0",
+    "pg": "^8.23.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
   },

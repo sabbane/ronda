@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { CHALLENGES, getChallengeById } from './challenges';
 import { challengeService } from '../services/challengeService';
+import { platformBridge } from '../services/platformBridge';
 
 let memoryStore = {};
 
@@ -51,13 +52,27 @@ describe('Challenges Evaluation Logic', () => {
   });
 });
 
+describe('PlatformBridge & Cloud Save', () => {
+  it('detects standalone platform in standard web environment', () => {
+    expect(platformBridge.getPlatformName()).toBe('standalone');
+  });
+
+  it('generates persistent unique player ID for auto-guest profile', () => {
+    mockLocalStorage.clear();
+    const id1 = challengeService.getPlayerId();
+    expect(id1).toMatch(/^usr_/);
+    const id2 = challengeService.getPlayerId();
+    expect(id2).toBe(id1);
+  });
+});
+
 describe('ChallengeService Local Storage & Score Management', () => {
   beforeEach(() => {
     mockLocalStorage.clear();
   });
 
-  it('gets and sets permanent singleplayer username', () => {
-    expect(challengeService.getUsername()).toBe('');
+  it('gets and sets singleplayer username and display name', () => {
+    expect(challengeService.getUsername()).toBeDefined();
     challengeService.setUsername('AtlasKing');
     expect(challengeService.getUsername()).toBe('AtlasKing');
   });

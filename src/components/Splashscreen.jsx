@@ -197,13 +197,13 @@ export const Splashscreen = ({ onComplete }) => {
 
       // Dynamically update localized Moroccan-themed loading status based on progress
       if (currentPercent < 30) {
-        setStatusText(t('loading.cards') || 'Loading Medina cards...');
+        setStatusText(t('loading.cards') || 'Loading Ronda cards...');
       } else if (currentPercent < 60) {
         setStatusText(t('loading.sounds') || 'Tuning instruments...');
       } else if (currentPercent < 90) {
         setStatusText(t('loading.environment') || 'Preparing the Zellij table...');
       } else {
-        setStatusText(t('loading.complete') || 'Entering Medina...');
+        setStatusText(t('loading.complete') || 'Entering Game...');
       }
     };
 

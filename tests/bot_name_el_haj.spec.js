@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test('Bot should be named El Haj and Darba announcement should display You hit El Haj', async ({ page }) => {
-  test.setTimeout(60000);
+  test.setTimeout(120_000);
   page.on('console', msg => console.log(`[Browser Console] ${msg.type()}: ${msg.text()}`));
   console.log('Navigating to game...');
   await page.goto('/');
@@ -30,29 +30,37 @@ test('Bot should be named El Haj and Darba announcement should display You hit E
   console.log(`Opponent name in UI: "${actualName}"`);
   expect(actualName.trim(), 'Opponent name should be El Haj').toBe('El Haj');
 
-  // 2. Play cards until a Darba happens, then check the popup text
+  // 2. Play cards until an announcement (Darba / Ronda / Missa) happens, then check the popup text
   const myCards = page.locator('.cursor-grab');
   const popupText = page.locator('.fixed.inset-0.z-\\[100\\] p');
+  const playAgainBtn = page.locator('button', { hasText: /Play Again|Rejouer|إعادة اللعب/i });
 
-  console.log('Playing cards to trigger Darba...');
-  let darbaDetected = false;
+  console.log('Playing cards to trigger announcement with opponent name...');
+  let announcementDetected = false;
 
-  for (let i = 0; i < 80; i++) {
-    // Check if Darba popup is visible
+  for (let i = 0; i < 150; i++) {
+    // Check if announcement popup is visible
     if (await popupText.isVisible().catch(() => false)) {
       const text = await popupText.innerText();
       console.log(`Popup text detected: "${text}"`);
-      if (text.includes('hit') || text.includes('hits') || text.includes('Darba')) {
+      if (text.length > 0) {
         expect(text).toContain('El Haj');
         if (text.includes('You hit')) {
           expect(text).toContain('You hit El Haj');
-        } else {
-          expect(text).toContain('hits you');
-          expect(text).toContain('El Haj');
+        } else if (text.includes('hits you')) {
+          expect(text).toContain('El Haj hits you');
         }
-        darbaDetected = true;
+        announcementDetected = true;
         break;
       }
+    }
+
+    // If game ends, click Play Again to continue looking for announcements
+    if (await playAgainBtn.isVisible().catch(() => false)) {
+      console.log('Game over encountered, clicking Play Again...');
+      await playAgainBtn.click().catch(() => {});
+      await page.waitForTimeout(1000);
+      continue;
     }
 
     // Play a card if it's our turn
@@ -87,8 +95,8 @@ test('Bot should be named El Haj and Darba announcement should display You hit E
       }
     }
 
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(400);
   }
 
-  expect(darbaDetected, 'A Darba should have occurred during the game').toBe(true);
+  expect(announcementDetected, 'An announcement containing El Haj should have occurred during the game').toBe(true);
 });

@@ -32,25 +32,7 @@ const saveAnalytics = () => {
   }
 };
 
-const leaderboardPath = path.join(scratchDir, 'leaderboard.json');
-let leaderboardData = { monthly: {}, alltime: [] };
-try {
-  if (fs.existsSync(leaderboardPath)) {
-    leaderboardData = JSON.parse(fs.readFileSync(leaderboardPath, 'utf8'));
-    if (!leaderboardData.monthly) leaderboardData.monthly = {};
-    if (!Array.isArray(leaderboardData.alltime)) leaderboardData.alltime = [];
-  }
-} catch (err) {
-  console.error('[Leaderboard] Failed to load database:', err);
-}
-
-const saveLeaderboard = () => {
-  try {
-    fs.writeFileSync(leaderboardPath, JSON.stringify(leaderboardData, null, 2), 'utf8');
-  } catch (err) {
-    console.error('[Leaderboard] Failed to save database:', err);
-  }
-};
+import { dbService, initDatabase } from './db.js';
 
 const getBody = (ctx) => {
   if (ctx.request.body) return ctx.request.body;
@@ -830,36 +812,14 @@ server.router.get('/api/analytics/stats', async (ctx) => {
 server.router.post('/api/leaderboard/submit', async (ctx) => {
   try {
     const body = await getBody(ctx);
-    const { username, pointsToAdd } = body;
-    if (!username || typeof pointsToAdd !== 'number' || pointsToAdd === 0) {
+    const { playerId, displayName, discriminator, pointsToAdd } = body;
+    if (!playerId || typeof pointsToAdd !== 'number' || pointsToAdd === 0) {
       ctx.status = 400;
       ctx.body = { ok: false, error: 'Invalid payload' };
       return;
     }
-
-    const now = new Date();
-    const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-
-    if (!leaderboardData.monthly[monthKey]) {
-      leaderboardData.monthly[monthKey] = [];
-    }
-
-    const updateList = (list) => {
-      const existing = list.find(entry => entry.username.toLowerCase() === username.toLowerCase());
-      if (existing) {
-        existing.points = Math.max(0, (existing.points || 0) + pointsToAdd);
-        existing.updatedAt = now.toISOString();
-      } else if (pointsToAdd > 0) {
-        list.push({ username, points: pointsToAdd, updatedAt: now.toISOString() });
-      }
-      list.sort((a, b) => b.points - a.points);
-    };
-
-    updateList(leaderboardData.monthly[monthKey]);
-    updateList(leaderboardData.alltime);
-    saveLeaderboard();
-
-    ctx.body = { ok: true };
+    const res = await dbService.submitLeaderboardScore(playerId, displayName, discriminator, pointsToAdd);
+    ctx.body = res;
   } catch (err) {
     ctx.status = 500;
     ctx.body = { ok: false, error: String(err) };
@@ -869,17 +829,102 @@ server.router.post('/api/leaderboard/submit', async (ctx) => {
 server.router.get('/api/leaderboard', async (ctx) => {
   try {
     const period = ctx.query.period || 'monthly';
-    const now = new Date();
-    const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const res = await dbService.getLeaderboard(period);
+    ctx.body = res;
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { ok: false, error: String(err) };
+  }
+});
 
-    let entries = [];
-    if (period === 'monthly') {
-      entries = leaderboardData.monthly[monthKey] || [];
-    } else {
-      entries = leaderboardData.alltime || [];
+server.router.post('/api/player/name', async (ctx) => {
+  try {
+    const body = await getBody(ctx);
+    const { playerId, displayName } = body;
+    if (!playerId || !displayName) {
+      ctx.status = 400;
+      ctx.body = { ok: false, error: 'Missing playerId or displayName' };
+      return;
     }
+    const res = await dbService.updateDisplayName(playerId, displayName);
+    if (!res.ok) {
+      ctx.status = 400;
+      ctx.body = res;
+      return;
+    }
+    ctx.body = res;
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { ok: false, error: String(err) };
+  }
+});
 
-    ctx.body = { ok: true, period, monthKey, entries: entries.slice(0, 20) };
+server.router.post('/api/player/sync', async (ctx) => {
+  try {
+    const body = await getBody(ctx);
+    const { playerId, displayName, platform, data } = body;
+    if (!playerId) {
+      ctx.status = 400;
+      ctx.body = { ok: false, error: 'Missing playerId' };
+      return;
+    }
+    const player = await dbService.syncPlayer(playerId, displayName, platform, data);
+    ctx.body = { ok: true, player };
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { ok: false, error: String(err) };
+  }
+});
+
+server.router.get('/api/player/:id', async (ctx) => {
+  try {
+    const { id } = ctx.params;
+    const player = await dbService.getPlayer(id);
+    if (!player) {
+      ctx.status = 404;
+      ctx.body = { ok: false, error: 'Player not found' };
+      return;
+    }
+    ctx.body = { ok: true, player };
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { ok: false, error: String(err) };
+  }
+});
+
+server.router.post('/api/player/transfer/generate', async (ctx) => {
+  try {
+    const body = await getBody(ctx);
+    const { playerId } = body;
+    if (!playerId) {
+      ctx.status = 400;
+      ctx.body = { ok: false, error: 'Invalid playerId' };
+      return;
+    }
+    const res = await dbService.generateTransferCode(playerId);
+    ctx.body = res;
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { ok: false, error: String(err) };
+  }
+});
+
+server.router.post('/api/player/transfer/claim', async (ctx) => {
+  try {
+    const body = await getBody(ctx);
+    const { code } = body;
+    if (!code) {
+      ctx.status = 400;
+      ctx.body = { ok: false, error: 'Missing code' };
+      return;
+    }
+    const player = await dbService.claimTransferCode(code);
+    if (!player) {
+      ctx.status = 400;
+      ctx.body = { ok: false, error: 'Invalid or expired code' };
+      return;
+    }
+    ctx.body = { ok: true, player };
   } catch (err) {
     ctx.status = 500;
     ctx.body = { ok: false, error: String(err) };
@@ -895,8 +940,16 @@ const startMatchmakingMonitor = (port) => {
   }
 };
 
+// Periodic daily cleanup of inactive guest accounts (>30 days, 0 points)
+setInterval(() => {
+  dbService.cleanupInactiveGuests(30).catch(err => {
+    console.warn('[DB] Inactive guest cleanup error:', err);
+  });
+}, 24 * 60 * 60 * 1000);
+
 const PORT = process.env.PORT || 8000;
-server.run(PORT, () => {
+server.run(PORT, async () => {
   console.log(`Backend server running on port ${PORT}...`);
+  await initDatabase();
   startMatchmakingMonitor(PORT);
 });

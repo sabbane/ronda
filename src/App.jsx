@@ -136,14 +136,15 @@ const App = () => {
     setShowUsernameModal(true);
   };
 
-  const handleUsernameSubmit = (name) => {
-    challengeService.setUsername(name);
+  const handleUsernameSubmit = async (name) => {
+    await challengeService.updateDisplayName(name);
     setShowUsernameModal(false);
     if (pendingTargetMode) {
       if (pendingTargetMode === 'bot') {
         window.activeRondaChallengeId = null;
       }
       setMode(pendingTargetMode);
+      setPendingTargetMode(null);
     }
   };
 

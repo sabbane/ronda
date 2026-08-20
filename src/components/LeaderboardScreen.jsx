@@ -1,14 +1,22 @@
 import { useState, useEffect } from 'react';
 import { challengeService } from '../services/challengeService';
 import { LeaderboardView } from './LeaderboardView';
+import { AccountSyncModal } from './AccountSyncModal';
 
 export const LeaderboardScreen = ({ onBack, playClick, t, previousMode }) => {
-  const [username, setUsername] = useState('');
+  const [handle, setHandle] = useState('');
+  const [playerId, setPlayerId] = useState('');
   const [points, setPoints] = useState(0);
+  const [showSyncModal, setShowSyncModal] = useState(false);
+
+  const refreshProfile = () => {
+    setHandle(challengeService.getFullHandle());
+    setPlayerId(challengeService.getPlayerId());
+    setPoints(challengeService.getProgress().totalPoints || 0);
+  };
 
   useEffect(() => {
-    setUsername(challengeService.getUsername());
-    setPoints(challengeService.getProgress().totalPoints || 0);
+    refreshProfile();
   }, []);
 
   const backButtonLabel = previousMode === 'challenge_menu'
@@ -24,10 +32,17 @@ export const LeaderboardScreen = ({ onBack, playClick, t, previousMode }) => {
         >
           {/* Header */}
           <div className="flex justify-between items-center border-b border-white/10 pb-4">
-            <div className="flex flex-col text-left">
-              <span className="text-lg font-black text-white truncate max-w-[180px]">
-                {username || 'Player'}
+            <div className="flex items-center gap-2 text-left">
+              <span className="text-lg font-black text-white truncate max-w-[170px]" title={handle}>
+                {handle || 'Player'}
               </span>
+              <button
+                onClick={() => { playClick(); setShowSyncModal(true); }}
+                className="p-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/30 border border-amber-400/30 text-amber-300 text-xs font-bold transition-all cursor-pointer"
+                title={t('syncAccount') || 'Sync Account'}
+              >
+                🔄
+              </button>
             </div>
             <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-xl border border-amber-400/30">
               <span className="text-base">🏆</span>
@@ -38,7 +53,7 @@ export const LeaderboardScreen = ({ onBack, playClick, t, previousMode }) => {
           </div>
 
           {/* Leaderboard Dual-Tab List */}
-          <LeaderboardView t={t} username={username} />
+          <LeaderboardView t={t} username={handle} myPlayerId={playerId} />
 
           {/* Back Button */}
           <div className="pt-2 border-t border-white/10">
@@ -54,6 +69,14 @@ export const LeaderboardScreen = ({ onBack, playClick, t, previousMode }) => {
           </div>
         </div>
       </div>
+
+      <AccountSyncModal
+        isOpen={showSyncModal}
+        onClose={() => setShowSyncModal(false)}
+        t={t}
+        playClick={playClick}
+        onSyncSuccess={refreshProfile}
+      />
     </div>
   );
 };
