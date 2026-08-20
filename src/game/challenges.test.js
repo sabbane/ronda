@@ -71,8 +71,8 @@ describe('ChallengeService Local Storage & Score Management', () => {
     mockLocalStorage.clear();
   });
 
-  it('gets and sets permanent singleplayer username', () => {
-    expect(challengeService.getUsername()).toBe('');
+  it('gets and sets singleplayer username and display name', () => {
+    expect(challengeService.getUsername()).toBeDefined();
     challengeService.setUsername('AtlasKing');
     expect(challengeService.getUsername()).toBe('AtlasKing');
   });

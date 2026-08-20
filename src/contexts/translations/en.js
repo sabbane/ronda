@@ -38,7 +38,10 @@ export const en = {
   invalidCode: "Invalid or expired code.",
   codeGenerateError: "Failed to generate code",
   loadingLabel: "Loading...",
-  usernameLengthError: "Name must be between 3 and 15 characters",
+  usernameLengthError: "Name must be between 3 and 20 characters",
+  invalidCharactersError: "Name contains invalid characters",
+  profanityError: "This name is not permitted",
+  invalidNameError: "Invalid name",
   and: "and",
   loading: {
     cards: "Loading Ronda cards...",

@@ -4,12 +4,14 @@ import { LeaderboardView } from './LeaderboardView';
 import { AccountSyncModal } from './AccountSyncModal';
 
 export const LeaderboardScreen = ({ onBack, playClick, t, previousMode }) => {
-  const [username, setUsername] = useState('');
+  const [handle, setHandle] = useState('');
+  const [playerId, setPlayerId] = useState('');
   const [points, setPoints] = useState(0);
   const [showSyncModal, setShowSyncModal] = useState(false);
 
   const refreshProfile = () => {
-    setUsername(challengeService.getUsername());
+    setHandle(challengeService.getFullHandle());
+    setPlayerId(challengeService.getPlayerId());
     setPoints(challengeService.getProgress().totalPoints || 0);
   };
 
@@ -31,8 +33,8 @@ export const LeaderboardScreen = ({ onBack, playClick, t, previousMode }) => {
           {/* Header */}
           <div className="flex justify-between items-center border-b border-white/10 pb-4">
             <div className="flex items-center gap-2 text-left">
-              <span className="text-lg font-black text-white truncate max-w-[150px]">
-                {username || 'Player'}
+              <span className="text-lg font-black text-white truncate max-w-[170px]" title={handle}>
+                {handle || 'Player'}
               </span>
               <button
                 onClick={() => { playClick(); setShowSyncModal(true); }}
@@ -51,7 +53,7 @@ export const LeaderboardScreen = ({ onBack, playClick, t, previousMode }) => {
           </div>
 
           {/* Leaderboard Dual-Tab List */}
-          <LeaderboardView t={t} username={username} />
+          <LeaderboardView t={t} username={handle} myPlayerId={playerId} />
 
           {/* Back Button */}
           <div className="pt-2 border-t border-white/10">

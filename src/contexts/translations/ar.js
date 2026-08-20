@@ -38,7 +38,10 @@ export const ar = {
   invalidCode: "الرمز غير صالح أو انتهت صلاحيته.",
   codeGenerateError: "فشل إنشاء الرمز",
   loadingLabel: "جاري التحميل...",
-  usernameLengthError: "يجب أن يتراوح الاسم بين 3 و 15 حرفاً",
+  usernameLengthError: "يجب أن يتراوح الاسم بين 3 و 20 حرفاً",
+  invalidCharactersError: "الاسم يحتوي على رموز غير صالحة",
+  profanityError: "هذا الاسم غير مسموح به",
+  invalidNameError: "اسم غير صالح",
   and: "و",
   loading: {
     cards: "جاري تحميل أوراق روندا...",

@@ -40,7 +40,23 @@ export const platformBridge = {
     }
   },
 
-  savePlayer: async (playerId, username, data) => {
+  updateDisplayName: async (playerId, displayName) => {
+    if (!playerId || !displayName) return { ok: false, error: 'INVALID_INPUT' };
+    try {
+      const baseUrl = getApiUrl();
+      const res = await fetch(`${baseUrl}/api/player/name`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerId, displayName })
+      });
+      return await res.json();
+    } catch (err) {
+      console.warn('[PlatformBridge] updateDisplayName failed:', err);
+      return { ok: false, error: 'NETWORK_ERROR' };
+    }
+  },
+
+  savePlayer: async (playerId, displayName, data) => {
     if (!playerId) return null;
     const platform = platformBridge.getPlatformName();
     try {
@@ -48,7 +64,7 @@ export const platformBridge = {
       const res = await fetch(`${baseUrl}/api/player/sync`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ playerId, username, platform, data })
+        body: JSON.stringify({ playerId, displayName, platform, data })
       });
       if (!res.ok) return null;
       const json = await res.json();

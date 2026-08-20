@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { validateDisplayName } from '../utils/nameSanitizer';
 
 export const UsernameModal = ({ isOpen, onSubmit, t }) => {
   const [inputName, setInputName] = useState('');
@@ -9,12 +10,20 @@ export const UsernameModal = ({ isOpen, onSubmit, t }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const trimmed = inputName.trim();
-    if (trimmed.length < 3 || trimmed.length > 15) {
-      setErr(t('usernameLengthError') || 'Name must be between 3 and 15 characters');
+    const validation = validateDisplayName(inputName);
+    if (!validation.valid) {
+      if (validation.error === 'NAME_LENGTH_INVALID') {
+        setErr(t('usernameLengthError') || 'Name must be between 3 and 20 characters');
+      } else if (validation.error === 'NAME_INVALID_CHARACTERS') {
+        setErr(t('invalidCharactersError') || 'Name contains invalid characters');
+      } else if (validation.error === 'NAME_PROFANITY_DETECTED') {
+        setErr(t('profanityError') || 'This name is not permitted');
+      } else {
+        setErr(t('invalidNameError') || 'Invalid name');
+      }
       return;
     }
-    onSubmit(trimmed);
+    onSubmit(validation.sanitized);
   };
 
   return (
@@ -45,7 +54,7 @@ export const UsernameModal = ({ isOpen, onSubmit, t }) => {
               <input
                 type="text"
                 value={inputName}
-                maxLength={15}
+                maxLength={20}
                 onChange={(e) => { setInputName(e.target.value); setErr(''); }}
                 placeholder={t('enterNickname') || 'Player Nickname'}
                 className="w-full bg-black/50 border border-amber-500/30 rounded-xl px-4 py-3 text-center text-white font-bold text-lg focus:outline-none focus:border-amber-400 transition-colors"

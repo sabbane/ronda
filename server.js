@@ -812,13 +812,13 @@ server.router.get('/api/analytics/stats', async (ctx) => {
 server.router.post('/api/leaderboard/submit', async (ctx) => {
   try {
     const body = await getBody(ctx);
-    const { username, pointsToAdd } = body;
-    if (!username || typeof pointsToAdd !== 'number' || pointsToAdd === 0) {
+    const { playerId, displayName, discriminator, pointsToAdd } = body;
+    if (!playerId || typeof pointsToAdd !== 'number' || pointsToAdd === 0) {
       ctx.status = 400;
       ctx.body = { ok: false, error: 'Invalid payload' };
       return;
     }
-    const res = await dbService.submitLeaderboardScore(username, pointsToAdd);
+    const res = await dbService.submitLeaderboardScore(playerId, displayName, discriminator, pointsToAdd);
     ctx.body = res;
   } catch (err) {
     ctx.status = 500;
@@ -837,16 +837,38 @@ server.router.get('/api/leaderboard', async (ctx) => {
   }
 });
 
+server.router.post('/api/player/name', async (ctx) => {
+  try {
+    const body = await getBody(ctx);
+    const { playerId, displayName } = body;
+    if (!playerId || !displayName) {
+      ctx.status = 400;
+      ctx.body = { ok: false, error: 'Missing playerId or displayName' };
+      return;
+    }
+    const res = await dbService.updateDisplayName(playerId, displayName);
+    if (!res.ok) {
+      ctx.status = 400;
+      ctx.body = res;
+      return;
+    }
+    ctx.body = res;
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { ok: false, error: String(err) };
+  }
+});
+
 server.router.post('/api/player/sync', async (ctx) => {
   try {
     const body = await getBody(ctx);
-    const { playerId, username, platform, data } = body;
+    const { playerId, displayName, platform, data } = body;
     if (!playerId) {
       ctx.status = 400;
       ctx.body = { ok: false, error: 'Missing playerId' };
       return;
     }
-    const player = await dbService.syncPlayer(playerId, username, platform, data);
+    const player = await dbService.syncPlayer(playerId, displayName, platform, data);
     ctx.body = { ok: true, player };
   } catch (err) {
     ctx.status = 500;
@@ -917,6 +939,13 @@ const startMatchmakingMonitor = (port) => {
     setInterval(() => monitorMatchmaking(port), 1500);
   }
 };
+
+// Periodic daily cleanup of inactive guest accounts (>30 days, 0 points)
+setInterval(() => {
+  dbService.cleanupInactiveGuests(30).catch(err => {
+    console.warn('[DB] Inactive guest cleanup error:', err);
+  });
+}, 24 * 60 * 60 * 1000);
 
 const PORT = process.env.PORT || 8000;
 server.run(PORT, async () => {

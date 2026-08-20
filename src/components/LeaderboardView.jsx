@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { challengeService } from '../services/challengeService';
 
-export const LeaderboardView = ({ t, username }) => {
+export const LeaderboardView = ({ t, username, myPlayerId }) => {
   const [period, setPeriod] = useState('monthly');
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -63,10 +63,12 @@ export const LeaderboardView = ({ t, username }) => {
       ) : (
         <div className="max-h-[300px] overflow-y-auto flex flex-col gap-2 pr-1 custom-scrollbar">
           {entries.map((entry, idx) => {
-            const isMe = username && entry.username.toLowerCase() === username.toLowerCase();
+            const displayName = entry.displayName || entry.username || 'Player';
+            const isMe = (myPlayerId && entry.playerId === myPlayerId) ||
+                         (username && displayName.toLowerCase() === username.toLowerCase());
             return (
               <div
-                key={`${entry.username}-${idx}`}
+                key={`${entry.playerId || entry.username}-${idx}`}
                 className={`flex justify-between items-center p-3 rounded-xl border transition-all ${
                   isMe
                     ? 'bg-amber-500/20 border-amber-400/50 text-amber-200'
@@ -77,9 +79,17 @@ export const LeaderboardView = ({ t, username }) => {
                   <span className="w-7 text-center font-bold text-sm">
                     {getRankBadge(idx)}
                   </span>
-                  <span className="font-semibold text-xs sm:text-sm truncate max-w-[140px] sm:max-w-[200px]">
-                    {entry.username} {isMe ? '(You)' : ''}
-                  </span>
+                  <div className="flex items-center gap-1.5 truncate max-w-[140px] sm:max-w-[200px]">
+                    <span className="font-semibold text-xs sm:text-sm truncate">
+                      {displayName}
+                    </span>
+                    {entry.discriminator && (
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        #{entry.discriminator}
+                      </span>
+                    )}
+                    {isMe && <span className="text-[10px] text-amber-300 font-bold">(You)</span>}
+                  </div>
                 </div>
                 <span className="font-mono font-extrabold text-xs sm:text-sm text-amber-300">
                   {entry.points} Pts

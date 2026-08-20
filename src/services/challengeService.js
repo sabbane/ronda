@@ -4,6 +4,7 @@ import { platformBridge } from './platformBridge';
 const USERNAME_KEY = 'ronda_singleplayer_username';
 const PROGRESS_KEY = 'ronda_challenge_progress';
 const PLAYER_ID_KEY = 'ronda_player_id';
+const PROFILE_KEY = 'ronda_player_profile';
 
 const getApiUrl = () => {
   if (typeof window === 'undefined') return 'http://localhost:8000';
@@ -23,20 +24,86 @@ export const challengeService = {
     return id;
   },
 
+  getProfile: () => {
+    const defaultGuest = {
+      displayName: `Gast_${Math.floor(1000 + Math.random() * 9000)}`,
+      discriminator: null,
+      isGuest: true
+    };
+    if (typeof localStorage === 'undefined' || !localStorage) return defaultGuest;
+    try {
+      const raw = localStorage.getItem(PROFILE_KEY);
+      if (raw) return JSON.parse(raw);
+      const legacyUsername = localStorage.getItem(USERNAME_KEY);
+      if (legacyUsername) {
+        return { displayName: legacyUsername, discriminator: null, isGuest: false };
+      }
+      return defaultGuest;
+    } catch {
+      return defaultGuest;
+    }
+  },
+
+  getDisplayName: () => {
+    const profile = challengeService.getProfile();
+    return profile.displayName || '';
+  },
+
+  getDiscriminator: () => {
+    const profile = challengeService.getProfile();
+    return profile.discriminator || null;
+  },
+
+  isGuest: () => {
+    const profile = challengeService.getProfile();
+    return Boolean(profile.isGuest);
+  },
+
+  getFullHandle: () => {
+    const profile = challengeService.getProfile();
+    if (profile.discriminator) {
+      return `${profile.displayName}#${profile.discriminator}`;
+    }
+    return profile.displayName || 'Gast';
+  },
+
+  // Legacy helper
   getUsername: () => {
-    if (typeof localStorage === 'undefined' || !localStorage) return '';
-    return localStorage.getItem(USERNAME_KEY) || '';
+    return challengeService.getDisplayName();
   },
 
   setUsername: (name) => {
-    if (typeof localStorage === 'undefined' || !localStorage) return;
     const trimmed = (name || '').trim();
-    if (trimmed) {
+    if (!trimmed) return;
+    if (typeof localStorage !== 'undefined' && localStorage) {
       localStorage.setItem(USERNAME_KEY, trimmed);
-      const playerId = challengeService.getPlayerId();
-      const progress = challengeService.getProgress();
-      platformBridge.savePlayer(playerId, trimmed, progress);
+      const profile = challengeService.getProfile();
+      profile.displayName = trimmed;
+      profile.isGuest = false;
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
     }
+    const playerId = challengeService.getPlayerId();
+    const progress = challengeService.getProgress();
+    platformBridge.savePlayer(playerId, trimmed, progress);
+  },
+
+  updateDisplayName: async (name) => {
+    const playerId = challengeService.getPlayerId();
+    const res = await platformBridge.updateDisplayName(playerId, name);
+    if (res?.ok && res.player) {
+      const p = res.player;
+      if (typeof localStorage !== 'undefined' && localStorage) {
+        const profile = {
+          displayName: p.displayName,
+          discriminator: p.discriminator,
+          isGuest: false
+        };
+        localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+        localStorage.setItem(USERNAME_KEY, p.displayName);
+      }
+      return { ok: true, player: p };
+    }
+    return { ok: false, error: res?.error || 'UPDATE_FAILED' };
   },
 
   getProgress: () => {
@@ -63,35 +130,27 @@ export const challengeService = {
     try {
       localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
       const playerId = challengeService.getPlayerId();
-      const username = challengeService.getUsername();
-      platformBridge.savePlayer(playerId, username, progress);
+      const displayName = challengeService.getDisplayName();
+      platformBridge.savePlayer(playerId, displayName, progress);
     } catch (e) {
       console.error('[ChallengeService] Failed to save progress:', e);
     }
   },
 
   submitFreePlayWin: async () => {
-    const username = challengeService.getUsername();
     const progress = challengeService.getProgress();
     progress.freePlayWins = (progress.freePlayWins || 0) + 1;
     progress.totalPoints += 5;
     challengeService.saveProgress(progress);
-
-    if (username) {
-      await challengeService.sendLeaderboardScore(username, 5, 'free_play');
-    }
+    await challengeService.sendLeaderboardScore(5, 'free_play');
     return progress;
   },
 
   submitFreePlayLoss: async () => {
-    const username = challengeService.getUsername();
     const progress = challengeService.getProgress();
     progress.totalPoints = Math.max(0, progress.totalPoints - 1);
     challengeService.saveProgress(progress);
-
-    if (username) {
-      await challengeService.sendLeaderboardScore(username, -1, 'free_play_loss');
-    }
+    await challengeService.sendLeaderboardScore(-1, 'free_play_loss');
     return progress;
   },
 
@@ -99,15 +158,11 @@ export const challengeService = {
     const pointsToAdd = numPlayers === 4 ? 20 : 10;
     const source = numPlayers === 4 ? 'multiplayer_4p' : 'multiplayer_2p';
 
-    const username = challengeService.getUsername();
     const progress = challengeService.getProgress();
     progress.multiplayerWins = (progress.multiplayerWins || 0) + 1;
     progress.totalPoints += pointsToAdd;
     challengeService.saveProgress(progress);
-
-    if (username) {
-      await challengeService.sendLeaderboardScore(username, pointsToAdd, source);
-    }
+    await challengeService.sendLeaderboardScore(pointsToAdd, source);
     return { pointsAdded: pointsToAdd, progress };
   },
 
@@ -115,14 +170,10 @@ export const challengeService = {
     const pointsToDeduct = numPlayers === 4 ? 4 : 2;
     const source = numPlayers === 4 ? 'multiplayer_4p_loss' : 'multiplayer_2p_loss';
 
-    const username = challengeService.getUsername();
     const progress = challengeService.getProgress();
     progress.totalPoints = Math.max(0, progress.totalPoints - pointsToDeduct);
     challengeService.saveProgress(progress);
-
-    if (username) {
-      await challengeService.sendLeaderboardScore(username, -pointsToDeduct, source);
-    }
+    await challengeService.sendLeaderboardScore(-pointsToDeduct, source);
     return { pointsDeducted: pointsToDeduct, progress };
   },
 
@@ -143,9 +194,8 @@ export const challengeService = {
       }
       challengeService.saveProgress(progress);
 
-      const username = challengeService.getUsername();
-      if (username && !isAlreadyCompleted) {
-        await challengeService.sendLeaderboardScore(username, challenge.points, `challenge_${challengeId}`);
+      if (!isAlreadyCompleted) {
+        await challengeService.sendLeaderboardScore(challenge.points, `challenge_${challengeId}`);
       }
       return { completedNow: !isAlreadyCompleted, pointsEarned: isAlreadyCompleted ? 0 : challenge.points };
     }
@@ -172,7 +222,13 @@ export const challengeService = {
       const p = res.player;
       if (typeof localStorage !== 'undefined' && localStorage) {
         localStorage.setItem(PLAYER_ID_KEY, p.id);
-        if (p.username) localStorage.setItem(USERNAME_KEY, p.username);
+        const profile = {
+          displayName: p.displayName || p.username || 'Player',
+          discriminator: p.discriminator || null,
+          isGuest: Boolean(p.isGuest)
+        };
+        localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+        localStorage.setItem(USERNAME_KEY, profile.displayName);
         const progress = {
           completed: p.completed || [],
           totalPoints: p.totalPoints || 0,
@@ -187,13 +243,16 @@ export const challengeService = {
     return { ok: false, error: res?.error || 'Invalid code' };
   },
 
-  sendLeaderboardScore: async (username, pointsToAdd, source) => {
+  sendLeaderboardScore: async (pointsToAdd, source) => {
     try {
       const baseUrl = getApiUrl();
+      const playerId = challengeService.getPlayerId();
+      const displayName = challengeService.getDisplayName();
+      const discriminator = challengeService.getDiscriminator();
       await fetch(`${baseUrl}/api/leaderboard/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, pointsToAdd, source })
+        body: JSON.stringify({ playerId, displayName, discriminator, pointsToAdd, source })
       });
     } catch (err) {
       console.warn('[ChallengeService] Server sync failed (offline mode):', err);
@@ -213,11 +272,11 @@ export const challengeService = {
     }
   },
 
-  fetchPlayerRank: async (username) => {
-    if (!username) return { rank: null, points: challengeService.getProgress().totalPoints };
+  fetchPlayerRank: async (playerId) => {
+    const targetId = playerId || challengeService.getPlayerId();
     try {
       const entries = await challengeService.fetchLeaderboard('monthly');
-      const idx = entries.findIndex(e => e.username.toLowerCase() === username.toLowerCase());
+      const idx = entries.findIndex(e => e.playerId === targetId);
       if (idx !== -1) {
         return { rank: idx + 1, points: entries[idx].points };
       }

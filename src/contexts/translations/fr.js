@@ -38,7 +38,10 @@ export const fr = {
   invalidCode: "Code invalide ou expiré.",
   codeGenerateError: "Échec de la génération du code",
   loadingLabel: "Chargement...",
-  usernameLengthError: "Le nom doit comporter entre 3 et 15 caractères",
+  usernameLengthError: "Le nom doit comporter entre 3 et 20 caractères",
+  invalidCharactersError: "Le nom contient des caractères non valides",
+  profanityError: "Ce nom n'est pas autorisé",
+  invalidNameError: "Nom non valide",
   and: "et",
   loading: {
     cards: "Chargement des cartes Ronda...",
