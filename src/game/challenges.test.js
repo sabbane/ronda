@@ -146,4 +146,32 @@ describe('ChallengeService Local Storage & Score Management', () => {
     expect(finalProgress.totalPoints).toBe(200); // 50 + 150
     expect(finalProgress.completed).toEqual(['el_haj_defeat', 'el_haj_lead_10']);
   });
+
+  it('awards points when completing a challenge after its cooldown has expired, even if previously completed', async () => {
+    challengeService.setUsername('ChallengeRepeatMaster');
+
+    // Simulate player who already has el_haj_defeat completed and cooldown is now 0 (expired)
+    const initialProgress = {
+      completed: ['el_haj_defeat'],
+      totalPoints: 50,
+      freePlayWins: 0,
+      multiplayerWins: 0,
+      cooldowns: { el_haj_defeat: Date.now() - 5000 } // Cooldown in the past
+    };
+    challengeService.saveProgress(initialProgress);
+
+    expect(challengeService.getChallengeCooldown('el_haj_defeat')).toBe(0);
+
+    // Player plays and wins el_haj_defeat again
+    const result = await challengeService.submitChallengeResult('el_haj_defeat', {
+      didIWin: true,
+      myScore: 11,
+      oppScore: 9
+    });
+
+    // Desired behavior: Should award +50 points and set new cooldown
+    expect(result.pointsEarned).toBe(50);
+    expect(result.completedNow).toBe(true);
+    expect(challengeService.getProgress().totalPoints).toBe(100);
+  });
 });
