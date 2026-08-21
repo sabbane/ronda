@@ -25,28 +25,34 @@ export const challengeService = {
   },
 
   getProfile: () => {
-    const defaultGuest = {
-      displayName: `Gast_${Math.floor(1000 + Math.random() * 9000)}`,
-      discriminator: null,
-      isGuest: true
-    };
-    if (typeof localStorage === 'undefined' || !localStorage) return defaultGuest;
+    if (typeof localStorage === 'undefined' || !localStorage) {
+      return { displayName: 'Gast', discriminator: 1001, isGuest: true };
+    }
     try {
       const raw = localStorage.getItem(PROFILE_KEY);
       if (raw) return JSON.parse(raw);
       const legacyUsername = localStorage.getItem(USERNAME_KEY);
-      if (legacyUsername) {
-        return { displayName: legacyUsername, discriminator: null, isGuest: false };
+      if (legacyUsername && !legacyUsername.startsWith('Gast_') && legacyUsername !== 'Gast') {
+        const disc = Math.floor(1000 + Math.random() * 9000);
+        const legacyProfile = { displayName: legacyUsername, discriminator: disc, isGuest: false };
+        localStorage.setItem(PROFILE_KEY, JSON.stringify(legacyProfile));
+        return legacyProfile;
       }
+      const defaultGuest = {
+        displayName: 'Gast',
+        discriminator: Math.floor(1000 + Math.random() * 9000),
+        isGuest: true
+      };
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(defaultGuest));
       return defaultGuest;
     } catch {
-      return defaultGuest;
+      return { displayName: 'Gast', discriminator: 1001, isGuest: true };
     }
   },
 
   getDisplayName: () => {
     const profile = challengeService.getProfile();
-    return profile.displayName || '';
+    return profile.displayName || 'Gast';
   },
 
   getDiscriminator: () => {
@@ -59,12 +65,18 @@ export const challengeService = {
     return Boolean(profile.isGuest);
   },
 
+  hasCustomName: () => {
+    const profile = challengeService.getProfile();
+    return !profile.isGuest && Boolean(profile.displayName) && profile.displayName !== 'Gast';
+  },
+
   getFullHandle: () => {
     const profile = challengeService.getProfile();
+    const name = profile.displayName || 'Gast';
     if (profile.discriminator) {
-      return `${profile.displayName}#${profile.discriminator}`;
+      return `${name}#${profile.discriminator}`;
     }
-    return profile.displayName || 'Gast';
+    return name;
   },
 
   // Legacy helper

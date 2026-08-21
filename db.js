@@ -125,9 +125,8 @@ export const initDatabase = async () => {
 
 export const dbService = {
   createGuestUser: async (playerId, platform = 'standalone') => {
-    const randomGuestNum = Math.floor(1000 + Math.random() * 9000);
-    const displayName = `Gast_${randomGuestNum}`;
-    return await dbService.syncPlayer(playerId, displayName, platform, { isGuest: true, discriminator: null });
+    const randomDiscriminator = Math.floor(1000 + Math.random() * 9000);
+    return await dbService.syncPlayer(playerId, 'Gast', platform, { isGuest: true, discriminator: randomDiscriminator });
   },
 
   updateDisplayName: async (playerId, rawName) => {
@@ -138,6 +137,12 @@ export const dbService = {
     const cleanName = check.sanitized;
 
     if (pool) {
+      // Check if player already has a permanent name
+      const existingRes = await pool.query('SELECT is_guest, display_name FROM players WHERE id = $1', [playerId]);
+      if (existingRes.rows.length > 0 && !existingRes.rows[0].is_guest && existingRes.rows[0].display_name !== 'Gast') {
+        return { ok: false, error: 'NAME_ALREADY_SET' };
+      }
+
       // Find a non-colliding discriminator (1000-9999)
       let discriminator = Math.floor(1000 + Math.random() * 9000);
       let attempts = 0;
@@ -191,25 +196,30 @@ export const dbService = {
     }
 
     // JSON Fallback
+    const existing = jsonPlayers[playerId];
+    if (existing && !existing.isGuest && existing.displayName && existing.displayName !== 'Gast') {
+      return { ok: false, error: 'NAME_ALREADY_SET' };
+    }
+
     let discriminator = Math.floor(1000 + Math.random() * 9000);
-    const existing = jsonPlayers[playerId] || {
+    const playerObj = existing || {
       id: playerId, totalPoints: 0, freePlayWins: 0, multiplayerWins: 0,
       completed: [], cooldowns: {}, platform: 'standalone', createdAt: new Date().toISOString()
     };
-    existing.displayName = cleanName;
-    existing.discriminator = discriminator;
-    existing.isGuest = false;
-    existing.lastActiveAt = new Date().toISOString();
-    existing.updatedAt = new Date().toISOString();
-    jsonPlayers[playerId] = existing;
+    playerObj.displayName = cleanName;
+    playerObj.discriminator = discriminator;
+    playerObj.isGuest = false;
+    playerObj.lastActiveAt = new Date().toISOString();
+    playerObj.updatedAt = new Date().toISOString();
+    jsonPlayers[playerId] = playerObj;
     saveJson(playersJsonPath, jsonPlayers);
-    return { ok: true, player: existing };
+    return { ok: true, player: playerObj };
   },
 
   syncPlayer: async (playerId, displayName, platform, data) => {
-    const isGuest = data?.isGuest ?? (displayName && displayName.startsWith('Gast_'));
-    const cleanName = (displayName || `Gast_${Math.floor(1000 + Math.random() * 9000)}`).substring(0, 20);
-    const discriminator = isGuest ? null : (data?.discriminator ?? Math.floor(1000 + Math.random() * 9000));
+    const isGuest = data?.isGuest ?? (displayName === 'Gast' || displayName?.startsWith('Gast_'));
+    const cleanName = (displayName || 'Gast').substring(0, 20);
+    const discriminator = data?.discriminator ?? Math.floor(1000 + Math.random() * 9000);
 
     if (pool) {
       const now = new Date().toISOString();

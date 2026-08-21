@@ -127,18 +127,20 @@ const App = () => {
   const [showUsernameModal, setShowUsernameModal] = useState(false);
   const [pendingTargetMode, setPendingTargetMode] = useState(null);
   const [leaderboardPreviousMode, setLeaderboardPreviousMode] = useState(null);
+  const [profileVersion, setProfileVersion] = useState(0);
 
   const handleRequireUsername = (targetMode) => {
     if (targetMode === 'leaderboard') {
       setLeaderboardPreviousMode(null);
     }
-    setPendingTargetMode(targetMode);
+    setPendingTargetMode(targetMode || null);
     setShowUsernameModal(true);
   };
 
   const handleUsernameSubmit = async (name) => {
     await challengeService.updateDisplayName(name);
     setShowUsernameModal(false);
+    setProfileVersion(v => v + 1);
     if (pendingTargetMode) {
       if (pendingTargetMode === 'bot') {
         window.activeRondaChallengeId = null;
@@ -219,6 +221,10 @@ const App = () => {
           isOpen={showUsernameModal}
           t={t}
           onSubmit={handleUsernameSubmit}
+          onClose={() => {
+            setShowUsernameModal(false);
+            setPendingTargetMode(null);
+          }}
         />
       </>
     );
@@ -241,6 +247,10 @@ const App = () => {
           isOpen={showUsernameModal}
           t={t}
           onSubmit={handleUsernameSubmit}
+          onClose={() => {
+            setShowUsernameModal(false);
+            setPendingTargetMode(null);
+          }}
         />
       </>
     );
@@ -286,11 +296,16 @@ const App = () => {
             setMode(targetMode);
           }}
           onRequireUsername={handleRequireUsername}
+          profileVersion={profileVersion}
         />
         <UsernameModal
           isOpen={showUsernameModal}
           t={t}
           onSubmit={handleUsernameSubmit}
+          onClose={() => {
+            setShowUsernameModal(false);
+            setPendingTargetMode(null);
+          }}
         />
       </>
     );

@@ -58,28 +58,29 @@ export const MainMenu = ({
   handleJoinRoom,
   setMode,
   onRequireUsername,
+  profileVersion,
 }) => {
-  const [playerInfo, setPlayerInfo] = useState({ username: '', points: 0, rank: null });
+  const [playerInfo, setPlayerInfo] = useState({ username: '', handle: '', points: 0, rank: null });
 
   useEffect(() => {
-    const username = challengeService.getUsername();
+    const handle = challengeService.getFullHandle();
     const progress = challengeService.getProgress();
     setPlayerInfo(prev => ({
       ...prev,
-      username,
+      username: handle,
+      handle,
       points: progress.totalPoints || 0
     }));
 
-    if (username) {
-      challengeService.fetchPlayerRank(username).then(info => {
-        setPlayerInfo({
-          username,
-          points: info.points || progress.totalPoints || 0,
-          rank: info.rank
-        });
+    challengeService.fetchPlayerRank(challengeService.getPlayerId()).then(info => {
+      setPlayerInfo({
+        username: handle,
+        handle,
+        points: info.points || progress.totalPoints || 0,
+        rank: info.rank
       });
-    }
-  }, []);
+    });
+  }, [profileVersion]);
 
   const getRankDisplay = () => {
     if (!playerInfo.rank) {
@@ -96,8 +97,7 @@ export const MainMenu = ({
       setMode('bot');
       return;
     }
-    const username = challengeService.getUsername();
-    if (!username && onRequireUsername) {
+    if (!challengeService.hasCustomName() && onRequireUsername) {
       onRequireUsername(targetMode);
     } else {
       setMode(targetMode);
@@ -110,29 +110,46 @@ export const MainMenu = ({
         <div className="p-6 sm:p-8 rounded-3xl shadow-[0_0_60px_rgba(30,58,138,0.35)] border-2 border-amber-400/30 text-center max-w-lg w-full relative menu-card flex flex-col justify-between min-h-[82vh] sm:min-h-0" style={{backgroundColor: 'rgba(30, 58, 138, 0.7)'}}>
           <h1 className="text-7xl font-black mb-3 text-[#D69E2E] tracking-tighter drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)] menu-logo">{t('logo')}</h1>
 
-          {/* Clickable Score & Rank Badge */}
-          <button
-            onClick={() => {
-              playClick();
-              const username = challengeService.getUsername();
-              if (!username && onRequireUsername) {
-                onRequireUsername('leaderboard');
-              } else {
-                setMode('leaderboard');
-              }
-            }}
-            className="mb-4 mx-auto px-4 py-2 rounded-2xl bg-black/40 hover:bg-black/60 border border-amber-400/30 hover:border-amber-400/60 shadow-lg flex items-center gap-3 transition-all active:scale-95 cursor-pointer backdrop-blur-md"
-            title={t('viewLeaderboard') || 'Click to view Leaderboard'}
-          >
-            <div className="flex items-center gap-1.5 text-xs font-bold text-white max-w-[140px] truncate">
-              <span className="text-amber-300">👤</span>
-              <span>{playerInfo.username || t('player') || 'Player'}</span>
-            </div>
+          {/* Clickable Profile & Rank Badge */}
+          <div className="mb-4 mx-auto p-1 rounded-2xl bg-black/40 border border-amber-400/30 hover:border-amber-400/60 shadow-lg flex items-center gap-1.5 backdrop-blur-md">
+            {challengeService.isGuest() ? (
+              <button
+                type="button"
+                onClick={() => {
+                  playClick();
+                  if (onRequireUsername) {
+                    onRequireUsername();
+                  }
+                }}
+                className="px-3 py-1.5 rounded-xl hover:bg-white/10 flex items-center gap-1.5 text-xs font-bold text-white max-w-[160px] truncate transition-colors cursor-pointer"
+                title={t('setPlayerName') || 'Click to choose Player Name'}
+              >
+                <span className="text-amber-300">👤</span>
+                <span className="truncate">{playerInfo.handle || t('player') || 'Player'}</span>
+                <span className="text-[10px] text-amber-400/60">✏️</span>
+              </button>
+            ) : (
+              <div
+                className="px-3 py-1.5 flex items-center gap-1.5 text-xs font-bold text-white max-w-[160px] truncate"
+                title={playerInfo.handle}
+              >
+                <span className="text-amber-300">👤</span>
+                <span className="truncate">{playerInfo.handle || t('player') || 'Player'}</span>
+              </div>
+            )}
             <div className="w-px h-4 bg-white/20" />
-            <div className="font-mono text-xs font-extrabold text-amber-300 flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => {
+                playClick();
+                setMode('leaderboard');
+              }}
+              className="px-3 py-1.5 rounded-xl hover:bg-white/10 font-mono text-xs font-extrabold text-amber-300 flex items-center gap-1 transition-colors cursor-pointer"
+              title={t('viewLeaderboard') || 'Click to view Leaderboard'}
+            >
               <span>{getRankDisplay()}</span>
-            </div>
-          </button>
+            </button>
+          </div>
 
            {/* Language & Sound Selector in Center */}
           <div className="flex flex-col items-center gap-3 mb-8 menu-selectors" dir="ltr">
@@ -244,17 +261,24 @@ export const MainMenu = ({
                   </div>
                 )}
 
-                {/* Name input */}
+                {/* Username input */}
                 <div className="flex flex-col gap-1.5 mb-4">
-                  <label className="text-xs text-slate-400 font-bold uppercase tracking-wider">{t('yourNickname')}</label>
+                  <label className="text-xs text-slate-400 font-bold uppercase tracking-wider">
+                    {t('username') || t('setPlayerName') || 'Username'}
+                  </label>
                   <input
                     type="text"
                     value={nickname}
-                    maxLength={15}
+                    readOnly={!challengeService.isGuest()}
+                    maxLength={20}
                     onChange={e => setNickname(e.target.value)}
-                    className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-medium focus:outline-none focus:border-amber-500/50 transition-colors"
-                    placeholder={t('enterNickname')}
-                    aria-label={t('yourNickname') || 'Your Nickname'}
+                    className={`border rounded-xl px-4 py-3 text-white font-medium focus:outline-none transition-colors ${
+                      challengeService.isGuest()
+                        ? 'bg-black/40 border-white/10 focus:border-amber-500/50'
+                        : 'bg-black/20 border-white/5 text-slate-400 cursor-not-allowed select-none'
+                    }`}
+                    placeholder={t('enterNickname') || 'Player Nickname'}
+                    aria-label={t('username') || 'Username'}
                   />
                 </div>
 
