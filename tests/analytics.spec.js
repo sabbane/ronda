@@ -93,19 +93,50 @@ test.describe('Analytics & Stats Dashboard Tests', () => {
     });
     expect(startResp2.ok()).toBeTruthy();
 
-    // 3. Open dashboard and login
+    // 3. Post singleplayer challenge started and succeeded event
+    const matchID3 = `test-match-ch-${timestamp}`;
+    const startResp3 = await request.post('http://localhost:8000/api/analytics/event', {
+      data: {
+        matchID: matchID3,
+        type: 'game_started',
+        mode: 'singleplayer',
+        numPlayers: 1,
+        challengeId: 'el_haj_defeat',
+        platform: 'desktop',
+        language: 'en'
+      }
+    });
+    expect(startResp3.ok()).toBeTruthy();
+
+    const completeResp3 = await request.post('http://localhost:8000/api/analytics/event', {
+      data: {
+        matchID: matchID3,
+        type: 'game_completed',
+        mode: 'singleplayer',
+        numPlayers: 1,
+        challengeId: 'el_haj_defeat',
+        challengeSuccess: true,
+        platform: 'desktop',
+        language: 'en',
+        duration: 120,
+        finalScores: [21, 10]
+      }
+    });
+    expect(completeResp3.ok()).toBeTruthy();
+
+    // 4. Open dashboard and login
     await page.goto('/#/stats');
     await page.locator('input[type="password"]').fill('fkpLU46:');
     await page.locator('button', { hasText: 'Access Dashboard' }).click();
 
-    // 4. Verify that the started count and completed count are displayed
+    // 5. Verify that the started count and completed count are displayed
     const startedCardValue = page.getByTestId('kpi-games-started');
     await expect(startedCardValue).not.toHaveText('0');
 
     const completedCardValue = page.getByTestId('kpi-games-completed');
     await expect(completedCardValue).not.toHaveText('0');
 
-    // 5. Verify the Detailed Modes Table is rendered
+    // 6. Verify the Detailed Modes Table is rendered
     const matrixTitle = page.locator('h4', { hasText: 'Mode & Player Count Matrix' });
     await expect(matrixTitle).toBeVisible();
 
@@ -115,7 +146,14 @@ test.describe('Analytics & Stats Dashboard Tests', () => {
     const private4pRow = page.locator('tr', { hasText: 'Multiplayer Private (4 Players)' });
     await expect(private4pRow).toBeVisible();
 
-    // 6. Verify Player Count segment shows 1 Player (Single)
+    // 7. Verify Challenges Table is rendered
+    const challengesTitle = page.locator('h4', { hasText: 'Challenge Performance & Difficulty' });
+    await expect(challengesTitle).toBeVisible();
+
+    const challengeRow = page.locator('tr', { hasText: 'Defeat El Haj' });
+    await expect(challengeRow).toBeVisible();
+
+    // 8. Verify Player Count segment shows 1 Player (Single)
     const singlePlayerLabel = page.locator('span', { hasText: '1 Player (Single)' });
     await expect(singlePlayerLabel).toBeVisible();
   });

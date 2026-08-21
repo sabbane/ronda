@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   BarChart2, ShieldAlert, LogOut, RefreshCw, ArrowLeft, 
-  Play, CheckCircle, Clock, Users, User, Globe, Monitor, LogIn, Layers 
+  Play, CheckCircle, Clock, Users, User, Globe, Monitor, LogIn, Layers, Target 
 } from 'lucide-react';
 import { analyticsService } from '../services/analyticsService';
 
@@ -184,6 +184,79 @@ const DetailedModesTable = ({ detailedModes = {}, totalStarts = 0 }) => {
           </tbody>
         </table>
       </div>
+    </div>
+  );
+};
+
+// Sub-component: Challenges Performance & Difficulty Table
+const ChallengesTable = ({ challenges = {} }) => {
+  const challengeList = Object.values(challenges);
+
+  return (
+    <div className="bg-slate-900/30 border border-slate-800/80 p-6 rounded-2xl backdrop-blur-md lg:col-span-3">
+      <div className="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+        <h4 className="font-bold text-slate-200 flex items-center gap-2">
+          <Target className="w-5 h-5 text-amber-400" /> Challenge Performance & Difficulty
+        </h4>
+        <span className="text-xs text-slate-400">Singleplayer Bot Challenges</span>
+      </div>
+
+      {challengeList.length === 0 ? (
+        <p className="text-sm text-slate-500 py-4">No challenge data recorded yet.</p>
+      ) : (
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-slate-800 text-xs uppercase text-slate-400 font-semibold">
+                <th className="pb-3 pr-4">Challenge</th>
+                <th className="pb-3 px-4">Target Bot</th>
+                <th className="pb-3 px-4 text-center">Reward</th>
+                <th className="pb-3 px-4 text-center">Attempts</th>
+                <th className="pb-3 px-4 text-center">Successes</th>
+                <th className="pb-3 px-4 text-center">Success Rate</th>
+                <th className="pb-3 pl-4 text-right">Points Awarded</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800/50">
+              {challengeList.map(ch => (
+                <tr key={ch.id} className="hover:bg-slate-800/20 transition-colors">
+                  <td className="py-3 pr-4 font-semibold text-slate-200 flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                      🎯 Challenge
+                    </span>
+                    <span>{ch.title || ch.id}</span>
+                  </td>
+                  <td className="py-3 px-4 text-slate-300">
+                    {ch.targetBot || 'Bot'}
+                  </td>
+                  <td className="py-3 px-4 text-center font-bold text-amber-400">
+                    +{ch.points} Pts
+                  </td>
+                  <td className="py-3 px-4 text-center font-bold text-indigo-300">
+                    {ch.starts}
+                  </td>
+                  <td className="py-3 px-4 text-center font-bold text-emerald-300">
+                    {ch.successes}
+                  </td>
+                  <td className="py-3 px-4 text-center">
+                    <span className={`inline-block px-2.5 py-0.5 rounded-md text-xs font-bold ${
+                      ch.starts === 0 ? 'bg-slate-800 text-slate-400' :
+                      ch.successRate >= 60 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                      ch.successRate >= 30 ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+                      'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                    }`}>
+                      {ch.starts > 0 ? `${ch.successRate}%` : '0%'}
+                    </span>
+                  </td>
+                  <td className="py-3 pl-4 text-right font-mono font-bold text-slate-300">
+                    {ch.totalPointsAwarded} Pts
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };
@@ -393,6 +466,7 @@ export const StatsDashboard = ({ onBack }) => {
     startsByMode: {},
     completionsByMode: {},
     detailedModes: {},
+    challenges: {},
     platforms: {},
     languages: {},
     playersCountDist: {}
@@ -445,6 +519,11 @@ export const StatsDashboard = ({ onBack }) => {
         <DetailedModesTable 
           detailedModes={summary.detailedModes} 
           totalStarts={summary.totalStarts} 
+        />
+
+        {/* Challenges Matrix */}
+        <ChallengesTable 
+          challenges={summary.challenges} 
         />
 
         {/* Detail grids */}

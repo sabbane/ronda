@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { analyticsService } from '../services/analyticsService';
+import { getChallengeById } from '../game/challenges';
 
 export const useAnalyticsTracker = ({
   gameStarted,
@@ -8,13 +9,15 @@ export const useAnalyticsTracker = ({
   numP,
   showGameOverOverlay,
   myTeamScore,
-  oppTeamScore
+  oppTeamScore,
+  didIWin
 }) => {
   const hasTrackedStart = useRef(false);
   const hasTrackedComplete = useRef(false);
   const startTimeRef = useRef(null);
 
   const effectiveNumPlayers = (rondaMode === 'singleplayer' || !numP) ? 1 : numP;
+  const challengeId = typeof window !== 'undefined' ? window.activeRondaChallengeId || null : null;
 
   useEffect(() => {
     if (gameStarted) {
@@ -28,11 +31,12 @@ export const useAnalyticsTracker = ({
           matchID,
           type: 'game_started',
           mode: rondaMode || 'singleplayer',
-          numPlayers: effectiveNumPlayers
+          numPlayers: effectiveNumPlayers,
+          challengeId
         });
       }
     }
-  }, [gameStarted, matchID, rondaMode, effectiveNumPlayers]);
+  }, [gameStarted, matchID, rondaMode, effectiveNumPlayers, challengeId]);
 
   useEffect(() => {
     if (showGameOverOverlay && !hasTrackedComplete.current && matchID) {
@@ -41,14 +45,28 @@ export const useAnalyticsTracker = ({
         ? Math.round((Date.now() - startTimeRef.current) / 1000) 
         : null;
 
+      let challengeSuccess = null;
+      if (challengeId) {
+        const ch = getChallengeById(challengeId);
+        if (ch && typeof ch.requirement === 'function') {
+          challengeSuccess = ch.requirement({
+            didIWin: !!didIWin,
+            myScore: myTeamScore || 0,
+            oppScore: oppTeamScore || 0
+          });
+        }
+      }
+
       analyticsService.trackEvent({
         matchID,
         type: 'game_completed',
         mode: rondaMode || 'singleplayer',
         numPlayers: effectiveNumPlayers,
         duration,
-        finalScores: [myTeamScore, oppTeamScore]
+        finalScores: [myTeamScore, oppTeamScore],
+        challengeId,
+        challengeSuccess
       });
     }
-  }, [showGameOverOverlay, matchID, rondaMode, effectiveNumPlayers, myTeamScore, oppTeamScore]);
+  }, [showGameOverOverlay, matchID, rondaMode, effectiveNumPlayers, myTeamScore, oppTeamScore, didIWin, challengeId]);
 };
