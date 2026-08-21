@@ -154,7 +154,8 @@ export const useBoardState = (props) => {
     numP,
     showGameOverOverlay,
     myTeamScore: teamDetails.myTeamScore,
-    oppTeamScore: teamDetails.oppTeamScore
+    oppTeamScore: teamDetails.oppTeamScore,
+    didIWin: teamDetails.didIWin
   });
 
   const handleLeaveLobby = () => leaveLobbyRoom(myID, moves, playClick, isLeavingRef);

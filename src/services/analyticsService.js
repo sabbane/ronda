@@ -31,7 +31,7 @@ const getLanguage = () => {
 };
 
 export const analyticsService = {
-  async trackEvent({ matchID, type, mode, numPlayers, duration, finalScores }) {
+  async trackEvent({ matchID, type, mode, numPlayers, duration, finalScores, challengeId, challengeSuccess }) {
     try {
       const payload = {
         matchID,
@@ -41,7 +41,9 @@ export const analyticsService = {
         platform: getPlatform(),
         language: getLanguage(),
         duration: duration || null,
-        finalScores: finalScores || null
+        finalScores: finalScores || null,
+        challengeId: challengeId || null,
+        challengeSuccess: challengeSuccess !== undefined ? challengeSuccess : null
       };
 
       const resp = await fetch(`${API_URL}/api/analytics/event`, {

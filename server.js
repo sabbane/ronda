@@ -670,7 +670,7 @@ const restoreActiveBots = async (port) => {
 server.router.post('/api/analytics/event', async (ctx) => {
   try {
     const body = await getBody(ctx);
-    const { matchID, type, mode, numPlayers, platform, language, duration, finalScores } = body;
+    const { matchID, type, mode, numPlayers, platform, language, duration, finalScores, challengeId, challengeSuccess } = body;
     
     if (!type || !mode) {
       ctx.status = 400;
@@ -698,7 +698,9 @@ server.router.post('/api/analytics/event', async (ctx) => {
       platform: platform || 'desktop',
       language: language || 'en',
       duration: duration || null,
-      finalScores: finalScores || null
+      finalScores: finalScores || null,
+      challengeId: challengeId || null,
+      challengeSuccess: challengeSuccess !== undefined ? challengeSuccess : null
     };
 
     analyticsData.events.push(newEvent);
@@ -759,13 +761,48 @@ server.router.get('/api/analytics/stats', async (ctx) => {
 
     const platforms = {};
     const languages = {};
-    const playersCountDist = { 2: 0, 4: 0 };
+    const playersCountDist = { 1: 0, 2: 0, 4: 0 };
+
+    const getDetailedKey = (e) => {
+      if (e.mode === 'singleplayer') return 'singleplayer';
+      const np = e.numPlayers === 4 ? '4p' : '2p';
+      if (e.mode === 'multiplayer_private') return `multiplayer_private_${np}`;
+      if (e.mode === 'multiplayer_public') return `multiplayer_public_${np}`;
+      return null;
+    };
+
+    const detailedModes = {
+      singleplayer: { starts: 0, completions: 0, completionRate: 0 },
+      multiplayer_private_2p: { starts: 0, completions: 0, completionRate: 0 },
+      multiplayer_private_4p: { starts: 0, completions: 0, completionRate: 0 },
+      multiplayer_public_2p: { starts: 0, completions: 0, completionRate: 0 },
+      multiplayer_public_4p: { starts: 0, completions: 0, completionRate: 0 }
+    };
 
     starts.forEach(e => {
       platforms[e.platform] = (platforms[e.platform] || 0) + 1;
       languages[e.language] = (languages[e.language] || 0) + 1;
-      const np = e.numPlayers === 4 ? 4 : 2;
+      
+      const isSingle = e.mode === 'singleplayer' || e.numPlayers === 1;
+      const np = isSingle ? 1 : (e.numPlayers === 4 ? 4 : 2);
       playersCountDist[np]++;
+
+      const k = getDetailedKey(e);
+      if (k && detailedModes[k]) {
+        detailedModes[k].starts++;
+      }
+    });
+
+    completions.forEach(e => {
+      const k = getDetailedKey(e);
+      if (k && detailedModes[k]) {
+        detailedModes[k].completions++;
+      }
+    });
+
+    Object.keys(detailedModes).forEach(k => {
+      const m = detailedModes[k];
+      m.completionRate = m.starts > 0 ? Math.round((m.completions / m.starts) * 100) : 0;
     });
 
     let totalDuration = 0;
@@ -777,6 +814,58 @@ server.router.get('/api/analytics/stats', async (ctx) => {
       }
     });
     const avgDuration = completedCountWithDuration > 0 ? Math.round(totalDuration / completedCountWithDuration) : 0;
+
+    const KNOWN_CHALLENGES = [
+      { id: 'el_haj_defeat', title: 'Defeat El Haj', targetBot: 'El Haj', points: 50 },
+      { id: 'el_haj_lead_10', title: 'Win by 10+ Points', targetBot: 'El Haj', points: 150 }
+    ];
+
+    const challenges = {};
+    KNOWN_CHALLENGES.forEach(c => {
+      challenges[c.id] = {
+        id: c.id,
+        title: c.title,
+        targetBot: c.targetBot,
+        points: c.points,
+        starts: 0,
+        completions: 0,
+        successes: 0,
+        successRate: 0,
+        totalPointsAwarded: 0
+      };
+    });
+
+    events.forEach(e => {
+      if (e.challengeId) {
+        if (!challenges[e.challengeId]) {
+          challenges[e.challengeId] = {
+            id: e.challengeId,
+            title: e.challengeId.replace(/_/g, ' '),
+            targetBot: 'Bot',
+            points: 50,
+            starts: 0,
+            completions: 0,
+            successes: 0,
+            successRate: 0,
+            totalPointsAwarded: 0
+          };
+        }
+        if (e.type === 'game_started') {
+          challenges[e.challengeId].starts++;
+        } else if (e.type === 'game_completed') {
+          challenges[e.challengeId].completions++;
+          if (e.challengeSuccess === true) {
+            challenges[e.challengeId].successes++;
+          }
+        }
+      }
+    });
+
+    Object.keys(challenges).forEach(id => {
+      const c = challenges[id];
+      c.successRate = c.starts > 0 ? Math.round((c.successes / c.starts) * 100) : 0;
+      c.totalPointsAwarded = c.successes * (c.points || 50);
+    });
 
     const trends = {};
     events.forEach(e => {
@@ -797,6 +886,8 @@ server.router.get('/api/analytics/stats', async (ctx) => {
         avgDuration,
         startsByMode,
         completionsByMode,
+        detailedModes,
+        challenges,
         platforms,
         languages,
         playersCountDist
