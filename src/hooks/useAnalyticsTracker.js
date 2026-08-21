@@ -14,6 +14,8 @@ export const useAnalyticsTracker = ({
   const hasTrackedComplete = useRef(false);
   const startTimeRef = useRef(null);
 
+  const effectiveNumPlayers = (rondaMode === 'singleplayer' || !numP) ? 1 : numP;
+
   useEffect(() => {
     if (gameStarted) {
       if (!startTimeRef.current) {
@@ -26,11 +28,11 @@ export const useAnalyticsTracker = ({
           matchID,
           type: 'game_started',
           mode: rondaMode || 'singleplayer',
-          numPlayers: numP
+          numPlayers: effectiveNumPlayers
         });
       }
     }
-  }, [gameStarted, matchID, rondaMode, numP]);
+  }, [gameStarted, matchID, rondaMode, effectiveNumPlayers]);
 
   useEffect(() => {
     if (showGameOverOverlay && !hasTrackedComplete.current && matchID) {
@@ -43,10 +45,10 @@ export const useAnalyticsTracker = ({
         matchID,
         type: 'game_completed',
         mode: rondaMode || 'singleplayer',
-        numPlayers: numP,
+        numPlayers: effectiveNumPlayers,
         duration,
         finalScores: [myTeamScore, oppTeamScore]
       });
     }
-  }, [showGameOverOverlay, matchID, rondaMode, numP, myTeamScore, oppTeamScore]);
+  }, [showGameOverOverlay, matchID, rondaMode, effectiveNumPlayers, myTeamScore, oppTeamScore]);
 };

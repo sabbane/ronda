@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   BarChart2, ShieldAlert, LogOut, RefreshCw, ArrowLeft, 
-  Play, CheckCircle, Clock, Users, Globe, Monitor, LogIn
+  Play, CheckCircle, Clock, Users, User, Globe, Monitor, LogIn, Layers 
 } from 'lucide-react';
 import { analyticsService } from '../services/analyticsService';
 
@@ -10,7 +10,7 @@ import { analyticsService } from '../services/analyticsService';
 const StatsLogin = ({ password, setPassword, error, isLoading, handleLogin, onBack }) => {
   const isArabic = localStorage.getItem('ronda_lang') === 'ar';
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center px-4 relative">
+    <div className="h-[100dvh] w-full overflow-y-auto custom-scrollbar bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4 relative">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.15),transparent)] pointer-events-none" />
       
       <motion.div 
@@ -118,8 +118,78 @@ const KpiCards = ({ summary }) => {
   );
 };
 
+// Sub-component: Detailed Game Modes & Player Count Matrix
+const DetailedModesTable = ({ detailedModes = {}, totalStarts = 0 }) => {
+  const modeConfigs = [
+    { key: 'singleplayer', label: 'Singleplayer (1 Player vs Bot)', badge: 'Single' },
+    { key: 'multiplayer_private_2p', label: 'Multiplayer Private (2 Players)', badge: 'Private 2P' },
+    { key: 'multiplayer_private_4p', label: 'Multiplayer Private (4 Players)', badge: 'Private 4P' },
+    { key: 'multiplayer_public_2p', label: 'Multiplayer Public (2 Players)', badge: 'Public 2P' },
+    { key: 'multiplayer_public_4p', label: 'Multiplayer Public (4 Players)', badge: 'Public 4P' },
+  ];
+
+  return (
+    <div className="bg-slate-900/30 border border-slate-800/80 p-6 rounded-2xl backdrop-blur-md lg:col-span-3">
+      <div className="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+        <h4 className="font-bold text-slate-200 flex items-center gap-2">
+          <Layers className="w-5 h-5 text-indigo-400" /> Mode & Player Count Matrix
+        </h4>
+        <span className="text-xs text-slate-400">Starts & Completions per Setup</span>
+      </div>
+
+      <div className="overflow-x-auto custom-scrollbar">
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="border-b border-slate-800 text-xs uppercase text-slate-400 font-semibold">
+              <th className="pb-3 pr-4">Mode / Setup</th>
+              <th className="pb-3 px-4 text-center">Started</th>
+              <th className="pb-3 px-4 text-center">Completed</th>
+              <th className="pb-3 px-4 text-center">Completion Rate</th>
+              <th className="pb-3 pl-4 text-right">Share of Starts</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-800/50">
+            {modeConfigs.map(cfg => {
+              const data = detailedModes[cfg.key] || { starts: 0, completions: 0, completionRate: 0 };
+              const share = totalStarts > 0 ? Math.round((data.starts / totalStarts) * 100) : 0;
+              return (
+                <tr key={cfg.key} className="hover:bg-slate-800/20 transition-colors">
+                  <td className="py-3 pr-4 font-semibold text-slate-200 flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                      {cfg.badge}
+                    </span>
+                    <span>{cfg.label}</span>
+                  </td>
+                  <td className="py-3 px-4 text-center font-bold text-indigo-300">
+                    {data.starts}
+                  </td>
+                  <td className="py-3 px-4 text-center font-bold text-emerald-300">
+                    {data.completions}
+                  </td>
+                  <td className="py-3 px-4 text-center">
+                    <span className={`inline-block px-2 py-0.5 rounded-md text-xs font-bold ${
+                      data.completionRate >= 70 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                      data.completionRate >= 40 ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+                      'bg-slate-800 text-slate-400'
+                    }`}>
+                      {data.completionRate}%
+                    </span>
+                  </td>
+                  <td className="py-3 pl-4 text-right text-slate-400">
+                    {share}%
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
 // Sub-component: Breakdown Segment
-const BreakdownSegment = ({ title, data, total, icon: Icon, colorClass }) => {
+const BreakdownSegment = ({ title, data, total, icon: Icon, colorClass, formatLabel }) => {
   const keys = Object.keys(data);
   return (
     <div className="bg-slate-900/30 border border-slate-800/80 p-6 rounded-2xl backdrop-blur-md">
@@ -134,10 +204,11 @@ const BreakdownSegment = ({ title, data, total, icon: Icon, colorClass }) => {
           keys.map(key => {
             const count = data[key];
             const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+            const label = formatLabel ? formatLabel(key) : key.replace('_', ' ');
             return (
               <div key={key} className="space-y-1">
                 <div className="flex justify-between text-sm">
-                  <span className="capitalize font-semibold text-slate-300">{key.replace('_', ' ')}</span>
+                  <span className="capitalize font-semibold text-slate-300">{label}</span>
                   <span className="text-slate-400">{count} ({pct}%)</span>
                 </div>
                 <div className="h-2 w-full bg-slate-950 rounded-full overflow-hidden">
@@ -321,13 +392,14 @@ export const StatsDashboard = ({ onBack }) => {
     avgDuration: 0,
     startsByMode: {},
     completionsByMode: {},
+    detailedModes: {},
     platforms: {},
     languages: {},
     playersCountDist: {}
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-6 sm:p-8 relative">
+    <div className="h-[100dvh] w-full overflow-y-auto custom-scrollbar bg-slate-950 text-slate-100 p-6 sm:p-8 relative">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(99,102,241,0.1),transparent)] pointer-events-none" />
       
       <div className="max-w-7xl mx-auto space-y-8 relative z-10">
@@ -369,14 +441,26 @@ export const StatsDashboard = ({ onBack }) => {
         {/* KPI metrics */}
         <KpiCards summary={summary} />
 
+        {/* Detailed Modes Matrix */}
+        <DetailedModesTable 
+          detailedModes={summary.detailedModes} 
+          totalStarts={summary.totalStarts} 
+        />
+
         {/* Detail grids */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <BreakdownSegment 
             title="Game Modes" 
             data={summary.startsByMode} 
             total={summary.totalStarts} 
-            icon={Users} 
+            icon={Layers} 
             colorClass="from-indigo-500 to-purple-500" 
+            formatLabel={(k) => {
+              if (k === 'singleplayer') return 'Singleplayer (Bot)';
+              if (k === 'multiplayer_private') return 'Multiplayer (Private)';
+              if (k === 'multiplayer_public') return 'Multiplayer (Public)';
+              return k;
+            }}
           />
           <BreakdownSegment 
             title="Player Count" 
@@ -384,13 +468,25 @@ export const StatsDashboard = ({ onBack }) => {
             total={summary.totalStarts} 
             icon={Users} 
             colorClass="from-pink-500 to-rose-500" 
+            formatLabel={(k) => {
+              if (k === '1') return '1 Player (Single)';
+              if (k === '2') return '2 Players (1v1)';
+              if (k === '4') return '4 Players (2v2)';
+              return `${k} Players`;
+            }}
           />
           <BreakdownSegment 
-            title="Languages (FR / EN / AR)" 
+            title="Languages" 
             data={summary.languages} 
             total={summary.totalStarts} 
             icon={Globe} 
             colorClass="from-emerald-500 to-teal-500" 
+            formatLabel={(k) => {
+              if (k === 'en') return 'English';
+              if (k === 'fr') return 'Français';
+              if (k === 'ar') return 'العربية';
+              return k;
+            }}
           />
           <BreakdownSegment 
             title="Device Platforms" 

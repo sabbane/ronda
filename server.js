@@ -759,13 +759,48 @@ server.router.get('/api/analytics/stats', async (ctx) => {
 
     const platforms = {};
     const languages = {};
-    const playersCountDist = { 2: 0, 4: 0 };
+    const playersCountDist = { 1: 0, 2: 0, 4: 0 };
+
+    const getDetailedKey = (e) => {
+      if (e.mode === 'singleplayer') return 'singleplayer';
+      const np = e.numPlayers === 4 ? '4p' : '2p';
+      if (e.mode === 'multiplayer_private') return `multiplayer_private_${np}`;
+      if (e.mode === 'multiplayer_public') return `multiplayer_public_${np}`;
+      return null;
+    };
+
+    const detailedModes = {
+      singleplayer: { starts: 0, completions: 0, completionRate: 0 },
+      multiplayer_private_2p: { starts: 0, completions: 0, completionRate: 0 },
+      multiplayer_private_4p: { starts: 0, completions: 0, completionRate: 0 },
+      multiplayer_public_2p: { starts: 0, completions: 0, completionRate: 0 },
+      multiplayer_public_4p: { starts: 0, completions: 0, completionRate: 0 }
+    };
 
     starts.forEach(e => {
       platforms[e.platform] = (platforms[e.platform] || 0) + 1;
       languages[e.language] = (languages[e.language] || 0) + 1;
-      const np = e.numPlayers === 4 ? 4 : 2;
+      
+      const isSingle = e.mode === 'singleplayer' || e.numPlayers === 1;
+      const np = isSingle ? 1 : (e.numPlayers === 4 ? 4 : 2);
       playersCountDist[np]++;
+
+      const k = getDetailedKey(e);
+      if (k && detailedModes[k]) {
+        detailedModes[k].starts++;
+      }
+    });
+
+    completions.forEach(e => {
+      const k = getDetailedKey(e);
+      if (k && detailedModes[k]) {
+        detailedModes[k].completions++;
+      }
+    });
+
+    Object.keys(detailedModes).forEach(k => {
+      const m = detailedModes[k];
+      m.completionRate = m.starts > 0 ? Math.round((m.completions / m.starts) * 100) : 0;
     });
 
     let totalDuration = 0;
@@ -797,6 +832,7 @@ server.router.get('/api/analytics/stats', async (ctx) => {
         avgDuration,
         startsByMode,
         completionsByMode,
+        detailedModes,
         platforms,
         languages,
         playersCountDist

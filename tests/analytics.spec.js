@@ -50,47 +50,73 @@ test.describe('Analytics & Stats Dashboard Tests', () => {
   });
 
   test('4. End-to-end API event tracking verifies in dashboard', async ({ request, page }) => {
-    // 1. Post a started event via API
-    const matchID = `test-match-${Date.now()}`;
-    const startResp = await request.post('http://localhost:8000/api/analytics/event', {
+    const timestamp = Date.now();
+    // 1. Post singleplayer started and completed event with 1 player
+    const matchID1 = `test-match-sp-${timestamp}`;
+    const startResp1 = await request.post('http://localhost:8000/api/analytics/event', {
       data: {
-        matchID,
+        matchID: matchID1,
         type: 'game_started',
         mode: 'singleplayer',
-        numPlayers: 2,
+        numPlayers: 1,
         platform: 'desktop',
         language: 'en'
       }
     });
-    expect(startResp.ok()).toBeTruthy();
+    expect(startResp1.ok()).toBeTruthy();
 
-    // 2. Post a completed event via API
-    const completeResp = await request.post('http://localhost:8000/api/analytics/event', {
+    const completeResp1 = await request.post('http://localhost:8000/api/analytics/event', {
       data: {
-        matchID,
+        matchID: matchID1,
         type: 'game_completed',
         mode: 'singleplayer',
-        numPlayers: 2,
+        numPlayers: 1,
         platform: 'desktop',
         language: 'en',
         duration: 180,
         finalScores: [21, 15]
       }
     });
-    expect(completeResp.ok()).toBeTruthy();
+    expect(completeResp1.ok()).toBeTruthy();
+
+    // 2. Post multiplayer private 4p started event
+    const matchID2 = `test-match-priv4p-${timestamp}`;
+    const startResp2 = await request.post('http://localhost:8000/api/analytics/event', {
+      data: {
+        matchID: matchID2,
+        type: 'game_started',
+        mode: 'multiplayer_private',
+        numPlayers: 4,
+        platform: 'mobile',
+        language: 'fr'
+      }
+    });
+    expect(startResp2.ok()).toBeTruthy();
 
     // 3. Open dashboard and login
     await page.goto('/#/stats');
     await page.locator('input[type="password"]').fill('fkpLU46:');
     await page.locator('button', { hasText: 'Access Dashboard' }).click();
 
-    // 4. Verify that the started count is displayed (at least 1)
+    // 4. Verify that the started count and completed count are displayed
     const startedCardValue = page.getByTestId('kpi-games-started');
     await expect(startedCardValue).not.toHaveText('0');
 
-    // 5. Verify that the completed count is displayed (at least 1)
     const completedCardValue = page.getByTestId('kpi-games-completed');
     await expect(completedCardValue).not.toHaveText('0');
-  });
 
+    // 5. Verify the Detailed Modes Table is rendered
+    const matrixTitle = page.locator('h4', { hasText: 'Mode & Player Count Matrix' });
+    await expect(matrixTitle).toBeVisible();
+
+    const singleplayerRow = page.locator('tr', { hasText: 'Singleplayer (1 Player vs Bot)' });
+    await expect(singleplayerRow).toBeVisible();
+
+    const private4pRow = page.locator('tr', { hasText: 'Multiplayer Private (4 Players)' });
+    await expect(private4pRow).toBeVisible();
+
+    // 6. Verify Player Count segment shows 1 Player (Single)
+    const singlePlayerLabel = page.locator('span', { hasText: '1 Player (Single)' });
+    await expect(singlePlayerLabel).toBeVisible();
+  });
 });
