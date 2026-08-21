@@ -149,6 +149,62 @@ export const challengeService = {
     }
   },
 
+  syncWithServer: async () => {
+    const playerId = challengeService.getPlayerId();
+    const localProfile = challengeService.getProfile();
+    const localProgress = challengeService.getProgress();
+
+    try {
+      const serverPlayer = await platformBridge.getPlayer(playerId);
+      if (serverPlayer) {
+        const serverPoints = serverPlayer.totalPoints || 0;
+        const localPoints = localProgress.totalPoints || 0;
+
+        const mergedPoints = Math.max(serverPoints, localPoints);
+        const mergedFreeWins = Math.max(serverPlayer.freePlayWins || 0, localProgress.freePlayWins || 0);
+        const mergedMpWins = Math.max(serverPlayer.multiplayerWins || 0, localProgress.multiplayerWins || 0);
+
+        const serverCompleted = Array.isArray(serverPlayer.completed) ? serverPlayer.completed : [];
+        const localCompleted = Array.isArray(localProgress.completed) ? localProgress.completed : [];
+        const mergedCompleted = Array.from(new Set([...serverCompleted, ...localCompleted]));
+
+        const mergedCooldowns = { ...(serverPlayer.cooldowns || {}), ...(localProgress.cooldowns || {}) };
+
+        const updatedProgress = {
+          completed: mergedCompleted,
+          totalPoints: mergedPoints,
+          freePlayWins: mergedFreeWins,
+          multiplayerWins: mergedMpWins,
+          cooldowns: mergedCooldowns
+        };
+
+        let updatedProfile = { ...localProfile };
+        if (!serverPlayer.isGuest && serverPlayer.displayName && serverPlayer.displayName !== 'Gast') {
+          updatedProfile = {
+            displayName: serverPlayer.displayName,
+            discriminator: serverPlayer.discriminator || null,
+            isGuest: false
+          };
+        }
+
+        if (typeof localStorage !== 'undefined' && localStorage) {
+          localStorage.setItem(PROGRESS_KEY, JSON.stringify(updatedProgress));
+          localStorage.setItem(PROFILE_KEY, JSON.stringify(updatedProfile));
+          localStorage.setItem(USERNAME_KEY, updatedProfile.displayName);
+        }
+
+        await platformBridge.savePlayer(playerId, updatedProfile.displayName, updatedProgress);
+        return { profile: updatedProfile, progress: updatedProgress };
+      } else {
+        await platformBridge.savePlayer(playerId, localProfile.displayName, localProgress);
+        return { profile: localProfile, progress: localProgress };
+      }
+    } catch (err) {
+      console.warn('[ChallengeService] syncWithServer failed (offline fallback):', err);
+      return { profile: localProfile, progress: localProgress };
+    }
+  },
+
   submitFreePlayWin: async () => {
     const progress = challengeService.getProgress();
     progress.freePlayWins = (progress.freePlayWins || 0) + 1;

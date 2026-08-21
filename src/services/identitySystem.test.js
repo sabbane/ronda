@@ -1,7 +1,8 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { validateDisplayName, sanitizeDisplayName } from '../utils/nameSanitizer';
 import { dbService } from '../../db.js';
 import { challengeService } from './challengeService';
+import { platformBridge } from './platformBridge';
 
 let memoryStore = {};
 
@@ -93,8 +94,8 @@ describe('Modern Identity & Discriminator System', () => {
     const idA = `usr_player_a_${Date.now()}`;
     const idB = `usr_player_b_${Date.now()}`;
 
-    await dbService.submitLeaderboardScore(idA, 'Atlas', 1234, 50);
-    await dbService.submitLeaderboardScore(idB, 'Atlas', 5678, 100);
+    await dbService.submitLeaderboardScore(idA, 'Atlas', 1234, 50000);
+    await dbService.submitLeaderboardScore(idB, 'Atlas', 5678, 100000);
 
     const lb = await dbService.getLeaderboard('monthly');
     const entryA = lb.entries.find(e => e.playerId === idA);
@@ -106,7 +107,49 @@ describe('Modern Identity & Discriminator System', () => {
     expect(entryB.displayName).toBe('Atlas');
     expect(entryA.discriminator).toBe(1234);
     expect(entryB.discriminator).toBe(5678);
-    expect(entryA.points).toBe(50);
-    expect(entryB.points).toBe(100);
+    expect(entryA.points).toBe(50000);
+    expect(entryB.points).toBe(100000);
+  });
+
+  it('automatically syncs player points to leaderboard when syncPlayer is called with totalPoints > 0', async () => {
+    const id = `usr_sync_${Date.now()}`;
+    await dbService.syncPlayer(id, 'StarPlayer', 'standalone', {
+      totalPoints: 150000,
+      discriminator: 9999,
+      isGuest: false
+    });
+
+    const lb = await dbService.getLeaderboard('monthly');
+    const entry = lb.entries.find(e => e.playerId === id);
+    expect(entry).toBeDefined();
+    expect(entry.displayName).toBe('StarPlayer');
+    expect(entry.points).toBe(150000);
+    expect(entry.discriminator).toBe(9999);
+  });
+
+  it('merges progress bidirectionally with server in challengeService.syncWithServer', async () => {
+    const playerId = `usr_test_bidir_${Date.now()}`;
+    localStorage.setItem('ronda_player_id', playerId);
+    localStorage.setItem('ronda_challenge_progress', JSON.stringify({
+      totalPoints: 150000,
+      completed: ['c1'],
+      freePlayWins: 3
+    }));
+
+    vi.spyOn(platformBridge, 'getPlayer').mockImplementation(async (id) => {
+      return await dbService.getPlayer(id);
+    });
+    vi.spyOn(platformBridge, 'savePlayer').mockImplementation(async (id, name, data) => {
+      return await dbService.syncPlayer(id, name, 'standalone', data);
+    });
+
+    const { progress } = await challengeService.syncWithServer();
+    expect(progress.totalPoints).toBe(150000);
+    expect(progress.completed).toContain('c1');
+
+    const lb = await dbService.getLeaderboard('monthly');
+    const entry = lb.entries.find(e => e.playerId === playerId);
+    expect(entry).toBeDefined();
+    expect(entry.points).toBe(150000);
   });
 });

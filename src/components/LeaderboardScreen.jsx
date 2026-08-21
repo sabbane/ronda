@@ -11,10 +11,19 @@ export const LeaderboardScreen = ({ onBack, playClick, t, previousMode }) => {
   const [showSyncModal, setShowSyncModal] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
 
-  const refreshProfile = () => {
+  const refreshProfile = async () => {
     setHandle(challengeService.getFullHandle());
     setPlayerId(challengeService.getPlayerId());
     setPoints(challengeService.getProgress().totalPoints || 0);
+
+    try {
+      await challengeService.syncWithServer();
+      setHandle(challengeService.getFullHandle());
+      setPlayerId(challengeService.getPlayerId());
+      setPoints(challengeService.getProgress().totalPoints || 0);
+    } catch (err) {
+      console.warn('[LeaderboardScreen] Sync failed (offline mode):', err);
+    }
   };
 
   useEffect(() => {
