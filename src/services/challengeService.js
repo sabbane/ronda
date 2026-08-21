@@ -250,25 +250,34 @@ export const challengeService = {
     if (!challenge) return { completedNow: false, pointsEarned: 0 };
 
     const progress = challengeService.getProgress();
-    const isAlreadyCompleted = progress.completed.includes(challengeId);
     const meetsRequirements = challenge.requirement(matchStats);
+    const cooldownRemaining = challengeService.getChallengeCooldown(challengeId);
 
     if (meetsRequirements) {
-      progress.cooldowns = { ...(progress.cooldowns || {}), [challengeId]: Date.now() + 60 * 60 * 1000 };
-
-      if (!isAlreadyCompleted) {
+      const isFirstTime = !progress.completed.includes(challengeId);
+      if (isFirstTime) {
         progress.completed.push(challengeId);
-        progress.totalPoints += challenge.points;
       }
-      challengeService.saveProgress(progress);
 
-      if (!isAlreadyCompleted) {
+      if (cooldownRemaining === 0 || isFirstTime) {
+        progress.cooldowns = { ...(progress.cooldowns || {}), [challengeId]: Date.now() + 60 * 60 * 1000 };
+        progress.totalPoints += challenge.points;
+        challengeService.saveProgress(progress);
         await challengeService.sendLeaderboardScore(challenge.points, `challenge_${challengeId}`);
+        return { completedNow: true, pointsEarned: challenge.points, requirementMet: true };
       }
-      return { completedNow: !isAlreadyCompleted, pointsEarned: isAlreadyCompleted ? 0 : challenge.points };
+
+      challengeService.saveProgress(progress);
+      return { completedNow: false, pointsEarned: 0, onCooldown: true, requirementMet: true };
+    } else if (matchStats && matchStats.didIWin) {
+      progress.freePlayWins = (progress.freePlayWins || 0) + 1;
+      progress.totalPoints += 5;
+      challengeService.saveProgress(progress);
+      await challengeService.sendLeaderboardScore(5, 'free_play_challenge_partial');
+      return { completedNow: false, pointsEarned: 5, requirementMet: false, partialWin: true };
     }
 
-    return { completedNow: false, pointsEarned: 0 };
+    return { completedNow: false, pointsEarned: 0, requirementMet: false };
   },
 
   getChallengeCooldown: (challengeId) => {

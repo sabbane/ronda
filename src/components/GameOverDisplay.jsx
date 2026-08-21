@@ -42,11 +42,18 @@ export const GameOverDisplay = ({
       if (G.isBotGame) {
         if (activeChallengeId) {
           const res = await challengeService.submitChallengeResult(activeChallengeId, matchStats);
-          if (res.completedNow && isMounted) {
-            setSingleplayerBanner({
-              type: 'success',
-              text: t('challengeCompletedPoints', { points: res.pointsEarned }) || `🎯 Challenge Completed! +${res.pointsEarned} Pts`
-            });
+          if (res.pointsEarned > 0 && isMounted) {
+            if (res.completedNow) {
+              setSingleplayerBanner({
+                type: 'success',
+                text: t('challengeCompletedPoints', { points: res.pointsEarned }) || `🎯 Challenge Completed! +${res.pointsEarned} Pts`
+              });
+            } else if (res.partialWin) {
+              setSingleplayerBanner({
+                type: 'freeplay',
+                text: t('freePlayWinPoints') || '🏆 Match Won! +5 Pts added to Leaderboard'
+              });
+            }
           } else if (!didIWin && isMounted) {
             setSingleplayerBanner({
               type: 'fail',
