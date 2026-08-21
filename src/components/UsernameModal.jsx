@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { validateDisplayName } from '../utils/nameSanitizer';
 
-export const UsernameModal = ({ isOpen, onSubmit, t }) => {
+export const UsernameModal = ({ isOpen, onSubmit, onClose, t }) => {
   const [inputName, setInputName] = useState('');
   const [err, setErr] = useState('');
 
@@ -26,6 +26,12 @@ export const UsernameModal = ({ isOpen, onSubmit, t }) => {
     onSubmit(validation.sanitized);
   };
 
+  const handleClose = () => {
+    setErr('');
+    setInputName('');
+    if (onClose) onClose();
+  };
+
   return (
     <AnimatePresence>
       <motion.div
@@ -39,6 +45,15 @@ export const UsernameModal = ({ isOpen, onSubmit, t }) => {
           animate={{ scale: 1, y: 0 }}
           className="bg-slate-900 border-2 border-amber-400/40 p-6 sm:p-8 rounded-3xl max-w-md w-full shadow-2xl text-center relative overflow-hidden"
         >
+          {onClose && (
+            <button
+              onClick={handleClose}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
+            >
+              ✕
+            </button>
+          )}
+
           <div className="w-14 h-14 bg-amber-500/20 border border-amber-400/30 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">
             👤
           </div>
@@ -63,13 +78,24 @@ export const UsernameModal = ({ isOpen, onSubmit, t }) => {
               {err && <p className="text-red-400 text-xs mt-1.5 font-semibold">{err}</p>}
             </div>
 
-            <button
-              type="submit"
-              disabled={!inputName.trim()}
-              className="w-full btn-moroccan-gold py-3.5 rounded-xl font-bold text-base cursor-pointer disabled:opacity-50 transition-transform active:scale-95"
-            >
-              {t('confirmName') || 'Save & Continue'}
-            </button>
+            <div className="flex gap-3 items-center">
+              {onClose && (
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="flex-1 btn-moroccan-secondary py-3.5 rounded-xl font-bold text-base cursor-pointer transition-transform active:scale-95"
+                >
+                  {t('cancel') || 'Cancel'}
+                </button>
+              )}
+              <button
+                type="submit"
+                disabled={!inputName.trim()}
+                className="flex-1 btn-moroccan-gold py-3.5 rounded-xl font-bold text-base cursor-pointer disabled:opacity-50 transition-transform active:scale-95"
+              >
+                {t('save') || 'Save'}
+              </button>
+            </div>
           </form>
         </motion.div>
       </motion.div>

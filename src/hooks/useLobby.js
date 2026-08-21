@@ -4,6 +4,7 @@ import { RondaGame } from '../game/game';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useLobbyListeners } from './useLobbyListeners';
 import { useTestMatchSetup } from './useTestMatchSetup';
+import { challengeService } from '../services/challengeService';
 
 const restServerUrl = import.meta.env.VITE_SERVER_URL || (
   import.meta.env.DEV
@@ -24,11 +25,11 @@ const updateUrl = (id) => {
 };
 
 // Helper function to handle lobby match creation APIs
-const createRoomMatch = async (maxPlayers, isPrivate, testMode, nickname) => {
-  localStorage.setItem('ronda_nickname', nickname);
+const createRoomMatch = async (maxPlayers, isPrivate, testMode) => {
   const urlParams = new URLSearchParams(window.location.search);
   const allowFallback = urlParams.get('botFallback') === 'true';
   const noBots = testMode && !allowFallback;
+  const inGameName = challengeService.getDisplayName() || 'Player';
 
   const match = await lobbyClient.createMatch(RondaGame.name, {
     numPlayers: maxPlayers,
@@ -38,14 +39,14 @@ const createRoomMatch = async (maxPlayers, isPrivate, testMode, nickname) => {
   const realMatchID = match.matchID;
   const joinData = await lobbyClient.joinMatch(RondaGame.name, realMatchID, {
     playerID: '0',
-    playerName: nickname
+    playerName: inGameName
   });
   return { realMatchID, joinData };
 };
 
 // Helper function to handle lobby match joining APIs
-const joinRoomMatch = async (targetMatchID, nickname) => {
-  localStorage.setItem('ronda_nickname', nickname);
+const joinRoomMatch = async (targetMatchID) => {
+  const inGameName = challengeService.getDisplayName() || 'Player';
   const match = await lobbyClient.getMatch(RondaGame.name, targetMatchID);
   if (!match) {
     throw new Error('roomNotFound');
@@ -59,7 +60,7 @@ const joinRoomMatch = async (targetMatchID, nickname) => {
 
   const joinData = await lobbyClient.joinMatch(RondaGame.name, targetMatchID, {
     playerID: availablePlayerID,
-    playerName: nickname
+    playerName: inGameName
   });
   return { joinData, availablePlayerID, playersCount: match.players.length };
 };
@@ -82,7 +83,10 @@ const executeCreateRoom = async (opts) => {
   setIsCheckingRoom(true);
   setError(null);
   try {
-    const { realMatchID, joinData } = await createRoomMatch(maxPlayers, isPrivate, testMode, nickname);
+    if (challengeService.isGuest() && nickname.trim() && !nickname.startsWith('Gast#')) {
+      await challengeService.updateDisplayName(nickname.trim());
+    }
+    const { realMatchID, joinData } = await createRoomMatch(maxPlayers, isPrivate, testMode);
     setCredentials(joinData.playerCredentials);
     setPlayerID('0');
     setMatchID(realMatchID);
@@ -102,7 +106,10 @@ const executeJoinRoom = async (opts) => {
   setIsCheckingRoom(true);
   setError(null);
   try {
-    const { joinData, availablePlayerID, playersCount } = await joinRoomMatch(targetMatchID, nickname);
+    if (challengeService.isGuest() && nickname.trim() && !nickname.startsWith('Gast#')) {
+      await challengeService.updateDisplayName(nickname.trim());
+    }
+    const { joinData, availablePlayerID, playersCount } = await joinRoomMatch(targetMatchID);
     setCredentials(joinData.playerCredentials);
     setPlayerID(availablePlayerID);
     setMatchID(targetMatchID);
@@ -133,7 +140,7 @@ export const useLobby = () => {
   const [testMode, setTestMode] = useState(() => import.meta.env.VITE_TEST_MODE === 'true');
   const [playerID, setPlayerID] = useState('0');
   const [matchID, setMatchID] = useState(() => new URLSearchParams(window.location.search).get('room') || '');
-  const [nickname, setNickname] = useState(() => localStorage.getItem('ronda_nickname') || '');
+  const [nickname, setNickname] = useState(() => challengeService.getFullHandle());
   const [multiplayerAction, setMultiplayerAction] = useState(null); // 'create' | 'join' | null
   const [isPrivate, setIsPrivate] = useState(false);
   const [maxPlayers, setMaxPlayers] = useState(2);
@@ -167,6 +174,9 @@ export const useLobby = () => {
   });
 
   useEffect(() => {
+    if (multiplayerAction) {
+      setNickname(challengeService.getFullHandle());
+    }
     if (multiplayerAction === 'join' && joinMode === 'public') {
       fetchPublicRooms();
     }

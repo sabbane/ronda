@@ -45,15 +45,17 @@ describe('Modern Identity & Discriminator System', () => {
     mockLocalStorage.clear();
   });
 
-  it('creates guest users with Gast_XXXX prefix and is_guest: true', async () => {
+  it('creates guest users with Gast handle and is_guest: true', async () => {
     const guest = await dbService.createGuestUser('usr_test_guest_1');
-    expect(guest.displayName).toMatch(/^Gast_\d{4}$/);
+    expect(guest.displayName).toBe('Gast');
     expect(guest.isGuest).toBe(true);
-    expect(guest.discriminator).toBeNull();
+    expect(guest.discriminator).toBeGreaterThanOrEqual(1000);
+    expect(guest.discriminator).toBeLessThanOrEqual(9999);
   });
 
   it('assigns 4-digit discriminators (1000-9999) to registered users', async () => {
-    const res = await dbService.updateDisplayName('usr_player_1', 'Meister');
+    const id = `usr_reg_${Date.now()}`;
+    const res = await dbService.updateDisplayName(id, 'Meister');
     expect(res.ok).toBe(true);
     expect(res.player.displayName).toBe('Meister');
     expect(res.player.isGuest).toBe(false);
@@ -61,16 +63,30 @@ describe('Modern Identity & Discriminator System', () => {
     expect(res.player.discriminator).toBeLessThanOrEqual(9999);
   });
 
+  it('prevents name change once a permanent name is set', async () => {
+    const playerId = `usr_perm_${Date.now()}`;
+    const res1 = await dbService.updateDisplayName(playerId, 'FirstChosenName');
+    expect(res1.ok).toBe(true);
+    expect(res1.player.displayName).toBe('FirstChosenName');
+    expect(res1.player.isGuest).toBe(false);
+
+    const res2 = await dbService.updateDisplayName(playerId, 'SecondAttempt');
+    expect(res2.ok).toBe(false);
+    expect(res2.error).toBe('NAME_ALREADY_SET');
+  });
+
   it('allows two players to have the same display_name with distinct IDs and discriminators', async () => {
-    const resA = await dbService.updateDisplayName('usr_player_a', 'Atlas');
-    const resB = await dbService.updateDisplayName('usr_player_b', 'Atlas');
+    const idA = `usr_player_a_${Date.now()}_1`;
+    const idB = `usr_player_b_${Date.now()}_2`;
+    const resA = await dbService.updateDisplayName(idA, 'Atlas');
+    const resB = await dbService.updateDisplayName(idB, 'Atlas');
 
     expect(resA.ok).toBe(true);
     expect(resB.ok).toBe(true);
     expect(resA.player.displayName).toBe('Atlas');
     expect(resB.player.displayName).toBe('Atlas');
-    expect(resA.player.id).toBe('usr_player_a');
-    expect(resB.player.id).toBe('usr_player_b');
+    expect(resA.player.id).toBe(idA);
+    expect(resB.player.id).toBe(idB);
   });
 
   it('tracks leaderboard scores independently per player_id even with identical display names', async () => {

@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { challengeService } from '../services/challengeService';
 import { LeaderboardView } from './LeaderboardView';
 import { AccountSyncModal } from './AccountSyncModal';
+import { UsernameModal } from './UsernameModal';
 
 export const LeaderboardScreen = ({ onBack, playClick, t, previousMode }) => {
   const [handle, setHandle] = useState('');
   const [playerId, setPlayerId] = useState('');
   const [points, setPoints] = useState(0);
   const [showSyncModal, setShowSyncModal] = useState(false);
+  const [showNameModal, setShowNameModal] = useState(false);
 
   const refreshProfile = () => {
     setHandle(challengeService.getFullHandle());
@@ -18,6 +20,12 @@ export const LeaderboardScreen = ({ onBack, playClick, t, previousMode }) => {
   useEffect(() => {
     refreshProfile();
   }, []);
+
+  const handleNameSubmit = async (newName) => {
+    await challengeService.updateDisplayName(newName);
+    setShowNameModal(false);
+    refreshProfile();
+  };
 
   const backButtonLabel = previousMode === 'challenge_menu'
     ? (t('back') || 'Back')
@@ -33,9 +41,20 @@ export const LeaderboardScreen = ({ onBack, playClick, t, previousMode }) => {
           {/* Header */}
           <div className="flex justify-between items-center border-b border-white/10 pb-4">
             <div className="flex items-center gap-2 text-left">
-              <span className="text-lg font-black text-white truncate max-w-[170px]" title={handle}>
-                {handle || 'Player'}
-              </span>
+              {challengeService.isGuest() ? (
+                <button
+                  onClick={() => { playClick(); setShowNameModal(true); }}
+                  className="flex items-center gap-1.5 text-lg font-black text-white hover:text-amber-300 truncate max-w-[180px] cursor-pointer transition-colors text-left"
+                  title={t('setPlayerName') || 'Click to choose name'}
+                >
+                  <span className="truncate">{handle || 'Player'}</span>
+                  <span className="text-xs text-amber-400/70 hover:text-amber-300">✏️</span>
+                </button>
+              ) : (
+                <span className="text-lg font-black text-white truncate max-w-[180px]" title={handle}>
+                  {handle || 'Player'}
+                </span>
+              )}
               <button
                 onClick={() => { playClick(); setShowSyncModal(true); }}
                 className="p-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/30 border border-amber-400/30 text-amber-300 text-xs font-bold transition-all cursor-pointer"
@@ -76,6 +95,12 @@ export const LeaderboardScreen = ({ onBack, playClick, t, previousMode }) => {
         t={t}
         playClick={playClick}
         onSyncSuccess={refreshProfile}
+      />
+
+      <UsernameModal
+        isOpen={showNameModal}
+        onSubmit={handleNameSubmit}
+        t={t}
       />
     </div>
   );
