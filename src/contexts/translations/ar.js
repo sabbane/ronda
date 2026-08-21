@@ -18,7 +18,7 @@ export const ar = {
   multiplayer2pLossPoints: "-2 نقطة",
   multiplayer4pWinPoints: "🏆 +20 نقطة مضافة!",
   multiplayer4pLossPoints: "-4 نقاط",
-  challengeCompletedPoints: "🎯 اكتمل التحدي! +{points} نقطة",
+  challengeCompletedPoints: "🏆 اكتمل التحدي! +{points} نقطة",
   challengeFailed: "لم يكتمل التحدي. حاول مجدداً!",
   cooldownAvailableIn: "متاح خلال {time}",
   viewLeaderboard: "اضغط لعرض لائحة الترتيب",
