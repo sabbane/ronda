@@ -63,23 +63,34 @@ export const MainMenu = ({
   const [playerInfo, setPlayerInfo] = useState({ username: '', handle: '', points: 0, rank: null });
 
   useEffect(() => {
-    const handle = challengeService.getFullHandle();
-    const progress = challengeService.getProgress();
-    setPlayerInfo(prev => ({
-      ...prev,
-      username: handle,
-      handle,
-      points: progress.totalPoints || 0
-    }));
-
-    challengeService.fetchPlayerRank(challengeService.getPlayerId()).then(info => {
+    const refreshData = async () => {
+      const localHandle = challengeService.getFullHandle();
+      const localProgress = challengeService.getProgress();
       setPlayerInfo({
-        username: handle,
-        handle,
-        points: info.points || progress.totalPoints || 0,
-        rank: info.rank
+        username: localHandle,
+        handle: localHandle,
+        points: localProgress.totalPoints || 0,
+        rank: null
       });
-    });
+
+      try {
+        await challengeService.syncWithServer();
+        const updatedHandle = challengeService.getFullHandle();
+        const updatedProgress = challengeService.getProgress();
+        const info = await challengeService.fetchPlayerRank(challengeService.getPlayerId());
+
+        setPlayerInfo({
+          username: updatedHandle,
+          handle: updatedHandle,
+          points: info.points || updatedProgress.totalPoints || 0,
+          rank: info.rank
+        });
+      } catch (err) {
+        console.warn('[MainMenu] Server sync failed (offline mode):', err);
+      }
+    };
+
+    refreshData();
   }, [profileVersion]);
 
   const getRankDisplay = () => {

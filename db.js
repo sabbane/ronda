@@ -246,6 +246,23 @@ export const dbService = {
         platform || 'standalone'
       ]);
       const row = res.rows[0];
+      const totalPoints = row.total_points || 0;
+      if (totalPoints > 0) {
+        const nowDate = new Date();
+        const monthKey = `monthly_${nowDate.getFullYear()}-${String(nowDate.getMonth() + 1).padStart(2, '0')}`;
+        for (const periodKey of [monthKey, 'alltime']) {
+          await pool.query(`
+            INSERT INTO leaderboard_entries (player_id, display_name, discriminator, period_key, points, updated_at)
+            VALUES ($1, $2, $3, $4, $5, NOW())
+            ON CONFLICT (player_id, period_key) DO UPDATE SET
+              display_name = EXCLUDED.display_name,
+              discriminator = EXCLUDED.discriminator,
+              points = GREATEST(leaderboard_entries.points, EXCLUDED.points),
+              updated_at = NOW()
+          `, [row.id, row.display_name, row.discriminator, periodKey, totalPoints]);
+        }
+      }
+
       return {
         id: row.id,
         displayName: row.display_name,
@@ -285,6 +302,35 @@ export const dbService = {
     existing.updatedAt = now;
     jsonPlayers[playerId] = existing;
     saveJson(playersJsonPath, jsonPlayers);
+
+    // Auto-sync into leaderboard in JSON fallback if totalPoints > 0
+    if ((existing.totalPoints || 0) > 0) {
+      const nowDate = new Date();
+      const mKey = `${nowDate.getFullYear()}-${String(nowDate.getMonth() + 1).padStart(2, '0')}`;
+      if (!jsonLeaderboard.monthly[mKey]) jsonLeaderboard.monthly[mKey] = [];
+      const updateList = (list) => {
+        const entry = list.find(e => e.playerId === playerId);
+        if (entry) {
+          entry.points = Math.max(entry.points || 0, existing.totalPoints);
+          entry.displayName = existing.displayName;
+          entry.discriminator = existing.discriminator;
+          entry.updatedAt = now;
+        } else {
+          list.push({
+            playerId,
+            displayName: existing.displayName,
+            discriminator: existing.discriminator,
+            points: existing.totalPoints,
+            updatedAt: now
+          });
+        }
+        list.sort((a, b) => b.points - a.points);
+      };
+      updateList(jsonLeaderboard.monthly[mKey]);
+      updateList(jsonLeaderboard.alltime);
+      saveJson(leaderboardJsonPath, jsonLeaderboard);
+    }
+
     return existing;
   },
 
