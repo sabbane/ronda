@@ -88,7 +88,6 @@ export const LeaderboardView = ({ t, username, myPlayerId }) => {
                         #{entry.discriminator}
                       </span>
                     )}
-                    {isMe && <span className="text-[10px] text-amber-300 font-bold">(You)</span>}
                   </div>
                 </div>
                 <span className="font-mono font-extrabold text-xs sm:text-sm text-amber-300">

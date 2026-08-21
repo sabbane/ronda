@@ -18,7 +18,7 @@ export const fr = {
   multiplayer2pLossPoints: "-2 Pts",
   multiplayer4pWinPoints: "🏆 +20 Pts ajoutés!",
   multiplayer4pLossPoints: "-4 Pts",
-  challengeCompletedPoints: "🎯 Défi réussi! +{points} Pts",
+  challengeCompletedPoints: "🏆 Défi réussi! +{points} Pts",
   challengeFailed: "Défi échoué. Réessayez !",
   cooldownAvailableIn: "Disponible dans {time}",
   viewLeaderboard: "Cliquer pour voir le classement",

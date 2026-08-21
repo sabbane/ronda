@@ -46,7 +46,7 @@ export const GameOverDisplay = ({
             if (res.completedNow) {
               setSingleplayerBanner({
                 type: 'success',
-                text: t('challengeCompletedPoints', { points: res.pointsEarned }) || `🎯 Challenge Completed! +${res.pointsEarned} Pts`
+                text: t('challengeCompletedPoints', { points: res.pointsEarned }) || `🏆 Challenge Completed! +${res.pointsEarned} Pts`
               });
             } else if (res.partialWin) {
               setSingleplayerBanner({
